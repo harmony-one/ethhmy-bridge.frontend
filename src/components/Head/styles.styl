@@ -1,0 +1,25 @@
+.howTo {
+  cursor pointer
+  margin-top 5px
+  margin-right 80px
+
+  svg {
+    transition all 0.3s
+  }
+
+  &:hover {
+    svg {
+      transform scale(1.1)
+    }
+
+    path {
+      color: rgb(3, 173, 232);
+    }
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .howTo {
+    display none
+  }
+}

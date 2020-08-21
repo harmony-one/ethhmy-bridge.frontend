@@ -1,0 +1,60 @@
+.walletBalances {
+  width: 300px;
+  min-width 300px
+  margin-left 40px
+
+  .container {
+    background white
+    padding 10px 30px
+    border-radius 5px
+    border 1px solid #dedede
+  }
+}
+
+.stepsContainer {
+  .stepRow {
+    margin-bottom 16px
+
+    &.active {
+      color rgb(23 189 224);
+    }
+
+    &.completed {
+      color #495057
+    }
+
+    color #dedede
+  }
+}
+
+.walletBalancesRow {
+  flex-direction column
+  justify-content space-between
+  align-items start
+  padding 10px 0px
+
+  &.first {
+    padding-bottom 0px
+  }
+
+  .priceColumn {
+    flex-direction column
+    align-items flex-start
+    justify-content center
+    margin-right 24px
+
+    .smallText {
+      font-size 14px
+      color rgb(173, 173, 173)
+      line-height 14px
+    }
+  }
+
+  &.underline {
+    border-bottom  1px solid #dedede
+  }
+
+  button {
+    width 100px
+  }
+}

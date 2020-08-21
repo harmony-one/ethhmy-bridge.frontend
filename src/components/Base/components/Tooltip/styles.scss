@@ -1,0 +1,21 @@
+ .rc-tooltip {
+    &.rc-tooltip-placement {
+      &-top {
+        .rc-tooltip-arrow {
+          border-top-color: rgba(0, 0, 0, 0.8) !important;
+        }
+      }
+
+      &-bottom {
+        .rc-tooltip-arrow {
+          border-bottom-color: rgba(0, 0, 0, 0.8) !important;
+        }
+      }
+    }
+
+    .rc-tooltip-inner {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+    }
+}

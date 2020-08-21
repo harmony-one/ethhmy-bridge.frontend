@@ -1,0 +1,99 @@
+.walletBalances {
+  width: 500px;
+  min-width 500px
+
+  .container {
+    background white
+    // margin-top 12px
+    padding 30px 30px
+    border 1px solid #dedede
+
+    background: #FFFFFF;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+  }
+}
+
+.walletBalancesRow {
+  flex-direction row
+  justify-content space-between
+  align-items start
+  padding 15px 0px
+
+  &.first {
+    padding-bottom 0px
+  }
+
+  .priceColumn {
+    flex-direction column
+    align-items flex-start
+    justify-content center
+    // margin-right 24px
+
+    .smallText {
+      font-size 14px
+      color rgb(173, 173, 173)
+      line-height 14px
+    }
+  }
+
+  &.underline {
+    border-bottom  1px solid #dedede
+  }
+
+  button {
+    width 100px
+  }
+}
+
+.base {
+  flex-direction row
+}
+
+.closeButton {
+  width 100%
+}
+
+.walletBalancesContainer {
+  margin-left 32px
+  margin-top 60px
+  min-width 300px
+}
+
+@media (max-width 1300px) {
+  .base {
+    flex-direction column-reverse
+    padding 0 20px
+  }
+
+  .closeButton {
+    width 100%
+    align-items flex-end
+
+    button {
+      max-width 400px
+    }
+  }
+
+  //.walletBalancesContainer, .walletBalances {
+  //  width 100%
+  //  margin-left 0px
+  //  margin-top 10px
+  //}
+}
+
+.imgToken {
+  margin-right 6px;
+  margin-bottom 2px;
+}
+
+@media (max-width 800px) {
+  .closeButton {
+    width 100%
+    align-items: normal
+
+    button {
+      max-width 100%
+    }
+  }
+}

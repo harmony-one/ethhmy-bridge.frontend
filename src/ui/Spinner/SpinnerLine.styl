@@ -1,0 +1,26 @@
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: 0px 0;
+  }
+  100% {
+    background-position: 100em 0;
+  }
+}
+
+.spinnerLine {
+  animation-duration: 25s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeHolderShimmer;
+  animation-timing-function: linear;
+  background: fff;
+  background: linear-gradient(to right, #ebf3f9 40%, #ffffff 60%, #ebf3f9 60%);
+  height: 14px;
+  position: absolute;
+  -webkit-backface-visibility: hidden;
+  left: 20%;
+  top: 50%;
+  margin-top: -7px;
+  min-height: 14px;
+  width: 50%;
+}

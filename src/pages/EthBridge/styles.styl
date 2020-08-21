@@ -1,0 +1,42 @@
+.largeButtonContainer {
+  width: 270px
+  height 100px
+
+  background: #FFFFFF;
+  box-shadow: 0px 10px 21px rgba(0, 173, 232, 0.13);
+  border-radius: 4px;
+  position relative
+
+  opacity 0.6
+  cursor pointer
+
+  .imgToken {
+    margin-right 6px
+    margin-bottom 2px
+  }
+
+  &.active {
+    opacity 1
+
+    &:after {
+      display block
+      position absolute
+      content ''
+      width: 100%
+      height 4px
+      bottom 0
+
+      background: linear-gradient(269.98deg, #69FABC -0.02%, #00ADE8 100%);
+    }
+  }
+
+  .title {
+    font-weight bold
+  }
+
+  .description {
+    //text-align right
+    //width 100%
+    //margin-right 60px
+  }
+}
