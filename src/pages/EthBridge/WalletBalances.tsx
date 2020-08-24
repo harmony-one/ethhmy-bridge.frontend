@@ -13,7 +13,7 @@ import {
 } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { Routes } from '../../constants';
+// import { Routes } from '../../constants';
 
 const AssetRow = observer<any>(props => {
   return (
@@ -51,7 +51,7 @@ export const WalletBalances = observer(() => {
         <Box direction="column" margin={{ bottom: 'large' }}>
           <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
-              <img className={styles.imgToken} src="one.svg" />
+              <img className={styles.imgToken} src="/one.svg" />
               <Title margin={{ right: 'xsmall' }}>Harmony</Title>
               <Text margin={{ top: '4px' }}>(ONE Wallet)</Text>
             </Box>
@@ -122,7 +122,7 @@ export const WalletBalances = observer(() => {
 
         <Box direction="column" margin={{ top: 'medium' }}>
           <Box direction="row" align="center" margin={{ bottom: 'xsmall' }}>
-            <img className={styles.imgToken} src="eth.svg" />
+            <img className={styles.imgToken} src="/eth.svg" />
             <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
             <Text margin={{ top: '4px' }}>(Metamask)</Text>
           </Box>

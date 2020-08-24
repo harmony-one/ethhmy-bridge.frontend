@@ -53,7 +53,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
         >
           <Box direction="row" align="center">
             <Box align="center" margin={{ right: 'small' }}>
-              <MainLogo src="main_logo.png" />
+              <MainLogo src="/main_logo.png" />
             </Box>
             <Box>
               <Title size="medium" color="BlackTxt" bold>

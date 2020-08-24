@@ -9,6 +9,7 @@ import { EXCHANGE_MODE } from 'stores/Exchange';
 import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
+import { useEffect } from 'react';
 
 const LargeButton = (props: {
   title: string;
@@ -31,16 +32,16 @@ const LargeButton = (props: {
     >
       <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
         <Box direction="row" align="center">
-          <img className={styles.imgToken} src="eth.svg" />
+          <img className={styles.imgToken} src="/eth.svg" />
           <Text size="large" className={styles.title}>
             ETH
           </Text>
         </Box>
         <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
-          <img src="right.svg" />
+          <img src="/right.svg" />
         </Box>
         <Box direction="row" align="center">
-          <img className={styles.imgToken} src="one.svg" />
+          <img className={styles.imgToken} src="/one.svg" />
           <Text size="large" className={styles.title}>
             ONE
           </Text>
@@ -53,8 +54,15 @@ const LargeButton = (props: {
   );
 };
 
-export const EthBridge = observer(() => {
+export const EthBridge = observer((props: any) => {
   const { user, exchange } = useStores();
+
+  useEffect( () => {
+    if(props.match.params.operationId) {
+      exchange.setOperationId(props.match.params.operationId);
+      exchange.sendEthToOne(props.match.params.operationId);
+    }
+  }, [])
 
   return (
     <BaseContainer>

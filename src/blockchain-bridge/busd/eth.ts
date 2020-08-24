@@ -1,5 +1,6 @@
 import { ethBUSDContract, managerContract, web3 } from '../ethSdk';
 import Web3 from 'web3';
+import { hmy } from '../sdk';
 
 const BN = require('bn.js');
 
@@ -26,30 +27,34 @@ async function checkEthBalance(contract, addr) {
   return await ethBUSDContract.methods.balanceOf(addr).call();
 }
 
-async function approveEthManger(amount) {
+async function approveEthManger(amount, sendTxCallback?) {
   // @ts-ignore
   const accounts = await ethereum.enable();
 
-  await ethBUSDContract.methods
+  return await ethBUSDContract.methods
     .approve(process.env.ETH_MANAGER_CONTRACT, amount)
     .send({
       from: accounts[0],
       gas: process.env.ETH_GAS_LIMIT,
       gasPrice: new BN(await web3.eth.getGasPrice()).mul(new BN(1)),
-    });
+    })
+    .on('transactionHash', hash => sendTxCallback(hash));
 }
 
-async function lockToken(userAddr, amount) {
+async function lockToken(userAddr, amount, sendTxCallback?) {
   // @ts-ignore
   const accounts = await ethereum.enable();
 
+  const hmyAddrHex = hmy.crypto.getAddress(userAddr).checksum;
+
   let transaction = await managerContract.methods
-    .lockToken(amount, userAddr)
+    .lockToken(amount, hmyAddrHex)
     .send({
       from: accounts[0],
       gas: process.env.ETH_GAS_LIMIT,
       gasPrice: new BN(await web3.eth.getGasPrice()).mul(new BN(1)),
-    });
+    }).on('transactionHash', hash => sendTxCallback(hash));
+
   return transaction.events.Locked;
 }
 
@@ -75,9 +80,4 @@ async function unlockToken(userAddr, amount, receiptId) {
   });
 }
 
-export {
-  checkEthBalance,
-  approveEthManger,
-  lockToken,
-  unlockToken
-};
+export { checkEthBalance, approveEthManger, lockToken, unlockToken };

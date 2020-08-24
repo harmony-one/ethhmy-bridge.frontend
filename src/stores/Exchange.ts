@@ -1,7 +1,10 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
-import * as blockchain from '../blockchain-bridge';
 import { statusFetching } from '../constants';
+import { IOperation, OPERATION_TYPE, STATUS } from './interfaces';
+import * as operationService from 'services';
+import * as eth from '../blockchain-bridge/busd/eth';
+import { hmy } from '../blockchain-bridge';
 
 export enum EXCHANGE_MODE {
   ETH_TO_ONE = 'ETH_TO_ONE',
@@ -31,9 +34,6 @@ export interface IStepConfig {
   title?: string;
 }
 
-const hmyAddr = '0x203fc3cA24D4194A4CD1614Fec186a7951Bb0244';
-const ethAddr = '0x0FBb9C31eabc2EdDbCF59c03E76ada36f5AB8723';
-
 export class Exchange extends StoreConstructor {
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
   @observable error = '';
@@ -48,33 +48,16 @@ export class Exchange extends StoreConstructor {
 
   constructor(stores) {
     super(stores);
+
+    setInterval(async () => {
+      if (this.operation) {
+        this.operation = await operationService.getOperation(this.operation.id);
+        this.setStatus();
+      }
+    }, 3000);
   }
 
   @observable currentAction: ACTIONS_TYPE = ACTIONS_TYPE.ETH_TO_ONE_BUSD;
-  @observable currentActionStep = 0;
-
-  @action.bound
-  setCurrentActionStep(step: number, value?: string) {
-    this.currentActionStep = step;
-
-    if (value) {
-      this.actionSteps[this.currentAction][step] = value;
-    }
-  }
-
-  @observable actionSteps: Record<ACTIONS_TYPE, any[]> = {
-    ETH_TO_ONE_BUSD: [
-      'User approve Eth manager to lock tokens',
-      'Wait sufficient to confirm the transaction went through',
-      `Wait while 13 blocks will be confirmed`,
-      'Mint One Tokens',
-    ],
-    ONE_TO_ETH_BUSD: [
-      'User needs to approve Harmony manager to burn token',
-      'Harmony burn tokens, transaction is confirmed instantaneously',
-      'Eth manager unlock tokens',
-    ],
-  };
 
   defaultTransaction = {
     oneAddress: '',
@@ -156,74 +139,138 @@ export class Exchange extends StoreConstructor {
     }
   }
 
+  @observable operation: IOperation;
+
   @action.bound
-  sendETHtoAddress() {
-    return Promise.resolve(true);
+  setStatus() {
+    switch (this.operation.status) {
+      case STATUS.ERROR:
+        this.actionStatus = 'error';
+        this.stepNumber = this.stepsConfig.length - 1;
+        break;
+
+      case STATUS.SUCCESS:
+        this.actionStatus = 'success';
+        this.stepNumber = this.stepsConfig.length - 1;
+        break;
+
+      case STATUS.WAITING:
+      case STATUS.IN_PROGRESS:
+        this.stepNumber = 2;
+        this.actionStatus = 'fetching';
+        break;
+    }
   }
 
   @action.bound
-  async sendONEtoAddress() {
-    this.actionStatus = 'fetching';
+  async setOperationId(operationId: string) {
+    this.operation = await operationService.getOperation(operationId);
 
-    this.txHash =
-      '0xfaab89bb4385c464e6869c0132bdbc1f32181e621e699ef0b91f7b41bfa21129';
+    switch (this.operation.type) {
+      case OPERATION_TYPE.BUSD_ETH_ONE:
+        this.mode = EXCHANGE_MODE.ETH_TO_ONE;
+        this.currentAction = ACTIONS_TYPE.ETH_TO_ONE_BUSD;
+        break;
 
-    return;
-
-    const res = await blockchain.sendTx(
-      this.transaction.amount,
-      this.stores.user.address,
-      this.transaction.ethAddress,
-    );
-
-    this.txHash = res.txhash;
-
-    if (res.error) {
-      this.error = res.message;
-      this.actionStatus = 'error';
-    } else {
-      this.actionStatus = 'success';
+      case OPERATION_TYPE.BUSD_ONE_ETH:
+        this.mode = EXCHANGE_MODE.ONE_TO_ETH;
+        this.currentAction = ACTIONS_TYPE.ONE_TO_ETH_BUSD;
+        break;
     }
 
-    this.stepNumber = this.stepsConfig.length - 1;
+    this.transaction.amount = String(this.operation.amount);
+    this.transaction.ethAddress = this.operation.ethAddress;
+    this.transaction.oneAddress = this.operation.oneAddress;
+
+    this.setStatus();
   }
 
   @action.bound
-  async get_BUSD_Balances() {
-    let hmyBUSD = await blockchain.getHmyBalanceBUSD(hmyAddr);
-    let ethBUSD = await blockchain.getEthBalanceBUSD(ethAddr);
-
-    console.log('hmy balance: ', hmyBUSD.toString());
-    console.log('eth balance: ', ethBUSD);
-  }
-
-  @action.bound
-  async sendEthToOne() {
+  async sendEthToOne(id: string = '') {
     try {
       this.actionStatus = 'fetching';
 
+      let operationId = id;
+
+      if(!operationId) {
+        this.operation = await operationService.createOperation(
+          this.transaction,
+          OPERATION_TYPE.BUSD_ETH_ONE,
+        );
+
+        operationId = this.operation.id;
+
+        this.stores.routing.push('/operations/' + this.operation.id);
+      }
+
+      await this.setOperationId(operationId);
+
+      if (
+        this.operation.status === STATUS.SUCCESS ||
+        this.operation.status === STATUS.ERROR
+      ) {
+        return;
+      }
+
       if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-        await blockchain.ethToOneBUSD({
-          amount: this.transaction.amount,
-          hmyUserAddress: this.transaction.oneAddress,
-          ethUserAddress: this.transaction.ethAddress,
-          setActionStep: this.setCurrentActionStep,
-        });
+        const confirmAction = this.operation.actions[0];
+
+        if (confirmAction.status === STATUS.WAITING) {
+          await eth.approveEthManger(
+            this.transaction.amount,
+            async transactionHash =>
+              (this.operation = await operationService.confirmAction({
+                operationId,
+                transactionHash,
+                actionId: confirmAction.id,
+              })),
+          );
+        }
+
+        const lockToken = this.operation.actions[1];
+
+        if (lockToken.status === STATUS.WAITING) {
+          await eth.lockToken(
+            this.transaction.oneAddress,
+            this.transaction.amount,
+            async transactionHash =>
+              (this.operation = await operationService.confirmAction({
+                operationId,
+                transactionHash,
+                actionId: lockToken.id,
+              })),
+          );
+        }
       }
 
-      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        await blockchain.oneToEthBUSD({
-          amount: this.transaction.amount,
-          hmyUserAddress: this.transaction.oneAddress,
-          ethUserAddress: this.transaction.ethAddress,
-          setActionStep: this.setCurrentActionStep,
-        });
-      }
+      return;
+      // if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      //   await blockchain.ethToOneBUSD({
+      //     amount: this.transaction.amount,
+      //     hmyUserAddress: this.transaction.oneAddress,
+      //     ethUserAddress: this.transaction.ethAddress,
+      //     setActionStep: this.setCurrentActionStep,
+      //   });
+      // }
+      //
+      // if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      //   await blockchain.oneToEthBUSD({
+      //     amount: this.transaction.amount,
+      //     hmyUserAddress: this.transaction.oneAddress,
+      //     ethUserAddress: this.transaction.ethAddress,
+      //     setActionStep: this.setCurrentActionStep,
+      //   });
+      // }
 
-      this.actionStatus = 'success';
+      // this.actionStatus = 'success';
     } catch (e) {
-      this.error = e.message;
+      if (e.status && e.response.body) {
+        this.error = e.response.body.message;
+      } else {
+        this.error = e.message;
+      }
       this.actionStatus = 'error';
+      this.operation = null;
     }
 
     this.stepNumber = this.stepsConfig.length - 1;
@@ -231,9 +278,11 @@ export class Exchange extends StoreConstructor {
 
   clear() {
     this.transaction = this.defaultTransaction;
+    this.operation = null;
     this.error = '';
     this.txHash = '';
     this.actionStatus = 'init';
     this.stepNumber = 0;
+    this.stores.routing.push('');
   }
 }

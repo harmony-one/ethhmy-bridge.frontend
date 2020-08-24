@@ -6,13 +6,14 @@ import { Redirect, Route, Switch } from 'react-router';
 import { ActionModals } from './components/ActionModals';
 import { EthBridge } from './pages/EthBridge';
 
-import './blockchain-bridge/metamask'
+import './blockchain-bridge/metamask';
 
 export const App: React.FC = () => (
   <Providers>
     <React.Suspense fallback={<div />}>
       <Switch>
         <Route exact path="/" component={EthBridge} />
+        <Route exact path="/operations/:operationId" component={EthBridge} />
         <Redirect to="/" />
       </Switch>
     </React.Suspense>
