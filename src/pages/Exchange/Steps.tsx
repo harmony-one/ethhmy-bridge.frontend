@@ -21,7 +21,10 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
     completed ? styles.completed : '',
   );
 
-  const explorerUrl = process.env.ETH_EXPLORER_URL + '/tx/';
+  const explorerUrl =
+    (isEth(action.type)
+      ? process.env.ETH_EXPLORER_URL
+      : process.env.HMY_EXPLORER_URL) + '/tx/';
 
   return (
     <Box
@@ -53,6 +56,9 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
     </Box>
   );
 };
+
+const isEth = type =>
+  ['approveEthManger', 'lockToken', 'unlockToken'].includes(type);
 
 const statuses: Record<STATUS, string> = {
   waiting: 'Waiting',
