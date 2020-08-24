@@ -21,6 +21,8 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
     completed ? styles.completed : '',
   );
 
+  const explorerUrl = process.env.ETH_EXPLORER_URL + '/tx/';
+
   return (
     <Box
       direction="column"
@@ -38,7 +40,10 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
       </Box>
       {action.transactionHash && (
         <Text className={textClassName}>
-          Tx hash: {truncateAddressString(action.transactionHash)}
+          Tx hash:{' '}
+          <a href={explorerUrl + action.transactionHash} target="_blank">
+            {truncateAddressString(action.transactionHash)}
+          </a>
         </Text>
       )}
       {action.message && (

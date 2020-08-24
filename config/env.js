@@ -107,6 +107,9 @@ function getClientEnvironment(publicUrl) {
         HMY_MANAGER_CONTRACT: process.env.HMY_MANAGER_CONTRACT,
         ETH_MASTER_PRIVATE_KEY: process.env.ETH_MASTER_PRIVATE_KEY,
 
+        ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
+        HMY_EXPLORER_URL: process.env.HMY_EXPLORER_URL,
+
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
