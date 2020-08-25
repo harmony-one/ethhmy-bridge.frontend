@@ -11,14 +11,7 @@ import {
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
-import {
-  formatWithTwoDecimals,
-  maxAmount,
-  moreThanZero,
-  ones,
-  truncateAddressString,
-} from 'utils';
-import { EXPLORER_URL } from '../../blockchain-bridge';
+import { formatWithTwoDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_MODE, EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';

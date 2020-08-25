@@ -33,13 +33,13 @@ async function mintBUSDHmy(contractAddr, accountAddr, amount) {
   await busdContract.methods.transfer(accountAddr, amount).send(options);
 }
 
-async function approveHmyManger(contractAddr, managerAddr, amount) {
+async function approveHmyManger(amount, sendTxCallback?) {
   return new Promise(async (resolve, reject) => {
     try {
       const hmyBUSDJson = require('../out/BUSDImplementation.json');
       let hmyBUSDContract = hmy.contracts.createContract(
         hmyBUSDJson.abi,
-        contractAddr,
+        process.env.HMY_BUSD_CONTRACT,
       );
 
       // hmyBUSDContract.wallet.setSigner(process.env.ONE_USER);
@@ -49,8 +49,9 @@ async function approveHmyManger(contractAddr, managerAddr, amount) {
       let options = { gasPrice: 1000000000, gasLimit: 6721900 };
 
       const res = await hmyBUSDContract.methods
-        .approve(managerAddr, amount)
-        .send(options);
+        .approve(process.env.HMY_MANAGER_CONTRACT, amount)
+        .send(options)
+        .on('transactionHash', sendTxCallback);
 
       resolve(res);
     } catch (e) {
@@ -76,16 +77,14 @@ async function mintToken(managerAddr, userAddr, amount, receiptId) {
     .send(options);
 }
 
-async function burnToken(managerAddr, userAddr, amount) {
+async function burnToken(userAddr, amount, sendTxCallback?) {
   return new Promise(async (resolve, reject) => {
     try {
       const hmyManagerJson = require('../out/BUSDHmyManager.json');
       let hmyManagerContract = hmy.contracts.createContract(
         hmyManagerJson.abi,
-        managerAddr,
+        process.env.HMY_MANAGER_CONTRACT,
       );
-
-      // hmyBUSDContract.wallet.setSigner(process.env.ONE_USER);
 
       await connectToOneWallet(hmyManagerContract.wallet, null, reject);
 
@@ -93,7 +92,8 @@ async function burnToken(managerAddr, userAddr, amount) {
 
       let response = await hmyManagerContract.methods
         .burnToken(amount, userAddr)
-        .send(options);
+        .send(options)
+        .on('transactionHash', sendTxCallback);
 
       resolve(response.transaction.id);
     } catch (e) {

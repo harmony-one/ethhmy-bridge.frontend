@@ -98,14 +98,11 @@ function getClientEnvironment(publicUrl) {
         ).toString('base64'),
 
         PRIVATE_KEY: process.env.PRIVATE_KEY,
-        HMY_ADMIN_ADDRESS: process.env.HMY_ADMIN_ADDRESS,
-        HMY_ADMIN_PRIVATE_KEY: process.env.HMY_ADMIN_PRIVATE_KEY,
 
         ETH_BUSD_CONTRACT: process.env.ETH_BUSD_CONTRACT,
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         HMY_BUSD_CONTRACT: process.env.HMY_BUSD_CONTRACT,
         HMY_MANAGER_CONTRACT: process.env.HMY_MANAGER_CONTRACT,
-        ETH_MASTER_PRIVATE_KEY: process.env.ETH_MASTER_PRIVATE_KEY,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         HMY_EXPLORER_URL: process.env.HMY_EXPLORER_URL,
@@ -113,6 +110,10 @@ function getClientEnvironment(publicUrl) {
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
+
+        HMY_NODE_URL: process.env.HMY_NODE_URL,
+        GAS_LIMIT: process.env.GAS_LIMIT,
+        GAS_PRICE: process.env.GAS_PRICE,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin

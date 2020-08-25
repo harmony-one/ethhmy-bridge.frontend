@@ -4,7 +4,7 @@ import { statusFetching } from '../constants';
 import { IOperation, OPERATION_TYPE, STATUS } from './interfaces';
 import * as operationService from 'services';
 import * as eth from '../blockchain-bridge/busd/eth';
-import { hmy } from '../blockchain-bridge';
+import * as hmyMethos from '../blockchain-bridge/busd/hmy';
 
 export enum EXCHANGE_MODE {
   ETH_TO_ONE = 'ETH_TO_ONE',
@@ -192,10 +192,15 @@ export class Exchange extends StoreConstructor {
 
       let operationId = id;
 
-      if(!operationId) {
+      if (!operationId) {
+        const type =
+          this.mode === EXCHANGE_MODE.ONE_TO_ETH
+            ? OPERATION_TYPE.BUSD_ONE_ETH
+            : OPERATION_TYPE.BUSD_ETH_ONE;
+
         this.operation = await operationService.createOperation(
           this.transaction,
-          OPERATION_TYPE.BUSD_ETH_ONE,
+          type,
         );
 
         operationId = this.operation.id;
@@ -212,18 +217,20 @@ export class Exchange extends StoreConstructor {
         return;
       }
 
-      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-        const confirmAction = this.operation.actions[0];
+      const confirmCallback = async (transactionHash, actionId) => {
+        this.operation = await operationService.confirmAction({
+          operationId,
+          transactionHash,
+          actionId,
+        });
+      };
 
-        if (confirmAction.status === STATUS.WAITING) {
-          await eth.approveEthManger(
-            this.transaction.amount,
-            async transactionHash =>
-              (this.operation = await operationService.confirmAction({
-                operationId,
-                transactionHash,
-                actionId: confirmAction.id,
-              })),
+      if (this.operation.type === OPERATION_TYPE.BUSD_ETH_ONE) {
+        const approveEthManger = this.operation.actions[0];
+
+        if (approveEthManger.status === STATUS.WAITING) {
+          await eth.approveEthManger(this.transaction.amount, hash =>
+            confirmCallback(hash, approveEthManger.id),
           );
         }
 
@@ -233,34 +240,32 @@ export class Exchange extends StoreConstructor {
           await eth.lockToken(
             this.transaction.oneAddress,
             this.transaction.amount,
-            async transactionHash =>
-              (this.operation = await operationService.confirmAction({
-                operationId,
-                transactionHash,
-                actionId: lockToken.id,
-              })),
+            hash => confirmCallback(hash, lockToken.id),
+          );
+        }
+      }
+
+      if (this.operation.type === OPERATION_TYPE.BUSD_ONE_ETH) {
+        const approveHmyManger = this.operation.actions[0];
+
+        if (approveHmyManger.status === STATUS.WAITING) {
+          await hmyMethos.approveHmyManger(this.transaction.amount, hash =>
+            confirmCallback(hash, approveHmyManger.id),
+          );
+        }
+
+        const burnToken = this.operation.actions[1];
+
+        if (burnToken.status === STATUS.WAITING) {
+          await hmyMethos.burnToken(
+            this.transaction.ethAddress,
+            this.transaction.amount,
+            hash => confirmCallback(hash, burnToken.id),
           );
         }
       }
 
       return;
-      // if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-      //   await blockchain.ethToOneBUSD({
-      //     amount: this.transaction.amount,
-      //     hmyUserAddress: this.transaction.oneAddress,
-      //     ethUserAddress: this.transaction.ethAddress,
-      //     setActionStep: this.setCurrentActionStep,
-      //   });
-      // }
-      //
-      // if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-      //   await blockchain.oneToEthBUSD({
-      //     amount: this.transaction.amount,
-      //     hmyUserAddress: this.transaction.oneAddress,
-      //     ethUserAddress: this.transaction.ethAddress,
-      //     setActionStep: this.setCurrentActionStep,
-      //   });
-      // }
 
       // this.actionStatus = 'success';
     } catch (e) {
