@@ -1,7 +1,7 @@
-import { IOperation, OPERATION_TYPE } from '../stores/interfaces';
+import { IOperation } from '../stores/interfaces';
 import * as agent from 'superagent';
 
-const baseUrl = 'http://localhost:8080';
+const baseUrl = process.env.BACKEND_URL;
 
 export const createOperation = async (transaction, type) => {
   const res = await agent.post<IOperation>(baseUrl + '/operations', {

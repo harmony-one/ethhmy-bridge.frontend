@@ -114,6 +114,8 @@ function getClientEnvironment(publicUrl) {
         HMY_NODE_URL: process.env.HMY_NODE_URL,
         GAS_LIMIT: process.env.GAS_LIMIT,
         GAS_PRICE: process.env.GAS_PRICE,
+
+        BACKEND_URL: process.env.BACKEND_URL,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
