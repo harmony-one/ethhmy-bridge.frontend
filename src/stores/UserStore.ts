@@ -20,12 +20,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public balance: string = '0';
   @observable public hmyBUSDBalance: string = '0';
-
-  @observable public balanceDai: string = '0';
-  @observable public balanceGem: string = '0';
-  @observable public vat = { ink: '0', art: '0' };
-
-  @observable vatInit = false;
+  @observable public hmyLINKBalance: string = '0';
 
   constructor(stores) {
     super(stores);
@@ -90,14 +85,7 @@ export class UserStoreEx extends StoreConstructor {
         this.balance = res && res.result;
 
         this.hmyBUSDBalance = await blockchain.getHmyBalanceBUSD(this.address);
-
-        // this.balanceDai = await blockchain.getBalanceDai(this.address);
-        //
-        // this.balanceGem = await blockchain.getBalanceGem(this.address);
-        //
-        // this.vat = await blockchain.getVault(this.address);
-
-        this.vatInit = true;
+        this.hmyLINKBalance = await blockchain.getHmyBalanceLINK(this.address);
       } catch (e) {
         console.error(e);
       }

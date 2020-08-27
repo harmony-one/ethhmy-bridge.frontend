@@ -89,7 +89,10 @@ export const WalletBalances = observer(() => {
                 value={formatWithTwoDecimals(user.hmyBUSDBalance)}
               />
 
-              <AssetRow asset="Harmony LINK" value={'...'} />
+              <AssetRow
+                asset="Harmony LINK"
+                value={formatWithTwoDecimals(user.hmyLINKBalance)}
+              />
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">
@@ -144,7 +147,11 @@ export const WalletBalances = observer(() => {
                 value={formatWithTwoDecimals(userMetamask.ethBUSDBalance)}
               />
 
-              <AssetRow asset="Ethereum LINK" value={'...'} last={true} />
+              <AssetRow
+                asset="Ethereum LINK"
+                value={formatWithTwoDecimals(userMetamask.ethLINKBalance)}
+                last={true}
+              />
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

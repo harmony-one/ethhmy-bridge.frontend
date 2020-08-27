@@ -104,6 +104,11 @@ function getClientEnvironment(publicUrl) {
         HMY_BUSD_CONTRACT: process.env.HMY_BUSD_CONTRACT,
         HMY_MANAGER_CONTRACT: process.env.HMY_MANAGER_CONTRACT,
 
+        ETH_LINK_CONTRACT: process.env.ETH_LINK_CONTRACT,
+        ETH_LINK_MANAGER_CONTRACT: process.env.ETH_LINK_MANAGER_CONTRACT,
+        HMY_LINK_CONTRACT: process.env.HMY_LINK_CONTRACT,
+        HMY_LINK_MANAGER_CONTRACT: process.env.HMY_LINK_MANAGER_CONTRACT,
+
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         HMY_EXPLORER_URL: process.env.HMY_EXPLORER_URL,
 

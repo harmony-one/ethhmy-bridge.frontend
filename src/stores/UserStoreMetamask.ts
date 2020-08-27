@@ -18,7 +18,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public ethAddress: string;
   @observable public ethBalance: string = '0';
   @observable public ethBUSDBalance: string = '0';
-  @observable public ethLinkBalance: string = '0';
+  @observable public ethLINKBalance: string = '0';
 
   constructor(stores) {
     super(stores);
@@ -90,6 +90,11 @@ export class UserStoreMetamask extends StoreConstructor {
         this.ethBUSDBalance = await blockchain.getEthBalanceBUSD(
           this.ethAddress,
         );
+
+        this.ethLINKBalance = await blockchain.getEthBalanceLINK(
+          this.ethAddress,
+        );
+
         this.ethBalance = await blockchain.getEthBalance(this.ethAddress);
       } catch (e) {
         console.error(e);

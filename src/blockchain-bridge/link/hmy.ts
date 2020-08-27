@@ -3,7 +3,7 @@ import { connectToOneWallet, hmy } from '../sdk';
 async function approveHmyManger(amount, sendTxCallback?) {
   return new Promise(async (resolve, reject) => {
     try {
-      const hmyBUSDJson = require('../out/BUSDImplementation.json');
+      const hmyBUSDJson = require('../out/LinkToken.json');
       let hmyBUSDContract = hmy.contracts.createContract(
         hmyBUSDJson.abi,
         process.env.HMY_BUSD_CONTRACT,
@@ -30,7 +30,7 @@ async function approveHmyManger(amount, sendTxCallback?) {
 async function burnToken(userAddr, amount, sendTxCallback?) {
   return new Promise(async (resolve, reject) => {
     try {
-      const hmyManagerJson = require('../out/BUSDHmyManager.json');
+      const hmyManagerJson = require('../out/LINKHmyManager.json');
       let hmyManagerContract = hmy.contracts.createContract(
         hmyManagerJson.abi,
         process.env.HMY_MANAGER_CONTRACT,
@@ -53,15 +53,11 @@ async function burnToken(userAddr, amount, sendTxCallback?) {
 }
 
 async function checkHmyBalance(contract, addr) {
-  const hmyBUSDJson = require('../out/BUSDImplementation.json');
+  const hmyBUSDJson = require('../out/LinkToken.json');
   let hmyBUSDContract = hmy.contracts.createContract(hmyBUSDJson.abi, contract);
   let options = { gasPrice: 1000000000, gasLimit: 6721900 };
   let res = await hmyBUSDContract.methods.balanceOf(addr).call(options);
   return res;
 }
 
-export {
-  approveHmyManger,
-  burnToken,
-  checkHmyBalance
-};
+export { approveHmyManger, burnToken, checkHmyBalance };
