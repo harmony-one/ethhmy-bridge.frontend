@@ -17,7 +17,7 @@ import { EXCHANGE_MODE, EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { computed } from 'mobx';
+import { autorun, computed } from 'mobx';
 import { TOKEN } from '../../stores/interfaces';
 
 export interface ITokenInfo {
@@ -37,6 +37,15 @@ export class Exchange extends React.Component<
 
   constructor(props) {
     super(props);
+
+    autorun(() => {
+      const { exchange } = this.props;
+
+      if (exchange.token && exchange.mode) {
+        this.formRef.resetTouched();
+        this.formRef.resetErrors();
+      }
+    });
   }
 
   onClickHandler = async (needValidate: boolean, callback: () => void) => {
