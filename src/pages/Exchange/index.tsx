@@ -35,6 +35,10 @@ export class Exchange extends React.Component<
 > {
   formRef: MobxForm;
 
+  constructor(props) {
+    super(props);
+  }
+
   onClickHandler = async (needValidate: boolean, callback: () => void) => {
     const { actionModals, user } = this.props;
 
@@ -85,6 +89,14 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
+        };
+      default:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
         };
     }
   }
@@ -186,8 +198,8 @@ export class Exchange extends React.Component<
                 </Text>
               </Box>
 
-              <Box direction="column" fill={true}>
-                {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+              {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+                <Box direction="column" fill={true}>
                   <Input
                     label="ETH Address"
                     name="ethAddress"
@@ -195,7 +207,9 @@ export class Exchange extends React.Component<
                     placeholder="Your address"
                     rules={[isRequired]}
                   />
-                ) : (
+                </Box>
+              ) : (
+                <Box direction="column" fill={true}>
                   <Input
                     label="ONE Address"
                     name="oneAddress"
@@ -203,8 +217,8 @@ export class Exchange extends React.Component<
                     placeholder="Your address"
                     rules={[isRequired]}
                   />
-                )}
-              </Box>
+                </Box>
+              )}
             </Box>
           ) : null}
         </Form>

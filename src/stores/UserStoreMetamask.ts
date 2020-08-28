@@ -91,9 +91,9 @@ export class UserStoreMetamask extends StoreConstructor {
           this.ethAddress,
         );
 
-        // this.ethLINKBalance = await blockchain.getEthBalanceLINK(
-        //   this.ethAddress,
-        // );
+        this.ethLINKBalance = await blockchain.getEthBalanceLINK(
+          this.ethAddress,
+        );
 
         this.ethBalance = await blockchain.getEthBalance(this.ethAddress);
       } catch (e) {

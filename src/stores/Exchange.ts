@@ -53,28 +53,10 @@ export class Exchange extends StoreConstructor {
         this.setStatus();
       }
     }, 3000);
-
-    autorun(() => {
-      if (this.token) {
-      }
-    });
-
-    autorun(() => {
-      if (!this.stores.userMetamask || !this.stores.user) {
-        return;
-      }
-
-      switch (this.mode) {
-        case EXCHANGE_MODE.ETH_TO_ONE:
-          this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-        case EXCHANGE_MODE.ONE_TO_ETH:
-          this.transaction.oneAddress = this.stores.user.address;
-      }
-    });
   }
 
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
-  @observable token: TOKEN = TOKEN.BUSD;
+  @observable token: TOKEN;
 
   @action.bound
   setToken(token: TOKEN) {
@@ -152,10 +134,12 @@ export class Exchange extends StoreConstructor {
 
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       this.transaction.oneAddress = this.stores.user.address;
+      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     }
 
     if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+      this.transaction.oneAddress = this.stores.user.address;
     }
   }
 
@@ -225,7 +209,7 @@ export class Exchange extends StoreConstructor {
       let operationType: OPERATION_TYPE;
 
       if (!operationId) {
-        if ((this.mode = EXCHANGE_MODE.ONE_TO_ETH)) {
+        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
           if (this.token === TOKEN.BUSD) {
             operationType = OPERATION_TYPE.BUSD_ONE_ETH;
           }
@@ -234,7 +218,7 @@ export class Exchange extends StoreConstructor {
           }
         }
 
-        if ((this.mode = EXCHANGE_MODE.ETH_TO_ONE)) {
+        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
           if (this.token === TOKEN.BUSD) {
             operationType = OPERATION_TYPE.BUSD_ETH_ONE;
           }
@@ -250,7 +234,9 @@ export class Exchange extends StoreConstructor {
 
         operationId = this.operation.id;
 
-        this.stores.routing.push('/operations/' + this.operation.id);
+        this.stores.routing.push(
+          this.token + '/operations/' + this.operation.id,
+        );
       }
 
       await this.setOperationId(operationId);
@@ -345,6 +331,6 @@ export class Exchange extends StoreConstructor {
     this.txHash = '';
     this.actionStatus = 'init';
     this.stepNumber = 0;
-    this.stores.routing.push('');
+    this.stores.routing.push(`/${this.token}`);
   }
 }

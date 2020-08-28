@@ -18,7 +18,7 @@ const MainLogo = styled.img`
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { exchange } = useStores();
+    const { exchange, routing } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
     return (
@@ -59,7 +59,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
           </Box>
 
-          <Box direction="row" align="center" gap="30px">
+          <Box direction="row" align="center" gap="15px">
             {/*<Box>*/}
             {/*  <Text>Select token</Text>*/}
             {/*</Box>*/}
@@ -69,7 +69,10 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 styles.itemToken,
                 exchange.token === TOKEN.BUSD ? styles.selected : '',
               )}
-              onClick={() => exchange.setToken(TOKEN.BUSD)}
+              onClick={() => {
+                exchange.setToken(TOKEN.BUSD);
+                routing.push(`/${exchange.token}`);
+              }}
             >
               <img className={styles.imgToken} src="/busd.svg" />
               <Text>BUSD</Text>
@@ -80,7 +83,10 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 styles.itemToken,
                 exchange.token === TOKEN.LINK ? styles.selected : '',
               )}
-              onClick={() => exchange.setToken(TOKEN.LINK)}
+              onClick={() => {
+                exchange.setToken(TOKEN.LINK);
+                routing.push(`/${exchange.token}`);
+              }}
             >
               <img className={styles.imgToken} src="/link.png" />
               <Text>LINK</Text>

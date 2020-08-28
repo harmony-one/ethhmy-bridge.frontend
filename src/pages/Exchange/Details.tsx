@@ -112,7 +112,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           address={true}
         />
         <AssetRow
-          label="BUSD amount"
+          label={`${String(exchange.token).toUpperCase()} amount`}
           value={formatWithSixDecimals(exchange.transaction.amount)}
         />
 
@@ -138,7 +138,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             <AssetRow
               label="Total"
               value={formatWithSixDecimals(
-                exchange.transaction.amount + 0.000021,
+                Number(exchange.transaction.amount) + 0.000021,
               )}
             />
           </Box>

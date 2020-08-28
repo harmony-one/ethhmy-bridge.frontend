@@ -3,7 +3,17 @@ import * as ethMethods from './eth';
 import { hmy } from '../sdk';
 
 export const getEthBalanceLINK = async ethAddress => {
-  return await ethMethods.checkEthBalance(process.env.ETH_LINK_CONTRACT, ethAddress);
+  try {
+    const balance = await ethMethods.checkEthBalance(
+      process.env.ETH_LINK_CONTRACT,
+      ethAddress,
+    );
+
+    return balance;
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
 };
 
 export const getHmyBalanceLINK = async hmyAddress => {

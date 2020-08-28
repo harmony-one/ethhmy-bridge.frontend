@@ -10,6 +10,7 @@ import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
+import { TOKEN } from '../../stores/interfaces';
 
 const LargeButton = (props: {
   title: string;
@@ -55,14 +56,22 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange } = useStores();
+  const { user, exchange, routing } = useStores();
 
-  useEffect( () => {
-    if(props.match.params.operationId) {
+  useEffect(() => {
+    if (props.match.params.token) {
+      if ([TOKEN.LINK, TOKEN.BUSD].includes(props.match.params.token)) {
+        exchange.setToken(props.match.params.token);
+      } else {
+        routing.push(TOKEN.BUSD);
+      }
+    }
+
+    if (props.match.params.operationId) {
       exchange.setOperationId(props.match.params.operationId);
       exchange.sendEthToOne(props.match.params.operationId);
     }
-  }, [])
+  }, []);
 
   return (
     <BaseContainer>

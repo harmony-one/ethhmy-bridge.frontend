@@ -10,9 +10,13 @@ export const App: React.FC = () => (
   <Providers>
     <React.Suspense fallback={<div />}>
       <Switch>
-        <Route exact path="/" component={EthBridge} />
-        <Route exact path="/operations/:operationId" component={EthBridge} />
-        <Redirect to="/" />
+        <Route exact path="/:token" component={EthBridge} />
+        <Route
+          exact
+          path="/:token/operations/:operationId"
+          component={EthBridge}
+        />
+        <Redirect to="/busd" />
       </Switch>
     </React.Suspense>
     <ActionModals />
