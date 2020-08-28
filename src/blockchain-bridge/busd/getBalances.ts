@@ -4,7 +4,12 @@ import { web3 } from '../ethSdk';
 import { hmy } from '../sdk';
 
 export const getEthBalanceBUSD = async ethAddress => {
-  return await eth.checkEthBalance(process.env.ETH_BUSD_CONTRACT, ethAddress);
+  try {
+    return await eth.checkEthBalance(process.env.ETH_BUSD_CONTRACT, ethAddress);
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
 };
 
 export const getHmyBalanceBUSD = async hmyAddress => {

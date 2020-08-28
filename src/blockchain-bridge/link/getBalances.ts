@@ -4,12 +4,10 @@ import { hmy } from '../sdk';
 
 export const getEthBalanceLINK = async ethAddress => {
   try {
-    const balance = await ethMethods.checkEthBalance(
+    return await ethMethods.checkEthBalance(
       process.env.ETH_LINK_CONTRACT,
       ethAddress,
     );
-
-    return balance;
   } catch (e) {
     console.error(e);
     return 0;
