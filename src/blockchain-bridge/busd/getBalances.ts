@@ -22,7 +22,6 @@ export const getEthBalance = (ethAddress): Promise<string> => {
       if (err) {
         reject(err);
       }
-
       // const rez = String(new BN(balance).div(new BN(1e18)));
 
       resolve(String(Number(balance) / 1e18));

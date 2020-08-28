@@ -6,7 +6,7 @@ async function approveHmyManger(amount, sendTxCallback?) {
       const hmyBUSDJson = require('../out/LinkToken.json');
       let hmyBUSDContract = hmy.contracts.createContract(
         hmyBUSDJson.abi,
-        process.env.HMY_BUSD_CONTRACT,
+        process.env.HMY_LINK_CONTRACT,
       );
 
       // hmyBUSDContract.wallet.setSigner(process.env.ONE_USER);
@@ -16,7 +16,7 @@ async function approveHmyManger(amount, sendTxCallback?) {
       let options = { gasPrice: 1000000000, gasLimit: 6721900 };
 
       const res = await hmyBUSDContract.methods
-        .approve(process.env.HMY_MANAGER_CONTRACT, amount)
+        .approve(process.env.HMY_LINK_MANAGER_CONTRACT, amount)
         .send(options)
         .on('transactionHash', sendTxCallback);
 
@@ -33,7 +33,7 @@ async function burnToken(userAddr, amount, sendTxCallback?) {
       const hmyManagerJson = require('../out/LINKHmyManager.json');
       let hmyManagerContract = hmy.contracts.createContract(
         hmyManagerJson.abi,
-        process.env.HMY_MANAGER_CONTRACT,
+        process.env.HMY_LINK_MANAGER_CONTRACT,
       );
 
       await connectToOneWallet(hmyManagerContract.wallet, null, reject);

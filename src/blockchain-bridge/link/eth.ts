@@ -13,7 +13,7 @@ async function approveEthManger(amount, sendTxCallback?) {
   const accounts = await ethereum.enable();
 
   return await ethLINKContract.methods
-    .approve(process.env.ETH_MANAGER_CONTRACT, amount)
+    .approve(process.env.ETH_LINK_MANAGER_CONTRACT, amount)
     .send({
       from: accounts[0],
       gas: process.env.ETH_GAS_LIMIT,

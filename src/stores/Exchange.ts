@@ -1,10 +1,14 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import { IOperation, OPERATION_TYPE, STATUS } from './interfaces';
+import { IOperation, OPERATION_TYPE, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
-import * as eth from '../blockchain-bridge/busd/eth';
-import * as hmyMethos from '../blockchain-bridge/busd/hmy';
+
+import * as ethMethodsBUSD from '../blockchain-bridge/busd/eth';
+import * as hmyMethosBUSD from '../blockchain-bridge/busd/hmy';
+
+import * as ethMethodsLINK from '../blockchain-bridge/link/eth';
+import * as hmyMethosLINK from '../blockchain-bridge/link/hmy';
 
 export enum EXCHANGE_MODE {
   ETH_TO_ONE = 'ETH_TO_ONE',
@@ -16,11 +20,6 @@ export enum EXCHANGE_STEPS {
   CONFIRMATION = 'CONFIRMATION',
   SENDING = 'SENDING',
   RESULT = 'RESULT',
-}
-
-enum ACTIONS_TYPE {
-  ETH_TO_ONE_BUSD = 'ETH_TO_ONE_BUSD',
-  ONE_TO_ETH_BUSD = 'ONE_TO_ETH_BUSD',
 }
 
 export interface IStepConfig {
@@ -35,7 +34,6 @@ export interface IStepConfig {
 }
 
 export class Exchange extends StoreConstructor {
-  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
   @observable error = '';
   @observable txHash = '';
   @observable actionStatus: statusFetching = 'init';
@@ -57,7 +55,13 @@ export class Exchange extends StoreConstructor {
     }, 3000);
   }
 
-  @observable currentAction: ACTIONS_TYPE = ACTIONS_TYPE.ETH_TO_ONE_BUSD;
+  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
+  @observable token: TOKEN = TOKEN.BUSD;
+
+  @action.bound
+  setToken(token: TOKEN) {
+    this.token = token;
+  }
 
   defaultTransaction = {
     oneAddress: '',
@@ -129,12 +133,10 @@ export class Exchange extends StoreConstructor {
     this.mode = mode;
 
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-      this.currentAction = ACTIONS_TYPE.ETH_TO_ONE_BUSD;
       this.transaction.oneAddress = this.stores.user.address;
     }
 
     if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-      this.currentAction = ACTIONS_TYPE.ONE_TO_ETH_BUSD;
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     }
   }
@@ -169,12 +171,22 @@ export class Exchange extends StoreConstructor {
     switch (this.operation.type) {
       case OPERATION_TYPE.BUSD_ETH_ONE:
         this.mode = EXCHANGE_MODE.ETH_TO_ONE;
-        this.currentAction = ACTIONS_TYPE.ETH_TO_ONE_BUSD;
+        this.token = TOKEN.BUSD;
         break;
 
       case OPERATION_TYPE.BUSD_ONE_ETH:
         this.mode = EXCHANGE_MODE.ONE_TO_ETH;
-        this.currentAction = ACTIONS_TYPE.ONE_TO_ETH_BUSD;
+        this.token = TOKEN.BUSD;
+        break;
+
+      case OPERATION_TYPE.LINK_ETH_ONE:
+        this.mode = EXCHANGE_MODE.ETH_TO_ONE;
+        this.token = TOKEN.LINK;
+        break;
+
+      case OPERATION_TYPE.LINK_ONE_ETH:
+        this.mode = EXCHANGE_MODE.ONE_TO_ETH;
+        this.token = TOKEN.LINK;
         break;
     }
 
@@ -192,15 +204,30 @@ export class Exchange extends StoreConstructor {
 
       let operationId = id;
 
+      let operationType: OPERATION_TYPE;
+
       if (!operationId) {
-        const type =
-          this.mode === EXCHANGE_MODE.ONE_TO_ETH
-            ? OPERATION_TYPE.BUSD_ONE_ETH
-            : OPERATION_TYPE.BUSD_ETH_ONE;
+        if ((this.mode = EXCHANGE_MODE.ONE_TO_ETH)) {
+          if (this.token === TOKEN.BUSD) {
+            operationType = OPERATION_TYPE.BUSD_ONE_ETH;
+          }
+          if (this.token === TOKEN.LINK) {
+            operationType = OPERATION_TYPE.LINK_ONE_ETH;
+          }
+        }
+
+        if ((this.mode = EXCHANGE_MODE.ETH_TO_ONE)) {
+          if (this.token === TOKEN.BUSD) {
+            operationType = OPERATION_TYPE.BUSD_ETH_ONE;
+          }
+          if (this.token === TOKEN.LINK) {
+            operationType = OPERATION_TYPE.LINK_ETH_ONE;
+          }
+        }
 
         this.operation = await operationService.createOperation(
           this.transaction,
-          type,
+          operationType,
         );
 
         operationId = this.operation.id;
@@ -225,11 +252,23 @@ export class Exchange extends StoreConstructor {
         });
       };
 
-      if (this.operation.type === OPERATION_TYPE.BUSD_ETH_ONE) {
+      let ethMethods, hmyMethods;
+
+      if(this.token === TOKEN.BUSD) {
+        ethMethods = ethMethodsBUSD;
+        hmyMethods = hmyMethosBUSD;
+      }
+
+      if(this.token === TOKEN.LINK) {
+        ethMethods = ethMethodsLINK;
+        hmyMethods = hmyMethosLINK;
+      }
+
+      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
         const approveEthManger = this.operation.actions[0];
 
         if (approveEthManger.status === STATUS.WAITING) {
-          await eth.approveEthManger(this.transaction.amount, hash =>
+          await ethMethods.approveEthManger(this.transaction.amount, hash =>
             confirmCallback(hash, approveEthManger.id),
           );
         }
@@ -237,7 +276,7 @@ export class Exchange extends StoreConstructor {
         const lockToken = this.operation.actions[1];
 
         if (lockToken.status === STATUS.WAITING) {
-          await eth.lockToken(
+          await ethMethods.lockToken(
             this.transaction.oneAddress,
             this.transaction.amount,
             hash => confirmCallback(hash, lockToken.id),
@@ -245,11 +284,11 @@ export class Exchange extends StoreConstructor {
         }
       }
 
-      if (this.operation.type === OPERATION_TYPE.BUSD_ONE_ETH) {
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
         const approveHmyManger = this.operation.actions[0];
 
         if (approveHmyManger.status === STATUS.WAITING) {
-          await hmyMethos.approveHmyManger(this.transaction.amount, hash =>
+          await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
             confirmCallback(hash, approveHmyManger.id),
           );
         }
@@ -257,7 +296,7 @@ export class Exchange extends StoreConstructor {
         const burnToken = this.operation.actions[1];
 
         if (burnToken.status === STATUS.WAITING) {
-          await hmyMethos.burnToken(
+          await hmyMethods.burnToken(
             this.transaction.ethAddress,
             this.transaction.amount,
             hash => confirmCallback(hash, burnToken.id),

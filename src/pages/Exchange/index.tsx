@@ -17,6 +17,13 @@ import { EXCHANGE_MODE, EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
+import { computed } from 'mobx';
+import { TOKEN } from '../../stores/interfaces';
+
+export interface ITokenInfo {
+  label: string;
+  maxAmount: string;
+}
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask')
 @observer
@@ -58,8 +65,32 @@ export class Exchange extends React.Component<
     }
   };
 
-  render() {
+  @computed
+  get tokenInfo(): ITokenInfo {
     const { user, exchange, userMetamask } = this.props;
+
+    switch (exchange.token) {
+      case TOKEN.BUSD:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
+        };
+      case TOKEN.LINK:
+        return {
+          label: 'LINK',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyLINKBalance
+              : userMetamask.ethLINKBalance,
+        };
+    }
+  }
+
+  render() {
+    const { exchange } = this.props;
 
     let icon = () => <Icon style={{ width: 50 }} glyph="RightArrow" />;
     let description = 'Approval';
@@ -116,8 +147,7 @@ export class Exchange extends React.Component<
           data={this.props.exchange.transaction}
           {...({} as any)}
         >
-          {exchange.step.id === EXCHANGE_STEPS.BASE &&
-          exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
+          {exchange.step.id === EXCHANGE_STEPS.BASE ? (
             <Box direction="column" fill={true}>
               <Box
                 direction="column"
@@ -126,7 +156,7 @@ export class Exchange extends React.Component<
                 margin={{ bottom: 'large' }}
               >
                 <NumberInput
-                  label="BUSD Amount"
+                  label={`${this.tokenInfo.label} Amount`}
                   name="amount"
                   type="decimal"
                   placeholder="0"
@@ -139,7 +169,7 @@ export class Exchange extends React.Component<
 
                       if (
                         value &&
-                        Number(value) > Number(userMetamask.ethBUSDBalance)
+                        Number(value) > Number(this.tokenInfo.maxAmount)
                       ) {
                         const defaultMsg = `Exceeded the maximum amount`;
                         errors.push(defaultMsg);
@@ -151,69 +181,29 @@ export class Exchange extends React.Component<
                 />
                 <Text size="small" style={{ textAlign: 'right' }}>
                   <b>*Max Available</b> ={' '}
-                  {formatWithTwoDecimals(userMetamask.ethBUSDBalance)} BUSD
+                  {formatWithTwoDecimals(this.tokenInfo.maxAmount)}{' '}
+                  {this.tokenInfo.label}
                 </Text>
               </Box>
 
               <Box direction="column" fill={true}>
-                <Input
-                  label="ONE Address"
-                  name="oneAddress"
-                  style={{ width: '100%' }}
-                  placeholder="Your address"
-                  rules={[isRequired]}
-                />
-              </Box>
-            </Box>
-          ) : null}
-
-          {exchange.step.id === EXCHANGE_STEPS.BASE &&
-          exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
-            <Box direction="column" fill={true}>
-              <Box
-                direction="column"
-                gap="2px"
-                fill={true}
-                margin={{ bottom: 'large' }}
-              >
-                <NumberInput
-                  label="BUSD Amount"
-                  name="amount"
-                  type="decimal"
-                  placeholder="0"
-                  style={{ width: '100%' }}
-                  rules={[
-                    isRequired,
-                    moreThanZero,
-                    (_, value, callback) => {
-                      const errors = [];
-
-                      if (
-                        value &&
-                        Number(value) > Number(user.hmyBUSDBalance)
-                      ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
-                      }
-
-                      callback(errors);
-                    },
-                  ]}
-                />
-                <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithTwoDecimals(user.hmyBUSDBalance)} BUSD
-                </Text>
-              </Box>
-
-              <Box direction="column" fill={true}>
-                <Input
-                  label="ETH Address"
-                  name="ethAddress"
-                  style={{ width: '100%' }}
-                  placeholder="Your address"
-                  rules={[isRequired]}
-                />
+                {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+                  <Input
+                    label="ETH Address"
+                    name="ethAddress"
+                    style={{ width: '100%' }}
+                    placeholder="Your address"
+                    rules={[isRequired]}
+                  />
+                ) : (
+                  <Input
+                    label="ONE Address"
+                    name="oneAddress"
+                    style={{ width: '100%' }}
+                    placeholder="Your address"
+                    rules={[isRequired]}
+                  />
+                )}
               </Box>
             </Box>
           ) : null}

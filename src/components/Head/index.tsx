@@ -12,6 +12,7 @@ import { useStores } from '../../stores';
 import { Button } from '../Base/components/Button';
 import { AuthWarning } from '../AuthWarning';
 import { formatWithTwoDecimals, ones } from '../../utils';
+import { TOKEN } from '../../stores/interfaces';
 
 const MainLogo = styled.img`
   width: auto;
@@ -21,7 +22,7 @@ const MainLogo = styled.img`
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { user, actionModals } = useStores();
+    const { exchange } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
     return (
@@ -62,65 +63,19 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
           </Box>
 
-          <Box direction="row" align="center" style={{ visibility: 'hidden' }}>
-            {/*<Box style={{ flex: '1 1 100%' }} />*/}
-
-            {user.isAuthorized ? (
-              <Box direction="row" justify="end" align="center">
-                <Box dir="column">
-                  <Text color="rgb(164, 168, 171)" size="small">
-                    You authorised with ONE Wallet as:
-                  </Text>
-                  {user.address}
-                  {/*<Text size="small">*/}
-                  {/*  Balance: {formatWithTwoDecimals(ones(user.balance))} ONEs*/}
-                  {/*</Text>*/}
-                </Box>
-                <Box
-                  onClick={() => {
-                    user.signOut().then(() => {
-                      history.push(`/${Routes.login}`);
-                    });
-                  }}
-                  margin={{ left: 'medium' }}
-                >
-                  <Icon
-                    glyph="Logout"
-                    size="24px"
-                    style={{ opacity: 0.5 }}
-                    color="BlackTxt"
-                  />
-                </Box>
-              </Box>
-            ) : (
-              <Box
-                direction="row"
-                justify="end"
-                align="center"
-                style={{ marginRight: 2, marginTop: 2 }}
-              >
-                <Button
-                  style={{ width: 180 }}
-                  onClick={() => {
-                    if (!user.isOneWallet) {
-                      actionModals.open(() => <AuthWarning />, {
-                        title: '',
-                        applyText: 'Got it',
-                        closeText: '',
-                        noValidation: true,
-                        width: '500px',
-                        showOther: true,
-                        onApply: () => Promise.resolve(),
-                      });
-                    } else {
-                      user.signIn();
-                    }
-                  }}
-                >
-                  Connect Wallet
-                </Button>
-              </Box>
-            )}
+          <Box direction="row" align="center" gap="30px">
+            <Button
+              style={{ width: 180 }}
+              onClick={() => exchange.setToken(TOKEN.BUSD)}
+            >
+              BUSD
+            </Button>
+            <Button
+              style={{ width: 180 }}
+              onClick={() => exchange.setToken(TOKEN.LINK)}
+            >
+              LINK
+            </Button>
           </Box>
         </Box>
       </Box>
