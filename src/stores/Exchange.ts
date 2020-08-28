@@ -1,5 +1,5 @@
 import { StoreConstructor } from './core/StoreConstructor';
-import { action, computed, observable } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import { IOperation, OPERATION_TYPE, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
@@ -53,6 +53,24 @@ export class Exchange extends StoreConstructor {
         this.setStatus();
       }
     }, 3000);
+
+    autorun(() => {
+      if (this.token) {
+      }
+    });
+
+    autorun(() => {
+      if (!this.stores.userMetamask || !this.stores.user) {
+        return;
+      }
+
+      switch (this.mode) {
+        case EXCHANGE_MODE.ETH_TO_ONE:
+          this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+        case EXCHANGE_MODE.ONE_TO_ETH:
+          this.transaction.oneAddress = this.stores.user.address;
+      }
+    });
   }
 
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
@@ -254,12 +272,12 @@ export class Exchange extends StoreConstructor {
 
       let ethMethods, hmyMethods;
 
-      if(this.token === TOKEN.BUSD) {
+      if (this.token === TOKEN.BUSD) {
         ethMethods = ethMethodsBUSD;
         hmyMethods = hmyMethosBUSD;
       }
 
-      if(this.token === TOKEN.LINK) {
+      if (this.token === TOKEN.LINK) {
         ethMethods = ethMethodsLINK;
         hmyMethods = hmyMethosLINK;
       }

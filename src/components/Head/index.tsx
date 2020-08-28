@@ -1,18 +1,14 @@
 import * as React from 'react';
 import styled, { withTheme } from 'styled-components';
-import { BoxProps, Box } from 'grommet';
+import { Box, BoxProps, Text } from 'grommet';
 import { useHistory } from 'react-router';
 import { observer } from 'mobx-react-lite';
-import { Routes } from 'constants/routes';
-import { Text } from 'grommet';
 import { IStyledChildrenProps } from 'interfaces';
 import { Title } from '../Base/components/Title';
-import { Icon } from '../Base/components/Icons';
 import { useStores } from '../../stores';
-import { Button } from '../Base/components/Button';
-import { AuthWarning } from '../AuthWarning';
-import { formatWithTwoDecimals, ones } from '../../utils';
 import { TOKEN } from '../../stores/interfaces';
+import * as styles from './styles.styl';
+import cn from 'classnames';
 
 const MainLogo = styled.img`
   width: auto;
@@ -64,18 +60,31 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           </Box>
 
           <Box direction="row" align="center" gap="30px">
-            <Button
-              style={{ width: 180 }}
+            {/*<Box>*/}
+            {/*  <Text>Select token</Text>*/}
+            {/*</Box>*/}
+
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.BUSD ? styles.selected : '',
+              )}
               onClick={() => exchange.setToken(TOKEN.BUSD)}
             >
-              BUSD
-            </Button>
-            <Button
-              style={{ width: 180 }}
+              <img className={styles.imgToken} src="/busd.svg" />
+              <Text>BUSD</Text>
+            </Box>
+
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.LINK ? styles.selected : '',
+              )}
               onClick={() => exchange.setToken(TOKEN.LINK)}
             >
-              LINK
-            </Button>
+              <img className={styles.imgToken} src="/link.png" />
+              <Text>LINK</Text>
+            </Box>
           </Box>
         </Box>
       </Box>

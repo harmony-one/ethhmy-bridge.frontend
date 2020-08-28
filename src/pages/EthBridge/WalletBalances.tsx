@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
-import { Title, Text, Button, Icon } from 'components/Base';
+import { Button, Icon, Text, Title } from 'components/Base';
 import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
 import {
-  formatWithTwoDecimals,
   formatWithSixDecimals,
+  formatWithTwoDecimals,
   ones,
   truncateAddressString,
 } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
+import { TOKEN } from '../../stores/interfaces';
 // import { Routes } from '../../constants';
 
 const AssetRow = observer<any>(props => {
@@ -24,12 +25,16 @@ const AssetRow = observer<any>(props => {
       )}
     >
       <Box>
-        <Text bold={false}>{props.asset}</Text>
+        <Text color={props.selected ? '#00ADE8' : null} bold={false}>
+          {props.asset}
+        </Text>
       </Box>
 
       <Box direction="column" align="end">
         <Box className={styles.priceColumn}>
-          <Text bold={true}>{props.value}</Text>
+          <Text color={props.selected ? '#00ADE8' : null} bold={true}>
+            {props.value}
+          </Text>
         </Box>
       </Box>
     </Box>
@@ -37,7 +42,7 @@ const AssetRow = observer<any>(props => {
 });
 
 export const WalletBalances = observer(() => {
-  const { user, userMetamask, actionModals } = useStores();
+  const { user, userMetamask, actionModals, exchange } = useStores();
 
   return (
     <Box
@@ -87,11 +92,13 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="Harmony BUSD"
                 value={formatWithTwoDecimals(user.hmyBUSDBalance)}
+                selected={exchange.token === TOKEN.BUSD}
               />
 
               <AssetRow
                 asset="Harmony LINK"
                 value={formatWithTwoDecimals(user.hmyLINKBalance)}
+                selected={exchange.token === TOKEN.LINK}
               />
             </>
           ) : (
@@ -145,11 +152,13 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="Ethereum BUSD"
                 value={formatWithTwoDecimals(userMetamask.ethBUSDBalance)}
+                selected={exchange.token === TOKEN.BUSD}
               />
 
               <AssetRow
                 asset="Ethereum LINK"
                 value={formatWithTwoDecimals(userMetamask.ethLINKBalance)}
+                selected={exchange.token === TOKEN.LINK}
                 last={true}
               />
             </>
