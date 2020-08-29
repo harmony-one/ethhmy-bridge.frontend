@@ -58,11 +58,6 @@ export class Exchange extends StoreConstructor {
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
   @observable token: TOKEN;
 
-  @action.bound
-  setToken(token: TOKEN) {
-    this.token = token;
-  }
-
   defaultTransaction = {
     oneAddress: '',
     ethAddress: '',
@@ -131,6 +126,22 @@ export class Exchange extends StoreConstructor {
   setMode(mode: EXCHANGE_MODE) {
     this.clear();
     this.mode = mode;
+
+    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      this.transaction.oneAddress = this.stores.user.address;
+      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+    }
+
+    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+      this.transaction.oneAddress = this.stores.user.address;
+    }
+  }
+
+  @action.bound
+  setToken(token: TOKEN) {
+    this.clear();
+    this.token = token;
 
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       this.transaction.oneAddress = this.stores.user.address;
