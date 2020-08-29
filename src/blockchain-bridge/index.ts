@@ -1,5 +1,3 @@
-export * from './sdk';
-export * from './ethSdk';
+export * from './hmy';
+export * from './eth';
 export * from './getBalances';
-export * from './busd/getBalances';
-export * from './link/getBalances';
