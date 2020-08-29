@@ -140,7 +140,7 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setToken(token: TOKEN) {
-    this.clear();
+    // this.clear();
     this.token = token;
 
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
