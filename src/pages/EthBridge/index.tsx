@@ -69,7 +69,7 @@ export const EthBridge = observer((props: any) => {
 
     if (props.match.params.operationId) {
       exchange.setOperationId(props.match.params.operationId);
-      exchange.sendEthToOne(props.match.params.operationId);
+      exchange.sendOperation(props.match.params.operationId);
     }
   }, []);
 

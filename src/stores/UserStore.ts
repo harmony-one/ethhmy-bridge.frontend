@@ -1,7 +1,11 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-import * as blockchain from '../blockchain-bridge';
+import {
+  getHmyBalance,
+  hmyMethodsLINK,
+  hmyMethodsBUSD,
+} from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 
 const defaults = {};
@@ -83,17 +87,14 @@ export class UserStoreEx extends StoreConstructor {
   @action public getBalances = async () => {
     if (this.address) {
       try {
-        let res = await blockchain.getBalance(this.address);
+        let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
-        this.hmyBUSDBalance = await blockchain.getHmyBalanceBUSD(this.address);
-        this.hmyLINKBalance = await blockchain.getHmyBalanceLINK(this.address);
-
-        this.hmyBUSDBalanceManager = await blockchain.getHmyBalanceBUSD(
-          process.env.HMY_MANAGER_CONTRACT,
+        this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
+          this.address,
         );
-        this.hmyLINKBalanceManager = await blockchain.getHmyBalanceLINK(
-          process.env.HMY_LINK_MANAGER_CONTRACT,
+        this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
+          this.address,
         );
       } catch (e) {
         console.error(e);
@@ -103,7 +104,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getOneBalance = async () => {
     if (this.address) {
-      let res = await blockchain.getBalance(this.address);
+      let res = await getHmyBalance(this.address);
       this.balance = res && res.result;
     }
   };

@@ -1,8 +1,9 @@
 import { IStores } from "stores";
+import Web3 from 'web3';
 
 declare global {
   interface Window {
     stores?: IStores;
-    BASE_URL?: string;
+    web3?: Web3;
   }
 }

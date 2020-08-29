@@ -20,7 +20,7 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const TimingCompilationPlugin = require('./TimingCompilationPlugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 // const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
@@ -158,7 +158,7 @@ module.exports = {
       }),
       new webpack.DefinePlugin(env.stringified),
       new TimingCompilationPlugin(),
-      new BundleAnalyzerPlugin()
+      // new BundleAnalyzerPlugin()
     );
     if (config.plugins) {
       plugins = plugins.concat(config.plugins);

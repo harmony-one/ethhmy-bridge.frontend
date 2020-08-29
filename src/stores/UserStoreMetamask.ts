@@ -1,8 +1,12 @@
 import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import * as blockchain from '../blockchain-bridge';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
+import {
+  getEthBalance,
+  ethMethodsBUSD,
+  ethMethodsLINK,
+} from '../blockchain-bridge';
 
 const defaults = {};
 
@@ -87,15 +91,15 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
       try {
-        this.ethBUSDBalance = await blockchain.getEthBalanceBUSD(
+        this.ethBUSDBalance = await ethMethodsBUSD.checkEthBalance(
           this.ethAddress,
         );
 
-        this.ethLINKBalance = await blockchain.getEthBalanceLINK(
+        this.ethLINKBalance = await ethMethodsLINK.checkEthBalance(
           this.ethAddress,
         );
 
-        this.ethBalance = await blockchain.getEthBalance(this.ethAddress);
+        this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {
         console.error(e);
       }

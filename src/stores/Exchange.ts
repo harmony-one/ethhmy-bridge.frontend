@@ -1,14 +1,15 @@
 import { StoreConstructor } from './core/StoreConstructor';
-import { action, autorun, computed, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import { IOperation, OPERATION_TYPE, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
-import * as ethMethodsBUSD from '../blockchain-bridge/busd/eth';
-import * as hmyMethosBUSD from '../blockchain-bridge/busd/hmy';
-
-import * as ethMethodsLINK from '../blockchain-bridge/link/eth';
-import * as hmyMethosLINK from '../blockchain-bridge/link/hmy';
+import {
+  ethMethodsBUSD,
+  hmyMethodsBUSD,
+  ethMethodsLINK,
+  hmyMethodsLINK,
+} from '../blockchain-bridge';
 
 export enum EXCHANGE_MODE {
   ETH_TO_ONE = 'ETH_TO_ONE',
@@ -39,10 +40,15 @@ export class Exchange extends StoreConstructor {
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = 0;
 
-  @computed
-  get step() {
-    return this.stepsConfig[this.stepNumber];
-  }
+  defaultTransaction = {
+    oneAddress: '',
+    ethAddress: '',
+    amount: '0',
+  };
+
+  @observable transaction = this.defaultTransaction;
+  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
+  @observable token: TOKEN;
 
   constructor(stores) {
     super(stores);
@@ -55,14 +61,10 @@ export class Exchange extends StoreConstructor {
     }, 3000);
   }
 
-  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
-  @observable token: TOKEN;
-
-  defaultTransaction = {
-    oneAddress: '',
-    ethAddress: '',
-    amount: '0',
-  };
+  @computed
+  get step() {
+    return this.stepsConfig[this.stepNumber];
+  }
 
   stepsConfig: Array<IStepConfig> = [
     {
@@ -96,7 +98,7 @@ export class Exchange extends StoreConstructor {
           title: 'Confirm',
           onClick: () => {
             this.stepNumber = this.stepNumber + 1;
-            this.sendEthToOne();
+            this.sendOperation();
           },
         },
       ],
@@ -120,13 +122,8 @@ export class Exchange extends StoreConstructor {
     },
   ];
 
-  @observable transaction = this.defaultTransaction;
-
   @action.bound
-  setMode(mode: EXCHANGE_MODE) {
-    this.clear();
-    this.mode = mode;
-
+  setAddressByMode() {
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       this.transaction.oneAddress = this.stores.user.address;
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
@@ -139,19 +136,17 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
+  setMode(mode: EXCHANGE_MODE) {
+    this.clear();
+    this.mode = mode;
+    this.setAddressByMode();
+  }
+
+  @action.bound
   setToken(token: TOKEN) {
     // this.clear();
     this.token = token;
-
-    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-      this.transaction.oneAddress = this.stores.user.address;
-      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-    }
-
-    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-      this.transaction.oneAddress = this.stores.user.address;
-    }
+    this.setAddressByMode();
   }
 
   @observable operation: IOperation;
@@ -211,39 +206,44 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
-  async sendEthToOne(id: string = '') {
+  async createOperation() {
+    let operationType: OPERATION_TYPE;
+
+    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      if (this.token === TOKEN.BUSD) {
+        operationType = OPERATION_TYPE.BUSD_ONE_ETH;
+      }
+      if (this.token === TOKEN.LINK) {
+        operationType = OPERATION_TYPE.LINK_ONE_ETH;
+      }
+    }
+
+    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      if (this.token === TOKEN.BUSD) {
+        operationType = OPERATION_TYPE.BUSD_ETH_ONE;
+      }
+      if (this.token === TOKEN.LINK) {
+        operationType = OPERATION_TYPE.LINK_ETH_ONE;
+      }
+    }
+
+    this.operation = await operationService.createOperation(
+      this.transaction,
+      operationType,
+    );
+
+    return this.operation.id;
+  }
+
+  @action.bound
+  async sendOperation(id: string = '') {
     try {
       this.actionStatus = 'fetching';
 
       let operationId = id;
 
-      let operationType: OPERATION_TYPE;
-
       if (!operationId) {
-        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-          if (this.token === TOKEN.BUSD) {
-            operationType = OPERATION_TYPE.BUSD_ONE_ETH;
-          }
-          if (this.token === TOKEN.LINK) {
-            operationType = OPERATION_TYPE.LINK_ONE_ETH;
-          }
-        }
-
-        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          if (this.token === TOKEN.BUSD) {
-            operationType = OPERATION_TYPE.BUSD_ETH_ONE;
-          }
-          if (this.token === TOKEN.LINK) {
-            operationType = OPERATION_TYPE.LINK_ETH_ONE;
-          }
-        }
-
-        this.operation = await operationService.createOperation(
-          this.transaction,
-          operationType,
-        );
-
-        operationId = this.operation.id;
+        operationId = await this.createOperation();
 
         this.stores.routing.push(
           this.token + '/operations/' + this.operation.id,
@@ -271,12 +271,12 @@ export class Exchange extends StoreConstructor {
 
       if (this.token === TOKEN.BUSD) {
         ethMethods = ethMethodsBUSD;
-        hmyMethods = hmyMethosBUSD;
+        hmyMethods = hmyMethodsBUSD;
       }
 
       if (this.token === TOKEN.LINK) {
         ethMethods = ethMethodsLINK;
-        hmyMethods = hmyMethosLINK;
+        hmyMethods = hmyMethodsLINK;
       }
 
       if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
@@ -320,8 +320,6 @@ export class Exchange extends StoreConstructor {
       }
 
       return;
-
-      // this.actionStatus = 'success';
     } catch (e) {
       if (e.status && e.response.body) {
         this.error = e.response.body.message;
