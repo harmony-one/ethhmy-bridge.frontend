@@ -13,12 +13,12 @@ import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
 import { formatWithTwoDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
-import { EXCHANGE_MODE, EXCHANGE_STEPS } from '../../stores/Exchange';
+import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
-import { TOKEN } from '../../stores/interfaces';
+import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
 
 export interface ITokenInfo {
   label: string;

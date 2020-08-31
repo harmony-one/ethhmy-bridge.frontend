@@ -1,8 +1,11 @@
-export enum OPERATION_TYPE {
-  'BUSD_ETH_ONE' = 'busd_eth_one',
-  'BUSD_ONE_ETH' = 'busd_one_eth',
-  'LINK_ETH_ONE' = 'link_eth_one',
-  'LINK_ONE_ETH' = 'link_one_eth',
+export enum EXCHANGE_MODE {
+  ETH_TO_ONE = 'eth_to_one',
+  ONE_TO_ETH = 'one_to_eth',
+}
+
+export enum TOKEN {
+  BUSD = 'busd',
+  LINK = 'link',
 }
 
 export enum ACTION_TYPE {
@@ -16,11 +19,6 @@ export enum ACTION_TYPE {
   'approveHmyManger' = 'approveHmyManger',
   'burnToken' = 'burnToken',
   'unlockToken' = 'unlockToken',
-}
-
-export enum TOKEN {
-  BUSD = 'busd',
-  LINK = 'link',
 }
 
 export enum STATUS {
@@ -42,7 +40,8 @@ export interface IAction {
 
 export interface IOperation {
   id: string;
-  type: OPERATION_TYPE;
+  type: EXCHANGE_MODE;
+  token: TOKEN;
   status: STATUS;
   amount: number;
   ethAddress: string;

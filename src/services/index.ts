@@ -3,11 +3,8 @@ import * as agent from 'superagent';
 
 const baseUrl = process.env.BACKEND_URL;
 
-export const createOperation = async (transaction, type) => {
-  const res = await agent.post<IOperation>(baseUrl + '/operations', {
-    ...transaction,
-    type,
-  });
+export const createOperation = async (params) => {
+  const res = await agent.post<IOperation>(baseUrl + '/operations', params);
 
   return res.body;
 };

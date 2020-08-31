@@ -5,12 +5,11 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import * as styles from './styles.styl';
 import { Exchange } from '../Exchange';
-import { EXCHANGE_MODE } from 'stores/Exchange';
+import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
-import { TOKEN } from '../../stores/interfaces';
 
 const LargeButton = (props: {
   title: string;
