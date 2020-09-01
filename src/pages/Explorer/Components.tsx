@@ -20,7 +20,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
           style={{ height: 20 }}
           src="/eth.svg"
         />
-        <Text size="medium">ETH</Text>
+        <Text size="small">ETH</Text>
       </Box>
       <Box direction="row" margin={{ horizontal: 'xsmall' }} align="center">
         <img src="/right.svg" />
@@ -31,7 +31,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
           style={{ height: 18 }}
           src="/one.svg"
         />
-        <Text size="medium">ONE</Text>
+        <Text size="small">ONE</Text>
       </Box>
     </Box>
   );
