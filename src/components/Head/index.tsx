@@ -6,7 +6,6 @@ import { observer } from 'mobx-react-lite';
 import { IStyledChildrenProps } from 'interfaces';
 import { Title } from '../Base/components/Title';
 import { useStores } from '../../stores';
-import { TOKEN } from '../../stores/interfaces';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 
@@ -18,9 +17,11 @@ const MainLogo = styled.img`
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme, ...props }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { exchange, routing } = useStores();
+    const { routing } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
+
+    const isExplorer = history.location.pathname === '/explorer';
 
     return (
       <Box
@@ -66,7 +67,10 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*</Box>*/}
 
             <Box
-              className={cn(styles.itemToken)}
+              className={cn(
+                styles.itemToken,
+                isExplorer ? styles.selected : '',
+              )}
               onClick={() => {
                 routing.push(`/explorer`);
               }}
@@ -77,29 +81,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                exchange.token === TOKEN.BUSD ? styles.selected : '',
+                !isExplorer ? styles.selected : '',
               )}
               onClick={() => {
-                exchange.setToken(TOKEN.BUSD);
-                routing.push(`/${exchange.token}`);
+                routing.push(`/busd`);
               }}
             >
-              <img className={styles.imgToken} src="/busd.svg" />
-              <Text>BUSD</Text>
-            </Box>
-
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.LINK ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.LINK);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/link.png" />
-              <Text>LINK</Text>
+              <Text>Exchange</Text>
             </Box>
           </Box>
         </Box>

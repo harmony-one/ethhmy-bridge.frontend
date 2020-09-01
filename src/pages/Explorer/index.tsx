@@ -16,6 +16,7 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ExpandedRow } from './ExpandedRow';
 import { OperationType } from './Components';
+import { Title } from '../../components/Base/components/Title';
 
 const columns: IColumn<IOperation>[] = [
   {
@@ -112,6 +113,7 @@ export const Explorer = observer((props: any) => {
           fill={true}
           justify="between"
           align="start"
+          margin={{ top: "xlarge" }}
         >
           <Table
             data={operations.list}

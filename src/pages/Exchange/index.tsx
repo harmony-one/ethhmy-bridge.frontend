@@ -19,17 +19,19 @@ import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
 import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
+import cn from 'classnames';
 
 export interface ITokenInfo {
   label: string;
   maxAmount: string;
 }
 
-@inject('user', 'exchange', 'actionModals', 'userMetamask')
+@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
 @observer
 export class Exchange extends React.Component<
   Pick<IStores, 'user'> &
     Pick<IStores, 'exchange'> &
+    Pick<IStores, 'routing'> &
     Pick<IStores, 'actionModals'> &
     Pick<IStores, 'userMetamask'>
 > {
@@ -111,7 +113,7 @@ export class Exchange extends React.Component<
   }
 
   render() {
-    const { exchange } = this.props;
+    const { exchange, routing } = this.props;
 
     let icon = () => <Icon style={{ width: 50 }} glyph="RightArrow" />;
     let description = 'Approval';
@@ -163,6 +165,36 @@ export class Exchange extends React.Component<
 
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
+        <Box direction="row">
+          <Box
+            className={cn(
+              styles.itemToken,
+              exchange.token === TOKEN.BUSD ? styles.selected : '',
+            )}
+            onClick={() => {
+              exchange.setToken(TOKEN.BUSD);
+              routing.push(`/${exchange.token}`);
+            }}
+          >
+            <img className={styles.imgToken} src="/busd.svg" />
+            <Text>BUSD</Text>
+          </Box>
+
+          <Box
+            className={cn(
+              styles.itemToken,
+              exchange.token === TOKEN.LINK ? styles.selected : '',
+            )}
+            onClick={() => {
+              exchange.setToken(TOKEN.LINK);
+              routing.push(`/${exchange.token}`);
+            }}
+          >
+            <img className={styles.imgToken} src="/link.png" />
+            <Text>LINK</Text>
+          </Box>
+        </Box>
+
         <Form
           ref={ref => (this.formRef = ref)}
           data={this.props.exchange.transaction}
@@ -174,7 +206,7 @@ export class Exchange extends React.Component<
                 direction="column"
                 gap="2px"
                 fill={true}
-                margin={{ bottom: 'large' }}
+                margin={{ top: 'xlarge', bottom: 'large' }}
               >
                 <NumberInput
                   label={`${this.tokenInfo.label} Amount`}
