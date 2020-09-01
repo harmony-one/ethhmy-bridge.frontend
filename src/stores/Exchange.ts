@@ -1,7 +1,7 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import { IOperation, OPERATION_TYPE, STATUS, TOKEN } from './interfaces';
+import { IOperation, EXCHANGE_MODE, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import {
@@ -10,11 +10,6 @@ import {
   ethMethodsLINK,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
-
-export enum EXCHANGE_MODE {
-  ETH_TO_ONE = 'ETH_TO_ONE',
-  ONE_TO_ETH = 'ONE_TO_ETH',
-}
 
 export enum EXCHANGE_STEPS {
   BASE = 'BASE',
@@ -176,28 +171,8 @@ export class Exchange extends StoreConstructor {
   async setOperationId(operationId: string) {
     this.operation = await operationService.getOperation(operationId);
 
-    switch (this.operation.type) {
-      case OPERATION_TYPE.BUSD_ETH_ONE:
-        this.mode = EXCHANGE_MODE.ETH_TO_ONE;
-        this.token = TOKEN.BUSD;
-        break;
-
-      case OPERATION_TYPE.BUSD_ONE_ETH:
-        this.mode = EXCHANGE_MODE.ONE_TO_ETH;
-        this.token = TOKEN.BUSD;
-        break;
-
-      case OPERATION_TYPE.LINK_ETH_ONE:
-        this.mode = EXCHANGE_MODE.ETH_TO_ONE;
-        this.token = TOKEN.LINK;
-        break;
-
-      case OPERATION_TYPE.LINK_ONE_ETH:
-        this.mode = EXCHANGE_MODE.ONE_TO_ETH;
-        this.token = TOKEN.LINK;
-        break;
-    }
-
+    this.mode = this.operation.type;
+    this.token = this.operation.token;
     this.transaction.amount = String(this.operation.amount);
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
@@ -207,30 +182,12 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async createOperation() {
-    let operationType: OPERATION_TYPE;
-
-    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-      if (this.token === TOKEN.BUSD) {
-        operationType = OPERATION_TYPE.BUSD_ONE_ETH;
-      }
-      if (this.token === TOKEN.LINK) {
-        operationType = OPERATION_TYPE.LINK_ONE_ETH;
-      }
-    }
-
-    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-      if (this.token === TOKEN.BUSD) {
-        operationType = OPERATION_TYPE.BUSD_ETH_ONE;
-      }
-      if (this.token === TOKEN.LINK) {
-        operationType = OPERATION_TYPE.LINK_ETH_ONE;
-      }
-    }
-
-    this.operation = await operationService.createOperation(
-      this.transaction,
-      operationType,
-    );
+    this.operation = await operationService.createOperation({
+      ...this.transaction,
+      type: this.mode,
+      token: this.token,
+      fee: '0.00021',
+    });
 
     return this.operation.id;
   }

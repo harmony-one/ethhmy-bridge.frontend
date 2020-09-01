@@ -1,0 +1,52 @@
+Basic200 = #e7ecf7;
+Basic400 = #D7D7D7;
+
+:global(.rc-table-expanded-row .rc-table-cell) {
+  box-shadow: inset 0 8px 8px -8px #95d3f2;
+}
+
+:global(.rc-table) {
+  th, td {
+    border: none;
+    border-bottom: 1px solid Basic200;
+  }
+
+  td {
+    padding: 9px 8px;
+    font-size: 15px;
+    height 70px
+  }
+
+  thead {
+    th {
+      background-color: white;
+      border-top: 1px solid Basic200;
+      border-bottom: 1px solid Basic200;
+      text-align: left;
+    }
+  }
+}
+
+:global(.rc-table-content) {
+  border: 1px solid Basic200;
+  border-top: none;
+  border-bottom: none;
+}
+
+:global(.rc-table-body, .rc-table-header) {
+  border-color: Basic200;
+}
+
+:global(.rc-table-body::after) {
+  border-color: Basic200 !important;
+}
+
+:global(.rc-table-cell-fix-left-last::after) {
+  box-shadow: inset 10px 0 8px -8px Basic400;
+}
+
+:global(.rc-table-ping-left) {
+  :global(.rc-table-cell-fix-left-last::after) {
+    box-shadow: inset 14px 0 8px -8px Basic400 !important;
+  }
+}

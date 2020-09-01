@@ -44,7 +44,8 @@
     "react-switch": "^5.0.1",
     "superagent": "^6.0.0",
     "tslib": "^1.10.0",
-    "web3": "1.2.11"
+    "web3": "1.2.11",
+    "rc-table": "^7.4.5"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",

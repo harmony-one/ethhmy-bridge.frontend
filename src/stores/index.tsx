@@ -3,6 +3,7 @@ import { ActionModalsStore } from './ActionModalsStore';
 import { UserStoreEx } from './UserStore';
 import { UserStoreMetamask } from './UserStoreMetamask';
 import { Exchange } from './Exchange';
+import { Operations } from './Operations';
 import { createStoresContext } from './create-context';
 
 export interface IStores {
@@ -11,12 +12,14 @@ export interface IStores {
   user?: UserStoreEx;
   userMetamask?: UserStoreMetamask;
   exchange?: Exchange;
+  operations?: Operations;
 }
 
 const stores: IStores = {};
 
 stores.routing = new RouterStore();
 stores.exchange = new Exchange(stores);
+stores.operations = new Operations(stores);
 stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);

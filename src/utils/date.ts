@@ -6,6 +6,16 @@ export function dateTimeFormat(date: number | Date | string): string {
   return moment(date).format('DD.MM.YYYY HH:mm');
 }
 
+const oneDayMS = 1000 * 60 * 60 * 24;
+
+export function dateTimeAgoFormat(date: number): string {
+  if (Date.now() - date > oneDayMS) {
+    return moment(date).format('MM.DD.YYYY HH:mm');
+  }
+
+  return moment(date).fromNow();
+}
+
 export function dateFormat(
   date: number | Date | string,
   isFull?: boolean,
