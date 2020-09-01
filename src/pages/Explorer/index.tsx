@@ -13,14 +13,17 @@ import {
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
+import cn from 'classnames';
 import { ExpandedRow } from './ExpandedRow';
+import { OperationType } from './Components';
 
 const columns: IColumn<IOperation>[] = [
   {
     title: 'Type',
     key: 'type',
     dataIndex: 'type',
-    width: 120,
+    width: 180,
+    render: value => <OperationType type={value} />,
   },
   {
     title: 'Eth address',
@@ -56,7 +59,10 @@ const columns: IColumn<IOperation>[] = [
     title: 'Status',
     key: 'status',
     dataIndex: 'status',
-    width: 120,
+    width: 140,
+    render: value => (
+      <Box className={cn(styles.status, styles[value])}>{value}</Box>
+    ),
   },
   {
     title: 'Asset',

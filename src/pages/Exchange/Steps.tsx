@@ -6,14 +6,15 @@ import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { ACTION_TYPE, IAction, STATUS } from '../../stores/interfaces';
+import { IAction, STATUS } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
+import { STEPS_TITLE } from './steps-constants';
 
 const StepRow = ({ action, number }: { action: IAction; number: number }) => {
   const active = action.status === STATUS.IN_PROGRESS;
   const completed = action.status === STATUS.SUCCESS;
 
-  const label = config[action.type] || action.type;
+  const label = STEPS_TITLE[action.type] || action.type;
 
   const textClassName = cn(
     styles.stepRow,
@@ -65,18 +66,6 @@ const statuses: Record<STATUS, string> = {
   success: 'Success',
   in_progress: 'In progress',
   error: 'Error',
-};
-
-const config: Record<ACTION_TYPE, string> = {
-  approveEthManger: 'User approve Eth manager to lock tokens',
-  lockToken: 'Wait sufficient to confirm the transaction went through',
-  waitingBlockNumber: 'Wait while 13 blocks will be confirmed',
-  mintToken: 'Mint ONE Tokens',
-
-  // ONE TO ETH
-  approveHmyManger: 'User needs to approve Harmony manager to burn token',
-  burnToken: 'Harmony burn tokens, transaction is confirmed instantaneously',
-  unlockToken: 'Eth manager unlock tokens',
 };
 
 export const Steps = observer(() => {
