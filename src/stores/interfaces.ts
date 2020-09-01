@@ -44,7 +44,9 @@ export interface IOperation {
   token: TOKEN;
   status: STATUS;
   amount: number;
+  fee: number;
   ethAddress: string;
   oneAddress: string;
   actions: Array<IAction>;
+  timestamp: number;
 }

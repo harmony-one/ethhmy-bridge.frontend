@@ -186,6 +186,7 @@ export class Exchange extends StoreConstructor {
       ...this.transaction,
       type: this.mode,
       token: this.token,
+      fee: '0.00021',
     });
 
     return this.operation.id;

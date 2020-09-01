@@ -30,15 +30,15 @@ export function formatWithTwoDecimalsRub(value: number) {
 }
 
 export function ones(value: number | string) {
-  return Number(value) / 1e18
+  return Number(value) / 1e18;
 }
 
-export function truncateAddressString(address) {
-  if(!address) {
-    return ''
+export function truncateAddressString(address: string, num = 12) {
+  if (!address) {
+    return '';
   }
 
-  const first = address.slice(0, 12);
-  const last = address.slice(-12);
+  const first = address.slice(0, num);
+  const last = address.slice(-(num));
   return `${first}...${last}`;
 }

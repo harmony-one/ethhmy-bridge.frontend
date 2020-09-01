@@ -16,11 +16,12 @@ const MainLogo = styled.img`
 `;
 
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
-  observer(({ theme }: IStyledChildrenProps<BoxProps>) => {
+  observer(({ theme, ...props }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
     const { exchange, routing } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
+
     return (
       <Box
         style={{
@@ -63,6 +64,15 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*<Box>*/}
             {/*  <Text>Select token</Text>*/}
             {/*</Box>*/}
+
+            <Box
+              className={cn(styles.itemToken)}
+              onClick={() => {
+                routing.push(`/explorer`);
+              }}
+            >
+              <Text>Explorer</Text>
+            </Box>
 
             <Box
               className={cn(
