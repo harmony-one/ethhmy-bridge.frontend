@@ -35,3 +35,11 @@ export const confirmAction = async ({
 
   return res.body;
 };
+
+export const mintTokens = async ({ address, token }) => {
+  const res = await agent.post<{
+    body: { status: string; transactionHash: string; error: string };
+  }>(`${baseUrl}/get-token`, { address, token });
+
+  return res.body;
+};

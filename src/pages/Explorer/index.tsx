@@ -16,7 +16,6 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ExpandedRow } from './ExpandedRow';
 import { OperationType } from './Components';
-import { Title } from '../../components/Base/components/Title';
 
 const columns: IColumn<IOperation>[] = [
   {
