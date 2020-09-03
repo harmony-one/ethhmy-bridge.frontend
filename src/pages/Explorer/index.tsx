@@ -158,7 +158,7 @@ export const Explorer = observer((props: any) => {
           direction="row"
           wrap={true}
           fill={true}
-          justify="between"
+          justify="center"
           align="start"
           margin={{ top: 'xlarge' }}
         >
