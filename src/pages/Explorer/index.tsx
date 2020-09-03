@@ -1,11 +1,11 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { useEffect, useState } from 'react';
 import { IColumn, Table } from 'components/Table';
-import { IOperation } from 'stores/interfaces';
+import { EXCHANGE_MODE, IOperation } from 'stores/interfaces';
 import {
   dateTimeAgoFormat,
   formatWithSixDecimals,
@@ -15,46 +15,94 @@ import {
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ExpandedRow } from './ExpandedRow';
-import { OperationType } from './Components';
+
+const ethAddress = value => (
+  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
+    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
+      target="_blank"
+    >
+      {truncateAddressString(value, 5)}
+    </a>
+  </Box>
+);
+
+const oneAddress = value => (
+  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
+    <img className={styles.imgToken} style={{ height: 18 }} src="/one.svg" />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}
+      target="_blank"
+    >
+      {truncateAddressString(value, 5)}
+    </a>
+  </Box>
+);
 
 const columns: IColumn<IOperation>[] = [
+  // {
+  //   title: 'Type',
+  //   key: 'type',
+  //   dataIndex: 'type',
+  //   width: 180,
+  //   render: value => <OperationType type={value} />,
+  // },
+
   {
-    title: 'Type',
-    key: 'type',
-    dataIndex: 'type',
-    width: 180,
-    render: value => <OperationType type={value} />,
-  },
-  {
-    title: 'Eth address',
+    title: 'From',
     key: 'ethAddress',
     dataIndex: 'ethAddress',
-    width: 160,
-    render: value => (
-      <a
-        className={styles.addressLink}
-        href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
-        target="_blank"
-      >
-        {truncateAddressString(value, 5)}
-      </a>
-    ),
+    width: 200,
+    render: (value, data) =>
+      data.type === EXCHANGE_MODE.ETH_TO_ONE
+        ? ethAddress(data.ethAddress)
+        : oneAddress(data.oneAddress),
   },
+
   {
-    title: 'One address',
+    title: 'To',
     key: 'oneAddress',
     dataIndex: 'oneAddress',
-    width: 160,
-    render: value => (
-      <a
-        className={styles.addressLink}
-        href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}
-        target="_blank"
-      >
-        {truncateAddressString(value, 5)}
-      </a>
-    ),
+    width: 200,
+    render: (value, data) =>
+      data.type === EXCHANGE_MODE.ETH_TO_ONE
+        ? oneAddress(data.oneAddress)
+        : ethAddress(data.ethAddress),
   },
+
+  // {
+  //   title: 'Eth address',
+  //   key: 'ethAddress',
+  //   dataIndex: 'ethAddress',
+  //   width: 160,
+  //   render: value => (
+  //     <a
+  //       className={styles.addressLink}
+  //       href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
+  //       target="_blank"
+  //     >
+  //       {truncateAddressString(value, 5)}
+  //     </a>
+  //   ),
+  // },
+  // {
+  //   title: 'One address',
+  //   key: 'oneAddress',
+  //   dataIndex: 'oneAddress',
+  //   width: 160,
+  //   render: value => (
+  //     <a
+  //       className={styles.addressLink}
+  //       href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}
+  //       target="_blank"
+  //     >
+  //       {truncateAddressString(value, 5)}
+  //     </a>
+  //   ),
+  // },
   {
     title: 'Status',
     key: 'status',
@@ -112,7 +160,7 @@ export const Explorer = observer((props: any) => {
           fill={true}
           justify="between"
           align="start"
-          margin={{ top: "xlarge" }}
+          margin={{ top: 'xlarge' }}
         >
           <Table
             data={operations.list}

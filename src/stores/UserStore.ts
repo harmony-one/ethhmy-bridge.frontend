@@ -24,9 +24,10 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public balance: string = '0';
   @observable public hmyBUSDBalance: string = '0';
-  @observable public hmyBUSDBalanceManager: string = '0';
   @observable public hmyLINKBalance: string = '0';
-  @observable public hmyLINKBalanceManager: string = '0';
+
+  @observable public hmyBUSDBalanceManager: number = 0;
+  @observable public hmyLINKBalanceManager: number = 0;
 
   constructor(stores) {
     super(stores);
@@ -96,6 +97,15 @@ export class UserStoreEx extends StoreConstructor {
         this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
           this.address,
         );
+
+        const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
+
+        this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
+
+        const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
+          process.env.HMY_LINK_MANAGER_CONTRACT,
+        );
+        this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
       } catch (e) {
         console.error(e);
       }

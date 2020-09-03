@@ -165,35 +165,37 @@ export class Exchange extends React.Component<
 
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
-        <Box direction="row">
-          <Box
-            className={cn(
-              styles.itemToken,
-              exchange.token === TOKEN.BUSD ? styles.selected : '',
-            )}
-            onClick={() => {
-              exchange.setToken(TOKEN.BUSD);
-              routing.push(`/${exchange.token}`);
-            }}
-          >
-            <img className={styles.imgToken} src="/busd.svg" />
-            <Text>BUSD</Text>
-          </Box>
+        {exchange.step.id === EXCHANGE_STEPS.BASE ? (
+          <Box direction="row">
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.BUSD ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.BUSD);
+                routing.push(`/${exchange.token}`);
+              }}
+            >
+              <img className={styles.imgToken} src="/busd.svg" />
+              <Text>BUSD</Text>
+            </Box>
 
-          <Box
-            className={cn(
-              styles.itemToken,
-              exchange.token === TOKEN.LINK ? styles.selected : '',
-            )}
-            onClick={() => {
-              exchange.setToken(TOKEN.LINK);
-              routing.push(`/${exchange.token}`);
-            }}
-          >
-            <img className={styles.imgToken} src="/link.png" />
-            <Text>LINK</Text>
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.LINK ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.LINK);
+                routing.push(`/${exchange.token}`);
+              }}
+            >
+              <img className={styles.imgToken} src="/link.png" />
+              <Text>LINK</Text>
+            </Box>
           </Box>
-        </Box>
+        ) : null}
 
         <Form
           ref={ref => (this.formRef = ref)}

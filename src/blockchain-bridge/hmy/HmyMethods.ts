@@ -66,4 +66,10 @@ export class HmyMethods {
       .balanceOf(addrHex)
       .call(this.options);
   };
+
+  totalSupply = async () => {
+    return await this.hmyTokenContract.methods
+      .totalSupply()
+      .call(this.options);
+  };
 }
