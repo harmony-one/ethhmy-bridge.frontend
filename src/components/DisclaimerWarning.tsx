@@ -56,7 +56,7 @@ const styles = {
 export const Disclaimer = () => (
   <CookieBanner
     styles={styles}
-    message="DISCLAIMER: This site is for technology demonstration. We do NOT own or licence the trademarks of any of the following digital assets"
+    message="NOTE: All transactions are on the Harmony Testnet and Kovan Test Network. Use at your own risk. If you find a bug, send them here support@harmony.one"
     onAccept={() => {}}
     cookie="soccerplayers-accept-no-commerce"
     dismissOnScroll={false}
