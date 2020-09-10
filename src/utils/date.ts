@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-moment.locale('ru');
+moment.locale('en');
 
 export function dateTimeFormat(date: number | Date | string): string {
   return moment(date).format('DD.MM.YYYY HH:mm');
