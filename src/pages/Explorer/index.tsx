@@ -131,7 +131,7 @@ const columns: IColumn<IOperation>[] = [
     key: 'timestamp',
     dataIndex: 'timestamp',
     width: 180,
-    render: value => dateTimeAgoFormat(value * 1000),
+    render: value => value ? dateTimeAgoFormat(value * 1000) : '--',
   },
   {
     title: 'Txn fee',

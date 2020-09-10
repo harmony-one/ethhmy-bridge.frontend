@@ -214,6 +214,8 @@ export class Exchange extends React.Component<
                   label={`${this.tokenInfo.label} Amount`}
                   name="amount"
                   type="decimal"
+                  precision="6"
+                  delimiter="."
                   placeholder="0"
                   style={{ width: '100%' }}
                   rules={[

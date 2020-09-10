@@ -53,7 +53,9 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               </a>
             </Box>
             <Box className={styles.actionCell} style={{ width: 180 }}>
-              {dateTimeAgoFormat(action.timestamp)}
+              {action.timestamp
+                ? dateTimeAgoFormat(action.timestamp * 1000)
+                : '--'}
             </Box>
           </Box>
           {action.error ? <Text color="red">{action.error}</Text> : null}
