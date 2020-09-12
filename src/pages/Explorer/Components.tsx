@@ -1,4 +1,4 @@
-import { Box } from 'grommet';
+import { Box, BoxProps } from 'grommet';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Text } from 'components/Base/components/Text';
@@ -41,22 +41,28 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   );
 };
 
-export const Price = observer((props: { value: number; isEth: boolean }) => {
-  const { user } = useStores();
+export const Price = observer(
+  (props: { value: number; isEth: boolean; boxProps?: BoxProps }) => {
+    const { user } = useStores();
 
-  return (
-    <Box
-      direction="column"
-      align="end"
-      justify="center"
-      pad={{ right: 'medium' }}
-    >
-      <Text style={{ fontSize: 14 }}>{`${props.value} ${props.isEth ? 'ETH' : 'ONE'}`}</Text>
-      <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
-        ${formatWithSixDecimals(
-          props.value * (props.isEth ? user.ethRate : user.oneRate),
-        )}
-      </Text>
-    </Box>
-  );
-});
+    return (
+      <Box
+        direction="column"
+        align="end"
+        justify="center"
+        pad={{ right: 'medium' }}
+        {...props.boxProps}
+      >
+        <Text style={{ fontSize: 14 }}>{`${props.value} ${
+          props.isEth ? 'ETH' : 'ONE'
+        }`}</Text>
+        <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
+          $
+          {formatWithSixDecimals(
+            props.value * (props.isEth ? user.ethRate : user.oneRate),
+          )}
+        </Text>
+      </Box>
+    );
+  },
+);

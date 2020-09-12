@@ -29,7 +29,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
     setInterval(() => this.getBalances(), 3 * 1000);
 
-    this.signIn();
+    const session = localStorage.getItem('harmony_metamask_session');
+
+    const sessionObj = JSON.parse(session);
+
+    if (sessionObj.ethAddress) {
+      this.signIn();
+    }
   }
 
   @action.bound
@@ -38,6 +44,7 @@ export class UserStoreMetamask extends StoreConstructor {
       return this.setError('Please connect to MetaMask');
     } else {
       this.ethAddress = accounts[0];
+      this.syncLocalStorage();
     }
   }
 
@@ -49,18 +56,26 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @action.bound
   public async signOut() {
-    await this.provider.request({
-      method: 'wallet_requestPermissions',
-      params: [
-        {
-          eth_accounts: {},
-        },
-      ],
-    });
+    this.isAuthorized = false;
+    this.ethBalance = '0';
+    this.ethAddress = '';
+    this.ethLINKBalance = '0';
+    this.ethBUSDBalance = '0';
+
+    this.syncLocalStorage();
+
+    // await this.provider.request({
+    //   method: 'wallet_requestPermissions',
+    //   params: [
+    //     {
+    //       eth_accounts: {},
+    //     },
+    //   ],
+    // });
   }
 
   @action.bound
-  public async signIn() {
+  public async signIn(isNew = false) {
     try {
       this.error = '';
 
@@ -76,7 +91,6 @@ export class UserStoreMetamask extends StoreConstructor {
       }
 
       this.provider = provider;
-      this.isAuthorized = true;
 
       this.provider.on('accountsChanged', this.handleAccountsChanged);
 
@@ -87,9 +101,27 @@ export class UserStoreMetamask extends StoreConstructor {
 
       this.provider
         .request({ method: 'eth_requestAccounts' })
-        .then(this.handleAccountsChanged)
+        .then(async params => {
+          this.handleAccountsChanged(params);
+
+          if (isNew) {
+            await this.provider.request({
+              method: 'wallet_requestPermissions',
+              params: [
+                {
+                  eth_accounts: {},
+                },
+              ],
+            });
+          }
+
+          this.isAuthorized = true;
+        })
         .catch(err => {
           if (err.code === 4001) {
+            this.isAuthorized = false;
+            this.ethAddress = null;
+            this.syncLocalStorage()
             return this.setError('Please connect to MetaMask.');
           } else {
             console.error(err);
@@ -98,6 +130,15 @@ export class UserStoreMetamask extends StoreConstructor {
     } catch (e) {
       return this.setError(e.message);
     }
+  }
+
+  private syncLocalStorage() {
+    localStorage.setItem(
+      'harmony_metamask_session',
+      JSON.stringify({
+        ethAddress: this.ethAddress,
+      }),
+    );
   }
 
   @action.bound public getBalances = async () => {

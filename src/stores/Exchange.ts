@@ -1,13 +1,13 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import { IOperation, EXCHANGE_MODE, STATUS, TOKEN } from './interfaces';
+import { EXCHANGE_MODE, IOperation, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import {
   ethMethodsBUSD,
-  hmyMethodsBUSD,
   ethMethodsLINK,
+  hmyMethodsBUSD,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
 
@@ -61,6 +61,11 @@ export class Exchange extends StoreConstructor {
     return this.stepsConfig[this.stepNumber];
   }
 
+  @computed
+  get networkFee() {
+    return this.mode === EXCHANGE_MODE.ETH_TO_ONE ? 0.000845586 : 0.0134438;
+  }
+
   stepsConfig: Array<IStepConfig> = [
     {
       id: EXCHANGE_STEPS.BASE,
@@ -73,8 +78,10 @@ export class Exchange extends StoreConstructor {
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+                break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.transaction.oneAddress = this.stores.user.address;
+                break;
             }
           },
           validate: true,
@@ -120,12 +127,14 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setAddressByMode() {
     if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-      this.transaction.oneAddress = this.stores.user.address;
+      // this.transaction.oneAddress = this.stores.user.address;
+      this.transaction.oneAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     }
 
     if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-      this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+      // this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+      this.transaction.ethAddress = '';
       this.transaction.oneAddress = this.stores.user.address;
     }
   }
@@ -141,7 +150,7 @@ export class Exchange extends StoreConstructor {
   setToken(token: TOKEN) {
     // this.clear();
     this.token = token;
-    this.setAddressByMode();
+    // this.setAddressByMode();
   }
 
   @observable operation: IOperation;

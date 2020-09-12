@@ -189,7 +189,7 @@ export const WalletBalances = observer(() => {
               <Button
                 margin={{ vertical: 'medium' }}
                 onClick={() => {
-                  userMetamask.signIn();
+                  userMetamask.signIn(true);
                 }}
               >
                 Connect Metamask

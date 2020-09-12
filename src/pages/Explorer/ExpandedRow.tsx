@@ -179,19 +179,22 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             <Box
               className={cn(styles.actionCell, styles.type, styles.first)}
               style={{ width: 240 }}
-              direction="row"
-              align="center"
+              direction="column"
+              align="start"
             >
-              <img
-                src={isEth(action.type) ? '/eth.svg' : 'one.svg'}
-                style={{
-                  marginRight: 15,
-                  marginBottom: 2,
-                  height: isEth(action.type) ? 20 : 18,
-                  width: 'auto',
-                }}
-              />
-              {STEPS_TITLE[action.type]}
+              <Box direction="row" align="center">
+                <img
+                  src={isEth(action.type) ? '/eth.svg' : 'one.svg'}
+                  style={{
+                    marginRight: 15,
+                    marginBottom: 2,
+                    height: isEth(action.type) ? 20 : 18,
+                    width: 'auto',
+                  }}
+                />
+                {STEPS_TITLE[action.type]}
+              </Box>
+              {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>
 
             <Box
@@ -238,7 +241,6 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               )}
             </Box>
           </Box>
-          {action.error ? <Text color="red">{action.error}</Text> : null}
         </Box>
       ))}
     </Box>

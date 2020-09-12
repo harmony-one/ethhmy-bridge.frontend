@@ -44,30 +44,40 @@ export class Exchange extends React.Component<
       const { exchange } = this.props;
 
       if (exchange.token && exchange.mode) {
-        this.formRef.resetTouched();
-        this.formRef.resetErrors();
+        if(this.formRef) {
+          this.formRef.resetTouched();
+          this.formRef.resetErrors();
+        }
       }
     });
   }
 
   onClickHandler = async (needValidate: boolean, callback: () => void) => {
-    const { actionModals, user } = this.props;
+    const { actionModals, user, userMetamask, exchange } = this.props;
 
     if (!user.isAuthorized) {
-      if (!user.isOneWallet) {
-        return actionModals.open(() => <AuthWarning />, {
-          title: '',
-          applyText: 'Got it',
-          closeText: '',
-          noValidation: true,
-          width: '500px',
-          showOther: true,
-          onApply: () => {
-            return Promise.resolve();
-          },
-        });
-      } else {
-        await user.signIn();
+      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        if (!user.isOneWallet) {
+          return actionModals.open(() => <AuthWarning />, {
+            title: '',
+            applyText: 'Got it',
+            closeText: '',
+            noValidation: true,
+            width: '500px',
+            showOther: true,
+            onApply: () => {
+              return Promise.resolve();
+            },
+          });
+        } else {
+          await user.signIn();
+        }
+      }
+    }
+
+    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      if (!userMetamask.isAuthorized) {
+        await userMetamask.signIn(true);
       }
     }
 
@@ -113,7 +123,7 @@ export class Exchange extends React.Component<
   }
 
   render() {
-    const { exchange, routing } = this.props;
+    const { exchange, routing, user, userMetamask } = this.props;
 
     let icon = () => <Icon style={{ width: 50 }} glyph="RightArrow" />;
     let description = 'Approval';
@@ -249,9 +259,21 @@ export class Exchange extends React.Component<
                     label="ETH Address"
                     name="ethAddress"
                     style={{ width: '100%' }}
-                    placeholder="Your address"
+                    placeholder="Receiver address"
                     rules={[isRequired]}
                   />
+                  {userMetamask.isAuthorized ? (
+                    <Box
+                      fill={true}
+                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
+                      onClick={() =>
+                        (exchange.transaction.ethAddress =
+                          userMetamask.ethAddress)
+                      }
+                    >
+                      Use my address
+                    </Box>
+                  ) : null}
                 </Box>
               ) : (
                 <Box direction="column" fill={true}>
@@ -259,9 +281,20 @@ export class Exchange extends React.Component<
                     label="ONE Address"
                     name="oneAddress"
                     style={{ width: '100%' }}
-                    placeholder="Your address"
+                    placeholder="Receiver address"
                     rules={[isRequired]}
                   />
+                  {user.isAuthorized ? (
+                    <Box
+                      fill={true}
+                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
+                      onClick={() =>
+                        (exchange.transaction.oneAddress = user.address)
+                      }
+                    >
+                      Use my address
+                    </Box>
+                  ) : null}
                 </Box>
               )}
             </Box>

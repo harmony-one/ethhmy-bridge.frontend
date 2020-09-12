@@ -4,6 +4,8 @@ import { observer } from 'mobx-react-lite';
 import { Icon, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
+import { EXCHANGE_MODE } from '../../stores/interfaces';
+import { Price } from '../Explorer/Components';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -12,7 +14,7 @@ const AssetRow = props => {
       direction="row"
       justify="between"
       margin={{ bottom: 'medium' }}
-      align="center"
+      align="start"
     >
       <Box>
         <Text size="small" bold={true}>
@@ -34,7 +36,10 @@ const AssetRow = props => {
             </Text>
           </a>
         ) : (
-          <Text size="small">{props.value}</Text>
+          <>
+            {props.value ? <Text size="small">{props.value}</Text> : null}
+            {props.children}
+          </>
         )}
 
         {props.after && (
@@ -133,14 +138,20 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             margin={{ top: 'small' }}
             style={{ borderTop: '1px solid #dedede' }}
           >
-            <AssetRow label="Network Fee" value="0.000021" />
+            <AssetRow label="Network Fee" value="">
+              <Price
+                value={exchange.networkFee}
+                isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                boxProps={{ pad: {} }}
+              />
+            </AssetRow>
 
-            <AssetRow
-              label="Total"
-              value={formatWithSixDecimals(
-                Number(exchange.transaction.amount) + 0.000021,
-              )}
-            />
+            {/*<AssetRow*/}
+            {/*  label="Total"*/}
+            {/*  value={formatWithSixDecimals(*/}
+            {/*    Number(exchange.transaction.amount) + exchange.networkFee,*/}
+            {/*  )}*/}
+            {/*/>*/}
           </Box>
         ) : null}
 
