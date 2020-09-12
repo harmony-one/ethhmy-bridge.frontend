@@ -48,6 +48,18 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @action.bound
+  public async signOut() {
+    await this.provider.request({
+      method: 'wallet_requestPermissions',
+      params: [
+        {
+          eth_accounts: {},
+        },
+      ],
+    });
+  }
+
+  @action.bound
   public async signIn() {
     try {
       this.error = '';

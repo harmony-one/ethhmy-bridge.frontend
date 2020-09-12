@@ -131,10 +131,32 @@ export const WalletBalances = observer(() => {
         </Box>
 
         <Box direction="column" margin={{ top: 'medium' }}>
-          <Box direction="row" align="center" margin={{ bottom: 'xsmall' }}>
-            <img className={styles.imgToken} src="/eth.svg" />
-            <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
-            <Text margin={{ top: '4px' }}>(Metamask)</Text>
+          <Box
+            direction="row"
+            align="center"
+            justify="between"
+            margin={{ bottom: 'xsmall' }}
+          >
+            <Box direction="row" align="center">
+              <img className={styles.imgToken} src="/eth.svg" />
+              <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
+              <Text margin={{ top: '4px' }}>(Metamask)</Text>
+            </Box>
+            {userMetamask.isAuthorized && (
+              <Box
+                onClick={() => {
+                  userMetamask.signOut();
+                }}
+                margin={{ left: 'medium' }}
+              >
+                <Icon
+                  glyph="Logout"
+                  size="24px"
+                  style={{ opacity: 0.5 }}
+                  color="BlackTxt"
+                />
+              </Box>
+            )}
           </Box>
 
           {userMetamask.isAuthorized ? (
