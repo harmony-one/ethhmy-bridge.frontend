@@ -130,7 +130,7 @@ const columns: IColumn<IOperation>[] = [
     title: 'Age',
     key: 'timestamp',
     dataIndex: 'timestamp',
-    width: 140,
+    width: 160,
     render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
   },
   {

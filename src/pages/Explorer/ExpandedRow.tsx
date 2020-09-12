@@ -219,7 +219,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               </a>
             </Box>
 
-            <Box className={styles.actionCell} style={{ width: 140 }}>
+            <Box className={styles.actionCell} style={{ width: 160 }}>
               {action.timestamp
                 ? dateTimeAgoFormat(action.timestamp * 1000)
                 : '--'}
