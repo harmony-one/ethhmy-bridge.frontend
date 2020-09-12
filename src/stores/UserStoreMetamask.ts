@@ -33,7 +33,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     const sessionObj = JSON.parse(session);
 
-    if (sessionObj.ethAddress) {
+    if (sessionObj && sessionObj.ethAddress) {
       this.signIn();
     }
   }
