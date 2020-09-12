@@ -7,6 +7,8 @@ import {
   hmyMethodsBUSD,
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
+import * as agent from 'superagent';
+import { IOperation } from './interfaces';
 
 const defaults = {};
 
@@ -29,6 +31,9 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
 
+  @observable public oneRate = 0;
+  @observable public ethRate = 0;
+
   constructor(stores) {
     super(stores);
 
@@ -43,6 +48,8 @@ export class UserStoreEx extends StoreConstructor {
     }, 3000);
 
     setInterval(() => this.getBalances(), 3 * 1000);
+
+    this.getRates();
 
     // @ts-ignore
     this.isOneWallet = window.onewallet && window.onewallet.isOneWallet;
@@ -172,7 +179,17 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public reset() {
-    Object.assign(this, defaults);
+  @action public async getRates() {
+    let res = await agent.get<{ body: IOperation }>(
+      'https://api.binance.com/api/v1/ticker/24hr?symbol=ONEUSDT',
+    );
+
+    this.oneRate = res.body.lastPrice;
+
+    res = await agent.get<{ body: IOperation }>(
+      'https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT',
+    );
+
+    this.ethRate = res.body.lastPrice;
   }
 }

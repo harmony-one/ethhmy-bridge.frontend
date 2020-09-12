@@ -4,6 +4,9 @@ import * as styles from './styles.styl';
 import { Text } from 'components/Base/components/Text';
 import * as React from 'react';
 import { EXCHANGE_MODE } from 'stores/interfaces';
+import { observer } from 'mobx-react';
+import { useStores } from '../../stores';
+import { formatWithSixDecimals } from '../../utils';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -13,7 +16,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
       }
       align="center"
       className={cn(styles.operationType)}
-      margin={{ left: "20px" }}
+      margin={{ left: '20px' }}
     >
       <Box direction="row" align="center">
         <img
@@ -37,3 +40,23 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
     </Box>
   );
 };
+
+export const Price = observer((props: { value: number; isEth: boolean }) => {
+  const { user } = useStores();
+
+  return (
+    <Box
+      direction="column"
+      align="end"
+      justify="center"
+      pad={{ right: 'medium' }}
+    >
+      <Text style={{ fontSize: 14 }}>{`${props.value} ${props.isEth ? 'ETH' : 'ONE'}`}</Text>
+      <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
+        ${formatWithSixDecimals(
+          props.value * (props.isEth ? user.ethRate : user.oneRate),
+        )}
+      </Text>
+    </Box>
+  );
+});

@@ -8,13 +8,13 @@ import { IColumn, Table } from 'components/Table';
 import { EXCHANGE_MODE, IOperation } from 'stores/interfaces';
 import {
   dateTimeAgoFormat,
-  formatWithSixDecimals,
   formatWithTwoDecimals,
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ExpandedRow, getOperationFee } from './ExpandedRow';
+import { Price } from './Components';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -42,7 +42,7 @@ const oneAddress = value => (
   </Box>
 );
 
-const columns: IColumn<IOperation>[] = [
+const getColumns = ({ oneRate, ethRate }): IColumn<IOperation>[] => [
   // {
   //   title: 'Type',
   //   key: 'type',
@@ -137,23 +137,30 @@ const columns: IColumn<IOperation>[] = [
     title: 'Txn fee',
     key: 'fee',
     dataIndex: 'fee',
+    className: styles.rightHeader,
     width: 180,
     render: (value, data) => {
       const fee = getOperationFee(data);
+      const isETH = data.type === EXCHANGE_MODE.ETH_TO_ONE;
 
-      return `${fee} ${data.type === EXCHANGE_MODE.ETH_TO_ONE ? 'ETH' : 'ONE'}`;
+      return <Price value={fee} isEth={isETH} />;
     },
   },
 ];
 
 export const Explorer = observer((props: any) => {
-  const { operations } = useStores();
+  const { operations, user } = useStores();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
+  const [columns, setColumns] = useState(getColumns(user));
 
   useEffect(() => {
     operations.getList();
   }, []);
+
+  useEffect(() => {
+    setColumns(getColumns(user));
+  }, [user.oneRate, user.ethRate]);
 
   return (
     <BaseContainer>

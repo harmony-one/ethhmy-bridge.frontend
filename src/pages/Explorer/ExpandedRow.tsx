@@ -8,6 +8,7 @@ import { dateTimeAgoFormat, truncateAddressString } from 'utils';
 import { STEPS_TITLE } from './steps-constants';
 import { IColumn, Table } from '../../components/Table';
 import { Text } from '../../components/Base';
+import { Price } from './Components';
 
 export interface IExpandedRowProps {
   data: IOperation;
@@ -168,10 +169,12 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             align="center"
             justify="end"
             pad={{ left: 'large' }}
-            style={{
-              // paddingBottom: 16,
-              // borderBottom: '1px solid rgba(222, 222, 222, 0.4)',
-            }}
+            style={
+              {
+                // paddingBottom: 16,
+                // borderBottom: '1px solid rgba(222, 222, 222, 0.4)',
+              }
+            }
           >
             <Box
               className={cn(styles.actionCell, styles.type, styles.first)}
@@ -225,7 +228,14 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 : '--'}
             </Box>
             <Box className={styles.actionCell} style={{ width: 180 }}>
-              {action.payload ? renderActionFee(action) : '--'}
+              {action.payload ? (
+                <Price
+                  value={Number(getActionFee(action).value)}
+                  isEth={isEth(action.type)}
+                />
+              ) : (
+                '--'
+              )}
             </Box>
           </Box>
           {action.error ? <Text color="red">{action.error}</Text> : null}

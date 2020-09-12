@@ -31,6 +31,8 @@ export interface IColumn<P = any> {
   render?: (value: any, data: P) => React.ReactNode;
   defaultSort?: string;
   filter?: any;
+  align?: string;
+  className?: string;
 }
 
 interface IProps {
