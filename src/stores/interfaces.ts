@@ -36,6 +36,7 @@ export interface IAction {
   error: string;
   message: string;
   timestamp: number;
+  payload: any;
 }
 
 export interface IOperation {

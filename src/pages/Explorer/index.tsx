@@ -14,7 +14,7 @@ import {
 } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { ExpandedRow } from './ExpandedRow';
+import { ExpandedRow, getOperationFee } from './ExpandedRow';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -130,15 +130,19 @@ const columns: IColumn<IOperation>[] = [
     title: 'Age',
     key: 'timestamp',
     dataIndex: 'timestamp',
-    width: 180,
-    render: value => value ? dateTimeAgoFormat(value * 1000) : '--',
+    width: 140,
+    render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
   },
   {
     title: 'Txn fee',
     key: 'fee',
     dataIndex: 'fee',
-    width: 100,
-    render: value => formatWithSixDecimals(value || 0),
+    width: 180,
+    render: (value, data) => {
+      const fee = getOperationFee(data);
+
+      return `${fee} ${data.type === EXCHANGE_MODE.ETH_TO_ONE ? 'ETH' : 'ONE'}`;
+    },
   },
 ];
 

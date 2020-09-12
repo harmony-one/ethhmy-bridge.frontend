@@ -19,3 +19,11 @@ function s4() {
 export function guid(): string {
     return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
+
+export function normalizeHex(key) {
+  let result = String(key).toLowerCase();
+  if (!result.startsWith('0x')) {
+    result = '0x' + result;
+  }
+  return result;
+}

@@ -13,6 +13,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
       }
       align="center"
       className={cn(styles.operationType)}
+      margin={{ left: "20px" }}
     >
       <Box direction="row" align="center">
         <img
@@ -20,7 +21,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
           style={{ height: 20 }}
           src="/eth.svg"
         />
-        <Text size="small">ETH</Text>
+        <Text size="medium">ETH</Text>
       </Box>
       <Box direction="row" margin={{ horizontal: 'xsmall' }} align="center">
         <img src="/right.svg" />
@@ -31,7 +32,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
           style={{ height: 18 }}
           src="/one.svg"
         />
-        <Text size="small">ONE</Text>
+        <Text size="medium">ONE</Text>
       </Box>
     </Box>
   );
