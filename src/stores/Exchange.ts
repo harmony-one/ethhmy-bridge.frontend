@@ -252,10 +252,12 @@ export class Exchange extends StoreConstructor {
         case TOKEN.LINK:
           ethMethods = contract.ethMethodsLINK;
           hmyMethods = contract.hmyMethodsLINK;
+          break;
 
         case TOKEN.ERC20:
           ethMethods = contract.ethMethodsERC20;
           hmyMethods = contract.hmyMethodsERC20;
+          break;
       }
 
       if (this.token === TOKEN.ERC20) {
@@ -267,6 +269,10 @@ export class Exchange extends StoreConstructor {
         ) {
           await sleep(3000);
           getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
+        }
+
+        if (!this.stores.user.hrc20Address) {
+          this.stores.userMetamask.setToken(this.transaction.erc20Address);
         }
 
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {

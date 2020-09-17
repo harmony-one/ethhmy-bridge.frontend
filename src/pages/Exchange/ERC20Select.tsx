@@ -11,8 +11,8 @@ export const ERC20Select = observer(() => {
   const [error, setError] = useState('');
 
   return (
-    <Box direction="column" margin={{ top: 'large' }}>
-      <Text size="medium" bold>ERC20 token address</Text>
+    <Box direction="column" margin={{ top: 'xlarge' }}>
+      <Text size="large" bold>ERC20 token address</Text>
       <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
         <TextInput
           placeholder="Input ERC20 token address"
