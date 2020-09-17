@@ -1,7 +1,7 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-import { getHmyBalance, hmyMethods } from '../blockchain-bridge';
+import { getHmyBalance, hmyMethodsERC20, hmyMethodsBUSD, hmyMethodsLINK } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -98,30 +98,32 @@ export class UserStoreEx extends StoreConstructor {
         this.balance = res && res.result;
 
         if (this.hrc20Address) {
-          this.hrc20Balance = await hmyMethods.checkHmyBalance(
+          this.hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
             this.hrc20Address,
             this.address,
           );
         }
 
-        // this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
-        //   this.address,
-        // );
-        // this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
-        //   this.address,
-        // );
+        this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
+          this.address,
+        );
+        this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
+          this.address,
+        );
       } catch (e) {
         console.error(e);
       }
     }
 
     try {
-      // const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
-      // this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
-      // const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
-      //   process.env.HMY_LINK_MANAGER_CONTRACT,
-      // );
-      // this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
+      const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
+
+      this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
+
+      const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
+        process.env.HMY_LINK_MANAGER_CONTRACT,
+      );
+      this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
     } catch (e) {
       console.error(e);
     }

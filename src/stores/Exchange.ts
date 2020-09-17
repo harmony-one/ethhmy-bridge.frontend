@@ -10,7 +10,7 @@ import {
 } from './interfaces';
 import * as operationService from 'services';
 
-import { ethMethods, hmyMethods } from '../blockchain-bridge';
+import * as contract from '../blockchain-bridge';
 import { sleep } from '../utils';
 
 export enum EXCHANGE_STEPS {
@@ -200,6 +200,7 @@ export class Exchange extends StoreConstructor {
     this.operation = await operationService.createOperation({
       ...this.transaction,
       type: this.mode,
+      token: this.token,
     });
 
     return this.operation.id;
@@ -240,67 +241,124 @@ export class Exchange extends StoreConstructor {
         });
       };
 
-      // actions pool
+      let ethMethods, hmyMethods;
 
-      let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
+      switch (this.token) {
+        case TOKEN.BUSD:
+          ethMethods = contract.ethMethodsBUSD;
+          hmyMethods = contract.hmyMethodsBUSD;
+          break;
 
-      while (
-        getHRC20Action &&
-        [STATUS.IN_PROGRESS, STATUS.WAITING].includes(getHRC20Action.status)
-      ) {
-        await sleep(3000);
-        getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
+        case TOKEN.LINK:
+          ethMethods = contract.ethMethodsLINK;
+          hmyMethods = contract.hmyMethodsLINK;
+
+        case TOKEN.ERC20:
+          ethMethods = contract.ethMethodsERC20;
+          hmyMethods = contract.hmyMethodsERC20;
       }
 
-      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-        const approveEthManger = this.getActionByType(
-          ACTION_TYPE.approveEthManger,
-        );
+      if (this.token === TOKEN.ERC20) {
+        let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
 
-        if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-          const { amount, erc20Address } = this.transaction;
-
-          await ethMethods.approveEthManger(erc20Address, amount, hash =>
-            confirmCallback(hash, approveEthManger.id),
-          );
+        while (
+          getHRC20Action &&
+          [STATUS.IN_PROGRESS, STATUS.WAITING].includes(getHRC20Action.status)
+        ) {
+          await sleep(3000);
+          getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
         }
 
-        const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
-
-        if (lockToken.status === STATUS.WAITING) {
-          await ethMethods.lockToken(
-            this.transaction.erc20Address,
-            this.transaction.oneAddress,
-            this.transaction.amount,
-            hash => confirmCallback(hash, lockToken.id),
+        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+          const approveEthManger = this.getActionByType(
+            ACTION_TYPE.approveEthManger,
           );
-        }
-      }
 
-      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        const hrc20Address = this.stores.user.hrc20Address;
+          if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
+            const { amount, erc20Address } = this.transaction;
 
-        const approveHmyManger = this.getActionByType(
-          ACTION_TYPE.approveHmyManger,
-        );
+            await ethMethods.approveEthManger(erc20Address, amount, hash =>
+              confirmCallback(hash, approveEthManger.id),
+            );
+          }
 
-        if (approveHmyManger.status === STATUS.WAITING) {
-          await hmyMethods.approveHmyManger(
-            hrc20Address,
-            this.transaction.amount,
-            hash => confirmCallback(hash, approveHmyManger.id),
-          );
+          const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
+
+          if (lockToken.status === STATUS.WAITING) {
+            await ethMethods.lockToken(
+              this.transaction.erc20Address,
+              this.transaction.oneAddress,
+              this.transaction.amount,
+              hash => confirmCallback(hash, lockToken.id),
+            );
+          }
         }
 
-        const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
+        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+          const hrc20Address = this.stores.user.hrc20Address;
 
-        if (burnToken.status === STATUS.WAITING) {
-          await hmyMethods.burnToken(
-            hrc20Address,
-            this.transaction.ethAddress,
-            this.transaction.amount,
-            hash => confirmCallback(hash, burnToken.id),
+          const approveHmyManger = this.getActionByType(
+            ACTION_TYPE.approveHmyManger,
           );
+
+          if (approveHmyManger.status === STATUS.WAITING) {
+            await hmyMethods.approveHmyManger(
+              hrc20Address,
+              this.transaction.amount,
+              hash => confirmCallback(hash, approveHmyManger.id),
+            );
+          }
+
+          const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
+
+          if (burnToken.status === STATUS.WAITING) {
+            await hmyMethods.burnToken(
+              hrc20Address,
+              this.transaction.ethAddress,
+              this.transaction.amount,
+              hash => confirmCallback(hash, burnToken.id),
+            );
+          }
+        }
+      } else {
+        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+          const approveEthManger = this.operation.actions[0];
+
+          if (approveEthManger.status === STATUS.WAITING) {
+            await ethMethods.approveEthManger(this.transaction.amount, hash =>
+              confirmCallback(hash, approveEthManger.id),
+            );
+          }
+
+          const lockToken = this.operation.actions[1];
+
+          if (lockToken.status === STATUS.WAITING) {
+            await ethMethods.lockToken(
+              this.transaction.oneAddress,
+              this.transaction.amount,
+              hash => confirmCallback(hash, lockToken.id),
+            );
+          }
+        }
+
+        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+          const approveHmyManger = this.operation.actions[0];
+
+          if (approveHmyManger.status === STATUS.WAITING) {
+            await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
+              confirmCallback(hash, approveHmyManger.id),
+            );
+          }
+
+          const burnToken = this.operation.actions[1];
+
+          if (burnToken.status === STATUS.WAITING) {
+            await hmyMethods.burnToken(
+              this.transaction.ethAddress,
+              this.transaction.amount,
+              hash => confirmCallback(hash, burnToken.id),
+            );
+          }
         }
       }
 

@@ -89,23 +89,23 @@ export const WalletBalances = observer(() => {
                 value={formatWithTwoDecimals(ones(user.balance))}
               />
 
-              {/*<AssetRow*/}
-              {/*  asset="Harmony BUSD"*/}
-              {/*  value={formatWithTwoDecimals(user.hmyBUSDBalance)}*/}
-              {/*  selected={exchange.token === TOKEN.BUSD}*/}
-              {/*/>*/}
+              <AssetRow
+                asset="Harmony BUSD"
+                value={formatWithTwoDecimals(user.hmyBUSDBalance)}
+                selected={exchange.token === TOKEN.BUSD}
+              />
 
-              {/*<AssetRow*/}
-              {/*  asset="Harmony LINK"*/}
-              {/*  value={formatWithTwoDecimals(user.hmyLINKBalance)}*/}
-              {/*  selected={exchange.token === TOKEN.LINK}*/}
-              {/*/>*/}
+              <AssetRow
+                asset="Harmony LINK"
+                value={formatWithTwoDecimals(user.hmyLINKBalance)}
+                selected={exchange.token === TOKEN.LINK}
+              />
 
               {user.hrc20Address ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithTwoDecimals(user.hrc20Balance)}
-                  selected={true}
+                  selected={exchange.token === TOKEN.ERC20}
                 />
               ) : null}
             </>
@@ -183,16 +183,22 @@ export const WalletBalances = observer(() => {
                 <AssetRow
                   asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithTwoDecimals(userMetamask.erc20Balance)}
-                  selected={true}
+                  selected={exchange.token === TOKEN.ERC20}
                 />
               ) : null}
 
-              {/*<AssetRow*/}
-              {/*  asset="Ethereum LINK"*/}
-              {/*  value={formatWithTwoDecimals(userMetamask.ethLINKBalance)}*/}
-              {/*  selected={exchange.token === TOKEN.LINK}*/}
-              {/*  last={true}*/}
-              {/*/>*/}
+              <AssetRow
+                asset="Ethereum BUSD"
+                value={formatWithTwoDecimals(userMetamask.ethBUSDBalance)}
+                selected={exchange.token === TOKEN.BUSD}
+              />
+
+              <AssetRow
+                asset="Ethereum LINK"
+                value={formatWithTwoDecimals(userMetamask.ethLINKBalance)}
+                selected={exchange.token === TOKEN.LINK}
+                last={true}
+              />
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

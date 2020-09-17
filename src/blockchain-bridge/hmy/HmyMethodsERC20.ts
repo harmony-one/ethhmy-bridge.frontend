@@ -4,20 +4,17 @@ import { connectToOneWallet } from './helpers';
 
 interface IHmyMethodsInitParams {
   hmy: Harmony;
-  hmyTokenContract: Contract;
   hmyManagerContract: Contract;
   options?: { gasPrice: number; gasLimit: number };
 }
 
-export class HmyMethods {
+export class HmyMethodsERC20 {
   private hmy: Harmony;
-  private hmyTokenContract: Contract;
   private hmyManagerContract: Contract;
   private options = { gasPrice: 1000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.hmy = params.hmy;
-    this.hmyTokenContract = params.hmyTokenContract;
     this.hmyManagerContract = params.hmyManagerContract;
 
     if (params.options) {
@@ -25,12 +22,19 @@ export class HmyMethods {
     }
   }
 
-  approveHmyManger = (amount, sendTxCallback?) => {
+  approveHmyManger = (hrc20Address, amount, sendTxCallback?) => {
+    const tokenJson = require('../out/MyERC20.json');
+    const hmyTokenContract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      hrc20Address,
+    );
+
     return new Promise(async (resolve, reject) => {
       try {
-        await connectToOneWallet(this.hmyTokenContract.wallet, null, reject);
+        // TODO
+        await connectToOneWallet(hmyTokenContract.wallet, null, reject);
 
-        const res = await this.hmyTokenContract.methods
+        const res = await hmyTokenContract.methods
           .approve(this.hmyManagerContract.address, amount)
           .send(this.options)
           .on('transactionHash', sendTxCallback);
@@ -42,13 +46,13 @@ export class HmyMethods {
     });
   };
 
-  burnToken = async (userAddr, amount, sendTxCallback?) => {
+  burnToken = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
     return new Promise(async (resolve, reject) => {
       try {
         await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
 
         let response = await this.hmyManagerContract.methods
-          .burnToken(amount, userAddr)
+          .burnToken(hrc20Address, amount, userAddr)
           .send(this.options)
           .on('transactionHash', sendTxCallback);
 
@@ -59,17 +63,33 @@ export class HmyMethods {
     });
   };
 
-  checkHmyBalance = async (addr: string) => {
-    const addrHex = this.hmy.crypto.getAddress(addr).checksum;
-
-    return await this.hmyTokenContract.methods
-      .balanceOf(addrHex)
+  getMappingFor = async erc20TokenAddr => {
+    const res = await this.hmyManagerContract.methods
+      .mappings(erc20TokenAddr)
       .call(this.options);
+
+    return res;
   };
 
-  totalSupply = async () => {
-    return await this.hmyTokenContract.methods
-      .totalSupply()
-      .call(this.options);
+  checkHmyBalance = async (hrc20Address, addr: string) => {
+    const tokenJson = require('../out/MyERC20.json');
+    const hmyTokenContract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      hrc20Address,
+    );
+
+    const addrHex = this.hmy.crypto.getAddress(addr).checksum;
+
+    return await hmyTokenContract.methods.balanceOf(addrHex).call(this.options);
+  };
+
+  totalSupply = async hrc20Address => {
+    const tokenJson = require('../out/MyERC20.json');
+    const hmyTokenContract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      hrc20Address,
+    );
+
+    return await hmyTokenContract.methods.totalSupply().call(this.options);
   };
 }

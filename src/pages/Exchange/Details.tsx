@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Icon, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
-import { EXCHANGE_MODE } from '../../stores/interfaces';
+import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 // import { EXPLORER_URL } from '../../blockchain';
 
@@ -116,13 +116,20 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           value={truncateAddressString(exchange.transaction.oneAddress)}
           address={true}
         />
-        <AssetRow
-          label={`${String(
-            userMetamask.erc20TokenDetails &&
-              userMetamask.erc20TokenDetails.symbol,
-          ).toUpperCase()} amount`}
-          value={formatWithSixDecimals(exchange.transaction.amount)}
-        />
+        {exchange.token === TOKEN.ERC20 ? (
+          <AssetRow
+            label={`${String(
+              userMetamask.erc20TokenDetails &&
+                userMetamask.erc20TokenDetails.symbol,
+            ).toUpperCase()} amount`}
+            value={formatWithSixDecimals(exchange.transaction.amount)}
+          />
+        ) : (
+          <AssetRow
+            label={`${String(exchange.token).toUpperCase()} amount`}
+            value={formatWithSixDecimals(exchange.transaction.amount)}
+          />
+        )}
 
         {/*<DataItem*/}
         {/*  icon="User"*/}

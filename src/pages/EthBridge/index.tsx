@@ -120,11 +120,11 @@ export const EthBridge = observer((props: any) => {
               />
             </Box>
 
-            <Box
-              margin={{ bottom: 'medium' }}
-            >
-              <ERC20Select />
-            </Box>
+            {/*<Box*/}
+            {/*  margin={{ bottom: 'medium' }}*/}
+            {/*>*/}
+            {/*  <ERC20Select />*/}
+            {/*</Box>*/}
 
             <Exchange />
 

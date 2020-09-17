@@ -2,7 +2,13 @@ import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import { getEthBalance, ethMethods, hmyMethods } from '../blockchain-bridge';
+import {
+  getEthBalance,
+  ethMethodsERC20,
+  hmyMethodsERC20,
+  ethMethodsLINK,
+  ethMethodsBUSD,
+} from '../blockchain-bridge';
 
 const defaults = {};
 
@@ -152,13 +158,18 @@ export class UserStoreMetamask extends StoreConstructor {
     if (this.ethAddress) {
       try {
         if (this.erc20Address) {
-          this.erc20Balance = await ethMethods.checkEthBalance(
+          this.erc20Balance = await ethMethodsERC20.checkEthBalance(
             this.erc20Address,
             this.ethAddress,
           );
         }
 
-        // this.ethLINKBalance = await ethMethods.checkEthBalance(this.ethAddress);
+        this.ethLINKBalance = await ethMethodsLINK.checkEthBalance(
+          this.ethAddress,
+        );
+        this.ethBUSDBalance = await ethMethodsBUSD.checkEthBalance(
+          this.ethAddress,
+        );
 
         this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {
@@ -172,10 +183,10 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20Address = '';
     this.stores.user.hrc20Address = '';
 
-    this.erc20TokenDetails = await ethMethods.tokenDetails(erc20Address);
+    this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
 
-    const address = await hmyMethods.getMappingFor(erc20Address);
+    const address = await hmyMethodsERC20.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
