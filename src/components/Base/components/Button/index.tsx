@@ -170,7 +170,7 @@ class ButtonClass extends React.Component<IButtonProps> {
     const promise = onClick();
 
     if (promise instanceof Promise) {
-      this.isLoading = true;
+      // this.isLoading = true;
 
       return promise
         .then((res: any) => {

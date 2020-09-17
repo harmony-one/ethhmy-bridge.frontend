@@ -68,6 +68,10 @@ export class EthMethods {
   };
 
   tokenDetails = async erc20Address => {
+    if(!this.web3.utils.isAddress(erc20Address)){
+      throw new Error('Invalid token address');
+    }
+
     const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
