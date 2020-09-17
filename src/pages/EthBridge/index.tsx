@@ -10,6 +10,7 @@ import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
+import { ERC20Select } from '../Exchange/ERC20Select';
 
 const LargeButton = (props: {
   title: string;
@@ -117,6 +118,12 @@ export const EthBridge = observer((props: any) => {
                 onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                 isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
               />
+            </Box>
+
+            <Box
+              margin={{ bottom: 'medium' }}
+            >
+              <ERC20Select />
             </Box>
 
             <Exchange />

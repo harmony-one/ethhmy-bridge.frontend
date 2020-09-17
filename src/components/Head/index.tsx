@@ -67,17 +67,17 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*  <Text>Select token</Text>*/}
             {/*</Box>*/}
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                isGetTokens ? styles.selected : '',
-              )}
-              onClick={() => {
-                routing.push(`/get-tokens`);
-              }}
-            >
-              <Text>Get tokens</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(*/}
+            {/*    styles.itemToken,*/}
+            {/*    isGetTokens ? styles.selected : '',*/}
+            {/*  )}*/}
+            {/*  onClick={() => {*/}
+            {/*    routing.push(`/get-tokens`);*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>Get tokens</Text>*/}
+            {/*</Box>*/}
 
             <Box
               className={cn(

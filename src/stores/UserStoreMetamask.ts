@@ -168,13 +168,14 @@ export class UserStoreMetamask extends StoreConstructor {
   };
 
   @action.bound public setToken = async (erc20Address: string) => {
-    debugger;
+    this.erc20TokenDetails = null;
+    this.erc20Address = '';
+    this.stores.user.hrc20Address = '';
+
     this.erc20TokenDetails = await ethMethods.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
 
     const address = await hmyMethods.getMappingFor(erc20Address);
-
-    debugger;
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;

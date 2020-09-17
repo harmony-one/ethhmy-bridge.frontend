@@ -10,7 +10,7 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Icon, Text } from 'components/Base';
+import { Button, DisableWrap, Icon, Text } from 'components/Base';
 import { formatWithTwoDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
@@ -164,191 +164,199 @@ export class Exchange extends React.Component<
 
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
-        {/*{exchange.step.id === EXCHANGE_STEPS.BASE ? (*/}
-        {/*  <Box direction="row">*/}
-        {/*    <Box*/}
-        {/*      className={cn(*/}
-        {/*        styles.itemToken,*/}
-        {/*        exchange.token === TOKEN.BUSD ? styles.selected : '',*/}
-        {/*      )}*/}
-        {/*      onClick={() => {*/}
-        {/*        exchange.setToken(TOKEN.BUSD);*/}
-        {/*        routing.push(`/${exchange.token}`);*/}
-        {/*      }}*/}
-        {/*    >*/}
-        {/*      <img className={styles.imgToken} src="/busd.svg" />*/}
-        {/*      <Text>BUSD</Text>*/}
-        {/*    </Box>*/}
+        <DisableWrap disabled={!userMetamask.erc20TokenDetails}>
+          {/*{exchange.step.id === EXCHANGE_STEPS.BASE ? (*/}
+          {/*  <Box direction="row">*/}
+          {/*    <Box*/}
+          {/*      className={cn(*/}
+          {/*        styles.itemToken,*/}
+          {/*        exchange.token === TOKEN.BUSD ? styles.selected : '',*/}
+          {/*      )}*/}
+          {/*      onClick={() => {*/}
+          {/*        exchange.setToken(TOKEN.BUSD);*/}
+          {/*        routing.push(`/${exchange.token}`);*/}
+          {/*      }}*/}
+          {/*    >*/}
+          {/*      <img className={styles.imgToken} src="/busd.svg" />*/}
+          {/*      <Text>BUSD</Text>*/}
+          {/*    </Box>*/}
 
-        {/*    <Box*/}
-        {/*      className={cn(*/}
-        {/*        styles.itemToken,*/}
-        {/*        exchange.token === TOKEN.LINK ? styles.selected : '',*/}
-        {/*      )}*/}
-        {/*      onClick={() => {*/}
-        {/*        exchange.setToken(TOKEN.LINK);*/}
-        {/*        routing.push(`/${exchange.token}`);*/}
-        {/*      }}*/}
-        {/*    >*/}
-        {/*      <img className={styles.imgToken} src="/link.png" />*/}
-        {/*      <Text>LINK</Text>*/}
-        {/*    </Box>*/}
-        {/*  </Box>*/}
-        {/*) : null}*/}
+          {/*    <Box*/}
+          {/*      className={cn(*/}
+          {/*        styles.itemToken,*/}
+          {/*        exchange.token === TOKEN.LINK ? styles.selected : '',*/}
+          {/*      )}*/}
+          {/*      onClick={() => {*/}
+          {/*        exchange.setToken(TOKEN.LINK);*/}
+          {/*        routing.push(`/${exchange.token}`);*/}
+          {/*      }}*/}
+          {/*    >*/}
+          {/*      <img className={styles.imgToken} src="/link.png" />*/}
+          {/*      <Text>LINK</Text>*/}
+          {/*    </Box>*/}
+          {/*  </Box>*/}
+          {/*) : null}*/}
 
-        <Form
-          ref={ref => (this.formRef = ref)}
-          data={this.props.exchange.transaction}
-          {...({} as any)}
-        >
-          {exchange.step.id === EXCHANGE_STEPS.BASE ? (
-            <Box direction="column" fill={true}>
+          <Form
+            ref={ref => (this.formRef = ref)}
+            data={this.props.exchange.transaction}
+            {...({} as any)}
+          >
+            {exchange.step.id === EXCHANGE_STEPS.BASE ? (
               <Box direction="column" fill={true}>
-                <Input
-                  label="ERC20 Address"
-                  name="erc20Address"
-                  style={{ width: '100%' }}
-                  placeholder="ERC20 address"
-                  rules={[isRequired]}
-                />
-                <Box direction="row" justify="end">
-                  <Button
-                    onClick={() => {
-                      userMetamask.setToken(exchange.transaction.erc20Address);
-                    }}
-                  >
-                    Check address
-                  </Button>
-                </Box>
-              </Box>
+                {/*<Box direction="column" fill={true}>*/}
+                {/*  <Input*/}
+                {/*    label="ERC20 Address"*/}
+                {/*    name="erc20Address"*/}
+                {/*    style={{ width: '100%' }}*/}
+                {/*    placeholder="ERC20 address"*/}
+                {/*    rules={[isRequired]}*/}
+                {/*  />*/}
+                {/*  <Box direction="row" justify="end">*/}
+                {/*    <Button*/}
+                {/*      onClick={() => {*/}
+                {/*        userMetamask.setToken(exchange.transaction.erc20Address);*/}
+                {/*      }}*/}
+                {/*    >*/}
+                {/*      Check address*/}
+                {/*    </Button>*/}
+                {/*  </Box>*/}
+                {/*</Box>*/}
 
-              <Box direction="column" fill={true} margin={{ top: 'medium' }}>
-                <TokenDetails />
-              </Box>
-
-              <Box
-                direction="column"
-                gap="2px"
-                fill={true}
-                margin={{ top: 'large', bottom: 'large' }}
-              >
-                <NumberInput
-                  label={`${this.tokenInfo.label} Amount`}
-                  name="amount"
-                  type="decimal"
-                  precision="6"
-                  delimiter="."
-                  placeholder="0"
-                  style={{ width: '100%' }}
-                  rules={[
-                    isRequired,
-                    moreThanZero,
-                    (_, value, callback) => {
-                      const errors = [];
-
-                      if (
-                        value &&
-                        Number(value) > Number(this.tokenInfo.maxAmount)
-                      ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
-                      }
-
-                      callback(errors);
-                    },
-                  ]}
-                />
-                <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithTwoDecimals(this.tokenInfo.maxAmount)}{' '}
-                  {this.tokenInfo.label}
-                </Text>
-              </Box>
-
-              {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
                 <Box direction="column" fill={true}>
-                  <Input
-                    label="ETH Address"
-                    name="ethAddress"
-                    style={{ width: '100%' }}
-                    placeholder="Receiver address"
-                    rules={[isRequired]}
-                  />
-                  {userMetamask.isAuthorized ? (
-                    <Box
-                      fill={true}
-                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
-                      onClick={() =>
-                        (exchange.transaction.ethAddress =
-                          userMetamask.ethAddress)
-                      }
-                    >
-                      Use my address
-                    </Box>
-                  ) : null}
+                  <TokenDetails />
                 </Box>
-              ) : (
-                <Box direction="column" fill={true}>
-                  <Input
-                    label="ONE Address"
-                    name="oneAddress"
+
+                <Box
+                  direction="column"
+                  gap="2px"
+                  fill={true}
+                  margin={{ top: 'large', bottom: 'large' }}
+                >
+                  <NumberInput
+                    label={`${this.tokenInfo.label} Amount`}
+                    name="amount"
+                    type="decimal"
+                    precision="6"
+                    delimiter="."
+                    placeholder="0"
                     style={{ width: '100%' }}
-                    placeholder="Receiver address"
-                    rules={[isRequired]}
+                    rules={[
+                      isRequired,
+                      moreThanZero,
+                      (_, value, callback) => {
+                        const errors = [];
+
+                        if (
+                          value &&
+                          Number(value) > Number(this.tokenInfo.maxAmount)
+                        ) {
+                          const defaultMsg = `Exceeded the maximum amount`;
+                          errors.push(defaultMsg);
+                        }
+
+                        callback(errors);
+                      },
+                    ]}
                   />
-                  {user.isAuthorized ? (
-                    <Box
-                      fill={true}
-                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
-                      onClick={() =>
-                        (exchange.transaction.oneAddress = user.address)
-                      }
-                    >
-                      Use my address
-                    </Box>
-                  ) : null}
+                  <Text size="small" style={{ textAlign: 'right' }}>
+                    <b>*Max Available</b> ={' '}
+                    {formatWithTwoDecimals(this.tokenInfo.maxAmount)}{' '}
+                    {this.tokenInfo.label}
+                  </Text>
                 </Box>
-              )}
-            </Box>
+
+                {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+                  <Box direction="column" fill={true}>
+                    <Input
+                      label="ETH Address"
+                      name="ethAddress"
+                      style={{ width: '100%' }}
+                      placeholder="Receiver address"
+                      rules={[isRequired]}
+                    />
+                    {userMetamask.isAuthorized ? (
+                      <Box
+                        fill={true}
+                        style={{
+                          color: 'rgb(0, 173, 232)',
+                          textAlign: 'right',
+                        }}
+                        onClick={() =>
+                          (exchange.transaction.ethAddress =
+                            userMetamask.ethAddress)
+                        }
+                      >
+                        Use my address
+                      </Box>
+                    ) : null}
+                  </Box>
+                ) : (
+                  <Box direction="column" fill={true}>
+                    <Input
+                      label="ONE Address"
+                      name="oneAddress"
+                      style={{ width: '100%' }}
+                      placeholder="Receiver address"
+                      rules={[isRequired]}
+                    />
+                    {user.isAuthorized ? (
+                      <Box
+                        fill={true}
+                        style={{
+                          color: 'rgb(0, 173, 232)',
+                          textAlign: 'right',
+                        }}
+                        onClick={() =>
+                          (exchange.transaction.oneAddress = user.address)
+                        }
+                      >
+                        Use my address
+                      </Box>
+                    ) : null}
+                  </Box>
+                )}
+              </Box>
+            ) : null}
+          </Form>
+
+          {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
+            <Details showTotal={true} />
           ) : null}
-        </Form>
 
-        {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
-          <Details showTotal={true} />
-        ) : null}
+          {exchange.step.id === EXCHANGE_STEPS.SENDING ? (
+            <Details>
+              <Status />
+            </Details>
+          ) : null}
 
-        {exchange.step.id === EXCHANGE_STEPS.SENDING ? (
-          <Details>
-            <Status />
-          </Details>
-        ) : null}
+          {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
+            <Details>
+              <Status />
+            </Details>
+          ) : null}
 
-        {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
-          <Details>
-            <Status />
-          </Details>
-        ) : null}
-
-        <Box
-          direction="row"
-          margin={{ top: 'large' }}
-          justify="end"
-          align="center"
-        >
-          {exchange.step.buttons.map((conf, idx) => (
-            <Button
-              key={idx}
-              bgColor="#00ADE8"
-              style={{ width: conf.transparent ? 140 : 180 }}
-              onClick={() => {
-                this.onClickHandler(conf.validate, conf.onClick);
-              }}
-              transparent={!!conf.transparent}
-            >
-              {conf.title}
-            </Button>
-          ))}
-        </Box>
+          <Box
+            direction="row"
+            margin={{ top: 'large' }}
+            justify="end"
+            align="center"
+          >
+            {exchange.step.buttons.map((conf, idx) => (
+              <Button
+                key={idx}
+                bgColor="#00ADE8"
+                style={{ width: conf.transparent ? 140 : 180 }}
+                onClick={() => {
+                  this.onClickHandler(conf.validate, conf.onClick);
+                }}
+                transparent={!!conf.transparent}
+              >
+                {conf.title}
+              </Button>
+            ))}
+          </Box>
+        </DisableWrap>
       </Box>
     );
   }

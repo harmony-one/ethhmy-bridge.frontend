@@ -37,7 +37,7 @@ export class DisableWrap extends React.Component<IDisableWrapProps> {
   };
 
   render() {
-    const { children, disabled, opacity = 0.4 } = this.props;
+    const { children, disabled, opacity = 0.6 } = this.props;
 
     if (disabled) {
       return (
