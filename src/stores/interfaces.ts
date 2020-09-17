@@ -10,6 +10,7 @@ export enum TOKEN {
 
 export enum ACTION_TYPE {
   // ETH_TO_ONE
+  'getHRC20Address' = 'getHRC20Address',
   'approveEthManger' = 'approveEthManger',
   'lockToken' = 'lockToken',
   'waitingBlockNumber' = 'waitingBlockNumber',

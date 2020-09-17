@@ -2,11 +2,7 @@ import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import {
-  getEthBalance,
-  ethMethodsBUSD,
-  ethMethodsLINK,
-} from '../blockchain-bridge';
+import { getEthBalance, ethMethods } from '../blockchain-bridge';
 
 const defaults = {};
 
@@ -121,7 +117,7 @@ export class UserStoreMetamask extends StoreConstructor {
           if (err.code === 4001) {
             this.isAuthorized = false;
             this.ethAddress = null;
-            this.syncLocalStorage()
+            this.syncLocalStorage();
             return this.setError('Please connect to MetaMask.');
           } else {
             console.error(err);
@@ -144,13 +140,12 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
       try {
-        this.ethBUSDBalance = await ethMethodsBUSD.checkEthBalance(
+        this.ethBUSDBalance = await ethMethods.checkEthBalance(
+          this.stores.exchange.transaction.erc20Address,
           this.ethAddress,
         );
 
-        this.ethLINKBalance = await ethMethodsLINK.checkEthBalance(
-          this.ethAddress,
-        );
+        // this.ethLINKBalance = await ethMethods.checkEthBalance(this.ethAddress);
 
         this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {

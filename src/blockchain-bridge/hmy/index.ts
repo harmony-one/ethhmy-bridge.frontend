@@ -11,38 +11,13 @@ export const hmy = new Harmony(
   },
 );
 
-const hmyBUSDJson = require('../out/BUSDImplementation.json');
-const hmyBUSDContract = this.hmy.contracts.createContract(
-  hmyBUSDJson.abi,
+const hmyManagerJson = require('../out/HmyManager.json');
+const hmyManagerContract = this.hmy.contracts.createContract(
+  hmyManagerJson.abi,
   process.env.HMY_BUSD_CONTRACT,
 );
 
-const hmyBUSDManagerJson = require('../out/BUSDHmyManager.json');
-let hmyBUSDManagerContract = this.hmy.contracts.createContract(
-  hmyBUSDManagerJson.abi,
-  process.env.HMY_MANAGER_CONTRACT,
-);
-
-const hmyLINKJson = require('../out/LinkToken.json');
-let hmyLINKContract = hmy.contracts.createContract(
-  hmyLINKJson.abi,
-  process.env.HMY_LINK_CONTRACT,
-);
-
-const hmyLINKManagerJson = require('../out/LINKHmyManager.json');
-let hmyLINKManagerContract = hmy.contracts.createContract(
-  hmyLINKManagerJson.abi,
-  process.env.HMY_LINK_MANAGER_CONTRACT,
-);
-
-export const hmyMethodsBUSD = new HmyMethods({
+export const hmyMethods = new HmyMethods({
   hmy: hmy,
-  hmyTokenContract: hmyBUSDContract,
-  hmyManagerContract: hmyBUSDManagerContract,
-});
-
-export const hmyMethodsLINK = new HmyMethods({
-  hmy: hmy,
-  hmyTokenContract: hmyLINKContract,
-  hmyManagerContract: hmyLINKManagerContract,
+  hmyManagerContract: hmyManagerContract,
 });

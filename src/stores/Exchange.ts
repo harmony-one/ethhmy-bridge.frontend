@@ -1,15 +1,17 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import { EXCHANGE_MODE, IOperation, STATUS, TOKEN } from './interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IOperation,
+  STATUS,
+  TOKEN,
+} from './interfaces';
 import * as operationService from 'services';
 
-import {
-  ethMethodsBUSD,
-  ethMethodsLINK,
-  hmyMethodsBUSD,
-  hmyMethodsLINK,
-} from '../blockchain-bridge';
+import { ethMethods, hmyMethods } from '../blockchain-bridge';
+import { sleep } from '../utils';
 
 export enum EXCHANGE_STEPS {
   BASE = 'BASE',
@@ -39,6 +41,7 @@ export class Exchange extends StoreConstructor {
     oneAddress: '',
     ethAddress: '',
     amount: '0',
+    erc20Address: '0xF6a02E91248edE0d31ED7aB9b21078A63a936211',
   };
 
   @observable transaction = this.defaultTransaction;
@@ -194,12 +197,13 @@ export class Exchange extends StoreConstructor {
     this.operation = await operationService.createOperation({
       ...this.transaction,
       type: this.mode,
-      token: this.token,
-      fee: '0.00021',
     });
 
     return this.operation.id;
   }
+
+  getActionByType = (type: ACTION_TYPE) =>
+    this.operation.actions.find(a => a.type === type);
 
   @action.bound
   async sendOperation(id: string = '') {
@@ -233,36 +237,39 @@ export class Exchange extends StoreConstructor {
         });
       };
 
-      let ethMethods, hmyMethods;
-
-      if (this.token === TOKEN.BUSD) {
-        ethMethods = ethMethodsBUSD;
-        hmyMethods = hmyMethodsBUSD;
-      }
-
-      if (this.token === TOKEN.LINK) {
-        ethMethods = ethMethodsLINK;
-        hmyMethods = hmyMethodsLINK;
-      }
-
       if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-        const approveEthManger = this.operation.actions[0];
+        let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
 
-        if (approveEthManger.status === STATUS.WAITING) {
-          await ethMethods.approveEthManger(this.transaction.amount, hash =>
+        while (
+          getHRC20Action &&
+          [STATUS.IN_PROGRESS, STATUS.WAITING].includes(getHRC20Action.status)
+        ) {
+          await sleep(3000);
+          getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
+        }
+
+        const approveEthManger = this.operation.actions.find(
+          a => a.type === ACTION_TYPE.approveEthManger,
+        );
+
+        if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
+          const { amount, erc20Address } = this.transaction;
+
+          await ethMethods.approveEthManger(erc20Address, amount, hash =>
             confirmCallback(hash, approveEthManger.id),
           );
         }
 
-        const lockToken = this.operation.actions[1];
-
-        if (lockToken.status === STATUS.WAITING) {
-          await ethMethods.lockToken(
-            this.transaction.oneAddress,
-            this.transaction.amount,
-            hash => confirmCallback(hash, lockToken.id),
-          );
-        }
+        // const lockToken = this.operation.actions[2];
+        //
+        // if (lockToken.status === STATUS.WAITING) {
+        //   await ethMethods.lockToken(
+        //     erc20Address,
+        //     this.transaction.oneAddress,
+        //     this.transaction.amount,
+        //     hash => confirmCallback(hash, lockToken.id),
+        //   );
+        // }
       }
 
       if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {

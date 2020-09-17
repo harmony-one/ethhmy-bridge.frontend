@@ -1,11 +1,7 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-import {
-  getHmyBalance,
-  hmyMethodsLINK,
-  hmyMethodsBUSD,
-} from '../blockchain-bridge';
+import { getHmyBalance, hmyMethods } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -98,26 +94,26 @@ export class UserStoreEx extends StoreConstructor {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
-        this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
-          this.address,
-        );
-        this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
-          this.address,
-        );
+        // this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
+        //   this.address,
+        // );
+        // this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
+        //   this.address,
+        // );
       } catch (e) {
         console.error(e);
       }
     }
 
     try {
-      const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
+      // const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
 
-      this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
+      // this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
 
-      const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
-        process.env.HMY_LINK_MANAGER_CONTRACT,
-      );
-      this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
+      // const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
+      //   process.env.HMY_LINK_MANAGER_CONTRACT,
+      // );
+      // this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
     } catch (e) {
       console.error(e);
     }

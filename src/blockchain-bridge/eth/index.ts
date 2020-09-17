@@ -8,40 +8,14 @@ const web3URL = window.web3
 
 export const web3 = new Web3(web3URL);
 
-const ethBUSDJson = require('../out/BUSDImplementation.json');
-const ethBUSDContract = new web3.eth.Contract(
-  ethBUSDJson.abi,
-  process.env.ETH_BUSD_CONTRACT,
-);
-
-const ethBUSDManagerJson = require('../out/BUSDEthManager.json');
-const ethBUSDManagerContract = new web3.eth.Contract(
-  ethBUSDManagerJson.abi,
+const ethManagerJson = require('../out/EthManager.json');
+const ethManagerContract = new web3.eth.Contract(
+  ethManagerJson.abi,
   process.env.ETH_MANAGER_CONTRACT,
 );
 
-const ethLINKJson = require('../out/LinkToken.json');
-const ethLINKContract = new web3.eth.Contract(
-  ethLINKJson.abi,
-  process.env.ETH_LINK_CONTRACT,
-);
-
-const ethLINKManagerJson = require('../out/LINKEthManager.json');
-const ethLINKManagerContract = new web3.eth.Contract(
-  ethLINKManagerJson.abi,
-  process.env.ETH_LINK_MANAGER_CONTRACT,
-);
-
-export const ethMethodsBUSD = new EthMethods({
+export const ethMethods = new EthMethods({
   web3: web3,
-  ethTokenContract: ethBUSDContract,
-  ethManagerContract: ethBUSDManagerContract,
+  ethManagerContract: ethManagerContract,
   ethManagerAddress: process.env.ETH_MANAGER_CONTRACT,
-});
-
-export const ethMethodsLINK = new EthMethods({
-  web3: web3,
-  ethTokenContract: ethLINKContract,
-  ethManagerContract: ethLINKManagerContract,
-  ethManagerAddress: process.env.ETH_LINK_MANAGER_CONTRACT,
 });
