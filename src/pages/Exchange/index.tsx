@@ -14,12 +14,13 @@ import { Button, Icon, Text } from 'components/Base';
 import { formatWithTwoDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
-import { Details } from './Details';
+import { Details, TokenDetails } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
 import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
-import cn from 'classnames';
+// import cn from 'classnames';
+// import { ERC20Select } from './ERC20Select';
 
 export interface ITokenInfo {
   label: string;
@@ -44,7 +45,7 @@ export class Exchange extends React.Component<
       const { exchange } = this.props;
 
       if (exchange.token && exchange.mode) {
-        if(this.formRef) {
+        if (this.formRef) {
           this.formRef.resetTouched();
           this.formRef.resetErrors();
         }
@@ -75,7 +76,10 @@ export class Exchange extends React.Component<
       }
     }
 
-    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (
+      !userMetamask.isAuthorized &&
+      exchange.mode === EXCHANGE_MODE.ETH_TO_ONE
+    ) {
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
       }
@@ -94,32 +98,17 @@ export class Exchange extends React.Component<
   get tokenInfo(): ITokenInfo {
     const { user, exchange, userMetamask } = this.props;
 
-    switch (exchange.token) {
-      case TOKEN.BUSD:
-        return {
-          label: 'BUSD',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hmyBUSDBalance
-              : userMetamask.ethBUSDBalance,
-        };
-      case TOKEN.LINK:
-        return {
-          label: 'LINK',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hmyLINKBalance
-              : userMetamask.ethLINKBalance,
-        };
-      default:
-        return {
-          label: 'BUSD',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hmyBUSDBalance
-              : userMetamask.ethBUSDBalance,
-        };
+    if (!userMetamask.erc20TokenDetails) {
+      return { label: '', maxAmount: '0' };
     }
+
+    return {
+      label: userMetamask.erc20TokenDetails.symbol,
+      maxAmount:
+        exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+          ? user.hrc20Balance
+          : userMetamask.erc20Balance,
+    };
   }
 
   render() {
@@ -175,37 +164,37 @@ export class Exchange extends React.Component<
 
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
-        {exchange.step.id === EXCHANGE_STEPS.BASE ? (
-          <Box direction="row">
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.BUSD ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.BUSD);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/busd.svg" />
-              <Text>BUSD</Text>
-            </Box>
+        {/*{exchange.step.id === EXCHANGE_STEPS.BASE ? (*/}
+        {/*  <Box direction="row">*/}
+        {/*    <Box*/}
+        {/*      className={cn(*/}
+        {/*        styles.itemToken,*/}
+        {/*        exchange.token === TOKEN.BUSD ? styles.selected : '',*/}
+        {/*      )}*/}
+        {/*      onClick={() => {*/}
+        {/*        exchange.setToken(TOKEN.BUSD);*/}
+        {/*        routing.push(`/${exchange.token}`);*/}
+        {/*      }}*/}
+        {/*    >*/}
+        {/*      <img className={styles.imgToken} src="/busd.svg" />*/}
+        {/*      <Text>BUSD</Text>*/}
+        {/*    </Box>*/}
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.LINK ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.LINK);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/link.png" />
-              <Text>LINK</Text>
-            </Box>
-          </Box>
-        ) : null}
+        {/*    <Box*/}
+        {/*      className={cn(*/}
+        {/*        styles.itemToken,*/}
+        {/*        exchange.token === TOKEN.LINK ? styles.selected : '',*/}
+        {/*      )}*/}
+        {/*      onClick={() => {*/}
+        {/*        exchange.setToken(TOKEN.LINK);*/}
+        {/*        routing.push(`/${exchange.token}`);*/}
+        {/*      }}*/}
+        {/*    >*/}
+        {/*      <img className={styles.imgToken} src="/link.png" />*/}
+        {/*      <Text>LINK</Text>*/}
+        {/*    </Box>*/}
+        {/*  </Box>*/}
+        {/*) : null}*/}
 
         <Form
           ref={ref => (this.formRef = ref)}
@@ -214,11 +203,34 @@ export class Exchange extends React.Component<
         >
           {exchange.step.id === EXCHANGE_STEPS.BASE ? (
             <Box direction="column" fill={true}>
+              <Box direction="column" fill={true}>
+                <Input
+                  label="ERC20 Address"
+                  name="erc20Address"
+                  style={{ width: '100%' }}
+                  placeholder="ERC20 address"
+                  rules={[isRequired]}
+                />
+                <Box direction="row" justify="end">
+                  <Button
+                    onClick={() => {
+                      userMetamask.setToken(exchange.transaction.erc20Address);
+                    }}
+                  >
+                    Check address
+                  </Button>
+                </Box>
+              </Box>
+
+              <Box direction="column" fill={true} margin={{ top: 'medium' }}>
+                <TokenDetails />
+              </Box>
+
               <Box
                 direction="column"
                 gap="2px"
                 fill={true}
-                margin={{ top: 'xlarge', bottom: 'large' }}
+                margin={{ top: 'large', bottom: 'large' }}
               >
                 <NumberInput
                   label={`${this.tokenInfo.label} Amount`}

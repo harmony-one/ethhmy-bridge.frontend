@@ -24,7 +24,7 @@ export class EthMethods {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const MyERC20Json = require('../out/IERC20.json');
+    const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
@@ -58,12 +58,26 @@ export class EthMethods {
   };
 
   checkEthBalance = async (erc20Address, addr) => {
-    const MyERC20Json = require('../out/IERC20.json');
+    const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
     );
 
     return await erc20Contract.methods.balanceOf(addr).call();
+  };
+
+  tokenDetails = async erc20Address => {
+    const MyERC20Json = require('../out/MyERC20.json');
+    const erc20Contract = new this.web3.eth.Contract(
+      MyERC20Json.abi,
+      erc20Address,
+    );
+
+    const name = await erc20Contract.methods.name().call();
+    const symbol = await erc20Contract.methods.symbol().call();
+    const decimals = await erc20Contract.methods.decimals().call();
+
+    return { name, symbol, decimals, erc20Address };
   };
 }

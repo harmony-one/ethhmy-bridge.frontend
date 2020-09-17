@@ -30,6 +30,9 @@ export class UserStoreEx extends StoreConstructor {
   @observable public oneRate = 0;
   @observable public ethRate = 0;
 
+  @observable public hrc20Address = '';
+  @observable public hrc20Balance = '';
+
   constructor(stores) {
     super(stores);
 
@@ -94,6 +97,13 @@ export class UserStoreEx extends StoreConstructor {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
+        if (this.hrc20Address) {
+          this.hrc20Balance = await hmyMethods.checkHmyBalance(
+            this.hrc20Address,
+            this.address,
+          );
+        }
+
         // this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
         //   this.address,
         // );
@@ -107,9 +117,7 @@ export class UserStoreEx extends StoreConstructor {
 
     try {
       // const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
-
       // this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
-
       // const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
       //   process.env.HMY_LINK_MANAGER_CONTRACT,
       // );

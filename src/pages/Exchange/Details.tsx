@@ -102,7 +102,7 @@ const AssetRow = props => {
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
-    const { exchange } = useStores();
+    const { exchange, userMetamask } = useStores();
 
     return (
       <Box direction="column">
@@ -117,7 +117,10 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           address={true}
         />
         <AssetRow
-          label={`${String(exchange.token).toUpperCase()} amount`}
+          label={`${String(
+            userMetamask.erc20TokenDetails &&
+              userMetamask.erc20TokenDetails.symbol,
+          ).toUpperCase()} amount`}
           value={formatWithSixDecimals(exchange.transaction.amount)}
         />
 
@@ -163,6 +166,47 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               address={true}
             />
           </Box>
+        ) : null}
+      </Box>
+    );
+  },
+);
+
+export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
+  ({ showTotal, children }) => {
+    const { userMetamask, exchange, user } = useStores();
+
+    if (!userMetamask.erc20TokenDetails) {
+      return null;
+    }
+
+    if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !user.hrc20Address) {
+      return <Text color="red">Token not found</Text>;
+    }
+
+    return (
+      <Box direction="column">
+        <AssetRow
+          label="Token name"
+          value={userMetamask.erc20TokenDetails.name}
+        />
+        <AssetRow
+          label="Token Symbol"
+          value={userMetamask.erc20TokenDetails.symbol}
+        />
+        {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+        userMetamask.ethAddress ? (
+          <AssetRow
+            label="User Ethereum Balance"
+            value={formatWithSixDecimals(userMetamask.erc20Balance)}
+          />
+        ) : null}
+
+        {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && user.address ? (
+          <AssetRow
+            label="User Harmony Balance"
+            value={formatWithSixDecimals(user.hrc20Balance)}
+          />
         ) : null}
       </Box>
     );

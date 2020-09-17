@@ -14,7 +14,7 @@ export const hmy = new Harmony(
 const hmyManagerJson = require('../out/HmyManager.json');
 const hmyManagerContract = this.hmy.contracts.createContract(
   hmyManagerJson.abi,
-  process.env.HMY_BUSD_CONTRACT,
+  process.env.HMY_MANAGER_CONTRACT,
 );
 
 export const hmyMethods = new HmyMethods({

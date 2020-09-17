@@ -29,6 +29,7 @@ export const connectToOneWallet: TConnectToOneWallet = async (
     userAddress = hmy.crypto.getAddress(address).checksum;
   }
 
+  //wallet.defaultSigner = "0xaF5CfEfa11644243391adAe27fCd28acAB0532f2";
   wallet.defaultSigner = userAddress;
 
   wallet.signTransaction = async tx => {

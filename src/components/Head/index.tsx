@@ -102,20 +102,20 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Bridge</Text>
             </Box>
-            <Box
-              direction="column"
-              align="center"
-              gap="10px"
-              style={{ width: 190 }}
-              margin={{ left: '50px' }}
-            >
-              <Box direction="row" fill={true} justify="between">
-                Total BUSD locked: <b>{user.hmyBUSDBalanceManager}</b>
-              </Box>
-              <Box direction="row" fill={true} justify="between">
-                Total LINK locked: <b>{user.hmyLINKBalanceManager}</b>
-              </Box>
-            </Box>
+            {/*<Box*/}
+            {/*  direction="column"*/}
+            {/*  align="center"*/}
+            {/*  gap="10px"*/}
+            {/*  style={{ width: 190 }}*/}
+            {/*  margin={{ left: '50px' }}*/}
+            {/*>*/}
+            {/*  <Box direction="row" fill={true} justify="between">*/}
+            {/*    Total BUSD locked: <b>{user.hmyBUSDBalanceManager}</b>*/}
+            {/*  </Box>*/}
+            {/*  <Box direction="row" fill={true} justify="between">*/}
+            {/*    Total LINK locked: <b>{user.hmyLINKBalanceManager}</b>*/}
+            {/*  </Box>*/}
+            {/*</Box>*/}
           </Box>
         </Box>
       </Box>

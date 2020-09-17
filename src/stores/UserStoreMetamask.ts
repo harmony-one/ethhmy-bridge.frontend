@@ -2,9 +2,16 @@ import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import { getEthBalance, ethMethods } from '../blockchain-bridge';
+import { getEthBalance, ethMethods, hmyMethods } from '../blockchain-bridge';
 
 const defaults = {};
+
+export interface IERC20Token {
+  name: string;
+  symbol: string;
+  decimals: string;
+  erc20Address: string;
+}
 
 export class UserStoreMetamask extends StoreConstructor {
   @observable public isAuthorized: boolean;
@@ -19,6 +26,10 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public ethBalance: string = '0';
   @observable public ethBUSDBalance: string = '0';
   @observable public ethLINKBalance: string = '0';
+
+  @observable erc20Address: string = '';
+  @observable erc20TokenDetails: IERC20Token;
+  @observable erc20Balance: string = '';
 
   constructor(stores) {
     super(stores);
@@ -140,10 +151,12 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
       try {
-        this.ethBUSDBalance = await ethMethods.checkEthBalance(
-          this.stores.exchange.transaction.erc20Address,
-          this.ethAddress,
-        );
+        if (this.erc20Address) {
+          this.erc20Balance = await ethMethods.checkEthBalance(
+            this.erc20Address,
+            this.ethAddress,
+          );
+        }
 
         // this.ethLINKBalance = await ethMethods.checkEthBalance(this.ethAddress);
 
@@ -151,6 +164,22 @@ export class UserStoreMetamask extends StoreConstructor {
       } catch (e) {
         console.error(e);
       }
+    }
+  };
+
+  @action.bound public setToken = async (erc20Address: string) => {
+    debugger;
+    this.erc20TokenDetails = await ethMethods.tokenDetails(erc20Address);
+    this.erc20Address = erc20Address;
+
+    const address = await hmyMethods.getMappingFor(erc20Address);
+
+    debugger;
+
+    if (!!Number(address)) {
+      this.stores.user.hrc20Address = address;
+    } else {
+      this.stores.user.hrc20Address = '';
     }
   };
 
