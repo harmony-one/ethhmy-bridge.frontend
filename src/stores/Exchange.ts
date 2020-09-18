@@ -11,7 +11,7 @@ import {
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import { sleep } from '../utils';
+import { sleep, uuid } from '../utils';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -201,6 +201,7 @@ export class Exchange extends StoreConstructor {
       ...this.transaction,
       type: this.mode,
       token: this.token,
+      id: uuid(),
     });
 
     return this.operation.id;
@@ -233,11 +234,14 @@ export class Exchange extends StoreConstructor {
         return;
       }
 
-      const confirmCallback = async (transactionHash, actionId) => {
+      const confirmCallback = async (
+        transactionHash,
+        actionType: ACTION_TYPE,
+      ) => {
         this.operation = await operationService.confirmAction({
           operationId,
           transactionHash,
-          actionId,
+          actionType,
         });
       };
 
@@ -284,7 +288,7 @@ export class Exchange extends StoreConstructor {
             const { amount, erc20Address } = this.transaction;
 
             await ethMethods.approveEthManger(erc20Address, amount, hash =>
-              confirmCallback(hash, approveEthManger.id),
+              confirmCallback(hash, approveEthManger.type),
             );
           }
 
@@ -295,7 +299,7 @@ export class Exchange extends StoreConstructor {
               this.transaction.erc20Address,
               this.transaction.oneAddress,
               this.transaction.amount,
-              hash => confirmCallback(hash, lockToken.id),
+              hash => confirmCallback(hash, lockToken.type),
             );
           }
         }
@@ -311,7 +315,7 @@ export class Exchange extends StoreConstructor {
             await hmyMethods.approveHmyManger(
               hrc20Address,
               this.transaction.amount,
-              hash => confirmCallback(hash, approveHmyManger.id),
+              hash => confirmCallback(hash, approveHmyManger.type),
             );
           }
 
@@ -322,7 +326,7 @@ export class Exchange extends StoreConstructor {
               hrc20Address,
               this.transaction.ethAddress,
               this.transaction.amount,
-              hash => confirmCallback(hash, burnToken.id),
+              hash => confirmCallback(hash, burnToken.type),
             );
           }
         }
@@ -332,7 +336,7 @@ export class Exchange extends StoreConstructor {
 
           if (approveEthManger.status === STATUS.WAITING) {
             await ethMethods.approveEthManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveEthManger.id),
+              confirmCallback(hash, approveEthManger.type),
             );
           }
 
@@ -342,7 +346,7 @@ export class Exchange extends StoreConstructor {
             await ethMethods.lockToken(
               this.transaction.oneAddress,
               this.transaction.amount,
-              hash => confirmCallback(hash, lockToken.id),
+              hash => confirmCallback(hash, lockToken.type),
             );
           }
         }
@@ -352,7 +356,7 @@ export class Exchange extends StoreConstructor {
 
           if (approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.id),
+              confirmCallback(hash, approveHmyManger.type),
             );
           }
 
@@ -362,7 +366,7 @@ export class Exchange extends StoreConstructor {
             await hmyMethods.burnToken(
               this.transaction.ethAddress,
               this.transaction.amount,
-              hash => confirmCallback(hash, burnToken.id),
+              hash => confirmCallback(hash, burnToken.type),
             );
           }
         }
