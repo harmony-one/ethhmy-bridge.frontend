@@ -124,6 +124,7 @@ function getClientEnvironment(publicUrl) {
         GAS_PRICE: process.env.GAS_PRICE,
 
         BACKEND_URL: process.env.BACKEND_URL,
+        THRESHOLD: process.env.THRESHOLD,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin

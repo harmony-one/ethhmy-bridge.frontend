@@ -3,6 +3,8 @@ import * as agent from 'superagent';
 
 const servers = require('../../appengine-servers.json');
 
+const threshold = process.env.THRESHOLD;
+
 const callAvailableServer = async (func: (url: string) => Promise<any>) => {
   let error;
 
@@ -17,19 +19,55 @@ const callAvailableServer = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
-export const createOperation = async params => {
-  return Promise.all(
-    servers.map(async url => {
-      const res = await agent.post<IOperation>(url + '/operations', params);
+const callActionN = async (func: (url: string) => Promise<any>) => {
+  let error;
+  let confirmSuccess = 0;
+  let res;
 
-      return res.body;
-    }),
-  ).then((operations: any) => {
-    if (operations.some(o => !o.id)) {
-      throw new Error('Operation not created');
+  for (let i = 0; i < servers.length; i++) {
+    try {
+      res = await func(servers[i]);
+      confirmSuccess++;
+    } catch (e) {
+      error = e;
     }
+  }
 
-    return operations[0];
+  if (confirmSuccess >= Number(threshold)) {
+    return res;
+  }
+
+  throw error;
+};
+
+const callAction = async (func: (url: string) => Promise<any>) => {
+  let error;
+
+  const res: any[] = await Promise.all(
+    servers.map(async url => {
+      try {
+        return await func(url);
+      } catch (e) {
+        error = e;
+        return false;
+      }
+    }),
+  );
+
+  const success = res.filter(r => !!r);
+
+  if (success.length >= Number(threshold)) {
+    return success[0];
+  }
+
+  throw error;
+};
+
+export const createOperation = async params => {
+  return callAction(async url => {
+    const res = await agent.post<IOperation>(url + '/operations', params);
+
+    return res.body;
   });
 };
 
@@ -38,21 +76,13 @@ export const confirmAction = async ({
   actionType,
   transactionHash,
 }) => {
-  return Promise.all(
-    servers.map(async url => {
-      const res = await agent.post<{ body: IOperation }>(
-        `${url}/operations/${operationId}/actions/${actionType}/confirm`,
-        { transactionHash },
-      );
+  return callAction(async url => {
+    const res = await agent.post<{ body: IOperation }>(
+      `${url}/operations/${operationId}/actions/${actionType}/confirm`,
+      { transactionHash },
+    );
 
-      return res.body;
-    }),
-  ).then((actions: any) => {
-    if (actions.some(o => !o.id)) {
-      throw new Error('Actions not confirmed');
-    }
-
-    return actions[0];
+    return res.body;
   });
 };
 
