@@ -123,7 +123,7 @@ export class UserStoreEx extends StoreConstructor {
       const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
         process.env.HMY_LINK_MANAGER_CONTRACT,
       );
-      this.hmyLINKBalanceManager = 10000 - Number(hmyLINKBalanceManager);
+      this.hmyLINKBalanceManager = 100000 - Number(hmyLINKBalanceManager);
     } catch (e) {
       console.error(e);
     }
