@@ -1,10 +1,7 @@
 import { IOperation } from '../stores/interfaces';
 import * as agent from 'superagent';
 
-const servers = [
-  'http://localhost:8080',
-  'http://localhost:8081',
-];
+const servers = require('../../appengine-servers.json');
 
 const callAvailableServer = async (func: (url: string) => Promise<any>) => {
   let error;
@@ -27,7 +24,7 @@ export const createOperation = async params => {
 
       return res.body;
     }),
-  ).then(operations => {
+  ).then((operations: any) => {
     if (operations.some(o => !o.id)) {
       throw new Error('Operation not created');
     }
@@ -50,7 +47,7 @@ export const confirmAction = async ({
 
       return res.body;
     }),
-  ).then(actions => {
+  ).then((actions: any) => {
     if (actions.some(o => !o.id)) {
       throw new Error('Actions not confirmed');
     }
