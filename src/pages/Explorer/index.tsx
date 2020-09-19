@@ -117,7 +117,7 @@ const getColumns = ({ oneRate, ethRate }): IColumn<IOperation>[] => [
     key: 'token',
     dataIndex: 'token',
     width: 100,
-    render: value => value.toUpperCase(),
+    render: value => value ? value.toUpperCase() : '--',
   },
   {
     title: 'Amount',

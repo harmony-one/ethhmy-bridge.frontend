@@ -100,6 +100,14 @@ export const WalletBalances = observer(() => {
                 value={formatWithTwoDecimals(user.hmyLINKBalance)}
                 selected={exchange.token === TOKEN.LINK}
               />
+
+              {user.hrc20Address ? (
+                <AssetRow
+                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
+                  value={formatWithTwoDecimals(user.hrc20Balance)}
+                  selected={exchange.token === TOKEN.ERC20}
+                />
+              ) : null}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">
@@ -170,6 +178,14 @@ export const WalletBalances = observer(() => {
                 asset="ETH"
                 value={formatWithSixDecimals(userMetamask.ethBalance)}
               />
+
+              {userMetamask.erc20TokenDetails ? (
+                <AssetRow
+                  asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
+                  value={formatWithTwoDecimals(userMetamask.erc20Balance)}
+                  selected={exchange.token === TOKEN.ERC20}
+                />
+              ) : null}
 
               <AssetRow
                 asset="Ethereum BUSD"

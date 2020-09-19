@@ -10,6 +10,7 @@ import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
+// import { ERC20Select } from '../Exchange/ERC20Select';
 
 const LargeButton = (props: {
   title: string;
@@ -59,7 +60,7 @@ export const EthBridge = observer((props: any) => {
 
   useEffect(() => {
     if (props.match.params.token) {
-      if ([TOKEN.LINK, TOKEN.BUSD].includes(props.match.params.token)) {
+      if ([TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20].includes(props.match.params.token)) {
         exchange.setToken(props.match.params.token);
       } else {
         routing.push(TOKEN.BUSD);
@@ -118,6 +119,12 @@ export const EthBridge = observer((props: any) => {
                 isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
               />
             </Box>
+
+            {/*<Box*/}
+            {/*  margin={{ bottom: 'medium' }}*/}
+            {/*>*/}
+            {/*  <ERC20Select />*/}
+            {/*</Box>*/}
 
             <Exchange />
 

@@ -1,4 +1,5 @@
 import { HmyMethods } from './HmyMethods';
+import { HmyMethodsERC20 } from './HmyMethodsERC20';
 const { Harmony } = require('@harmony-js/core');
 const { ChainID, ChainType } = require('@harmony-js/utils');
 
@@ -11,19 +12,19 @@ export const hmy = new Harmony(
   },
 );
 
-const hmyBUSDJson = require('../out/BUSDImplementation.json');
+const hmyBUSDJson = require('../out/MyERC20.json');
 const hmyBUSDContract = this.hmy.contracts.createContract(
   hmyBUSDJson.abi,
   process.env.HMY_BUSD_CONTRACT,
 );
 
-const hmyBUSDManagerJson = require('../out/BUSDHmyManager.json');
+const hmyBUSDManagerJson = require('../out/LINKHmyManager.json');
 let hmyBUSDManagerContract = this.hmy.contracts.createContract(
   hmyBUSDManagerJson.abi,
-  process.env.HMY_MANAGER_CONTRACT,
+  process.env.HMY_BUSD_MANAGER_CONTRACT,
 );
 
-const hmyLINKJson = require('../out/LinkToken.json');
+const hmyLINKJson = require('../out/MyERC20.json');
 let hmyLINKContract = hmy.contracts.createContract(
   hmyLINKJson.abi,
   process.env.HMY_LINK_CONTRACT,
@@ -45,4 +46,15 @@ export const hmyMethodsLINK = new HmyMethods({
   hmy: hmy,
   hmyTokenContract: hmyLINKContract,
   hmyManagerContract: hmyLINKManagerContract,
+});
+
+const hmyManagerJson = require('../out/HmyManagerERC20.json');
+const hmyManagerContract = this.hmy.contracts.createContract(
+  hmyManagerJson.abi,
+  process.env.HMY_ERC20_MANAGER_CONTRACT,
+);
+
+export const hmyMethodsERC20 = new HmyMethodsERC20({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContract,
 });

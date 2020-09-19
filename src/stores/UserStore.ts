@@ -1,11 +1,7 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-import {
-  getHmyBalance,
-  hmyMethodsLINK,
-  hmyMethodsBUSD,
-} from '../blockchain-bridge';
+import { getHmyBalance, hmyMethodsERC20, hmyMethodsBUSD, hmyMethodsLINK } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -33,6 +29,9 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public oneRate = 0;
   @observable public ethRate = 0;
+
+  @observable public hrc20Address = '';
+  @observable public hrc20Balance = '';
 
   constructor(stores) {
     super(stores);
@@ -97,6 +96,13 @@ export class UserStoreEx extends StoreConstructor {
       try {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
+
+        if (this.hrc20Address) {
+          this.hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
+            this.hrc20Address,
+            this.address,
+          );
+        }
 
         this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
           this.address,

@@ -10,16 +10,17 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Icon, Text } from 'components/Base';
+import { Button, DisableWrap, Icon, Text } from 'components/Base';
 import { formatWithTwoDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
-import { Details } from './Details';
+import { Details, TokenDetails } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
 import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
 import cn from 'classnames';
+import { ERC20Select } from './ERC20Select';
 
 export interface ITokenInfo {
   label: string;
@@ -44,7 +45,7 @@ export class Exchange extends React.Component<
       const { exchange } = this.props;
 
       if (exchange.token && exchange.mode) {
-        if(this.formRef) {
+        if (this.formRef) {
           this.formRef.resetTouched();
           this.formRef.resetErrors();
         }
@@ -75,7 +76,10 @@ export class Exchange extends React.Component<
       }
     }
 
-    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (
+      !userMetamask.isAuthorized &&
+      exchange.mode === EXCHANGE_MODE.ETH_TO_ONE
+    ) {
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
       }
@@ -111,6 +115,20 @@ export class Exchange extends React.Component<
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
         };
+
+      case TOKEN.ERC20:
+        if (!userMetamask.erc20TokenDetails) {
+          return { label: '', maxAmount: '0' };
+        }
+
+        return {
+          label: userMetamask.erc20TokenDetails.symbol,
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.erc20Balance,
+        };
+
       default:
         return {
           label: 'BUSD',
@@ -204,6 +222,20 @@ export class Exchange extends React.Component<
               <img className={styles.imgToken} src="/link.png" />
               <Text>LINK</Text>
             </Box>
+
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.ERC20 ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.ERC20);
+                routing.push(`/${exchange.token}`);
+              }}
+            >
+              <img className={styles.imgToken} src="/eth.svg" />
+              <Text>ERC20</Text>
+            </Box>
           </Box>
         ) : null}
 
@@ -214,6 +246,31 @@ export class Exchange extends React.Component<
         >
           {exchange.step.id === EXCHANGE_STEPS.BASE ? (
             <Box direction="column" fill={true}>
+              {/*<Box direction="column" fill={true}>*/}
+              {/*  <Input*/}
+              {/*    label="ERC20 Address"*/}
+              {/*    name="erc20Address"*/}
+              {/*    style={{ width: '100%' }}*/}
+              {/*    placeholder="ERC20 address"*/}
+              {/*    rules={[isRequired]}*/}
+              {/*  />*/}
+              {/*  <Box direction="row" justify="end">*/}
+              {/*    <Button*/}
+              {/*      onClick={() => {*/}
+              {/*        userMetamask.setToken(exchange.transaction.erc20Address);*/}
+              {/*      }}*/}
+              {/*    >*/}
+              {/*      Check address*/}
+              {/*    </Button>*/}
+              {/*  </Box>*/}
+              {/*</Box>*/}
+
+              {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
+
+              {/*<Box direction="column" fill={true}>*/}
+              {/*  <TokenDetails />*/}
+              {/*</Box>*/}
+
               <Box
                 direction="column"
                 gap="2px"
@@ -265,7 +322,10 @@ export class Exchange extends React.Component<
                   {userMetamask.isAuthorized ? (
                     <Box
                       fill={true}
-                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
                       onClick={() =>
                         (exchange.transaction.ethAddress =
                           userMetamask.ethAddress)
@@ -287,7 +347,10 @@ export class Exchange extends React.Component<
                   {user.isAuthorized ? (
                     <Box
                       fill={true}
-                      style={{ color: 'rgb(0, 173, 232)', textAlign: 'right' }}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
                       onClick={() =>
                         (exchange.transaction.oneAddress = user.address)
                       }

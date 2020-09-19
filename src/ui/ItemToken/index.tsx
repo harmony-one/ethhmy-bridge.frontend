@@ -8,6 +8,7 @@ import { TOKEN } from 'stores/interfaces';
 const icons: Record<TOKEN, string> = {
   [TOKEN.BUSD]: '/busd.svg',
   [TOKEN.LINK]: '/link.png',
+  [TOKEN.ERC20]: '/eth.svg',
 };
 
 export const ItemToken = ({ selected, onClick, tokenType }) => {
