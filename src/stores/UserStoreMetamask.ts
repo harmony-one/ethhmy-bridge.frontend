@@ -158,9 +158,13 @@ export class UserStoreMetamask extends StoreConstructor {
     if (this.ethAddress) {
       try {
         if (this.erc20Address) {
-          this.erc20Balance = await ethMethodsERC20.checkEthBalance(
+          const erc20Balance = await ethMethodsERC20.checkEthBalance(
             this.erc20Address,
             this.ethAddress,
+          );
+
+          this.erc20Balance = String(
+            erc20Balance / Number('1e' + this.erc20TokenDetails.decimals),
           );
         }
 

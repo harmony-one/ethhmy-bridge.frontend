@@ -1,7 +1,12 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-import { getHmyBalance, hmyMethodsERC20, hmyMethodsBUSD, hmyMethodsLINK } from '../blockchain-bridge';
+import {
+  getHmyBalance,
+  hmyMethodsERC20,
+  hmyMethodsBUSD,
+  hmyMethodsLINK,
+} from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -98,9 +103,16 @@ export class UserStoreEx extends StoreConstructor {
         this.balance = res && res.result;
 
         if (this.hrc20Address) {
-          this.hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
+          const hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
             this.hrc20Address,
             this.address,
+          );
+
+          this.hrc20Balance = String(
+            hrc20Balance /
+              Number(
+                '1e' + this.stores.userMetamask.erc20TokenDetails.decimals,
+              ),
           );
         }
 

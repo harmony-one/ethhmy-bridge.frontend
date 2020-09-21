@@ -22,7 +22,7 @@ export class HmyMethodsERC20 {
     }
   }
 
-  approveHmyManger = (hrc20Address, amount, sendTxCallback?) => {
+  approveHmyManger = (hrc20Address, amount, decimals, sendTxCallback?) => {
     const tokenJson = require('../out/MyERC20.json');
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
@@ -35,7 +35,10 @@ export class HmyMethodsERC20 {
         await connectToOneWallet(hmyTokenContract.wallet, null, reject);
 
         const res = await hmyTokenContract.methods
-          .approve(this.hmyManagerContract.address, amount)
+          .approve(
+            this.hmyManagerContract.address,
+            String(amount * Number('1e' + decimals)),
+          )
           .send(this.options)
           .on('transactionHash', sendTxCallback);
 
@@ -46,13 +49,23 @@ export class HmyMethodsERC20 {
     });
   };
 
-  burnToken = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
+  burnToken = async (
+    hrc20Address,
+    userAddr,
+    amount,
+    decimals,
+    sendTxCallback?,
+  ) => {
     return new Promise(async (resolve, reject) => {
       try {
         await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
 
         let response = await this.hmyManagerContract.methods
-          .burnToken(hrc20Address, amount, userAddr)
+          .burnToken(
+            hrc20Address,
+            String(amount * Number('1e' + decimals)),
+            userAddr,
+          )
           .send(this.options)
           .on('transactionHash', sendTxCallback);
 

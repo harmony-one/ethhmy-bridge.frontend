@@ -287,8 +287,11 @@ export class Exchange extends StoreConstructor {
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
             const { amount, erc20Address } = this.transaction;
 
-            await ethMethods.approveEthManger(erc20Address, amount, hash =>
-              confirmCallback(hash, approveEthManger.type),
+            await ethMethods.approveEthManger(
+              erc20Address,
+              amount,
+              this.stores.userMetamask.erc20TokenDetails.decimals,
+              hash => confirmCallback(hash, approveEthManger.type),
             );
           }
 
@@ -299,6 +302,7 @@ export class Exchange extends StoreConstructor {
               this.transaction.erc20Address,
               this.transaction.oneAddress,
               this.transaction.amount,
+              this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, lockToken.type),
             );
           }
@@ -315,6 +319,7 @@ export class Exchange extends StoreConstructor {
             await hmyMethods.approveHmyManger(
               hrc20Address,
               this.transaction.amount,
+              this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveHmyManger.type),
             );
           }
@@ -326,6 +331,7 @@ export class Exchange extends StoreConstructor {
               hrc20Address,
               this.transaction.ethAddress,
               this.transaction.amount,
+              this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, burnToken.type),
             );
           }

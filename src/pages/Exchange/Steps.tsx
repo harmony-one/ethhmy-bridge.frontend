@@ -59,7 +59,12 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
 };
 
 const isEth = type =>
-  ['approveEthManger', 'lockToken', 'unlockToken'].includes(type);
+  [
+    'approveEthManger',
+    'lockToken',
+    'unlockToken',
+    'unlockTokenRollback',
+  ].includes(type);
 
 const statuses: Record<STATUS, string> = {
   waiting: 'Waiting',

@@ -6,9 +6,11 @@ export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   lockToken: 'Lock token',
   waitingBlockNumber: 'Wait blocks confirming',
   mintToken: 'Mint Tokens',
+  mintTokenRollback: 'Mint Tokens (rollback)',
 
   // ONE TO ETH
   approveHmyManger: 'Approve manager',
   burnToken: 'Burn tokens',
   unlockToken: 'Unlock tokens',
+  unlockTokenRollback: 'Unlock tokens (rollback)',
 };

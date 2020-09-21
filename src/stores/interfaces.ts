@@ -16,11 +16,13 @@ export enum ACTION_TYPE {
   'lockToken' = 'lockToken',
   'waitingBlockNumber' = 'waitingBlockNumber',
   'mintToken' = 'mintToken',
+  'mintTokenRollback' = 'mintTokenRollback',
 
   // ONE_TO_ETH
   'approveHmyManger' = 'approveHmyManger',
   'burnToken' = 'burnToken',
   'unlockToken' = 'unlockToken',
+  'unlockTokenRollback' = 'unlockTokenRollback',
 }
 
 export enum STATUS {

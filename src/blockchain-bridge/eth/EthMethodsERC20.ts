@@ -20,7 +20,12 @@ export class EthMethodsERC20 {
     this.ethManagerAddress = params.ethManagerAddress;
   }
 
-  approveEthManger = async (erc20Address, amount, sendTxCallback?) => {
+  approveEthManger = async (
+    erc20Address,
+    amount,
+    decimals,
+    sendTxCallback?,
+  ) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -29,8 +34,12 @@ export class EthMethodsERC20 {
       MyERC20Json.abi,
       erc20Address,
     );
+
     await erc20Contract.methods
-      .approve(this.ethManagerAddress, amount)
+      .approve(
+        this.ethManagerAddress,
+        String(amount * Number('1e' + decimals)),
+      )
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
@@ -39,14 +48,24 @@ export class EthMethodsERC20 {
       .on('transactionHash', hash => sendTxCallback(hash));
   };
 
-  lockToken = async (erc20Address, userAddr, amount, sendTxCallback?) => {
+  lockToken = async (
+    erc20Address,
+    userAddr,
+    amount,
+    decimals,
+    sendTxCallback?,
+  ) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     let transaction = await this.ethManagerContract.methods
-      .lockToken(erc20Address, amount, hmyAddrHex)
+      .lockToken(
+        erc20Address,
+        String(amount * Number('1e' + decimals)),
+        hmyAddrHex,
+      )
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
@@ -68,7 +87,7 @@ export class EthMethodsERC20 {
   };
 
   tokenDetails = async erc20Address => {
-    if(!this.web3.utils.isAddress(erc20Address)){
+    if (!this.web3.utils.isAddress(erc20Address)) {
       throw new Error('Invalid token address');
     }
 
