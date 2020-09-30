@@ -276,7 +276,7 @@ export class Exchange extends StoreConstructor {
         }
 
         if (!this.stores.user.hrc20Address) {
-          this.stores.userMetamask.setToken(this.transaction.erc20Address);
+          await this.stores.userMetamask.setToken(this.transaction.erc20Address);
         }
 
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
@@ -315,7 +315,7 @@ export class Exchange extends StoreConstructor {
             ACTION_TYPE.approveHmyManger,
           );
 
-          if (approveHmyManger.status === STATUS.WAITING) {
+          if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(
               hrc20Address,
               this.transaction.amount,
@@ -326,7 +326,7 @@ export class Exchange extends StoreConstructor {
 
           const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
 
-          if (burnToken.status === STATUS.WAITING) {
+          if (burnToken && burnToken.status === STATUS.WAITING) {
             await hmyMethods.burnToken(
               hrc20Address,
               this.transaction.ethAddress,
@@ -338,17 +338,19 @@ export class Exchange extends StoreConstructor {
         }
       } else {
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          const approveEthManger = this.operation.actions[0];
+          const approveEthManger = this.getActionByType(
+            ACTION_TYPE.approveEthManger,
+          );
 
-          if (approveEthManger.status === STATUS.WAITING) {
+          if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
             await ethMethods.approveEthManger(this.transaction.amount, hash =>
               confirmCallback(hash, approveEthManger.type),
             );
           }
 
-          const lockToken = this.operation.actions[1];
+          const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
 
-          if (lockToken.status === STATUS.WAITING) {
+          if (lockToken && lockToken.status === STATUS.WAITING) {
             await ethMethods.lockToken(
               this.transaction.oneAddress,
               this.transaction.amount,
@@ -358,17 +360,19 @@ export class Exchange extends StoreConstructor {
         }
 
         if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-          const approveHmyManger = this.operation.actions[0];
+          const approveHmyManger = this.getActionByType(
+            ACTION_TYPE.approveHmyManger,
+          );
 
-          if (approveHmyManger.status === STATUS.WAITING) {
+          if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
               confirmCallback(hash, approveHmyManger.type),
             );
           }
 
-          const burnToken = this.operation.actions[1];
+          const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
 
-          if (burnToken.status === STATUS.WAITING) {
+          if (burnToken && burnToken.status === STATUS.WAITING) {
             await hmyMethods.burnToken(
               this.transaction.ethAddress,
               this.transaction.amount,
