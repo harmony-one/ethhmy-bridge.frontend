@@ -1,6 +1,7 @@
 import { Contract } from 'web3-eth-contract';
 import { getAddress } from '@harmony-js/crypto';
 import Web3 from 'web3';
+import { mulDecimals } from '../../utils';
 const BN = require('bn.js');
 
 export interface IEthMethodsInitParams {
@@ -28,7 +29,7 @@ export class EthMethods {
     const accounts = await ethereum.enable();
 
     return await this.ethTokenContract.methods
-      .approve(this.ethManagerAddress, amount)
+      .approve(this.ethManagerAddress, mulDecimals(amount, 18))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
@@ -44,7 +45,7 @@ export class EthMethods {
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     let transaction = await this.ethManagerContract.methods
-      .lockToken(amount, hmyAddrHex)
+      .lockToken(mulDecimals(amount, 18), hmyAddrHex)
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,

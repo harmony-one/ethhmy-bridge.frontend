@@ -29,7 +29,7 @@ export class Operations extends StoreConstructor {
     return services
       .getOperations()
       .then(operations => {
-        this.list = operations;
+        this.list = operations.filter(o => !!o.timestamp);
         this.status = 'success';
       })
       .catch(e => {

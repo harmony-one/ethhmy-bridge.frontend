@@ -10,6 +10,7 @@ import {
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
+import { divDecimals } from '../utils';
 
 const defaults = {};
 
@@ -108,20 +109,19 @@ export class UserStoreEx extends StoreConstructor {
             this.address,
           );
 
-          this.hrc20Balance = String(
-            hrc20Balance /
-              Number(
-                '1e' + this.stores.userMetamask.erc20TokenDetails.decimals,
-              ),
+          this.hrc20Balance = divDecimals(
+            hrc20Balance,
+            this.stores.userMetamask.erc20TokenDetails.decimals,
           );
         }
 
-        this.hmyBUSDBalance = await hmyMethodsBUSD.checkHmyBalance(
-          this.address,
-        );
-        this.hmyLINKBalance = await hmyMethodsLINK.checkHmyBalance(
-          this.address,
-        );
+        let resBalance = 0;
+
+        resBalance = await hmyMethodsBUSD.checkHmyBalance(this.address);
+        this.hmyBUSDBalance = divDecimals(resBalance, 18);
+
+        resBalance = await hmyMethodsLINK.checkHmyBalance(this.address);
+        this.hmyLINKBalance = divDecimals(resBalance, 18);
       } catch (e) {
         console.error(e);
       }
@@ -130,12 +130,18 @@ export class UserStoreEx extends StoreConstructor {
     try {
       const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
 
-      this.hmyBUSDBalanceManager = Number(hmyBUSDBalanceManager);
+      this.hmyBUSDBalanceManager = Number(
+        divDecimals(hmyBUSDBalanceManager, 18),
+      );
 
       const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
         process.env.HMY_LINK_MANAGER_CONTRACT,
       );
-      this.hmyLINKBalanceManager = 100000 - Number(hmyLINKBalanceManager);
+      this.hmyLINKBalanceManager = Number(
+        (100102.426 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(
+          2,
+        ),
+      );
     } catch (e) {
       console.error(e);
     }

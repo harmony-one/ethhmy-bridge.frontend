@@ -9,6 +9,7 @@ import {
   ethMethodsLINK,
   ethMethodsBUSD,
 } from '../blockchain-bridge';
+import { divDecimals } from '../utils';
 
 const defaults = {};
 
@@ -163,17 +164,19 @@ export class UserStoreMetamask extends StoreConstructor {
             this.ethAddress,
           );
 
-          this.erc20Balance = String(
-            erc20Balance / Number('1e' + this.erc20TokenDetails.decimals),
+          this.erc20Balance = divDecimals(
+            erc20Balance,
+            this.erc20TokenDetails.decimals,
           );
         }
 
-        this.ethLINKBalance = await ethMethodsLINK.checkEthBalance(
-          this.ethAddress,
-        );
-        this.ethBUSDBalance = await ethMethodsBUSD.checkEthBalance(
-          this.ethAddress,
-        );
+        let res = 0;
+
+        res = await ethMethodsLINK.checkEthBalance(this.ethAddress);
+        this.ethLINKBalance = divDecimals(res, 18);
+
+        res = await ethMethodsBUSD.checkEthBalance(this.ethAddress);
+        this.ethBUSDBalance = divDecimals(res, 18);
 
         this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {

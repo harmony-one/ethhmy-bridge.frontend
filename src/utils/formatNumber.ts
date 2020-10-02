@@ -1,3 +1,6 @@
+import { BigNumber } from 'bignumber.js';
+const BN = require('bn.js');
+
 const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
@@ -42,3 +45,17 @@ export function truncateAddressString(address: string, num = 12) {
   const last = address.slice(-(num));
   return `${first}...${last}`;
 }
+
+export const mulDecimals = (amount: string | number, decimals: string | number) => {
+  const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
+  const amountStr = new BigNumber(amount).multipliedBy(decimalsMul);
+
+  return new BN(amountStr.toFixed());
+};
+
+export const divDecimals = (amount: string | number, decimals: string | number) => {
+  const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
+  const amountStr = new BigNumber(amount).dividedBy(decimalsMul);
+
+  return amountStr.toFixed();
+};
