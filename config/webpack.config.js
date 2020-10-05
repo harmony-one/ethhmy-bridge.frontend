@@ -22,8 +22,6 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
-// const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-
 // dev server proxy
 const createDevServerConfig = require('./webpackDevServer.config');
 const serverConfig = createDevServerConfig();
