@@ -54,8 +54,14 @@ export class Exchange extends StoreConstructor {
 
     setInterval(async () => {
       if (this.operation) {
-        this.operation = await operationService.getOperation(this.operation.id);
-        this.setStatus();
+        const operation = await operationService.getOperation(
+          this.operation.id,
+        );
+
+        if (this.operation && this.operation.id === operation.id) {
+          this.operation = operation;
+          this.setStatus();
+        }
       }
     }, 3000);
   }
@@ -276,7 +282,9 @@ export class Exchange extends StoreConstructor {
         }
 
         if (!this.stores.user.hrc20Address) {
-          await this.stores.userMetamask.setToken(this.transaction.erc20Address);
+          await this.stores.userMetamask.setToken(
+            this.transaction.erc20Address,
+          );
         }
 
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
@@ -306,6 +314,8 @@ export class Exchange extends StoreConstructor {
               hash => confirmCallback(hash, lockToken.type),
             );
           }
+
+          return;
         }
 
         if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
@@ -335,6 +345,8 @@ export class Exchange extends StoreConstructor {
               hash => confirmCallback(hash, burnToken.type),
             );
           }
+
+          return;
         }
       } else {
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
@@ -357,6 +369,8 @@ export class Exchange extends StoreConstructor {
               hash => confirmCallback(hash, lockToken.type),
             );
           }
+
+          return;
         }
 
         if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
@@ -379,6 +393,8 @@ export class Exchange extends StoreConstructor {
               hash => confirmCallback(hash, burnToken.type),
             );
           }
+
+          return;
         }
       }
 
