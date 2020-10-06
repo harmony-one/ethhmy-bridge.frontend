@@ -1,16 +1,16 @@
 import { ACTION_TYPE } from 'stores/interfaces';
 
 export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
-  getHRC20Address: 'Get or create HRC20 token address',
-  approveEthManger: 'User approve Eth manager to lock tokens',
-  lockToken: 'Wait sufficient to confirm the transaction went through',
-  waitingBlockNumber: 'Wait while 13 blocks will be confirmed',
-  mintToken: 'Mint ONE Tokens',
-  mintTokenRollback: 'Mint ONE Tokens (rollback)',
+  getHRC20Address: 'Register user ERC20 on Harmony',
+  approveEthManger: 'User approve bridge to lock tokens ',
+  lockToken: 'Bridge lock tokens on Ethereum',
+  waitingBlockNumber: 'Wait for 13 block confirmations',
+  mintToken: 'Bridge mint tokens on Harmony',
+  mintTokenRollback: 'Mint failed, unlocking tokens on Ethereum',
 
   // ONE TO ETH
-  approveHmyManger: 'User needs to approve Harmony manager to burn token',
-  burnToken: 'Harmony burn tokens, transaction is confirmed instantaneously',
-  unlockToken: 'Eth manager unlock tokens',
-  unlockTokenRollback: 'Eth manager unlock tokens (rollback)',
+  approveHmyManger: 'User approve bridge to burn tokens',
+  burnToken: 'Bridge burn tokens on Harmony',
+  unlockToken: 'Bridge unlocks tokens on Ethereum',
+  unlockTokenRollback: 'Unlock failed, minting back the burned tokens on Harmony',
 };
