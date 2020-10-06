@@ -64,10 +64,10 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
             value={pageSize}
             size="full"
             options={[
-              { text: 'Показать 10 документов', value: 10 },
-              { text: 'Показать 30 документов', value: 30 },
-              { text: 'Показать 50 документов', value: 50 },
-              { text: 'Показать 100 документов', value: 100 },
+              { text: 'Show 10 operations', value: 10 },
+              { text: 'Show 30 operations', value: 30 },
+              { text: 'Show 50 operations', value: 50 },
+              { text: 'Show 100 operations', value: 100 },
             ]}
             onChange={this.onPageSizeChanged}
           />

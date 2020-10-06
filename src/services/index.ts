@@ -96,9 +96,14 @@ export const getOperation = async (id): Promise<IOperation> => {
   });
 };
 
-export const getOperations = async (): Promise<IOperation[]> => {
+export const getOperations = async (
+  params: any,
+): Promise<{ content: IOperation[] }> => {
   return callAvailableServer(async url => {
-    const res = await agent.get<{ body: IOperation[] }>(url + '/operations/');
+    const res = await agent.get<{ body: IOperation[] }>(
+      url + '/operations/',
+      params,
+    );
 
     return res.body;
   });

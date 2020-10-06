@@ -117,7 +117,7 @@ const getColumns = ({ oneRate, ethRate }): IColumn<IOperation>[] => [
     key: 'token',
     dataIndex: 'token',
     width: 100,
-    render: value => value ? value.toUpperCase() : '--',
+    render: value => (value ? value.toUpperCase() : '--'),
   },
   {
     title: 'Amount',
@@ -155,12 +155,16 @@ export const Explorer = observer((props: any) => {
   const [columns, setColumns] = useState(getColumns(user));
 
   useEffect(() => {
-    operations.getList();
+    operations.init();
   }, []);
 
   useEffect(() => {
     setColumns(getColumns(user));
   }, [user.oneRate, user.ethRate]);
+
+  const onChangeDataFlow = (props: any) => {
+    operations.onChangeDataFlow(props);
+  };
 
   return (
     <BaseContainer>
@@ -174,17 +178,11 @@ export const Explorer = observer((props: any) => {
           margin={{ top: 'xlarge' }}
         >
           <Table
-            data={operations.list}
+            data={operations.data}
             columns={columns}
-            hidePagination
-            dataLayerConfig={{
-              paginationData: {
-                pageSize: operations.list.length,
-                currentPage: 1,
-                totalPages: 1,
-              },
-            }}
-            onChangeDataFlow={() => {}}
+            isPending={operations.isPending}
+            dataLayerConfig={operations.dataFlow}
+            onChangeDataFlow={onChangeDataFlow}
             onRowClicked={() => {}}
             tableParams={{
               rowKey: (data: any) => data.id,
