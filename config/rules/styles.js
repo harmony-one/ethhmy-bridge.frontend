@@ -5,7 +5,7 @@ module.exports = () => [
       test: /\.(styl)$/,
       use: [
          'style-loader',
-         'css-loader?modules,localIdentName="[path][name]-[local]-[hash:base64:6]"',
+         'css-loader?modules',
          // 'css-loader',
          {
             loader: "stylus-loader", // compiles Stylus to CSS
