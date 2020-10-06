@@ -52,31 +52,5 @@ module.exports = function() {
       disableDotRule: true,
     },
     public: allowedHost,
-    headers: {
-      'Access-Control-Allow-Origin': `http://${host}:${port}`,
-      'Access-Control-Allow-Credentials': true,
-      'Access-Control-Max-Age': '3600',
-      'Access-Control-Allow-Headers':
-          'Content-Type, Authorization, x-id, Content-Length, X-Requested-With',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
-    },
-    proxy: {
-        // '/mock/api/v0/**': {
-        //     secure: false,
-        //     target: `http://${host}:3001`,
-        //     onProxyRes,
-        //     onProxyReq,
-        //     // logLevel: 'debug', // Выводит перенаправленные запросы
-        //     changeOrigin: true,
-        // },
-        '/api/v0/**': {
-            secure: false,
-            target: apiUrl,
-            onProxyRes,
-            onProxyReq,
-            // logLevel: 'debug', // Выводит перенаправленные запросы
-            changeOrigin: true,
-        },
-    },
   };
 };
