@@ -61,6 +61,7 @@ interface IDataFlowProps {
 
 export class ListStoreConstructor<T> extends StoreConstructor {
   @observable public allData: T[] = [];
+  @observable public lastUpdateTime;
   @observable public fetchStatus: statusFetching = 'init';
   @observable public paginationData: IPagination = {};
   @observable public sorters: ISorters = {};
@@ -279,6 +280,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
           this.allData = res.content;
         } else {
           this.allData = res.content;
+          this.lastUpdateTime = res.lastUpdateTime;
           this.updatePagination(res);
         }
 

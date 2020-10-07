@@ -55,3 +55,12 @@ export interface IOperation {
   actions: Array<IAction>;
   timestamp: number;
 }
+
+export interface ITokenInfo {
+  name: string;
+  symbol: string;
+  decimals: string;
+  erc20Address: string;
+  hrc20Address: string;
+  totalLocked: string;
+}

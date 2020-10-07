@@ -1,4 +1,4 @@
-import { IOperation } from '../stores/interfaces';
+import { IOperation, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 
 const servers = require('../../appengine-servers.json');
@@ -102,6 +102,19 @@ export const getOperations = async (
   return callAvailableServer(async url => {
     const res = await agent.get<{ body: IOperation[] }>(
       url + '/operations/',
+      params,
+    );
+
+    return res.body;
+  });
+};
+
+export const getTokensInfo = async (
+  params: any,
+): Promise<{ content: ITokenInfo[] }> => {
+  return callAvailableServer(async url => {
+    const res = await agent.get<{ body: ITokenInfo[] }>(
+      url + '/tokens/',
       params,
     );
 

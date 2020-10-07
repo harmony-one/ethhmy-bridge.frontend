@@ -8,6 +8,7 @@ import { Title } from '../Base/components/Title';
 import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
+import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
   width: auto;
@@ -22,6 +23,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const { minWidth, maxWidth } = container;
 
     const isExplorer = history.location.pathname === '/explorer';
+    const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
 
     return (
@@ -80,6 +82,15 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
+              className={cn(styles.itemToken, isTokens ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/tokens`);
+              }}
+            >
+              <Text>Tokens Info</Text>
+            </Box>
+
+            <Box
               className={cn(
                 styles.itemToken,
                 isExplorer ? styles.selected : '',
@@ -94,7 +105,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isExplorer && !isGetTokens ? styles.selected : '',
+                !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
               )}
               onClick={() => {
                 routing.push(`/busd`);
@@ -106,14 +117,20 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               direction="column"
               align="center"
               gap="10px"
-              style={{ width: 190 }}
+              style={{ maxWidth: 300 }}
               margin={{ left: '50px' }}
             >
               <Box direction="row" fill={true} justify="between">
-                Total BUSD locked: <b>{user.hmyBUSDBalanceManager}</b>
+                Total BUSD locked:{' '}
+                <b style={{ marginLeft: 10 }}>
+                  {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}
+                </b>
               </Box>
               <Box direction="row" fill={true} justify="between">
-                Total LINK locked: <b>{user.hmyLINKBalanceManager}</b>
+                Total LINK locked:{' '}
+                <b style={{ marginLeft: 10 }}>
+                  {formatWithTwoDecimals(user.hmyLINKBalanceManager)}
+                </b>
               </Box>
             </Box>
           </Box>
