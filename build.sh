@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo docker build -t ethhmy-bridge.fe .
+sudo docker build -f Dockerfile.build -t ethhmy-bridge.fe .
 rm -rf artifacts
 mkdir artifacts
 sudo docker run -i --rm -v ${PWD}/artifacts:/mnt/artifacts ethhmy-bridge.fe /bin/bash << COMMANDS
