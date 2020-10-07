@@ -11,3 +11,5 @@ COMMANDS
 pushd artifacts
 tar xfz ethhmy-bridge-fe.tgz
 popd
+
+sudo docker build -f Dockerfile.fe-static -t ethhmy-fe-web .
