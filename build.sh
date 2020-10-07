@@ -7,3 +7,7 @@ sudo docker run -i --rm -v ${PWD}/artifacts:/mnt/artifacts ethhmy-bridge.fe /bin
 cp /app/ethhmy-bridge-fe.tgz /mnt/artifacts
 chown -R $(id -u):$(id -g) /mnt/artifacts
 COMMANDS
+
+pushd artifacts
+tar xfz ethhmy-bridge-fe.tgz
+popd

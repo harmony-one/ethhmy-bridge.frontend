@@ -29,3 +29,5 @@ yarn-error.log*
 .firebase
 .firebase/**
 .firebaserc
+
+artifacts

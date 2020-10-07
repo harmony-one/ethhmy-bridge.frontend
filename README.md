@@ -41,3 +41,18 @@ npm run build
 cd build 
 serve
 ```
+
+# Docker
+
+## build
+```
+./build.sh
+```
+
+The build artificats will be in artifacts/build folder.
+
+## Start
+```
+./start.sh
+```
+The frontend will be started in http://localhost:8080
