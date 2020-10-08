@@ -67,106 +67,6 @@ export const WalletBalances = observer(() => {
 
       <Box className={styles.container}>
         <Box direction="column" margin={{ bottom: 'large' }}>
-          <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
-            <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/one.svg" />
-              <Title margin={{ right: 'xsmall' }}>Harmony</Title>
-              <Text margin={{ top: '4px' }}>(ONE Wallet)</Text>
-            </Box>
-            {user.isAuthorized && (
-              <Box
-                onClick={() => {
-                  user.signOut();
-                }}
-                margin={{ left: 'medium' }}
-              >
-                <Icon
-                  glyph="Logout"
-                  size="24px"
-                  style={{ opacity: 0.5 }}
-                  color="BlackTxt"
-                />
-              </Box>
-            )}
-          </Box>
-
-          {user.isAuthorized ? (
-            <>
-              <AssetRow
-                asset="Harmony Address"
-                value={truncateAddressString(user.address)}
-              />
-
-              <AssetRow
-                asset="Harmony ONE"
-                value={formatWithTwoDecimals(ones(user.balance))}
-              />
-
-              <AssetRow
-                asset="Harmony BUSD"
-                value={formatWithTwoDecimals(user.hmyBUSDBalance)}
-                selected={exchange.token === TOKEN.BUSD}
-                link={`${
-                  process.env.HMY_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_BUSD_CONTRACT,
-                )}?txType=hrc20`}
-              />
-
-              <AssetRow
-                asset="Harmony LINK"
-                value={formatWithTwoDecimals(user.hmyLINKBalance)}
-                selected={exchange.token === TOKEN.LINK}
-                link={`${
-                  process.env.HMY_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_LINK_CONTRACT,
-                )}?txType=hrc20`}
-              />
-
-              {user.hrc20Address ? (
-                <AssetRow
-                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
-                  value={formatWithTwoDecimals(user.hrc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
-                  link={`${
-                    process.env.HMY_EXPLORER_URL
-                  }/address/${getBech32Address(
-                    user.hrc20Address,
-                  )}?txType=hrc20`}
-                />
-              ) : null}
-            </>
-          ) : (
-            <Box direction="row" align="baseline" justify="start">
-              <Button
-                margin={{ vertical: 'medium' }}
-                onClick={() => {
-                  if (!user.isOneWallet) {
-                    actionModals.open(() => <AuthWarning />, {
-                      title: '',
-                      applyText: 'Got it',
-                      closeText: '',
-                      noValidation: true,
-                      width: '500px',
-                      showOther: true,
-                      onApply: () => Promise.resolve(),
-                    });
-                  } else {
-                    user.signIn();
-                  }
-                }}
-              >
-                Connect ONE Wallet
-              </Button>
-              {!user.isOneWallet ? (
-                <Error error="ONE Wallet not found" />
-              ) : null}
-            </Box>
-          )}
-        </Box>
-
-        <Box direction="column" margin={{ top: 'medium' }}>
           <Box
             direction="row"
             align="center"
@@ -242,6 +142,106 @@ export const WalletBalances = observer(() => {
                 Connect Metamask
               </Button>
               {userMetamask.error ? <Error error={userMetamask.error} /> : null}
+            </Box>
+          )}
+        </Box>
+
+        <Box direction="column">
+          <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
+            <Box direction="row" align="center">
+              <img className={styles.imgToken} src="/one.svg" />
+              <Title margin={{ right: 'xsmall' }}>Harmony</Title>
+              <Text margin={{ top: '4px' }}>(ONE Wallet)</Text>
+            </Box>
+            {user.isAuthorized && (
+              <Box
+                onClick={() => {
+                  user.signOut();
+                }}
+                margin={{ left: 'medium' }}
+              >
+                <Icon
+                  glyph="Logout"
+                  size="24px"
+                  style={{ opacity: 0.5 }}
+                  color="BlackTxt"
+                />
+              </Box>
+            )}
+          </Box>
+
+          {user.isAuthorized ? (
+            <>
+              <AssetRow
+                asset="Harmony Address"
+                value={truncateAddressString(user.address)}
+              />
+
+              <AssetRow
+                asset="Harmony ONE"
+                value={formatWithTwoDecimals(ones(user.balance))}
+              />
+
+              {user.hrc20Address ? (
+                <AssetRow
+                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
+                  value={formatWithTwoDecimals(user.hrc20Balance)}
+                  selected={exchange.token === TOKEN.ERC20}
+                  link={`${
+                    process.env.HMY_EXPLORER_URL
+                    }/address/${getBech32Address(
+                    user.hrc20Address,
+                  )}?txType=hrc20`}
+                />
+              ) : null}
+
+              <AssetRow
+                asset="Harmony BUSD"
+                value={formatWithTwoDecimals(user.hmyBUSDBalance)}
+                selected={exchange.token === TOKEN.BUSD}
+                link={`${
+                  process.env.HMY_EXPLORER_URL
+                }/address/${getBech32Address(
+                  process.env.HMY_BUSD_CONTRACT,
+                )}?txType=hrc20`}
+              />
+
+              <AssetRow
+                asset="Harmony LINK"
+                value={formatWithTwoDecimals(user.hmyLINKBalance)}
+                selected={exchange.token === TOKEN.LINK}
+                link={`${
+                  process.env.HMY_EXPLORER_URL
+                }/address/${getBech32Address(
+                  process.env.HMY_LINK_CONTRACT,
+                )}?txType=hrc20`}
+              />
+            </>
+          ) : (
+            <Box direction="row" align="baseline" justify="start">
+              <Button
+                margin={{ vertical: 'medium' }}
+                onClick={() => {
+                  if (!user.isOneWallet) {
+                    actionModals.open(() => <AuthWarning />, {
+                      title: '',
+                      applyText: 'Got it',
+                      closeText: '',
+                      noValidation: true,
+                      width: '500px',
+                      showOther: true,
+                      onApply: () => Promise.resolve(),
+                    });
+                  } else {
+                    user.signIn();
+                  }
+                }}
+              >
+                Connect ONE Wallet
+              </Button>
+              {!user.isOneWallet ? (
+                <Error error="ONE Wallet not found" />
+              ) : null}
             </Box>
           )}
         </Box>
