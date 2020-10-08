@@ -50,6 +50,10 @@ export class UserStoreMetamask extends StoreConstructor {
     if (sessionObj && sessionObj.ethAddress) {
       this.signIn();
     }
+
+    if (sessionObj && sessionObj.erc20Address) {
+      this.setToken(sessionObj.erc20Address);
+    }
   }
 
   @action.bound
@@ -151,6 +155,7 @@ export class UserStoreMetamask extends StoreConstructor {
       'harmony_metamask_session',
       JSON.stringify({
         ethAddress: this.ethAddress,
+        erc20Address: this.erc20Address,
       }),
     );
   }
@@ -197,6 +202,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
+      this.syncLocalStorage();
     } else {
       this.stores.user.hrc20Address = '';
     }

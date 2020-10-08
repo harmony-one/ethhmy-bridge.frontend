@@ -5,10 +5,13 @@ const servers = require('../../appengine-servers.json');
 
 const threshold = process.env.THRESHOLD;
 
-const callAvailableServer = async (func: (url: string) => Promise<any>) => {
+const callAvailableServer = async (
+  func: (url: string) => Promise<any>,
+  server = 0,
+) => {
   let error;
 
-  for (let i = 0; i < servers.length; i++) {
+  for (let i = server; i < servers.length; i++) {
     try {
       return await func(servers[i]);
     } catch (e) {
@@ -119,7 +122,7 @@ export const getTokensInfo = async (
     );
 
     return res.body;
-  });
+  }, 2);
 };
 
 export const mintTokens = async ({ address, token }) => {

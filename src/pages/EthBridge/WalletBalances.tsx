@@ -14,6 +14,7 @@ import {
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { TOKEN } from '../../stores/interfaces';
+import { getBech32Address } from '../../blockchain-bridge';
 // import { Routes } from '../../constants';
 
 const AssetRow = observer<any>(props => {
@@ -24,10 +25,22 @@ const AssetRow = observer<any>(props => {
         props.last ? '' : styles.underline,
       )}
     >
-      <Box>
+      <Box direction="row" align="center" justify="center">
         <Text color={props.selected ? '#00ADE8' : null} bold={false}>
           {props.asset}
         </Text>
+        {props.link ? (
+          <a
+            href={props.link}
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Icon
+              glyph="ExternalLink"
+              style={{ width: 14, margin: '0 0 2px 10px' }}
+            />
+          </a>
+        ) : null}
       </Box>
 
       <Box direction="column" align="end">
@@ -93,12 +106,22 @@ export const WalletBalances = observer(() => {
                 asset="Harmony BUSD"
                 value={formatWithTwoDecimals(user.hmyBUSDBalance)}
                 selected={exchange.token === TOKEN.BUSD}
+                link={`${
+                  process.env.HMY_EXPLORER_URL
+                }/address/${getBech32Address(
+                  process.env.HMY_BUSD_CONTRACT,
+                )}?txType=hrc20`}
               />
 
               <AssetRow
                 asset="Harmony LINK"
                 value={formatWithTwoDecimals(user.hmyLINKBalance)}
                 selected={exchange.token === TOKEN.LINK}
+                link={`${
+                  process.env.HMY_EXPLORER_URL
+                }/address/${getBech32Address(
+                  process.env.HMY_LINK_CONTRACT,
+                )}?txType=hrc20`}
               />
 
               {user.hrc20Address ? (
@@ -106,6 +129,11 @@ export const WalletBalances = observer(() => {
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithTwoDecimals(user.hrc20Balance)}
                   selected={exchange.token === TOKEN.ERC20}
+                  link={`${
+                    process.env.HMY_EXPLORER_URL
+                  }/address/${getBech32Address(
+                    user.hrc20Address,
+                  )}?txType=hrc20`}
                 />
               ) : null}
             </>
@@ -184,6 +212,7 @@ export const WalletBalances = observer(() => {
                   asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithTwoDecimals(userMetamask.erc20Balance)}
                   selected={exchange.token === TOKEN.ERC20}
+                  link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
                 />
               ) : null}
 
@@ -191,12 +220,14 @@ export const WalletBalances = observer(() => {
                 asset="Ethereum BUSD"
                 value={formatWithTwoDecimals(userMetamask.ethBUSDBalance)}
                 selected={exchange.token === TOKEN.BUSD}
+                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}
               />
 
               <AssetRow
                 asset="Ethereum LINK"
                 value={formatWithTwoDecimals(userMetamask.ethLINKBalance)}
                 selected={exchange.token === TOKEN.LINK}
+                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}
                 last={true}
               />
             </>
