@@ -11,6 +11,7 @@ export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   // ONE TO ETH
   approveHmyManger: 'User approve bridge to burn tokens',
   burnToken: 'Bridge burn tokens on Harmony',
+  waitingBlockNumberHarmony: 'Wait for 13 block confirmations',
   unlockToken: 'Bridge unlocks tokens on Ethereum',
   unlockTokenRollback: 'Unlock failed, minting back the burned tokens on Harmony',
 };

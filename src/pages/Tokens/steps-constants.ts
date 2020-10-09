@@ -11,6 +11,7 @@ export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   // ONE TO ETH
   approveHmyManger: 'Approve manager',
   burnToken: 'Burn tokens',
+  waitingBlockNumberHarmony: 'Wait blocks confirming',
   unlockToken: 'Unlock tokens',
   unlockTokenRollback: 'Unlock tokens (rollback)',
 };

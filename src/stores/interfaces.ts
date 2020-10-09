@@ -21,6 +21,7 @@ export enum ACTION_TYPE {
   // ONE_TO_ETH
   'approveHmyManger' = 'approveHmyManger',
   'burnToken' = 'burnToken',
+  'waitingBlockNumberHarmony' = 'waitingBlockNumberHarmony',
   'unlockToken' = 'unlockToken',
   'unlockTokenRollback' = 'unlockTokenRollback',
 }
