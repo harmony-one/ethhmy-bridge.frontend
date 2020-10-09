@@ -153,6 +153,13 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
+    if (
+      this.operation &&
+      [STATUS.IN_PROGRESS, STATUS.WAITING].includes(this.operation.status)
+    ) {
+      return;
+    }
+
     this.clear();
     this.mode = mode;
     this.setAddressByMode();

@@ -18,7 +18,7 @@ const MainLogo = styled.img`
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme, ...props }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { routing, user } = useStores();
+    const { routing, user, exchange } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
 
@@ -108,7 +108,11 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
               )}
               onClick={() => {
-                routing.push(`/busd`);
+                routing.push(
+                  `/${exchange.token}/operations/${
+                    exchange.operation ? exchange.operation.id : ''
+                  }`,
+                );
               }}
             >
               <Text>Bridge</Text>
