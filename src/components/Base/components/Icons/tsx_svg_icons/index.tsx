@@ -27,7 +27,6 @@ export * from './NotificationCounterWrap';
 export * from './NotificationEmptyWrap';
 export * from './RightArrow';
 export * from './Info';
-export * from './InfoRusal';
 export * from './Print';
 export * from './Plus';
 export * from './Filter';

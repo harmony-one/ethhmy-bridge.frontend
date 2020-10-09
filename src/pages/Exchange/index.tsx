@@ -18,7 +18,7 @@ import { Details, TokenDetails } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
-import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
+import { TOKEN, EXCHANGE_MODE, STATUS } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 
@@ -158,7 +158,20 @@ export class Exchange extends React.Component<
         break;
 
       case 'success':
-        icon = () => <Icon size="50" style={{ width: 50 }} glyph="CheckMark" />;
+        icon = () => (
+          <Box
+            style={{
+              background: '#1edb89',
+              borderRadius: '50%',
+            }}
+          >
+            <Icon
+              size="50"
+              style={{ width: 50, color: 'white' }}
+              glyph="CheckMark"
+            />
+          </Box>
+        );
         description = 'Success';
         break;
     }
@@ -174,7 +187,7 @@ export class Exchange extends React.Component<
       >
         {icon()}
         <Box className={styles.description} margin={{ top: 'medium' }}>
-          <Text>{description}</Text>
+          <Text style={{ textAlign: 'center' }}>{description}</Text>
           <Box margin={{ top: 'medium' }}>
             <Steps />
           </Box>
