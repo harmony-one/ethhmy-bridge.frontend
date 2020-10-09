@@ -6,11 +6,19 @@ import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { IAction, STATUS } from 'stores/interfaces';
+import { ACTION_TYPE, IAction, STATUS } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
 import { STEPS_TITLE } from './steps-constants';
 
-const StepRow = ({ action, number }: { action: IAction; number: number }) => {
+const StepRow = ({
+  action,
+  number,
+  hrc20Address,
+}: {
+  action: IAction;
+  hrc20Address?: string;
+  number: number;
+}) => {
   const active = action.status === STATUS.IN_PROGRESS;
   const completed = action.status === STATUS.SUCCESS;
 
@@ -50,6 +58,33 @@ const StepRow = ({ action, number }: { action: IAction; number: number }) => {
           </a>
         </Text>
       )}
+
+      {hrc20Address && (
+        <Box
+          direction="row"
+          justify="between"
+          align="center"
+          className={textClassName}
+        >
+          <Box direction="row" align="center">
+            <img
+              className={styles.imgToken}
+              style={{ height: 18 }}
+              src="/one.svg"
+            />
+            <Text>HRC20 address:</Text>
+          </Box>
+          <Box>
+            <a
+              href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
+              target="_blank"
+            >
+              {truncateAddressString(hrc20Address, 5)}
+            </a>
+          </Box>
+        </Box>
+      )}
+
       {action.message && (
         <Text className={textClassName}>{action.message}</Text>
       )}
@@ -74,7 +109,7 @@ const statuses: Record<STATUS, string> = {
 };
 
 export const Steps = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, user } = useStores();
 
   if (!exchange.operation) {
     return null;
@@ -85,7 +120,14 @@ export const Steps = observer(() => {
   return (
     <Box direction="column" className={styles.stepsContainer}>
       {steps.map((action, idx) => (
-        <StepRow key={action.id} action={action} number={idx} />
+        <StepRow
+          key={action.id}
+          action={action}
+          number={idx}
+          hrc20Address={
+            action.type === ACTION_TYPE.getHRC20Address ? user.hrc20Address : ''
+          }
+        />
       ))}
     </Box>
   );

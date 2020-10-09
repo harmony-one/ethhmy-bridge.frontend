@@ -1,1 +1,5 @@
-["https://bridge.harmony.one:8080", "https://bridge.harmony.one:8081", "https://bridge.harmony.one:8082"]
+[
+  "https://be1.bridge.hmny.io",
+  "https://be2.bridge.hmny.io",
+  "https://be3.bridge.hmny.io"
+]
