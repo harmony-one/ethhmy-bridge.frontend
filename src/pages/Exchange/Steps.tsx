@@ -99,6 +99,7 @@ const isEth = type =>
     'lockToken',
     'unlockToken',
     'unlockTokenRollback',
+    'waitingBlockNumber',
   ].includes(type);
 
 const statuses: Record<STATUS, string> = {

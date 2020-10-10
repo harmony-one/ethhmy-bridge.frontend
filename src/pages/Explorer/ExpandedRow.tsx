@@ -19,6 +19,7 @@ const isEth = type =>
     'approveEthManger',
     'lockToken',
     'unlockToken',
+    'unlockTokenRollback',
     'waitingBlockNumber',
   ].includes(type);
 
