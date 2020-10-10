@@ -8,6 +8,7 @@ import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
 import { MintTokens } from './pages/MintTokens';
 import { Tokens } from './pages/Tokens';
+import { InfoModal } from './components/InfoModal';
 
 export const App: React.FC = () => (
   <Providers>
@@ -26,6 +27,7 @@ export const App: React.FC = () => (
       </Switch>
     </React.Suspense>
     <ActionModals />
+    <InfoModal />
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>
 );

@@ -39,6 +39,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hrc20Address = '';
   @observable public hrc20Balance = '';
 
+  @observable public isInfoReading = false;
+
   constructor(stores) {
     super(stores);
 
@@ -65,6 +67,10 @@ export class UserStoreEx extends StoreConstructor {
 
     const sessionObj = JSON.parse(session);
 
+    if (sessionObj && sessionObj.isInfoReading) {
+      this.isInfoReading = sessionObj.isInfoReading;
+    }
+
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
       this.sessionType = sessionObj.sessionType;
@@ -74,6 +80,11 @@ export class UserStoreEx extends StoreConstructor {
 
       this.getOneBalance();
     }
+  }
+
+  @action public setInfoReading() {
+    this.isInfoReading = true;
+    this.syncLocalStorage();
   }
 
   @action public signIn() {
@@ -187,6 +198,7 @@ export class UserStoreEx extends StoreConstructor {
       JSON.stringify({
         address: this.address,
         sessionType: this.sessionType,
+        isInfoReading: this.isInfoReading,
       }),
     );
   }
