@@ -82,12 +82,28 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
+              className={cn(
+                styles.itemToken,
+                !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
+              )}
+              onClick={() => {
+                routing.push(
+                  `/${exchange.token}/operations/${
+                    exchange.operation ? exchange.operation.id : ''
+                    }`,
+                );
+              }}
+            >
+              <Text>Bridge</Text>
+            </Box>
+
+            <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/tokens`);
               }}
             >
-              <Text>Tokens Info</Text>
+              <Text>Assets</Text>
             </Box>
 
             <Box
@@ -99,44 +115,29 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 routing.push(`/explorer`);
               }}
             >
-              <Text>Explorer</Text>
+              <Text>Transactions</Text>
             </Box>
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
-              )}
-              onClick={() => {
-                routing.push(
-                  `/${exchange.token}/operations/${
-                    exchange.operation ? exchange.operation.id : ''
-                  }`,
-                );
-              }}
-            >
-              <Text>Bridge</Text>
-            </Box>
-            <Box
-              direction="column"
-              align="center"
-              gap="10px"
-              style={{ maxWidth: 300 }}
-              margin={{ left: '50px' }}
-            >
-              <Box direction="row" fill={true} justify="between">
-                Total BUSD locked:{' '}
-                <b style={{ marginLeft: 10 }}>
-                  {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}
-                </b>
-              </Box>
-              <Box direction="row" fill={true} justify="between">
-                Total LINK locked:{' '}
-                <b style={{ marginLeft: 10 }}>
-                  {formatWithTwoDecimals(user.hmyLINKBalanceManager)}
-                </b>
-              </Box>
-            </Box>
+            {/*<Box*/}
+            {/*  direction="column"*/}
+            {/*  align="center"*/}
+            {/*  gap="10px"*/}
+            {/*  style={{ maxWidth: 300 }}*/}
+            {/*  margin={{ left: '50px' }}*/}
+            {/*>*/}
+            {/*  <Box direction="row" fill={true} justify="between">*/}
+            {/*    Total BUSD locked:{' '}*/}
+            {/*    <b style={{ marginLeft: 10 }}>*/}
+            {/*      {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}*/}
+            {/*    </b>*/}
+            {/*  </Box>*/}
+            {/*  <Box direction="row" fill={true} justify="between">*/}
+            {/*    Total LINK locked:{' '}*/}
+            {/*    <b style={{ marginLeft: 10 }}>*/}
+            {/*      {formatWithTwoDecimals(user.hmyLINKBalanceManager)}*/}
+            {/*    </b>*/}
+            {/*  </Box>*/}
+            {/*</Box>*/}
           </Box>
         </Box>
       </Box>

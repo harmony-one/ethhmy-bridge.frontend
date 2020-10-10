@@ -129,7 +129,7 @@ export const Tokens = observer((props: any) => {
           margin={{ top: 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
-          <Title>Tokens</Title>
+          <Title>Bridged Assets</Title>
           <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
         </Box>
         <Box
