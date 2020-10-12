@@ -80,6 +80,8 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'decimals',
     dataIndex: 'decimals',
     width: 100,
+    className: styles.centerHeader,
+    align: 'center'
   },
   {
     title: 'Total Locked',
