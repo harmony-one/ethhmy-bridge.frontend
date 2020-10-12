@@ -47,10 +47,6 @@ export const Info = () => (
         pay for Harmony gas (which is a small fraction of a cent).
       </p>
       <p>
-        This is a permissioned bridge and your tokens are never lost. However,
-        use the bridge with caution.
-      </p>
-      <p>
         <b>
           Report any issues to <span>bridge@harmony.one</span> with one or more
           of the following informations:
