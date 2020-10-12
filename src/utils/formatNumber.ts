@@ -11,12 +11,12 @@ export function formatZeroDecimals(value: number | string) {
 }
 
 const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
 
 const sixDecimalsFormatter = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 6,
+  minimumFractionDigits: 0,
   maximumFractionDigits: 6,
 });
 

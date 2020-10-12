@@ -7,8 +7,7 @@ import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { EXCHANGE_MODE, IOperation } from 'stores/interfaces';
 import {
-  dateTimeAgoFormat,
-  formatWithTwoDecimals,
+  dateTimeAgoFormat, formatWithSixDecimals,
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
@@ -124,7 +123,7 @@ const getColumns = ({ oneRate, ethRate }): IColumn<IOperation>[] => [
     key: 'amount',
     dataIndex: 'amount',
     width: 120,
-    render: value => formatWithTwoDecimals(value),
+    render: value => formatWithSixDecimals(value),
   },
   {
     title: 'Age',
