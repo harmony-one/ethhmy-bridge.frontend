@@ -8,7 +8,7 @@ import { Title } from '../Base/components/Title';
 import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { formatWithTwoDecimals } from '../../utils';
+// import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
   width: auto;
@@ -25,6 +25,14 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isExplorer = history.location.pathname === '/explorer';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
+
+    const goToBridge = () => {
+      if (exchange.operation && exchange.operation.id) {
+        routing.push(`/${exchange.token}/operations/${exchange.operation.id}`);
+      } else {
+        routing.push(`/${exchange.token}`);
+      }
+    };
 
     return (
       <Box
@@ -54,7 +62,11 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           }}
         >
           <Box direction="row" align="center">
-            <Box align="center" margin={{ right: 'small' }}>
+            <Box
+              align="center"
+              margin={{ right: 'small' }}
+              onClick={goToBridge}
+            >
               <MainLogo src="/main_logo.png" />
             </Box>
             <Box>
@@ -86,13 +98,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                 styles.itemToken,
                 !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
               )}
-              onClick={() => {
-                routing.push(
-                  `/${exchange.token}/operations/${
-                    exchange.operation ? exchange.operation.id : ''
-                    }`,
-                );
-              }}
+              onClick={goToBridge}
             >
               <Text>Bridge</Text>
             </Box>
