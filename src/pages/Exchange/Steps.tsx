@@ -12,14 +12,15 @@ import { STEPS_TITLE } from './steps-constants';
 
 const StepRow = ({
   action,
+  active,
   number,
   hrc20Address,
 }: {
   action: IAction;
   hrc20Address?: string;
   number: number;
+  active: boolean;
 }) => {
-  const active = action.status === STATUS.IN_PROGRESS;
   const completed = action.status === STATUS.SUCCESS;
 
   const label = STEPS_TITLE[action.type] || action.type;
@@ -125,6 +126,11 @@ export const Steps = observer(() => {
           key={action.id}
           action={action}
           number={idx}
+          active={
+            action.status === STATUS.IN_PROGRESS ||
+            (action.status === STATUS.WAITING &&
+              (!!idx ? steps[idx - 1].status === STATUS.SUCCESS : true))
+          }
           hrc20Address={
             action.type === ACTION_TYPE.getHRC20Address ? user.hrc20Address : ''
           }

@@ -295,7 +295,7 @@ export class Exchange extends StoreConstructor {
         }
 
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          const approveEthManger = this.getActionByType(
+          let approveEthManger = this.getActionByType(
             ACTION_TYPE.approveEthManger,
           );
 
@@ -308,6 +308,18 @@ export class Exchange extends StoreConstructor {
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveEthManger.type),
             );
+          }
+
+          while (
+            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
+              approveEthManger.status,
+            )
+          ) {
+            approveEthManger = this.getActionByType(
+              ACTION_TYPE.approveEthManger,
+            );
+
+            await sleep(500);
           }
 
           const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
@@ -328,7 +340,7 @@ export class Exchange extends StoreConstructor {
         if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
           const hrc20Address = this.stores.user.hrc20Address;
 
-          const approveHmyManger = this.getActionByType(
+          let approveHmyManger = this.getActionByType(
             ACTION_TYPE.approveHmyManger,
           );
 
@@ -339,6 +351,18 @@ export class Exchange extends StoreConstructor {
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveHmyManger.type),
             );
+          }
+
+          while (
+            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
+              approveHmyManger.status,
+            )
+          ) {
+            approveHmyManger = this.getActionByType(
+              ACTION_TYPE.approveHmyManger,
+            );
+
+            await sleep(500);
           }
 
           const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
@@ -357,7 +381,7 @@ export class Exchange extends StoreConstructor {
         }
       } else {
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          const approveEthManger = this.getActionByType(
+          let approveEthManger = this.getActionByType(
             ACTION_TYPE.approveEthManger,
           );
 
@@ -365,6 +389,18 @@ export class Exchange extends StoreConstructor {
             await ethMethods.approveEthManger(this.transaction.amount, hash =>
               confirmCallback(hash, approveEthManger.type),
             );
+          }
+
+          while (
+            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
+              approveEthManger.status,
+            )
+          ) {
+            approveEthManger = this.getActionByType(
+              ACTION_TYPE.approveEthManger,
+            );
+
+            await sleep(500);
           }
 
           const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
@@ -381,7 +417,7 @@ export class Exchange extends StoreConstructor {
         }
 
         if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-          const approveHmyManger = this.getActionByType(
+          let approveHmyManger = this.getActionByType(
             ACTION_TYPE.approveHmyManger,
           );
 
@@ -389,6 +425,18 @@ export class Exchange extends StoreConstructor {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
               confirmCallback(hash, approveHmyManger.type),
             );
+          }
+
+          while (
+            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
+              approveHmyManger.status,
+            )
+          ) {
+            approveHmyManger = this.getActionByType(
+              ACTION_TYPE.approveHmyManger,
+            );
+
+            await sleep(500);
           }
 
           const burnToken = this.getActionByType(ACTION_TYPE.burnToken);

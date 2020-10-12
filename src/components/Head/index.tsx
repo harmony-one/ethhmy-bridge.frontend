@@ -8,6 +8,7 @@ import { Title } from '../Base/components/Title';
 import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
+import { TOKEN } from '../../stores/interfaces';
 // import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
@@ -28,9 +29,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
-        routing.push(`/${exchange.token}/operations/${exchange.operation.id}`);
+        routing.push(
+          `/${exchange.token || TOKEN.BUSD}/operations/${
+            exchange.operation.id
+          }`,
+        );
       } else {
-        routing.push(`/${exchange.token}`);
+        routing.push(`/${exchange.token || TOKEN.BUSD}`);
       }
     };
 
