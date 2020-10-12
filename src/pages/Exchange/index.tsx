@@ -393,6 +393,14 @@ export class Exchange extends React.Component<
           </Details>
         ) : null}
 
+        {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
+          <Box direction="row" justify="end" fill={true}>
+            <Text color="Red500" bold>
+              You will be prompted to sign two transactions
+            </Text>
+          </Box>
+        ) : null}
+
         <Box
           direction="row"
           margin={{ top: 'large' }}
