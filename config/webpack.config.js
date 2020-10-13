@@ -6,7 +6,7 @@ const getClientEnvironment = require('./env');
 // variables
 const srcDir = 'src';
 const buildDir = 'build';
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV !== 'development';
 const sourcePath = path.join(__dirname, '..', `./${srcDir}`);
 const outPath = path.join(__dirname, '..', `./${buildDir}`);
 const publicUrl = '';
