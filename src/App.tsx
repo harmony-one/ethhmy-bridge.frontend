@@ -15,7 +15,9 @@ export const App: React.FC = () => (
     <React.Suspense fallback={<div />}>
       <Switch>
         <Route exact path="/get-tokens" component={MintTokens} />
-        <Route exact path="/tokens" component={Tokens} />
+        {process.env.GET_TOKENS_SERVICE === 'true' ? (
+          <Route exact path="/tokens" component={Tokens} />
+        ) : null}
         <Route exact path="/explorer" component={Explorer} />
         <Route exact path="/:token" component={EthBridge} />
         <Route

@@ -5,11 +5,9 @@ const paths = require('./paths');
 // Make sure that including paths.js after env.js will read .env variables.
 delete require.cache[require.resolve('./paths')];
 
-const { NODE_ENV = "mainnet" } = process.env;
+const { NODE_ENV = 'mainnet' } = process.env;
 
-const dotenvFiles = [
-  `${paths.dotenv}.${NODE_ENV}`,
-].filter(Boolean);
+const dotenvFiles = [`${paths.dotenv}.${NODE_ENV}`].filter(Boolean);
 console.log('dotenvFiles', dotenvFiles);
 
 dotenvFiles.forEach(dotenvFile => {
@@ -97,6 +95,7 @@ function getClientEnvironment(publicUrl) {
 
         BACKEND_URL: process.env.BACKEND_URL,
         THRESHOLD: process.env.THRESHOLD,
+        GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
