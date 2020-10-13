@@ -8,7 +8,7 @@ export const hmy = new Harmony(
   process.env.HMY_NODE_URL,
   {
     chainType: ChainType.Harmony,
-    chainId: process.env.HMY_CHAIN_ID,
+    chainId: Number(process.env.HMY_CHAIN_ID),
   },
 );
 
