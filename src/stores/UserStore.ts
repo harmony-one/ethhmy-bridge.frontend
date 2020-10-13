@@ -149,7 +149,7 @@ export class UserStoreEx extends StoreConstructor {
         process.env.HMY_LINK_MANAGER_CONTRACT,
       );
       this.hmyLINKBalanceManager = Number(
-        (100102.426 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(
+        (100000 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(
           2,
         ),
       );
