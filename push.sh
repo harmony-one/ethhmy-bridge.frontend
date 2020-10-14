@@ -33,5 +33,10 @@ if [ -z "$TAG" -o -z "$NETWORK" ]; then
    usage
 fi
 
-sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG-$NETWORK"
-sudo docker push harmonyone/"$IMAGE":"$TAG-$NETWORK"
+if [ "$NETWORK" == "mainnet" ]; then
+	echo sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG"
+	echo sudo docker push harmonyone/"$IMAGE":"$TAG"
+else
+	echo sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG-$NETWORK"
+	echo sudo docker push harmonyone/"$IMAGE":"$TAG-$NETWORK"
+fi
