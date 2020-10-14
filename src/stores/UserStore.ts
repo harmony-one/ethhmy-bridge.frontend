@@ -148,11 +148,11 @@ export class UserStoreEx extends StoreConstructor {
       const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
         process.env.HMY_LINK_MANAGER_CONTRACT,
       );
-      this.hmyLINKBalanceManager = Number(
-        (100000 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(
-          2,
-        ),
+      const hmyLINKBalanceManagerTotal = Number(
+        (100000 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(2),
       );
+
+      this.hmyLINKBalanceManager = Math.max(0, hmyLINKBalanceManagerTotal);
     } catch (e) {
       console.error(e);
     }
