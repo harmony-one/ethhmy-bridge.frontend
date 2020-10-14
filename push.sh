@@ -2,6 +2,7 @@
 
 IMAGE=ethhmy-fe-web
 TAG=latest
+NETWORK=testnet
 
 usage() {
    me=$(basename "$0")
@@ -13,22 +14,24 @@ $me [options]
 
 Options:
    -h                print this message
+   -n network        network of the docker image (default: testnet)
    -t tag            release tag of the docker image (default: $TAG)
 
 EOT
    exit 0
 }
 
-while getopts ':ht:' opt; do
+while getopts ':hn:t:' opt; do
    case $opt in
+      n) NETWORK="$OPTARG";;
       t) TAG="$OPTARG";;
       *) usage ;;
    esac
 done
 
-if [ -z "$TAG" ]; then
+if [ -z "$TAG" -o -z "$NETWORK" ]; then
    usage
 fi
 
-sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG"
-sudo docker push harmonyone/"$IMAGE"
+sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG-$NETWORK"
+sudo docker push harmonyone/"$IMAGE":"$TAG-$NETWORK"
