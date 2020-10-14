@@ -322,6 +322,10 @@ export class Exchange extends StoreConstructor {
             await sleep(500);
           }
 
+          if (approveEthManger.status !== STATUS.SUCCESS) {
+            return;
+          }
+
           const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
 
           if (lockToken.status === STATUS.WAITING) {
@@ -365,6 +369,10 @@ export class Exchange extends StoreConstructor {
             await sleep(500);
           }
 
+          if (approveHmyManger.status !== STATUS.SUCCESS) {
+            return;
+          }
+
           const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
 
           if (burnToken && burnToken.status === STATUS.WAITING) {
@@ -403,6 +411,10 @@ export class Exchange extends StoreConstructor {
             await sleep(500);
           }
 
+          if (approveEthManger.status !== STATUS.SUCCESS) {
+            return;
+          }
+
           const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
 
           if (lockToken && lockToken.status === STATUS.WAITING) {
@@ -437,6 +449,10 @@ export class Exchange extends StoreConstructor {
             );
 
             await sleep(500);
+          }
+
+          if (approveHmyManger.status !== STATUS.SUCCESS) {
+            return;
           }
 
           const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
