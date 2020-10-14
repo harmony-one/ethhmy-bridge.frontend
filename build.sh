@@ -31,7 +31,7 @@ fi
 if [ "$NETWORK" == "mainnet" ]; then
 	sudo docker build -f Dockerfile.build -t ethhmy-bridge.fe .
 else
-	sudo docker build -f Dockerfile.build.testnet -t ethhmy-bridge.fe .
+	sudo docker build -f Dockerfile.build."$NETWORK" -t ethhmy-bridge.fe .
 fi
 
 rm -rf artifacts
@@ -48,5 +48,5 @@ popd
 if [ "$NETWORK" == "mainnet" ]; then
 	sudo docker build -f Dockerfile.fe-static -t ethhmy-fe-web .
 else
-	sudo docker build -f Dockerfile.fe-static -t ethhmy-fe-web:testnet .
+	sudo docker build -f Dockerfile.fe-static -t ethhmy-fe-web:"$NETWORK" .
 fi
