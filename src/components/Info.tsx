@@ -3,13 +3,13 @@ import { Box } from 'grommet';
 import { Title } from './Base/components/Title';
 import * as styles from './info-styles.styl';
 
-export const Info = () => (
+export const Info = ({ title} : { title: string }) => (
   <Box
     className={styles.infoContainer}
     pad={{ horizontal: 'large', top: 'large' }}
   >
     <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
-      <Title>Welcome to Ethereum{'<>'}Harmony Bridge</Title>
+      <Title>{title}</Title>
     </Box>
     <div>
       <p>

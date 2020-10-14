@@ -9,18 +9,21 @@ export const InfoModal = observer(() => {
 
   useEffect(() => {
     if (!user.isInfoReading) {
-      actionModals.open(() => <Info />, {
-        title: '',
-        applyText: 'Got it',
-        closeText: '',
-        noValidation: true,
-        width: '1000px',
-        showOther: true,
-        onApply: () => {
-          user.setInfoReading();
-          return Promise.resolve();
+      actionModals.open(
+        () => <Info title="Welcome to Ethereum <> Harmony Bridge" />,
+        {
+          title: '',
+          applyText: 'Got it',
+          closeText: '',
+          noValidation: true,
+          width: '1000px',
+          showOther: true,
+          onApply: () => {
+            user.setInfoReading();
+            return Promise.resolve();
+          },
         },
-      });
+      );
     }
   }, [user.isInfoReading]);
 

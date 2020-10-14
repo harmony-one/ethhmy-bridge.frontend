@@ -9,6 +9,7 @@ import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
+import { Info } from '../Info';
 // import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
@@ -21,7 +22,7 @@ const getTokenServiceEnable = process.env.GET_TOKENS_SERVICE === 'true';
 export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   observer(({ theme, ...props }: IStyledChildrenProps<BoxProps>) => {
     const history = useHistory();
-    const { routing, user, exchange } = useStores();
+    const { routing, user, exchange, actionModals } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
 
@@ -127,6 +128,29 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               }}
             >
               <Text>Transactions</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken)}
+              onClick={() => {
+                actionModals.open(
+                  () => <Info title="Ethereum <> Harmony Bridge" />,
+                  {
+                    title: '',
+                    applyText: 'Got it',
+                    closeText: '',
+                    noValidation: true,
+                    width: '1000px',
+                    showOther: true,
+                    onApply: () => {
+                      user.setInfoReading();
+                      return Promise.resolve();
+                    },
+                  },
+                );
+              }}
+            >
+              <Text>Info</Text>
             </Box>
 
             {/*<Box*/}
