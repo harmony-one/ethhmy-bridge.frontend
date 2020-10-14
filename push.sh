@@ -2,7 +2,7 @@
 
 IMAGE=ethhmy-fe-web
 TAG=latest
-NETWORK=testnet
+NETWORK=
 
 usage() {
    me=$(basename "$0")
@@ -14,7 +14,7 @@ $me [options]
 
 Options:
    -h                print this message
-   -n network        network of the docker image (default: testnet)
+   -n network        network of the docker image (e.g. testnet/mainnet)
    -t tag            release tag of the docker image (default: $TAG)
 
 EOT
@@ -37,6 +37,6 @@ if [ "$NETWORK" == "mainnet" ]; then
 	sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG"
 	sudo docker push harmonyone/"$IMAGE":"$TAG"
 else
-	sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG-$NETWORK"
+	sudo docker tag "$IMAGE":"$NETWORK" harmonyone/"$IMAGE":"$TAG-$NETWORK"
 	sudo docker push harmonyone/"$IMAGE":"$TAG-$NETWORK"
 fi
