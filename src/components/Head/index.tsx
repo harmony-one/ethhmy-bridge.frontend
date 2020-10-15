@@ -15,6 +15,7 @@ import { Info } from '../Info';
 const MainLogo = styled.img`
   width: auto;
   height: 32px;
+  margin-bottom: 4px;
 `;
 
 const getTokenServiceEnable = process.env.GET_TOKENS_SERVICE === 'true';
@@ -75,11 +76,11 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               margin={{ right: 'small' }}
               onClick={goToBridge}
             >
-              <MainLogo src="/main_logo.png" />
+              <MainLogo src="/one.svg" />
             </Box>
             <Box>
               <Title size="medium" color="BlackTxt" bold>
-                {/*BUSD Bridge*/}
+                Horizon by Harmony
               </Title>
             </Box>
           </Box>
