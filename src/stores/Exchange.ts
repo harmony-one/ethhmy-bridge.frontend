@@ -394,7 +394,7 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            await ethMethods.approveEthManger(this.transaction.amount, hash =>
+            ethMethods.approveEthManger(this.transaction.amount, hash =>
               confirmCallback(hash, approveEthManger.type),
             );
           }
