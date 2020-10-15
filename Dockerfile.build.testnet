@@ -5,7 +5,7 @@ RUN mkdir /app
 WORKDIR /app
 
 ENV PATH /app/node_modules/.bin:$PATH
-ENV NODE_ENV mainnet
+ENV NODE_ENV testnet
 
 COPY package.json package-lock.json /app/
 
