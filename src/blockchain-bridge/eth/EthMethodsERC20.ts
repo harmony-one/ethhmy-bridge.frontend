@@ -37,14 +37,11 @@ export class EthMethodsERC20 {
     );
 
     await erc20Contract.methods
-      .approve(
-        this.ethManagerAddress,
-        mulDecimals(amount, decimals),
-      )
+      .approve(this.ethManagerAddress, mulDecimals(amount, decimals))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.ETH_GAS_PRICE,
       })
       .on('transactionHash', hash => sendTxCallback(hash));
   };
@@ -62,15 +59,11 @@ export class EthMethodsERC20 {
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     let transaction = await this.ethManagerContract.methods
-      .lockToken(
-        erc20Address,
-        mulDecimals(amount, decimals),
-        hmyAddrHex,
-      )
+      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.ETH_GAS_PRICE,
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 
