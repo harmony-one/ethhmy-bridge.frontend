@@ -33,7 +33,7 @@ export class EthMethods {
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: process.env.ETH_GAS_PRICE,
+        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
   };
@@ -49,7 +49,7 @@ export class EthMethods {
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: process.env.ETH_GAS_PRICE,
+        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 
