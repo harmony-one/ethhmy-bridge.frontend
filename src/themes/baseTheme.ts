@@ -243,7 +243,7 @@ export const baseTheme: any = {
 
     input: {
       bgColor: 'white',
-      textColor: 'black',
+      textColor: '#212D5E',
       border: `1px solid ${palette.Basic200}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,

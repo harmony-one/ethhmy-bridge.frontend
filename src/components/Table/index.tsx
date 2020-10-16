@@ -95,7 +95,7 @@ export class Table extends React.Component<IProps> {
         title: (
           <CustomHeader
             dataLayerConfig={dataLayerConfig}
-            hasAnyActiveFilter={hasAnyActiveFilter}
+            hasAnyActiveFilter={false}
             title={title}
             column={column}
             options={options}

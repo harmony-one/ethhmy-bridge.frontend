@@ -3,7 +3,7 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Text } from 'components/Base/components/Text';
 import * as React from 'react';
-import { EXCHANGE_MODE } from 'stores/interfaces';
+import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
 import { formatWithSixDecimals } from '../../utils';
@@ -66,3 +66,30 @@ export const Price = observer(
     );
   },
 );
+
+interface IERC20TokenProps {
+  value: TOKEN;
+  erc20Address?: string;
+}
+
+export const ERC20Token = observer((props: IERC20TokenProps) => {
+  const { tokens } = useStores();
+  const { value, erc20Address } = props;
+
+  if (value === TOKEN.ERC20) {
+    console.log(erc20Address);
+    console.log(tokens.data);
+
+    const token = tokens.data.find(
+      t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+    );
+
+    console.log(token);
+
+    if (token) {
+      return <Box>{token.symbol}</Box>;
+    }
+  }
+
+  return <Box>{value ? value.toUpperCase() : '--'}</Box>;
+});

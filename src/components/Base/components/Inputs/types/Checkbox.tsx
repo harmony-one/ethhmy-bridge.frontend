@@ -14,7 +14,7 @@ const Label = styled.label<any>`
   border: none;
   border-radius: 4px;
   margin: ${props => (props.margin ? props.margin : '')};
-  font-size: 15px;
+  font-size: 16px;
   box-sizing: border-box;
   display: flex;
   flex-direction: ${props => props.direction || 'row'};
@@ -49,7 +49,7 @@ const CheckboxClass = (props: ICheckboxProps) => {
 
   return (
     <Label style={style} theme={theme} size={size}>
-      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', marginRight: 10 }}>
+      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', marginRight: 5 }}>
         {value ? (
           <Icon
             glyph="CheckBox"
@@ -71,7 +71,7 @@ const CheckboxClass = (props: ICheckboxProps) => {
         checked={value}
         onChange={(event: any) => !disabled && onChange(event.target.checked)}
       />
-      <div style={{ opacity: disabled ? 0.5 : 1 }}>{label}</div>
+      <div style={{ opacity: disabled ? 0.5 : 1, marginTop: 4 }}>{label}</div>
     </Label>
   );
 };
