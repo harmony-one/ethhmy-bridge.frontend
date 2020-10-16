@@ -3,7 +3,7 @@ import { Box } from 'grommet';
 import { Title } from './Base/components/Title';
 import * as styles from './info-styles.styl';
 
-export const Info = ({ title} : { title: string }) => (
+export const Info = ({ title }: { title: string }) => (
   <Box
     className={styles.infoContainer}
     pad={{ horizontal: 'large', top: 'large' }}
@@ -45,6 +45,15 @@ export const Info = ({ title} : { title: string }) => (
         You can also do the reverse transfer, i.e., redeem your tokens back to
         your ethereum account. The cost is bared by Harmony and you will only
         pay for Harmony gas (which is a small fraction of a cent).
+      </p>
+      <p>
+        Please find more instructions{' '}
+        <a
+          href="https://docs.harmony.one/home/showcases/crosschain/horizon-bridge"
+          target="_blank"
+        >
+          <b>here</b>
+        </a>
       </p>
       <p>
         <b>
