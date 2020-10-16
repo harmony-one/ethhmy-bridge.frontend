@@ -204,6 +204,7 @@ export class Exchange extends StoreConstructor {
     this.transaction.amount = String(this.operation.amount);
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
+    this.transaction.erc20Address = this.operation.erc20Address;
 
     this.setStatus();
   }
@@ -259,6 +260,14 @@ export class Exchange extends StoreConstructor {
       };
 
       let ethMethods, hmyMethods;
+
+      if (this.operation.oneAddress !== this.stores.user.address) {
+        return;
+      }
+
+      if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
+        return;
+      }
 
       switch (this.token) {
         case TOKEN.BUSD:

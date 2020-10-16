@@ -13,7 +13,7 @@ export const Error: React.FC<{ error: any; style?: CSSProperties }> = ({
     pad={{ bottom: 'small', horizontal: 'xlarge' }}
     style={{ maxWidth: '100%', ...style }}
   >
-    <Text size="small" color="Red500" style={{ maxWidth: '100%' }}>
+    <Text size="small" color="red" style={{ maxWidth: '100%' }}>
       {printError(error).slice(0, 1000)}
     </Text>
   </Box>

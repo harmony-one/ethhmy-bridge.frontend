@@ -55,6 +55,7 @@ export interface IOperation {
   oneAddress: string;
   actions: Array<IAction>;
   timestamp: number;
+  erc20Address?: string;
 }
 
 export interface ITokenInfo {

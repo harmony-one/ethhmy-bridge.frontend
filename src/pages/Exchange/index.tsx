@@ -186,9 +186,14 @@ export class Exchange extends React.Component<
         style={{ background: '#dedede40' }}
       >
         {icon()}
-        <Box className={styles.description} margin={{ top: 'medium' }}>
+        <Box
+          className={styles.description}
+          margin={{ top: 'medium' }}
+          pad={{ horizontal: 'small' }}
+          style={{ width: '100%' }}
+        >
           <Text style={{ textAlign: 'center' }}>{description}</Text>
-          <Box margin={{ top: 'medium' }}>
+          <Box margin={{ top: 'medium' }} style={{ width: '100%' }}>
             <Steps />
           </Box>
           {/*{exchange.txHash ? (*/}

@@ -52,12 +52,12 @@ const StepRow = ({
         )}
       </Box>
       {action.transactionHash && (
-        <Text className={textClassName}>
-          Tx hash:{' '}
+        <Box direction="row" justify="between">
+          <Text className={textClassName}>Tx hash: </Text>
           <a href={explorerUrl + action.transactionHash} target="_blank">
-            {truncateAddressString(action.transactionHash)}
+            {truncateAddressString(action.transactionHash, 10)}
           </a>
-        </Text>
+        </Box>
       )}
 
       {hrc20Address && (
@@ -80,7 +80,7 @@ const StepRow = ({
               href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
               target="_blank"
             >
-              {truncateAddressString(hrc20Address, 5)}
+              {truncateAddressString(hrc20Address, 10)}
             </a>
           </Box>
         </Box>
