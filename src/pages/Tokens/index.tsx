@@ -13,7 +13,8 @@ import {
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
-import { Title, Text } from '../../components/Base';
+import { Title, Text } from 'components/Base';
+import { SearchInput } from 'components/Search';
 import { getBech32Address } from '../../blockchain-bridge';
 
 const ethAddress = value => (
@@ -81,7 +82,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     dataIndex: 'decimals',
     width: 100,
     className: styles.centerHeader,
-    align: 'center'
+    align: 'center',
   },
   {
     title: 'Total Locked',
@@ -104,6 +105,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
 
 export const Tokens = observer((props: any) => {
   const { tokens, user } = useStores();
+  const [search, setSearch] = useState('');
 
   const [columns, setColumns] = useState(getColumns(user));
 
@@ -121,6 +123,23 @@ export const Tokens = observer((props: any) => {
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
+  const filteredData = tokens.data.filter(token => {
+    if (search) {
+      return (
+        Object.values(token).some(value =>
+          value
+            .toString()
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+        ) ||
+        getBech32Address(token.hrc20Address).toLowerCase() ===
+          search.toLowerCase()
+      );
+    }
+
+    return true;
+  });
+
   return (
     <BaseContainer>
       <PageContainer>
@@ -134,18 +153,27 @@ export const Tokens = observer((props: any) => {
           <Title>Bridged Assets</Title>
           <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
         </Box>
+
+        <Box
+          pad={{ horizontal: '9px' }}
+          margin={{ top: 'medium', bottom: 'medium' }}
+          // style={{ maxWidth: 500 }}
+        >
+          <SearchInput value={search} onChange={setSearch} />
+        </Box>
+
         <Box
           direction="row"
           wrap={true}
           fill={true}
           justify="center"
           align="start"
-          margin={{ top: 'medium' }}
         >
           <Table
-            data={tokens.data}
+            data={filteredData}
             columns={columns}
             isPending={tokens.isPending}
+            hidePagination={true}
             dataLayerConfig={tokens.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
             onRowClicked={() => {}}
