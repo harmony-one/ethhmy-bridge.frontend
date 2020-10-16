@@ -302,7 +302,7 @@ export class Exchange extends StoreConstructor {
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
             const { amount, erc20Address } = this.transaction;
 
-            await ethMethods.approveEthManger(
+            ethMethods.approveEthManger(
               erc20Address,
               amount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
