@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Box, BoxProps } from 'grommet';
-import { Head } from 'components';
+import { FooterLine, Head } from 'components';
 import { withTheme } from 'styled-components';
 import { IStyledChildrenProps } from 'interfaces';
 // import * as styles from './styles.styl';
@@ -26,7 +26,7 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
             backgroundColor: '#F2F3F8', // palette.Basic100,
             // backgroundImage: "url('logo_background.svg')",
             backgroundImage: "url('/harmony_logo_background.svg')",
-            backgroundPosition: '0 100%',
+            backgroundPosition: '0 83%',
             backgroundRepeat: 'no-repeat',
           }}
         >
@@ -35,13 +35,14 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
             style={{
               minWidth,
               maxWidth,
-              margin: '120px auto 20px',
+              margin: '120px auto 120px',
             }}
             {...props}
           >
             {process.env.NODE_ENV === 'testnet' ? <Disclaimer /> : null}
             {children}
           </Box>
+          <FooterLine />
         </div>
       </>
     );
