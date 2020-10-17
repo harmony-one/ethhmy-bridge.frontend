@@ -137,25 +137,6 @@ export class UserStoreEx extends StoreConstructor {
         console.error(e);
       }
     }
-
-    try {
-      const hmyBUSDBalanceManager = await hmyMethodsBUSD.totalSupply();
-
-      this.hmyBUSDBalanceManager = Number(
-        divDecimals(hmyBUSDBalanceManager, 18),
-      );
-
-      const hmyLINKBalanceManager = await hmyMethodsLINK.checkHmyBalance(
-        process.env.HMY_LINK_MANAGER_CONTRACT,
-      );
-      const hmyLINKBalanceManagerTotal = Number(
-        (100000 - Number(divDecimals(hmyLINKBalanceManager, 18))).toFixed(2),
-      );
-
-      this.hmyLINKBalanceManager = Math.max(0, hmyLINKBalanceManagerTotal);
-    } catch (e) {
-      console.error(e);
-    }
   };
 
   @action public getOneBalance = async () => {
