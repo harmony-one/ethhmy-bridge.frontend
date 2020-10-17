@@ -37,10 +37,7 @@ export class EthMethodsERC20 {
     );
 
     await erc20Contract.methods
-      .approve(
-        this.ethManagerAddress,
-        mulDecimals(amount, decimals),
-      )
+      .approve(this.ethManagerAddress, mulDecimals(amount, decimals))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
@@ -61,15 +58,20 @@ export class EthMethodsERC20 {
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
+    const estimateGas = await this.ethManagerContract.methods
+      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
+      .estimateGas({ from: accounts[0] });
+
+    const gasLimit = Math.max(
+      estimateGas + estimateGas * 0.3,
+      Number(process.env.ETH_GAS_LIMIT),
+    );
+
     let transaction = await this.ethManagerContract.methods
-      .lockToken(
-        erc20Address,
-        mulDecimals(amount, decimals),
-        hmyAddrHex,
-      )
+      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
       .send({
         from: accounts[0],
-        gas: process.env.ETH_GAS_LIMIT,
+        gas: new BN(gasLimit),
         gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
       })
       .on('transactionHash', hash => sendTxCallback(hash));

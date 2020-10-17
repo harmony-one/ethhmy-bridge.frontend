@@ -44,11 +44,20 @@ export class EthMethods {
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
+    const estimateGas = await this.ethManagerContract.methods
+      .lockToken(mulDecimals(amount, 18), hmyAddrHex)
+      .estimateGas({ from: accounts[0] });
+
+    const gasLimit = Math.max(
+      estimateGas + estimateGas * 0.3,
+      Number(process.env.ETH_GAS_LIMIT),
+    );
+
     let transaction = await this.ethManagerContract.methods
       .lockToken(mulDecimals(amount, 18), hmyAddrHex)
       .send({
         from: accounts[0],
-        gas: process.env.ETH_GAS_LIMIT,
+        gas: new BN(gasLimit),
         gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
       })
       .on('transactionHash', hash => sendTxCallback(hash));

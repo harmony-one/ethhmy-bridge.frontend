@@ -261,6 +261,10 @@ export class Exchange extends StoreConstructor {
 
       let ethMethods, hmyMethods;
 
+      if(!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
+        await sleep(3000)
+      }
+
       if (this.operation.oneAddress !== this.stores.user.address) {
         return;
       }

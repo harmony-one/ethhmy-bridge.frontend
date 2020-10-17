@@ -77,14 +77,9 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { value, erc20Address } = props;
 
   if (value === TOKEN.ERC20) {
-    console.log(erc20Address);
-    console.log(tokens.data);
-
     const token = tokens.data.find(
       t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
     );
-
-    console.log(token);
 
     if (token) {
       return <Box>{token.symbol}</Box>;
