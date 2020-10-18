@@ -10,15 +10,15 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, DisableWrap, Icon, Text } from 'components/Base';
+import { Button, Checkbox, Icon, Select, Text } from 'components/Base';
 import { formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
-import { Details, TokenDetails } from './Details';
+import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed } from 'mobx';
-import { TOKEN, EXCHANGE_MODE, STATUS } from 'stores/interfaces';
+import { autorun, computed, observable } from 'mobx';
+import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 
@@ -283,7 +283,9 @@ export class Exchange extends React.Component<
               {/*  </Box>*/}
               {/*</Box>*/}
 
-              {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
+              {exchange.token === TOKEN.ERC20 ? (
+                <ERC20Select />
+              ) : null}
 
               {/*<Box direction="column" fill={true}>*/}
               {/*  <TokenDetails />*/}
