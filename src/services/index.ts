@@ -1,5 +1,6 @@
 import { IOperation, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
+import { divDecimals } from '../utils';
 
 const servers = require('../../appengine-servers.json');
 
@@ -121,7 +122,12 @@ export const getTokensInfo = async (
       params,
     );
 
-    return res.body;
+    const content = res.body.content.map(t => ({
+      ...t,
+      totalLockedNormal: divDecimals(t.totalLocked, t.decimals),
+    }));
+
+    return { ...res.body, content };
   }, 2);
 };
 

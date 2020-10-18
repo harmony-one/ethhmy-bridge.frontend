@@ -86,14 +86,15 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   },
   {
     title: 'Total Locked',
-    key: 'totalLocked',
-    dataIndex: 'totalLocked',
+    sortable: true,
+    key: 'totalLockedNormal',
+    dataIndex: 'totalLockedNormal',
     width: 200,
-    className: styles.rightHeader,
+    className: styles.rightHeaderSort,
     align: 'right',
-    render: (value, data) => (
+    render: value => (
       <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        {formatWithTwoDecimals(divDecimals(value, data.decimals))}
+        {formatWithTwoDecimals(value)}
       </Box>
     ),
   },
@@ -107,6 +108,7 @@ export const Tokens = observer((props: any) => {
 
   useEffect(() => {
     tokens.init();
+    tokens.fetch();
   }, []);
 
   useEffect(() => {

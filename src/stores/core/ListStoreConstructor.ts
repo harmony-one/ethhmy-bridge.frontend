@@ -132,7 +132,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
       // this.fetch(); //Commented to prevent double fetch TableC component in componentWillMount method
     }
 
-    if (this.pollingInterval > 0 && !this.isLocal) {
+    if (this.pollingInterval > 0) {
       this.tId = setInterval(() => {
         !this.isPending && this.fetch({}, true);
       }, this.pollingInterval);
@@ -252,7 +252,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
     const [index, direction] = this.sorter.split(',');
     const dir = direction === 'asc' ? 1 : -1;
     return this.filteredData.sort((a, b) => {
-      return a[index] < b[index] ? dir : -dir;
+      return Number(a[index]) < Number(b[index]) ? dir : -dir;
     });
   }
 
@@ -278,6 +278,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
 
         if (this.isLocal) {
           this.allData = res.content;
+          this.lastUpdateTime = res.lastUpdateTime;
         } else {
           this.allData = res.content;
           this.lastUpdateTime = res.lastUpdateTime;

@@ -158,9 +158,9 @@ export const Explorer = observer((props: any) => {
   const [columns, setColumns] = useState(getColumns({ user }));
 
   useEffect(() => {
-    operations.init();
     tokens.init();
     tokens.fetch();
+    operations.init();
   }, []);
 
   useEffect(() => {

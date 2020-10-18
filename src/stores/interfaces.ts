@@ -65,4 +65,5 @@ export interface ITokenInfo {
   erc20Address: string;
   hrc20Address: string;
   totalLocked: string;
+  totalLockedNormal: string;
 }
