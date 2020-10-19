@@ -11,12 +11,12 @@ export const tokens = [
       'https://etherscan.io/token/0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
     image: 'https://etherscan.io/token/images/bnb_28_2.png',
   },
-  {
-    label: 'ChainLink Token (LINK)',
-    href:
-      'https://etherscan.io/token/0x514910771af9ca656af840dff83e8264ecf986ca',
-    image: 'https://etherscan.io/token/images/chainlink_28_2.png',
-  },
+  // {
+  //   label: 'ChainLink Token (LINK)',
+  //   href:
+  //     'https://etherscan.io/token/0x514910771af9ca656af840dff83e8264ecf986ca',
+  //   image: 'https://etherscan.io/token/images/chainlink_28_2.png',
+  // },
   {
     label: 'USD Coin (USDC)',
     href:
@@ -65,12 +65,12 @@ export const tokens = [
       'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f',
     image: 'https://etherscan.io/token/images/MCDDai_32.png',
   },
-  {
-    label: 'Binance USD (BUSD)',
-    href:
-      'https://etherscan.io/token/0x4fabb145d64652a948d72533023f6e7a623c7c53',
-    image: 'https://etherscan.io/token/images/binanceusd_32.png',
-  },
+  // {
+  //   label: 'Binance USD (BUSD)',
+  //   href:
+  //     'https://etherscan.io/token/0x4fabb145d64652a948d72533023f6e7a623c7c53',
+  //   image: 'https://etherscan.io/token/images/binanceusd_32.png',
+  // },
   {
     label: 'VeChain (VEN)',
     href:

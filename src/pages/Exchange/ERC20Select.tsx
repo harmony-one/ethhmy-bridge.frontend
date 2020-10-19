@@ -65,7 +65,7 @@ export const ERC20Select = observer(() => {
               <Text>Address:</Text>
               <a
                 className={styles.addressLink}
-                href={`'https://etherscan.io/token/${token}`}
+                href={`https://etherscan.io/token/${token}`}
                 target="_blank"
               >
                 {truncateAddressString(token, 16)}
