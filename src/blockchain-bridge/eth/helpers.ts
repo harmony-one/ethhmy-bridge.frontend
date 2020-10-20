@@ -1,6 +1,7 @@
 import * as agent from 'superagent';
 import Web3 from 'web3';
-import { mulDecimals } from '../../utils';
+import { divDecimals, mulDecimals } from '../../utils';
+import { web3 } from './index';
 const BN = require('bn.js');
 
 export const getGasPrice = async (web3: Web3) => {
@@ -21,4 +22,13 @@ export const getGasPrice = async (web3: Web3) => {
   const res = gasPrice.lt(gasPriceApi) ? gasPriceApi : gasPrice;
 
   return res;
+};
+
+export const getNetworkFee = async () => {
+  const gasPrice = await getGasPrice(web3);
+  const gasLimit = new BN(process.env.ETH_GAS_LIMIT);
+
+  const fee = gasLimit.mul(gasPrice).mul(new BN(2));
+
+  return Number(divDecimals(fee, 18));
 };

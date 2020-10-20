@@ -12,6 +12,7 @@ import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
 import { sleep, uuid } from '../utils';
+import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -37,6 +38,7 @@ export class Exchange extends StoreConstructor {
   @observable txHash = '';
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = 0;
+  @observable isFeeLoading = false;
 
   defaultTransaction = {
     oneAddress: '',
@@ -71,9 +73,13 @@ export class Exchange extends StoreConstructor {
     return this.stepsConfig[this.stepNumber];
   }
 
+  @observable ethNetworkFee = 0;
+
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.ETH_TO_ONE ? 0.000845586 : 0.0134438;
+    return this.mode === EXCHANGE_MODE.ETH_TO_ONE
+      ? this.ethNetworkFee
+      : 0.0134438;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -82,7 +88,7 @@ export class Exchange extends StoreConstructor {
       buttons: [
         {
           title: 'Continue',
-          onClick: () => {
+          onClick: async () => {
             this.stepNumber = this.stepNumber + 1;
             // this.transaction.oneAddress = this.stores.user.address;
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
@@ -90,6 +96,10 @@ export class Exchange extends StoreConstructor {
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+
+                this.isFeeLoading = true;
+                this.ethNetworkFee = await getNetworkFee();
+                this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.transaction.oneAddress = this.stores.user.address;
@@ -261,8 +271,8 @@ export class Exchange extends StoreConstructor {
 
       let ethMethods, hmyMethods;
 
-      if(!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
-        await sleep(3000)
+      if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
+        await sleep(3000);
       }
 
       if (this.operation.oneAddress !== this.stores.user.address) {

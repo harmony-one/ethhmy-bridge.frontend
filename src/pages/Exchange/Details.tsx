@@ -149,11 +149,15 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             style={{ borderTop: '1px solid #dedede' }}
           >
             <AssetRow label="Network Fee" value="">
-              <Price
-                value={exchange.networkFee}
-                isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                boxProps={{ pad: {} }}
-              />
+              {!exchange.isFeeLoading ? (
+                <Price
+                  value={exchange.networkFee}
+                  isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                  boxProps={{ pad: {} }}
+                />
+              ) : (
+                <Text>...loading</Text>
+              )}
             </AssetRow>
 
             {/*<AssetRow*/}
