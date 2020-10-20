@@ -20,8 +20,5 @@ export const getGasPrice = async (web3: Web3) => {
 
   const res = gasPrice.lt(gasPriceApi) ? gasPriceApi : gasPrice;
 
-  console.log(gasPrice.toString(), gasPriceApi.toString());
-  console.log(res);
-
   return res;
 };
