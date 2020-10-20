@@ -1,8 +1,8 @@
-import * as agent from 'superagent';
 import { Contract } from 'web3-eth-contract';
 import { getAddress } from '@harmony-js/crypto';
 import Web3 from 'web3';
-import { divDecimals, mulDecimals } from '../../utils';
+import { mulDecimals } from '../../utils';
+import { getGasPrice } from './helpers';
 const BN = require('bn.js');
 
 export interface IEthMethodsInitParams {
@@ -29,15 +29,12 @@ export class EthMethods {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const info = await agent.get('https://data-api.defipulse.com/api/v1/egs/api/ethgasAPI.json?api-key=babbb3d37bf13922c3c0cd578aa97b97116930b18461d1db2663059edeb1')
-    const gasPrice = mulDecimals(info.body.safeLow, 8);
-
     return await this.ethTokenContract.methods
       .approve(this.ethManagerAddress, mulDecimals(amount, 18))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice,
+        gasPrice: await getGasPrice(this.web3)
       })
       .on('transactionHash', hash => sendTxCallback(hash));
   };
@@ -57,15 +54,12 @@ export class EthMethods {
       Number(process.env.ETH_GAS_LIMIT),
     );
 
-    const info = await agent.get('https://data-api.defipulse.com/api/v1/egs/api/ethgasAPI.json?api-key=babbb3d37bf13922c3c0cd578aa97b97116930b18461d1db2663059edeb1')
-    const gasPrice = mulDecimals(info.body.safeLow, 8);
-
     let transaction = await this.ethManagerContract.methods
       .lockToken(mulDecimals(amount, 18), hmyAddrHex)
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),
-        gasPrice,
+        gasPrice: await getGasPrice(this.web3)
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 
