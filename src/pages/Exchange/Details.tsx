@@ -148,7 +148,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             margin={{ top: 'small' }}
             style={{ borderTop: '1px solid #dedede' }}
           >
-            <AssetRow label="Network Fee" value="">
+            <AssetRow label="Network Fee (total)" value="">
               {!exchange.isFeeLoading ? (
                 <Price
                   value={exchange.networkFee}
@@ -159,6 +159,26 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 <Text>...loading</Text>
               )}
             </AssetRow>
+
+            {!exchange.isFeeLoading &&
+            exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
+              <div style={{ opacity: 0.6 }}>
+                <AssetRow label="Approve (~50000 gas)" value="">
+                  <Price
+                    value={exchange.networkFee / 2}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+                <AssetRow label="Lock token (~50000 gas)" value="">
+                  <Price
+                    value={exchange.networkFee / 2}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+              </div>
+            ) : null}
 
             {/*<AssetRow*/}
             {/*  label="Total"*/}

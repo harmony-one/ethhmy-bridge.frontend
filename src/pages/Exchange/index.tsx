@@ -283,9 +283,7 @@ export class Exchange extends React.Component<
               {/*  </Box>*/}
               {/*</Box>*/}
 
-              {exchange.token === TOKEN.ERC20 ? (
-                <ERC20Select />
-              ) : null}
+              {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
 
               {/*<Box direction="column" fill={true}>*/}
               {/*  <TokenDetails />*/}
@@ -401,11 +399,30 @@ export class Exchange extends React.Component<
         ) : null}
 
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
-          <Box direction="row" justify="end" fill={true}>
-            <Text color="Red500" bold>
-              You will be prompted to sign two transactions
-            </Text>
-          </Box>
+          <>
+            {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
+              <Box direction="row" justify="start" fill={true}>
+                <Text color="Red500" style={{ textAlign: 'left' }}>
+                  The metamask will ask you to sign with slightly higher fee due
+                  to 150000 gas limit estimate, however you will be charged
+                  similar to the above estimate based on the actual gas used.
+                </Text>
+              </Box>
+            ) : null}
+            <Box
+              direction="row"
+              justify="start"
+              margin={{
+                top:
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? 'medium' : '0px',
+              }}
+              fill={true}
+            >
+              <Text color="Red500" style={{ textAlign: 'left' }}>
+                You will be prompted to sign two transactions
+              </Text>
+            </Box>
+          </>
         ) : null}
 
         <Box
