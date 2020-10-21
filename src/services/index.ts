@@ -116,19 +116,17 @@ export const getOperations = async (
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
-  return callAvailableServer(async url => {
-    const res = await agent.get<{ body: ITokenInfo[] }>(
-      url + '/tokens/',
-      params,
-    );
+  const res = await agent.get<{ body: ITokenInfo[] }>(
+    'https://be4.bridge.hmny.io' + '/tokens/',
+    params,
+  );
 
-    const content = res.body.content.map(t => ({
-      ...t,
-      totalLockedNormal: divDecimals(t.totalLocked, t.decimals),
-    }));
+  const content = res.body.content.map(t => ({
+    ...t,
+    totalLockedNormal: divDecimals(t.totalLocked, t.decimals),
+  }));
 
-    return { ...res.body, content };
-  }, 2);
+  return { ...res.body, content };
 };
 
 export const mintTokens = async ({ address, token }) => {
