@@ -403,11 +403,11 @@ export class Exchange extends React.Component<
             {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
               <Box
                 direction="row"
-                justify="start"
+                justify="end"
                 fill={true}
                 margin={{ top: 'small' }}
               >
-                <Text color="Red500" style={{ textAlign: 'left' }}>
+                <Text color="Red500" style={{ textAlign: 'right' }}>
                   The metamask may ask you to sign with slightly higher fee due
                   to 150000 gas limit estimate, however you will be charged
                   similar to the above estimate based on the actual gas used.
@@ -416,14 +416,14 @@ export class Exchange extends React.Component<
             ) : null}
             <Box
               direction="row"
-              justify="start"
+              justify="end"
               margin={{
                 top:
                   exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? 'medium' : '0px',
               }}
               fill={true}
             >
-              <Text color="Red500" style={{ textAlign: 'left' }}>
+              <Text color="Red500" style={{ textAlign: 'right' }}>
                 You will be prompted to sign two transactions
               </Text>
             </Box>

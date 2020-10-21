@@ -6,6 +6,7 @@ import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
+import { useState } from 'react';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -103,6 +104,9 @@ const AssetRow = props => {
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
     const { exchange, userMetamask } = useStores();
+    const [isShowDetail, setShowDetails] = useState(false);
+
+    const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_ONE;
 
     return (
       <Box direction="column">
@@ -160,25 +164,53 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               )}
             </AssetRow>
 
-            {/*{!exchange.isFeeLoading &&*/}
-            {/*exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (*/}
-            {/*  <div style={{ opacity: 0.6 }}>*/}
-            {/*    <AssetRow label="Approve (~50000 gas)" value="">*/}
-            {/*      <Price*/}
-            {/*        value={exchange.networkFee / 2}*/}
-            {/*        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}*/}
-            {/*        boxProps={{ pad: {} }}*/}
-            {/*      />*/}
-            {/*    </AssetRow>*/}
-            {/*    <AssetRow label="Lock token (~50000 gas)" value="">*/}
-            {/*      <Price*/}
-            {/*        value={exchange.networkFee / 2}*/}
-            {/*        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}*/}
-            {/*        boxProps={{ pad: {} }}*/}
-            {/*      />*/}
-            {/*    </AssetRow>*/}
-            {/*  </div>*/}
-            {/*) : null}*/}
+            {!isShowDetail && isETH && !exchange.isFeeLoading ? (
+              <Box
+                direction="row"
+                justify="end"
+                margin={{ top: '-10px' }}
+                onClick={() => setShowDetails(true)}
+              >
+                <Icon
+                  size="14px"
+                  glyph="ArrowDown"
+                  style={{ marginRight: 10 }}
+                />
+                <Text size="small">Show more details</Text>
+              </Box>
+            ) : null}
+
+            {!exchange.isFeeLoading &&
+            exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+            isShowDetail ? (
+              <div style={{ opacity: 1 }}>
+                <AssetRow label="Approve (~50000 gas)" value="">
+                  <Price
+                    value={exchange.networkFee / 2}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+                <AssetRow label="Lock token (~50000 gas)" value="">
+                  <Price
+                    value={exchange.networkFee / 2}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+              </div>
+            ) : null}
+
+            {isShowDetail && isETH ? (
+              <Box
+                direction="row"
+                justify="end"
+                onClick={() => setShowDetails(false)}
+              >
+                <Icon size="14px" glyph="ArrowUp" style={{ marginRight: 10 }} />
+                <Text size="small">Hide details</Text>
+              </Box>
+            ) : null}
 
             {/*<AssetRow*/}
             {/*  label="Total"*/}
