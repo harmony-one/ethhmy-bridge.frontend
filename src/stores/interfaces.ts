@@ -66,4 +66,5 @@ export interface ITokenInfo {
   hrc20Address: string;
   totalLocked: string;
   totalLockedNormal: string;
+  totalLockedUSD: string;
 }

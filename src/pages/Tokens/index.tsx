@@ -73,23 +73,38 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     title: 'HRC20 Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
-    width: 280,
+    width: 300,
     render: value => oneAddress(getBech32Address(value)),
   },
-  {
-    title: 'Decimals',
-    key: 'decimals',
-    dataIndex: 'decimals',
-    width: 100,
-    className: styles.centerHeader,
-    align: 'center',
-  },
+  // {
+  //   title: 'Decimals',
+  //   key: 'decimals',
+  //   dataIndex: 'decimals',
+  //   width: 100,
+  //   className: styles.centerHeader,
+  //   align: 'center',
+  // },
   {
     title: 'Total Locked',
-    sortable: true,
+    // sortable: true,
     key: 'totalLockedNormal',
     dataIndex: 'totalLockedNormal',
-    width: 200,
+    width: 140,
+    render: value => (
+      <Box direction="column" justify="center">
+        {formatWithTwoDecimals(value)}
+      </Box>
+    ),
+    // className: styles.centerHeader,
+    // align: 'center',
+  },
+  {
+    title: 'Total Locked USD',
+    sortable: true,
+    key: 'totalLockedUSD',
+    defaultSort: 'asc',
+    dataIndex: 'totalLockedUSD',
+    width: 210,
     className: styles.rightHeaderSort,
     align: 'right',
     render: value => (
@@ -149,6 +164,23 @@ export const Tokens = observer((props: any) => {
           pad={{ horizontal: 'medium' }}
         >
           <Title>Bridged Assets</Title>
+
+          <Box direction="column">
+            <Title size="small">
+              Total Value Locked (USD){' '}
+              <span
+                style={{
+                  marginLeft: 5,
+                  color: '#47b8eb',
+                  fontWeight: 600,
+                  letterSpacing: 0.2
+                }}
+              >
+                {formatWithTwoDecimals(tokens.totalLockedUSD)}
+              </span>
+            </Title>
+          </Box>
+
           <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
         </Box>
 

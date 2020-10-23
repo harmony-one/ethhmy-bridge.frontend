@@ -27,7 +27,7 @@ export interface ListData<T> {
 interface IListStoreOptions {
   pollingInterval?: number;
   paginationData?: IPagination;
-  sorter?: string[];
+  sorter?: string | string[];
   sorters?: ISorters;
   filters?: IFilters;
   isLocal?: boolean;
@@ -96,7 +96,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
     this.pollingInterval = pollingInterval;
 
     this.sorters = options.sorters || {};
-    this.sorter = 'none';
+    this.sorter = options.sorter || 'none';
     this.filters = options.filters || {};
 
     this.isLocal = options.isLocal;
@@ -241,15 +241,16 @@ export class ListStoreConstructor<T> extends StoreConstructor {
   @computed
   get sortedData() {
     if (!this.isLocal) return this.filteredData;
-    if (
-      !this.sorter ||
-      this.sorter === 'none' ||
-      this.sorter instanceof Array
-    ) {
+
+    console.log(this.sorter);
+
+    if (!this.sorter || this.sorter === 'none') {
       return this.filteredData;
     }
 
-    const [index, direction] = this.sorter.split(',');
+    const sorter = Array.isArray(this.sorter) ? this.sorter[0] : this.sorter;
+
+    const [index, direction] = sorter.split(',');
     const dir = direction === 'asc' ? 1 : -1;
     return this.filteredData.sort((a, b) => {
       return Number(a[index]) < Number(b[index]) ? dir : -dir;
