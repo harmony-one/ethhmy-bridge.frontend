@@ -1,7 +1,12 @@
 import { default as React } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
-import { EXCHANGE_MODE, IAction, IOperation } from 'stores/interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IAction,
+  IOperation,
+} from 'stores/interfaces';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, truncateAddressString } from 'utils';
@@ -9,6 +14,7 @@ import { STEPS_TITLE } from './steps-constants';
 import { IColumn, Table } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
+import { useStores } from '../../stores';
 
 export interface IExpandedRowProps {
   data: IOperation;
@@ -161,6 +167,14 @@ const actionColumns: IColumn<IAction>[] = [
 // });
 
 export const ExpandedRow = observer((props: IExpandedRowProps) => {
+  const { tokens } = useStores();
+
+  const erc20Address = props.data.erc20Address || '';
+
+  const token = tokens.data.find(
+    t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+  );
+
   return (
     <Box direction="column" pad={{ bottom: 'small' }}>
       {props.data.actions.map(action => (
@@ -206,25 +220,58 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               {action.status}
             </Box>
 
-            <Box
-              className={styles.actionCell}
-              style={{ width: 220 }}
-              align="center"
-            >
-              <a
-                className={styles.addressLink}
-                href={
-                  (isEth(action.type)
-                    ? process.env.ETH_EXPLORER_URL
-                    : process.env.HMY_EXPLORER_URL) +
-                  '/tx/' +
-                  action.transactionHash
-                }
-                target="_blank"
+            {action.type === ACTION_TYPE.getHRC20Address && !!token ? (
+              <Box
+                className={styles.actionCell}
+                style={{ width: 220, paddingLeft: 16 }}
+                align="center"
+                direction="row"
               >
-                {truncateAddressString(action.transactionHash, 9)}
-              </a>
-            </Box>
+                <a
+                  className={styles.addressLink}
+                  href={
+                    process.env.ETH_EXPLORER_URL +
+                    '/token/' +
+                    token.erc20Address
+                  }
+                  target="_blank"
+                >
+                  {token.symbol}
+                </a>
+                <span style={{ margin: '0 10px' }}>/</span>
+                <a
+                  className={styles.addressLink}
+                  href={
+                    process.env.HMY_EXPLORER_URL +
+                    '/address/' +
+                    token.hrc20Address
+                  }
+                  target="_blank"
+                >
+                  1{token.symbol}
+                </a>
+              </Box>
+            ) : (
+              <Box
+                className={styles.actionCell}
+                style={{ width: 220 }}
+                align="center"
+              >
+                <a
+                  className={styles.addressLink}
+                  href={
+                    (isEth(action.type)
+                      ? process.env.ETH_EXPLORER_URL
+                      : process.env.HMY_EXPLORER_URL) +
+                    '/tx/' +
+                    action.transactionHash
+                  }
+                  target="_blank"
+                >
+                  {truncateAddressString(action.transactionHash, 9)}
+                </a>
+              </Box>
+            )}
 
             <Box className={styles.actionCell} style={{ width: 160 }}>
               {action.timestamp
