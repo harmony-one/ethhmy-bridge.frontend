@@ -193,7 +193,9 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public setToken = async (erc20Address: string) => {
     this.erc20TokenDetails = null;
     this.erc20Address = '';
+    this.erc20Balance = '0';
     this.stores.user.hrc20Address = '';
+    this.stores.user.hrc20Balance = '0';
 
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
