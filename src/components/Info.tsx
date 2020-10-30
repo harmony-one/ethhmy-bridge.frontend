@@ -8,9 +8,11 @@ export const Info = ({ title }: { title: string }) => (
     className={styles.infoContainer}
     pad={{ horizontal: 'large', top: 'large' }}
   >
-    <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
-      <Title>{title}</Title>
-    </Box>
+    {title ? (
+      <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
+        <Title>{title}</Title>
+      </Box>
+    ) : null}
     <div>
       <p>
         <b>You can use this bridge to</b>

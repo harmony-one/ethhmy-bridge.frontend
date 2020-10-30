@@ -9,7 +9,6 @@ import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
-import { Info } from '../Info';
 // import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
@@ -30,6 +29,8 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isExplorer = history.location.pathname === '/explorer';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
+    const isFaq = history.location.pathname === '/faq';
+    const isInfo = history.location.pathname === '/info';
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
@@ -103,7 +104,9 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isExplorer && !isGetTokens && !isTokens ? styles.selected : '',
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                  ? styles.selected
+                  : '',
               )}
               onClick={goToBridge}
             >
@@ -132,26 +135,17 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
-              className={cn(styles.itemToken)}
-              onClick={() => {
-                actionModals.open(
-                  () => <Info title="Ethereum <> Harmony Bridge" />,
-                  {
-                    title: '',
-                    applyText: 'Got it',
-                    closeText: '',
-                    noValidation: true,
-                    width: '1000px',
-                    showOther: true,
-                    onApply: () => {
-                      user.setInfoReading();
-                      return Promise.resolve();
-                    },
-                  },
-                );
-              }}
+              className={cn(styles.itemToken, isInfo ? styles.selected : '')}
+              onClick={() => routing.push('/info')}
             >
               <Text>Info</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isFaq ? styles.selected : '')}
+              onClick={() => routing.push('/faq')}
+            >
+              <Text>FAQ</Text>
             </Box>
 
             {/*<Box*/}
