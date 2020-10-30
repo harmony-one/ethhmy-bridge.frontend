@@ -260,7 +260,7 @@ export const FAQPage = () => {
               FAQ
             </Title>
           </Box>
-          <Box style={{ background: 'white' }} pad="large">
+          <Box style={{ background: 'white', borderRadius: 5 }} pad="xlarge">
             {faqConfig.map((item, idx) => {
               const isExpanded = expandedIdxs.includes(idx);
 

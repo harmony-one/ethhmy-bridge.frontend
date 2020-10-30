@@ -26,9 +26,12 @@ export const InfoPage = () => {
               {'Ethereum <> Harmony Bridge'}
             </Title>
           </Box>
-          <div style={{ background: 'white' }}>
+          <Box
+            style={{ background: 'white', borderRadius: 5 }}
+            pad={{ bottom: 'medium' }}
+          >
             <Info title="" />
-          </div>
+          </Box>
         </Box>
       </PageContainer>
     </BaseContainer>
