@@ -599,6 +599,12 @@ export const tokens = [
       'https://etherscan.io/token/0x07ef9e82721ac16809d24dafbe1792ce01654db4',
     image: 'https://etherscan.io/token/images/chimpion_28.png',
   },
+  {
+    label: 'Wrapped Ether (WETH)',
+    href:
+      'https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    image: 'https://etherscan.io/token/images/weth_28.png',
+  },
 ].map(t => ({ ...t, address: t.href.split('token/')[1] }));
 
 // let arr = new Array(...document.getElementsByClassName('media')).map(media => {

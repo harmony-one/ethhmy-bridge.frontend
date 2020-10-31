@@ -3,25 +3,48 @@
     margin-bottom 16px;
 
     .label {
+      .labelIcon {
+        border-radius 5px
+        border 1px solid #212D5E;
+        background transparent
+        width 21px
+        height 20px
+        text-align center
+        padding 0
+        padding-left 1px
+
+        font-family: Nunito;
+        font-size: 18px;
+        font-weight: 600;
+        color: #212D5E;
+        line-height 17px
+      }
+
     }
 
     .textContainer {
       // margin-top -10px
-      margin-left 30px
+      // margin-left 30px
+
+      ul {
+        list-style none
+        // padding-left 20px
+        list-style-type disc
+        margin 10px 0 0 20px
+
+        li {
+          margin 2px 0
+
+          ul {
+            margin 0 0 0 5px
+          }
+        }
+      }
 
       .text {
         color #212D5E;
         line-height 25px
-        margin 5px 0
-
-        ul {
-          list-style none
-          padding-left 20px
-
-          li {
-            margin 7px 0
-          }
-        }
+        margin 0
 
         p {
           margin 0

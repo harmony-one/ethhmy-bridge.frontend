@@ -15,6 +15,7 @@ const faqConfig = [
         (e.g., fungible/non-fungible tokens, stablecoins) between Ethereum and
         Harmony blockchains.
         <br />
+        <br />
         Horizon UI is accessible at{' '}
         <a href="https://bridge.harmony.one/" target="_blank">
           https://bridge.harmony.one/
@@ -37,29 +38,40 @@ const faqConfig = [
     label: 'How does Horizon work?',
     text: () => (
       <p>
-        Horizon is comprised of two core components: A set of smart contracts
-        deployed on both Ethereum and Harmony blockchains A pool of validators
-        that listens to events on both Ethereum and Harmony bridge smart
-        contracts. When a token lock action is detected on Ethereum blockchain,
-        the pool of validators validates it and relays the finalized information
-        to the Harmony blockchain: here, the same amount of a bridged token is
-        minted. On the opposite, when a bridged token burn is detected on
-        Harmony blockchain, the pool of validators validates it and relays the
-        finalized information to the Ethereum blockchain, where the same amount
-        of the original token is unlocked.
+        Horizon is comprised of two core components:
+        <ul>
+          <li>
+            A set of smart contracts deployed on both Ethereum and Harmony
+            blockchains
+          </li>
+          <li>
+            A pool of validators that listens to events on both Ethereum and
+            Harmony bridge smart contracts. When a token lock action is detected
+            on Ethereum blockchain, the pool of validators validates it and
+            relays the finalized information to the Harmony blockchain: here,
+            the same amount of a bridged token is minted. On the opposite, when
+            a bridged token burn is detected on Harmony blockchain, the pool of
+            validators validates it and relays the finalized information to the
+            Ethereum blockchain, where the same amount of the original token is
+            unlocked.
+          </li>
+        </ul>
       </p>
     ),
   },
   {
     label: 'What kind of assets can be bridged using Horizon?',
     text: () => (
-      <p>
-        Stablecoins like BUSD, LINK, etc Any ERC20 tokens like USDT, USDC, WETH,
-        WBTC, etc You can find information about the bridged assets at
-        <a href="https://bridge.harmony.one/tokens" target="_blank">
-          https://bridge.harmony.one/tokens
-        </a>
-      </p>
+      <>
+        <li>Stablecoins like BUSD, LINK, etc</li>
+        <li>Any ERC20 tokens like USDT, USDC, WETH, WBTC, etc</li>
+        <li>
+          You can find information about the bridged assets at{' '}
+          <a href="https://bridge.harmony.one/tokens" target="_blank">
+            https://bridge.harmony.one/tokens
+          </a>
+        </li>
+      </>
     ),
   },
   {
@@ -79,16 +91,23 @@ const faqConfig = [
     text: () => (
       <p>
         Horizon supports issuing of both permissioned and permissionless tokens.
-        BUSD and LINK are issued as permissioned tokens, where partners like
-        Binance, ChainLink can work with Harmony to deploy their audited smart
-        contracts such that bridge can issue full-feature smart contract tokens
-        for the corresponding Ethereum tokens. This enables full utilization of
-        the bridged tokens. For example, the bridged “1LINK” on Harmony can be
-        directly used to pay the oracle providers through chainlink’s oracle
-        smart contract, which would not have been possible if “1LINK” was HRC20.
-        Any other ERC20 token is bridged in a permissionless manner, where the
-        bridge will issue 1:1 HRC20 tokens. For example, a user after bridging
-        their USDT will receive equivalent “1USDT” HRC20 tokens.
+        <ul>
+          <li>
+            BUSD and LINK are issued as permissioned tokens, where partners like
+            Binance, ChainLink can work with Harmony to deploy their audited
+            smart contracts such that bridge can issue full-feature smart
+            contract tokens for the corresponding Ethereum tokens. This enables
+            full utilization of the bridged tokens. For example, the bridged
+            “1LINK” on Harmony can be directly used to pay the oracle providers
+            through chainlink’s oracle smart contract, which would not have been
+            possible if “1LINK” was HRC20.
+          </li>
+          <li>
+            Any other ERC20 token is bridged in a permissionless manner, where
+            the bridge will issue 1:1 HRC20 tokens. For example, a user after
+            bridging their USDT will receive equivalent “1USDT” HRC20 tokens.
+          </li>
+        </ul>
       </p>
     ),
   },
@@ -187,14 +206,27 @@ const faqConfig = [
   {
     label: 'What are the fees for using Horizon?',
     text: () => (
-      <p>
-        Horizon service fee: 0 There is no fees for using the Horizon bridge
-        service itself From Ethereum to Harmony User will pay the Ethereum
-        transaction fee for 2 transactions (approve and lock token), which is
-        normally $1-3 in total From Harmony to Ethereum You will pay the Harmony
-        transaction fee for 2 transactions (approve and burn token), which is
-        normally under a fraction of the cent (negligible)
-      </p>
+      <>
+        <li>Horizon service fee: 0</li>
+        <ul>
+          <li>There is no fees for using the Horizon bridge service itself</li>
+        </ul>
+        <li>From Ethereum to Harmony</li>
+        <ul>
+          <li>
+            User will pay the Ethereum transaction fee for 2 transactions
+            (approve and lock token), which is normally $1-3 in total
+          </li>
+        </ul>
+        <li>From Harmony to Ethereum</li>
+        <ul>
+          <li>
+            You will pay the Harmony transaction fee for 2 transactions (approve
+            and burn token), which is normally under a fraction of the cent
+            (negligible)
+          </li>
+        </ul>
+      </>
     ),
   },
 
@@ -202,7 +234,10 @@ const faqConfig = [
     label: 'Is Horizon bridge audited?',
     text: () => (
       <p>
-        Yes, the Horizon bridge is fully audited and approved by Peckshield Inc.
+        Yes, the Horizon bridge is fully audited and approved by{' '}
+        <a href="https://blog.peckshield.com" target="_blank">
+          Peckshield Inc.
+        </a>
       </p>
     ),
   },
@@ -274,19 +309,26 @@ export const FAQPage = () => {
                   }
                 >
                   <Box className={styles.label} direction="row" align="center">
-                    <Icon
-                      styles={{ marginBottom: 2 }}
-                      glyph={isExpanded ? 'ArrowUp' : 'ArrowDown'}
-                    />
+                    <Box className={styles.labelIcon}>
+                      {isExpanded ? '-' : '+'}
+                    </Box>
+                    {/*<Icon*/}
+                    {/*  styles={{ marginBottom: 2 }}*/}
+                    {/*  glyph={isExpanded ? 'Minus' : 'Plus'}*/}
+                    {/*/>*/}
                     <Text size="large" style={{ marginLeft: 10 }} bold>
                       {item.label}
                     </Text>
                   </Box>
                   {isExpanded ? (
                     <Box className={styles.textContainer}>
-                      <Text size="medium" className={styles.text}>
-                        {item.text()}
-                      </Text>
+                      <ul>
+                        <li>
+                          <Text size="medium" className={styles.text}>
+                            {item.text()}
+                          </Text>
+                        </li>
+                      </ul>
                     </Box>
                   ) : null}
                 </Box>
