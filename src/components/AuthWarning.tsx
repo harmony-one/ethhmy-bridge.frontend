@@ -7,7 +7,7 @@ export const AuthWarning = () => (
     <Title>Use Keplr Wallet Browser Extension</Title>
     <div>
       <p>
-        Looks like you don't have the Keplr Wallet extension installed
+        Looks like you don't have the Keplr wallet browser extension installed
         yet. Head over to the
         <a
           href="https://wallet.keplr.app/"

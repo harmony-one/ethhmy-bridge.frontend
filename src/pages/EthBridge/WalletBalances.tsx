@@ -146,7 +146,7 @@ export const WalletBalances = observer(() => {
             <Box direction="row" align="center">
               <img className={styles.imgToken} src="/scrt.svg" />
               <Title margin={{ right: 'xsmall' }}>Secret Network</Title>
-              <Text margin={{ top: '4px' }}>(Keplr Wallet)</Text>
+              <Text margin={{ top: '4px' }}>(Keplr)</Text>
             </Box>
             {user.isAuthorized && (
               <Box
@@ -232,10 +232,10 @@ export const WalletBalances = observer(() => {
                   }
                 }}
               >
-                Connect Keplr Wallet
+                Connect Keplr
               </Button>
               {!user.isOneWallet ? (
-                <Error error="Keplr Wallet not found" />
+                <Error error="Keplr not found" />
               ) : null}
             </Box>
           )}
