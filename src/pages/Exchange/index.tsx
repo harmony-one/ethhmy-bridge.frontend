@@ -356,7 +356,7 @@ export class Exchange extends React.Component<
               ) : (
                 <Box direction="column" fill={true}>
                   <Input
-                    label="ONE Address"
+                    label="Secret Address"
                     name="oneAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
