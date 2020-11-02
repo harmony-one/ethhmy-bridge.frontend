@@ -1,5 +1,6 @@
 {
   "name": "ethereum-bridge-frontend",
+  "homepage": "https://scrt.eth.bridge.enigma.co/",
   "version": "0.0.2",
   "private": true,
   "scripts": {
@@ -9,7 +10,9 @@
     "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:debug": "jest --config=jest.config.debug.js",
-    "version": "echo $npm_package_version"
+    "version": "echo $npm_package_version",
+    "predeploy": "npm run build && cp CNAME build/CNAME",
+    "deploy": "gh-pages -d build"
   },
   "repository": {
     "type": "git",
@@ -19,12 +22,13 @@
     "@harmony-js/core": "^0.1.46",
     "@metamask/detect-provider": "^1.1.0",
     "@types/react-outside-click-handler": "^1.3.0",
-    "bignumber.js": "^8.1.1",
     "async-validator": "1.11.5",
+    "bignumber.js": "^8.1.1",
     "classnames": "^2.2.6",
     "core-decorators": "^0.20.0",
     "eth-sig-util": "^2.5.3",
     "ethjs": "^0.4.0",
+    "gh-pages": "3.1.0",
     "grommet": "^2.8.1",
     "lodash": "^4.17.15",
     "mobx": "5.15.0",
@@ -32,6 +36,7 @@
     "mobx-react-router": "4.0.7",
     "moment": "^2.24.0",
     "query-string": "^6.10.1",
+    "rc-table": "^7.4.5",
     "rc-tooltip": "^4.2.1",
     "react": "16.12.0",
     "react-cookie-banner": "^4.1.0",
@@ -45,8 +50,7 @@
     "react-switch": "^5.0.1",
     "superagent": "^6.0.0",
     "tslib": "^1.10.0",
-    "web3": "1.2.11",
-    "rc-table": "^7.4.5"
+    "web3": "1.2.11"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.9",
