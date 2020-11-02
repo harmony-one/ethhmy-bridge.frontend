@@ -26,12 +26,13 @@ export const ERC20Select = observer(() => {
         <Text size="large" bold>
           ERC20 token address
         </Text>
-
+        {/* 
         <Checkbox
           label="use custom address"
           value={custom}
           onChange={setCustom}
         />
+        */}
       </Box>
 
       {!custom ? (

@@ -60,10 +60,10 @@ export const EthBridge = observer((props: any) => {
 
   useEffect(() => {
     if (props.match.params.token) {
-      if ([TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20].includes(props.match.params.token)) {
+      if ([TOKEN.LINK, TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {
         exchange.setToken(props.match.params.token);
       } else {
-        routing.push(TOKEN.BUSD);
+        routing.push(TOKEN.ETH);
       }
     }
 

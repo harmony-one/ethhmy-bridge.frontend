@@ -15,7 +15,7 @@ export const MintTokens = observer((props: any) => {
   const { userMetamask } = useStores();
   const [status, setStatus] = useState<statusFetching>('init');
   const [error, setError] = useState('');
-  const [token, setToken] = useState<TOKEN>(TOKEN.BUSD);
+  const [token, setToken] = useState<TOKEN>(TOKEN.ETH);
   const [address, setAddress] = useState<string>('');
 
   const isPending = status === 'fetching';
@@ -66,8 +66,8 @@ export const MintTokens = observer((props: any) => {
             <Box direction="row">
               <ItemToken
                 onClick={setToken}
-                tokenType={TOKEN.BUSD}
-                selected={token === TOKEN.BUSD}
+                tokenType={TOKEN.ETH}
+                selected={token === TOKEN.ETH}
               />
               <ItemToken
                 onClick={setToken}

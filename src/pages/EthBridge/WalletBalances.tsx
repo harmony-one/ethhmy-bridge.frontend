@@ -114,7 +114,7 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="Ethereum BUSD"
                 value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
-                selected={exchange.token === TOKEN.BUSD}
+                selected={exchange.token === TOKEN.ETH}
                 link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}
               />
 
@@ -193,7 +193,7 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="Harmony BUSD"
                 value={formatWithSixDecimals(user.hmyBUSDBalance)}
-                selected={exchange.token === TOKEN.BUSD}
+                selected={exchange.token === TOKEN.ETH}
                 link={`${
                   process.env.HMY_EXPLORER_URL
                 }/address/${getBech32Address(

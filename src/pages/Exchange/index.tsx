@@ -99,9 +99,9 @@ export class Exchange extends React.Component<
     const { user, exchange, userMetamask } = this.props;
 
     switch (exchange.token) {
-      case TOKEN.BUSD:
+      case TOKEN.ETH:
         return {
-          label: 'BUSD',
+          label: 'ETH',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyBUSDBalance
@@ -216,17 +216,17 @@ export class Exchange extends React.Component<
             <Box
               className={cn(
                 styles.itemToken,
-                exchange.token === TOKEN.BUSD ? styles.selected : '',
+                exchange.token === TOKEN.ETH ? styles.selected : '',
               )}
               onClick={() => {
-                exchange.setToken(TOKEN.BUSD);
+                exchange.setToken(TOKEN.ETH);
                 routing.push(`/${exchange.token}`);
               }}
             >
-              <img className={styles.imgToken} src="/busd.svg" />
-              <Text>BUSD</Text>
+              <img className={styles.imgToken} src="/eth.svg" />
+              <Text>ETH</Text>
             </Box>
-
+{/* 
             <Box
               className={cn(
                 styles.itemToken,
@@ -240,7 +240,7 @@ export class Exchange extends React.Component<
               <img className={styles.imgToken} src="/link.png" />
               <Text>LINK</Text>
             </Box>
-
+ */}
             <Box
               className={cn(
                 styles.itemToken,

@@ -284,7 +284,7 @@ export class Exchange extends StoreConstructor {
       }
 
       switch (this.token) {
-        case TOKEN.BUSD:
+        case TOKEN.ETH:
           ethMethods = contract.ethMethodsBUSD;
           hmyMethods = contract.hmyMethodsBUSD;
           break;
