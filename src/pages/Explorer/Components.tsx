@@ -33,7 +33,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
         <img
           className={styles.imgToken}
           style={{ height: 18 }}
-          src="/one.svg"
+          src="/scrt.svg"
         />
         <Text size="medium">ONE</Text>
       </Box>

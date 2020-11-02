@@ -71,7 +71,7 @@ const StepRow = ({
             <img
               className={styles.imgToken}
               style={{ height: 18 }}
-              src="/one.svg"
+              src="/scrt.svg"
             />
             <Text>HRC20 address:</Text>
           </Box>

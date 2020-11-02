@@ -42,9 +42,9 @@ const LargeButton = (props: {
           <img src="/right.svg" />
         </Box>
         <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/one.svg" />
+          <img className={styles.imgToken} src="/scrt.svg" />
           <Text size="large" className={styles.title}>
-            ONE
+            Secret
           </Text>
         </Box>
       </Box>
@@ -106,15 +106,15 @@ export const EthBridge = observer((props: any) => {
               margin={{ vertical: 'large' }}
             >
               <LargeButton
-                title="ETH -> ONE"
+                title="ETH -> Secret Network"
                 description="(Metamask)"
                 onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
                 isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
               />
               <LargeButton
-                title="ONE -> ETH"
+                title="Secret Network -> ETH"
                 reverse={true}
-                description="(ONE Wallet)"
+                description="(Keplr)"
                 onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                 isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
               />

@@ -32,7 +32,7 @@ const ethAddress = value => (
 
 const oneAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/one.svg" />
+    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
       href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}

@@ -75,7 +75,7 @@ export const Info = ({ title }: { title: string }) => (
           </li>
           <li>2) your transaction hashes on Ethereum or Harmony</li>
           <li>
-            3) your <span>ETH</span> or <span>ONE</span> account address
+            3) your <span>ETH</span> or <span>Secret</span> account address
           </li>
         </ul>
       </p>
