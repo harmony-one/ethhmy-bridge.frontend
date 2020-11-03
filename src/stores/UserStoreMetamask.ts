@@ -177,11 +177,11 @@ export class UserStoreMetamask extends StoreConstructor {
 
         let res = 0;
 
-        res = await ethMethodsLINK.checkEthBalance(this.ethAddress);
-        this.ethLINKBalance = divDecimals(res, 18);
-
-        res = await ethMethodsBUSD.checkEthBalance(this.ethAddress);
-        this.ethBUSDBalance = divDecimals(res, 18);
+        // res = await ethMethodsLINK.checkEthBalance(this.ethAddress);
+        // this.ethLINKBalance = divDecimals(res, 18);
+        //
+        // res = await ethMethodsBUSD.checkEthBalance(this.ethAddress);
+        // this.ethBUSDBalance = divDecimals(res, 18);
 
         this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {

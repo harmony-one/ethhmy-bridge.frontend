@@ -60,7 +60,7 @@ export class EthMethodsERC20 {
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     const estimateGas = await this.ethManagerContract.methods
-      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
+      .swapToken(hmyAddrHex, mulDecimals(amount, decimals), erc20Address)
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(
@@ -69,7 +69,7 @@ export class EthMethodsERC20 {
     );
 
     let transaction = await this.ethManagerContract.methods
-      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
+      .swapToken(hmyAddrHex, mulDecimals(amount, decimals), erc20Address)
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),
@@ -103,6 +103,7 @@ export class EthMethodsERC20 {
 
     const name = await erc20Contract.methods.name().call();
     const symbol = await erc20Contract.methods.symbol().call();
+    // todo: check if all the erc20s we care about have the decimals method (it's not required by the standard)
     const decimals = await erc20Contract.methods.decimals().call();
 
     return { name, symbol, decimals, erc20Address };

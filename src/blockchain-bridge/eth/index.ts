@@ -30,31 +30,31 @@ const ethLINKContract = new web3.eth.Contract(
 const ethLINKManagerJson = require('../out/LINKEthManager.json');
 const ethLINKManagerContract = new web3.eth.Contract(
   ethLINKManagerJson.abi,
-  process.env.ETH_LINK_MANAGER_CONTRACT,
+  process.env.ETH_MANAGER_CONTRACT,
 );
 
 export const ethMethodsBUSD = new EthMethods({
   web3: web3,
   ethTokenContract: ethBUSDContract,
   ethManagerContract: ethBUSDManagerContract,
-  ethManagerAddress: process.env.ETH_BUSD_MANAGER_CONTRACT,
+  ethManagerAddress: process.env.ETH_MANAGER_CONTRACT,
 });
 
 export const ethMethodsLINK = new EthMethods({
   web3: web3,
   ethTokenContract: ethLINKContract,
   ethManagerContract: ethLINKManagerContract,
-  ethManagerAddress: process.env.ETH_LINK_MANAGER_CONTRACT,
+  ethManagerAddress: process.env.ETH_MANAGER_CONTRACT,
 });
 
-const ethManagerJson = require('../out/EthManagerERC20.json');
+const ethManagerJson = require('../out/MultiSigSwapWallet.json');
 const ethManagerContract = new web3.eth.Contract(
   ethManagerJson.abi,
-  process.env.ETH_ERC20_MANAGER_CONTRACT,
+  process.env.ETH_MANAGER_CONTRACT,
 );
 
 export const ethMethodsERC20 = new EthMethodsERC20({
   web3: web3,
   ethManagerContract: ethManagerContract,
-  ethManagerAddress: process.env.ETH_ERC20_MANAGER_CONTRACT,
+  ethManagerAddress: process.env.ETH_MANAGER_CONTRACT,
 });
