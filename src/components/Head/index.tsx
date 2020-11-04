@@ -35,9 +35,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
         routing.push(
-          `/${exchange.token || TOKEN.ETH}/operations/${
-            exchange.operation.id
-          }`,
+          `/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`,
         );
       } else {
         routing.push(`/${exchange.token || TOKEN.ETH}`);
@@ -81,7 +79,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
             <Box>
               <Title size="medium" color="BlackTxt" bold>
-                Horizon by Harmony
+                Secret Finance Hub
               </Title>
             </Box>
           </Box>
