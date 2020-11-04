@@ -2,7 +2,7 @@ import { Contract } from 'web3-eth-contract';
 import { getAddress } from '@harmony-js/crypto';
 import Web3 from 'web3';
 import { mulDecimals } from '../../utils';
-import { getGasPrice } from './helpers';
+import { ethToWei, getGasPrice } from './helpers';
 const BN = require('bn.js');
 
 export interface IEthMethodsInitParams {
@@ -46,7 +46,7 @@ export class EthMethods {
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     const estimateGas = await this.ethManagerContract.methods
-      .lockToken(mulDecimals(amount, 18), hmyAddrHex)
+      .swap(hmyAddrHex)
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(
@@ -55,8 +55,9 @@ export class EthMethods {
     );
 
     let transaction = await this.ethManagerContract.methods
-      .lockToken(mulDecimals(amount, 18), hmyAddrHex)
+      .swap(hmyAddrHex)
       .send({
+        value: ethToWei(amount),
         from: accounts[0],
         gas: new BN(gasLimit),
         gasPrice: await getGasPrice(this.web3)

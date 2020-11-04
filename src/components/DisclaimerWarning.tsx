@@ -56,7 +56,7 @@ const styles = {
 export const Disclaimer = () => (
   <CookieBanner
     styles={styles}
-    message="NOTE: All transactions are on the Harmony Testnet and Kovan Test Network. Use at your own risk. If you find a bug, send them here support@harmony.one"
+    message="NOTE: All transactions are on the Holodeck Testnet and Ropsten Test Network. Use at your own risk. If you find a bug, send them here support@harmony.one"
     onAccept={() => {}}
     cookie="soccerplayers-accept-no-commerce"
     dismissOnScroll={false}

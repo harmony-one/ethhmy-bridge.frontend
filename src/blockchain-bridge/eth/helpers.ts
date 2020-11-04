@@ -32,3 +32,5 @@ export const getNetworkFee = async () => {
 
   return Number(divDecimals(fee, 18));
 };
+
+export const ethToWei = (amount: string | number) => mulDecimals(amount, 18)

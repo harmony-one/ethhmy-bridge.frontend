@@ -100,6 +100,7 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="ETH"
                 value={formatWithSixDecimals(userMetamask.ethBalance)}
+                selected={exchange.token === TOKEN.ETH}
               />
 
               {userMetamask.erc20TokenDetails ? (
@@ -111,20 +112,19 @@ export const WalletBalances = observer(() => {
                 />
               ) : null}
 
-              <AssetRow
-                asset="Ethereum BUSD"
-                value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
-                selected={exchange.token === TOKEN.ETH}
-                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}
-              />
+              {/*<AssetRow*/}
+              {/*  asset="Ethereum BUSD"*/}
+              {/*  value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}*/}
+              {/*  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}*/}
+              {/*/>*/}
 
-              <AssetRow
-                asset="Ethereum LINK"
-                value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
-                selected={exchange.token === TOKEN.LINK}
-                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}
-                last={true}
-              />
+              {/*<AssetRow*/}
+              {/*  asset="Ethereum LINK"*/}
+              {/*  value={formatWithSixDecimals(userMetamask.ethLINKBalance)}*/}
+              {/*  selected={exchange.token === TOKEN.LINK}*/}
+              {/*  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}*/}
+              {/*  last={true}*/}
+              {/*/>*/}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

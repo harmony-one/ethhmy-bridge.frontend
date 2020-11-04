@@ -104,8 +104,8 @@ export class Exchange extends React.Component<
           label: 'ETH',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hmyBUSDBalance
-              : userMetamask.ethBUSDBalance,
+              ? user.balance
+              : userMetamask.ethBalance,
         };
       case TOKEN.LINK:
         return {
@@ -226,7 +226,7 @@ export class Exchange extends React.Component<
               <img className={styles.imgToken} src="/eth.svg" />
               <Text>ETH</Text>
             </Box>
-{/* 
+{/*
             <Box
               className={cn(
                 styles.itemToken,
