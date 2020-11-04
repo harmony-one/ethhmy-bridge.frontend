@@ -68,8 +68,10 @@ function getClientEnvironment(publicUrl) {
 
         PRIVATE_KEY: process.env.PRIVATE_KEY,
 
+        ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
+
         ETH_BUSD_CONTRACT: process.env.ETH_BUSD_CONTRACT,
-        ETH_BUSD_MANAGER_CONTRACT: process.env.ETH_BUSD_MANAGER_CONTRACT,
+        ETH_BUSD_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         HMY_BUSD_CONTRACT: process.env.HMY_BUSD_CONTRACT,
         HMY_BUSD_MANAGER_CONTRACT: process.env.HMY_BUSD_MANAGER_CONTRACT,
 

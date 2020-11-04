@@ -239,53 +239,53 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
-      let operationId = id;
-
-      if (!operationId) {
-        operationId = await this.createOperation();
-
-        this.stores.routing.push(
-          this.token + '/operations/' + this.operation.id,
-        );
-      }
-
-      await this.setOperationId(operationId);
-
-      if (
-        this.operation.status === STATUS.SUCCESS ||
-        this.operation.status === STATUS.ERROR
-      ) {
-        return;
-      }
-
+      // let operationId = id;
+      //
+      // if (!operationId) {
+      //   operationId = await this.createOperation();
+      //
+      //   this.stores.routing.push(
+      //     this.token + '/operations/' + this.operation.id,
+      //   );
+      // }
+      //
+      // await this.setOperationId(operationId);
+      //
+      // if (
+      //   this.operation.status === STATUS.SUCCESS ||
+      //   this.operation.status === STATUS.ERROR
+      // ) {
+      //   return;
+      // }
+      // this.operation.status = STATUS.SUCCESS
       const confirmCallback = async (
         transactionHash,
         actionType: ACTION_TYPE,
       ) => {
-        this.operation = await operationService.confirmAction({
-          operationId,
-          transactionHash,
-          actionType,
-        });
+        // this.operation = await operationService.confirmAction({
+        //   operationId,
+        //   transactionHash,
+        //   actionType,
+        // });
       };
 
       let ethMethods, hmyMethods;
 
-      if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
-        await sleep(3000);
-      }
-
-      if (this.operation.oneAddress !== this.stores.user.address) {
-        return;
-      }
-
-      if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
-        return;
-      }
+      // if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
+      //   await sleep(3000);
+      // }
+      //
+      // if (this.operation.oneAddress !== this.stores.user.address) {
+      //   return;
+      // }
+      //
+      // if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
+      //   return;
+      // }
 
       switch (this.token) {
         case TOKEN.ETH:
-          ethMethods = contract.ethMethodsBUSD;
+          ethMethods = contract.ethMethodsETH;
           hmyMethods = contract.hmyMethodsBUSD;
           break;
 
@@ -412,42 +412,45 @@ export class Exchange extends StoreConstructor {
         }
       } else {
         if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          let approveEthManger = this.getActionByType(
-            ACTION_TYPE.approveEthManger,
+          // ***ETH to Secret-Eth***
+
+
+          // let approveEthManger = this.getActionByType(
+          //   ACTION_TYPE.approveEthManger,
+          // );
+
+          // if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
+          //
+          // }
+          // ethMethods.approveEthManger(this.transaction.amount, hash =>
+          //   {},
+          // );
+          // while (
+          //   [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
+          //     approveEthManger.status,
+          //   )
+          // ) {
+          //   approveEthManger = this.getActionByType(
+          //     ACTION_TYPE.approveEthManger,
+          //   );
+
+            //await sleep(5000);
+          //}
+          //
+          // if (approveEthManger.status !== STATUS.SUCCESS) {
+          //   return;
+          // }
+
+          // const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
+          //
+          // if (lockToken && lockToken.status === STATUS.WAITING) {
+          //
+          // }
+          await ethMethods.swapEth (
+            this.transaction.oneAddress,
+            this.transaction.amount,
+            hash => {},
           );
-
-          if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            ethMethods.approveEthManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveEthManger.type),
-            );
-          }
-
-          while (
-            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-              approveEthManger.status,
-            )
-          ) {
-            approveEthManger = this.getActionByType(
-              ACTION_TYPE.approveEthManger,
-            );
-
-            await sleep(500);
-          }
-
-          if (approveEthManger.status !== STATUS.SUCCESS) {
-            return;
-          }
-
-          const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
-
-          if (lockToken && lockToken.status === STATUS.WAITING) {
-            await ethMethods.lockToken(
-              this.transaction.oneAddress,
-              this.transaction.amount,
-              hash => confirmCallback(hash, lockToken.type),
-            );
-          }
-
           return;
         }
 

@@ -8,46 +8,30 @@ const BN = require('bn.js');
 export interface IEthMethodsInitParams {
   web3: Web3;
   ethManagerContract: Contract;
-  ethManagerAddress: string;
-  ethTokenContract: Contract;
 }
 
 export class EthMethods {
   private web3: Web3;
   private ethManagerContract: Contract;
-  private ethTokenContract: Contract;
-  private ethManagerAddress: string;
 
   constructor(params: IEthMethodsInitParams) {
     this.web3 = params.web3;
     this.ethManagerContract = params.ethManagerContract;
-    this.ethTokenContract = params.ethTokenContract;
-    this.ethManagerAddress = params.ethManagerAddress;
   }
 
-  approveEthManger = async (amount, sendTxCallback?) => {
+  swapEth = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    return await this.ethTokenContract.methods
-      .approve(this.ethManagerAddress, mulDecimals(amount, 18))
-      .send({
-        from: accounts[0],
-        gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: await getGasPrice(this.web3)
-      })
-      .on('transactionHash', hash => sendTxCallback(hash));
-  };
-
-  lockToken = async (userAddr, amount, sendTxCallback?) => {
-    // @ts-ignore
-    const accounts = await ethereum.enable();
-
-    const hmyAddrHex = getAddress(userAddr).checksum;
+    //const bob = this.web3.utils.fromAscii(userAddr)
+    const hmyAddrHex = this.web3.utils.fromAscii(userAddr) //this.web3.eth.abi.encodeParameter('bytes', userAddr) //getAddress(userAddr).checksum; todo: add validation
 
     const estimateGas = await this.ethManagerContract.methods
       .swap(hmyAddrHex)
-      .estimateGas({ from: accounts[0] });
+      .estimateGas({
+        value: ethToWei(amount),
+        from: accounts[0]
+      });
 
     const gasLimit = Math.max(
       estimateGas + estimateGas * 0.3,
@@ -68,6 +52,6 @@ export class EthMethods {
   };
 
   checkEthBalance = async addr => {
-    return await this.ethTokenContract.methods.balanceOf(addr).call();
+    return await this.web3.eth.getBalance(addr);
   };
 }
