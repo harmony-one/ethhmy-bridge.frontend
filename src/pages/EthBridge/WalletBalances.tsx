@@ -174,10 +174,7 @@ export const WalletBalances = observer(() => {
 
               <AssetRow
                 asset="SCRT"
-                value={
-                  (console.log(user.balance),
-                  formatWithSixDecimals(user.balance))
-                }
+                value={formatWithSixDecimals(user.balance)}
               />
               {/* 
               {user.hrc20Address ? (
