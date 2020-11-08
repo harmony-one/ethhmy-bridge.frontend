@@ -125,11 +125,11 @@ export const Tokens = observer((props: any) => {
     tokens.init();
     tokens.fetch();
   }, []);
-
+  /* 
   useEffect(() => {
     setColumns(getColumns(user));
   }, [user.hmyLINKBalanceManager]);
-
+ */
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
   };
@@ -173,7 +173,7 @@ export const Tokens = observer((props: any) => {
                   marginLeft: 5,
                   color: '#47b8eb',
                   fontWeight: 600,
-                  letterSpacing: 0.2
+                  letterSpacing: 0.2,
                 }}
               >
                 {formatWithTwoDecimals(tokens.totalLockedUSD)}

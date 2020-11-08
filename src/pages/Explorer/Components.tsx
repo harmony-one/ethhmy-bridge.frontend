@@ -12,7 +12,7 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
     <Box
       direction={
-        props.type === EXCHANGE_MODE.ETH_TO_ONE ? 'row' : 'row-reverse'
+        props.type === EXCHANGE_MODE.ETH_TO_SCRT ? 'row' : 'row-reverse'
       }
       align="center"
       className={cn(styles.operationType)}

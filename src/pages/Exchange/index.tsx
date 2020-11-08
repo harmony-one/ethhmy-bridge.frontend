@@ -57,7 +57,7 @@ export class Exchange extends React.Component<
     const { actionModals, user, userMetamask, exchange } = this.props;
 
     if (!user.isAuthorized) {
-      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
         if (!user.isKeplrWallet) {
           return actionModals.open(() => <AuthWarning />, {
             title: '',
@@ -78,7 +78,7 @@ export class Exchange extends React.Component<
 
     if (
       !userMetamask.isAuthorized &&
-      exchange.mode === EXCHANGE_MODE.ETH_TO_ONE
+      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
     ) {
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
@@ -99,11 +99,12 @@ export class Exchange extends React.Component<
     const { user, exchange, userMetamask } = this.props;
 
     switch (exchange.token) {
+      /* 
       case TOKEN.ETH:
         return {
           label: 'ETH',
           maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
               ? user.balance
               : userMetamask.ethBalance,
         };
@@ -111,11 +112,11 @@ export class Exchange extends React.Component<
         return {
           label: 'LINK',
           maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
         };
-
+*/
       case TOKEN.ERC20:
         if (!userMetamask.erc20TokenDetails) {
           return { label: '', maxAmount: '0' };
@@ -124,18 +125,18 @@ export class Exchange extends React.Component<
         return {
           label: userMetamask.erc20TokenDetails.symbol,
           maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
               ? user.hrc20Balance
               : userMetamask.erc20Balance,
         };
 
       default:
         return {
-          label: 'BUSD',
+          label: 'ETH',
           maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hmyBUSDBalance
-              : userMetamask.ethBUSDBalance,
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+              ? user.balance
+              : userMetamask.ethBalance,
         };
     }
   }
@@ -328,7 +329,7 @@ export class Exchange extends React.Component<
                 </Text>
               </Box>
 
-              {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+              {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? (
                 <Box direction="column" fill={true}>
                   <Input
                     label="ETH Address"
@@ -400,7 +401,7 @@ export class Exchange extends React.Component<
 
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <>
-            {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
+            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? (
               <Box
                 direction="row"
                 justify="end"
@@ -419,7 +420,9 @@ export class Exchange extends React.Component<
               justify="end"
               margin={{
                 top:
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? 'medium' : '0px',
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? 'medium'
+                    : '0px',
               }}
               fill={true}
             >

@@ -58,7 +58,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'ethAddress',
     width: 200,
     render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_ONE
+      data.type === EXCHANGE_MODE.ETH_TO_SCRT
         ? ethAddress(data.ethAddress)
         : oneAddress(data.oneAddress),
   },
@@ -69,7 +69,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'oneAddress',
     width: 200,
     render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_ONE
+      data.type === EXCHANGE_MODE.ETH_TO_SCRT
         ? oneAddress(data.oneAddress)
         : ethAddress(data.ethAddress),
   },
@@ -144,7 +144,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     width: 180,
     render: (value, data) => {
       const fee = getOperationFee(data);
-      const isETH = data.type === EXCHANGE_MODE.ETH_TO_ONE;
+      const isETH = data.type === EXCHANGE_MODE.ETH_TO_SCRT;
 
       return <Price value={fee} isEth={isETH} />;
     },

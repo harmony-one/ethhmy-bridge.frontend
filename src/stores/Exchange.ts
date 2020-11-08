@@ -48,7 +48,7 @@ export class Exchange extends StoreConstructor {
   };
 
   @observable transaction = this.defaultTransaction;
-  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_ONE;
+  @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_SCRT;
   @observable token: TOKEN;
 
   constructor(stores) {
@@ -77,7 +77,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.ETH_TO_ONE
+    return this.mode === EXCHANGE_MODE.ETH_TO_SCRT
       ? this.ethNetworkFee
       : 0.0134438;
   }
@@ -94,14 +94,14 @@ export class Exchange extends StoreConstructor {
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
 
             switch (this.mode) {
-              case EXCHANGE_MODE.ETH_TO_ONE:
+              case EXCHANGE_MODE.ETH_TO_SCRT:
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
                 this.ethNetworkFee = await getNetworkFee();
                 this.isFeeLoading = false;
                 break;
-              case EXCHANGE_MODE.ONE_TO_ETH:
+              case EXCHANGE_MODE.SCRT_TO_ETH:
                 this.transaction.oneAddress = this.stores.user.address;
                 break;
             }
@@ -148,13 +148,13 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setAddressByMode() {
-    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
       // this.transaction.oneAddress = this.stores.user.address;
       this.transaction.oneAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     }
 
-    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+    if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
       // this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
       this.transaction.ethAddress = '';
       this.transaction.oneAddress = this.stores.user.address;
@@ -317,7 +317,7 @@ export class Exchange extends StoreConstructor {
           );
         }
 
-        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
           let approveEthManger = this.getActionByType(
             ACTION_TYPE.approveEthManger,
           );
@@ -364,7 +364,7 @@ export class Exchange extends StoreConstructor {
           return;
         }
 
-        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
           const hrc20Address = this.stores.user.hrc20Address;
 
           let approveHmyManger = this.getActionByType(
@@ -411,7 +411,7 @@ export class Exchange extends StoreConstructor {
           return;
         }
       } else {
-        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
           // ***ETH to Secret-Eth***
 
 
@@ -454,7 +454,7 @@ export class Exchange extends StoreConstructor {
           return;
         }
 
-        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
           let approveHmyManger = this.getActionByType(
             ACTION_TYPE.approveHmyManger,
           );

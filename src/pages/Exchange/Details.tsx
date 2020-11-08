@@ -106,7 +106,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
     const { exchange, userMetamask } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
 
-    const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_ONE;
+    const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT;
 
     return (
       <Box direction="column">
@@ -156,7 +156,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               {!exchange.isFeeLoading ? (
                 <Price
                   value={exchange.networkFee}
-                  isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                  isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
                   boxProps={{ pad: {} }}
                 />
               ) : (
@@ -181,20 +181,20 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             ) : null}
 
             {!exchange.isFeeLoading &&
-            exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+            exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
             isShowDetail ? (
               <div style={{ opacity: 1 }}>
                 <AssetRow label="Approve (~50000 gas)" value="">
                   <Price
                     value={exchange.networkFee / 2}
-                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
                     boxProps={{ pad: {} }}
                   />
                 </AssetRow>
                 <AssetRow label="Lock token (~50000 gas)" value="">
                   <Price
                     value={exchange.networkFee / 2}
-                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
                     boxProps={{ pad: {} }}
                   />
                 </AssetRow>
@@ -243,7 +243,7 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
       return null;
     }
 
-    if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !user.hrc20Address) {
+    if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && !user.hrc20Address) {
       return <Text color="red">Token not found</Text>;
     }
 
@@ -257,7 +257,7 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
           label="Token Symbol"
           value={userMetamask.erc20TokenDetails.symbol}
         />
-        {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+        {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
         userMetamask.ethAddress ? (
           <AssetRow
             label="User Ethereum Balance"
@@ -265,7 +265,7 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
           />
         ) : null}
 
-        {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && user.address ? (
+        {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && user.address ? (
           <AssetRow
             label="User Harmony Balance"
             value={formatWithSixDecimals(user.hrc20Balance)}

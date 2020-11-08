@@ -110,15 +110,15 @@ export const EthBridge = observer((props: any) => {
               <LargeButton
                 title="ETH -> Secret Network"
                 description="(Metamask)"
-                onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
-                isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)}
+                isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
               />
               <LargeButton
                 title="Secret Network -> ETH"
                 reverse={true}
                 description="(Keplr)"
-                onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
-                isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
+                onClick={() => exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH)}
+                isActive={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH}
               />
             </Box>
 

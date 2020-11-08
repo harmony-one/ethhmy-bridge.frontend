@@ -11,6 +11,7 @@ import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals } from '../utils';
+import { SigningCosmosClient } from '@cosmjs/launchpad';
 
 const defaults = {};
 
@@ -22,15 +23,17 @@ export class UserStoreEx extends StoreConstructor {
 
   private keplrWallet: any;
   private keplrOfflineSigner: any;
+  private cosmJS: SigningCosmosClient;
   @observable public isKeplrWallet = false;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
 
   @observable public balance: string = '0';
+  /* 
   @observable public hmyBUSDBalance: string = '0';
   @observable public hmyLINKBalance: string = '0';
-
+  */
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
 
@@ -58,6 +61,13 @@ export class UserStoreEx extends StoreConstructor {
         this.keplrOfflineSigner = (window as any).getOfflineSigner(chainId);
         const accounts = await this.keplrOfflineSigner.getAccounts();
         this.address = accounts[0].address;
+        this.isAuthorized = true;
+
+        this.cosmJS = new SigningCosmosClient(
+          'https://secret-2.node.enigma.co/',
+          this.address,
+          this.keplrOfflineSigner,
+        );
       }
 
       // await this.getBalances();
@@ -122,6 +132,13 @@ export class UserStoreEx extends StoreConstructor {
   @action public getBalances = async () => {
     if (this.address) {
       try {
+        const account = await this.cosmJS.getAccount(this.address);
+        this.balance = divDecimals(
+          account.balance.filter(x => x.denom === 'uscrt')[0].amount,
+          6,
+        );
+
+        /* 
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
@@ -144,6 +161,7 @@ export class UserStoreEx extends StoreConstructor {
 
         resBalance = await hmyMethodsLINK.checkHmyBalance(this.address);
         this.hmyLINKBalance = divDecimals(resBalance, 18);
+ */
       } catch (e) {
         console.error(e);
       }
@@ -152,8 +170,11 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getSecretBalance = async () => {
     if (this.address) {
-      let res = await getHmyBalance(this.address);
-      this.balance = res && res.result;
+      const account = await this.cosmJS.getAccount(this.address);
+      this.balance = divDecimals(
+        account.balance.filter(x => x.denom === 'uscrt')[0].amount,
+        6,
+      );
     }
   };
 

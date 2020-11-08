@@ -168,15 +168,18 @@ export const WalletBalances = observer(() => {
           {user.isAuthorized ? (
             <>
               <AssetRow
-                asset="Harmony Address"
+                asset="Secret Address"
                 value={truncateAddressString(user.address)}
               />
 
               <AssetRow
-                asset="Harmony ONE"
-                value={formatWithSixDecimals(ones(user.balance))}
+                asset="SCRT"
+                value={
+                  (console.log(user.balance),
+                  formatWithSixDecimals(user.balance))
+                }
               />
-
+              {/* 
               {user.hrc20Address ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
@@ -189,7 +192,6 @@ export const WalletBalances = observer(() => {
                   )}?txType=hrc20`}
                 />
               ) : null}
-
               <AssetRow
                 asset="Harmony BUSD"
                 value={formatWithSixDecimals(user.hmyBUSDBalance)}
@@ -211,6 +213,7 @@ export const WalletBalances = observer(() => {
                   process.env.HMY_LINK_CONTRACT,
                 )}?txType=hrc20`}
               />
+               */}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

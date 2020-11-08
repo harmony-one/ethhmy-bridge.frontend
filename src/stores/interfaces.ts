@@ -1,6 +1,6 @@
 export enum EXCHANGE_MODE {
-  ETH_TO_ONE = 'eth_to_one',
-  ONE_TO_ETH = 'one_to_eth',
+  ETH_TO_SCRT = 'eth_to_scrt',
+  SCRT_TO_ETH = 'scrt_to_eth',
 }
 
 export enum TOKEN {
