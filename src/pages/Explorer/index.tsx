@@ -165,7 +165,7 @@ export const Explorer = observer((props: any) => {
 
   useEffect(() => {
     setColumns(getColumns({ user }));
-  }, [user.oneRate, user.ethRate, tokens.data, tokens.fetchStatus]);
+  }, [user.scrtRate, user.ethRate, tokens.data, tokens.fetchStatus]);
 
   const onChangeDataFlow = (props: any) => {
     operations.onChangeDataFlow(props);

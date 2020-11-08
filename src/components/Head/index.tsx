@@ -79,7 +79,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
             <Box>
               <Title size="medium" color="BlackTxt" bold>
-                Secret Finance Hub
+                🌈 Bifrost
               </Title>
             </Box>
           </Box>

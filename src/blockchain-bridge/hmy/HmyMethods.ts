@@ -1,6 +1,6 @@
 import { Harmony } from '@harmony-js/core';
 import { Contract } from '@harmony-js/contract';
-import { connectToOneWallet } from './helpers';
+import { connectToKeplrWallet } from './helpers';
 import { mulDecimals } from '../../utils';
 
 interface IHmyMethodsInitParams {
@@ -29,7 +29,7 @@ export class HmyMethods {
   approveHmyManger = (amount, sendTxCallback?) => {
     return new Promise(async (resolve, reject) => {
       try {
-        await connectToOneWallet(this.hmyTokenContract.wallet, null, reject);
+        await connectToKeplrWallet(this.hmyTokenContract.wallet, null, reject);
 
         const res = await this.hmyTokenContract.methods
           .approve(this.hmyManagerContract.address, mulDecimals(amount, 18))
@@ -46,7 +46,7 @@ export class HmyMethods {
   burnToken = async (userAddr, amount, sendTxCallback?) => {
     return new Promise(async (resolve, reject) => {
       try {
-        await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
+        await connectToKeplrWallet(this.hmyManagerContract.wallet, null, reject);
 
         let response = await this.hmyManagerContract.methods
           .burnToken(mulDecimals(amount, 18), userAddr)

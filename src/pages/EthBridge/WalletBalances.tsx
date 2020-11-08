@@ -217,7 +217,7 @@ export const WalletBalances = observer(() => {
               <Button
                 margin={{ vertical: 'medium' }}
                 onClick={() => {
-                  if (!user.isOneWallet) {
+                  if (!user.isKeplrWallet) {
                     actionModals.open(() => <AuthWarning />, {
                       title: '',
                       applyText: 'Got it',
@@ -234,9 +234,7 @@ export const WalletBalances = observer(() => {
               >
                 Connect Keplr
               </Button>
-              {!user.isOneWallet ? (
-                <Error error="Keplr not found" />
-              ) : null}
+              {!user.isKeplrWallet ? <Error error="Keplr not found" /> : null}
             </Box>
           )}
         </Box>

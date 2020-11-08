@@ -1,6 +1,6 @@
 import { Harmony } from '@harmony-js/core';
 import { Contract } from '@harmony-js/contract';
-import { connectToOneWallet } from './helpers';
+import { connectToKeplrWallet } from './helpers';
 import { mulDecimals } from '../../utils';
 
 interface IHmyMethodsInitParams {
@@ -33,7 +33,7 @@ export class HmyMethodsERC20 {
     return new Promise(async (resolve, reject) => {
       try {
         // TODO
-        await connectToOneWallet(hmyTokenContract.wallet, null, reject);
+        await connectToKeplrWallet(hmyTokenContract.wallet, null, reject);
 
         const res = await hmyTokenContract.methods
           .approve(
@@ -59,7 +59,7 @@ export class HmyMethodsERC20 {
   ) => {
     return new Promise(async (resolve, reject) => {
       try {
-        await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
+        await connectToKeplrWallet(this.hmyManagerContract.wallet, null, reject);
 
         let response = await this.hmyManagerContract.methods
           .burnToken(

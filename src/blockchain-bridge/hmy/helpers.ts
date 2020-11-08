@@ -1,5 +1,4 @@
 import { hmy } from './index';
-import { Wallet } from '@harmony-js/account';
 
 export const options1 = { gasPrice: '0x3B9ACA00' };
 
@@ -9,13 +8,13 @@ export const options2 = { gasPrice: 1000000000, gasLimit: 21000 };
 
 export const ONE = '000000000000000000';
 
-export type TConnectToOneWallet = (
-  wallet: Wallet | any,
+export type TConnectToKeplrWallet = (
+  wallet: any,
   addr: string,
   reject: (reason: string) => void,
 ) => Promise<any>;
 
-export const connectToOneWallet: TConnectToOneWallet = async (
+export const connectToKeplrWallet: TConnectToKeplrWallet = async (
   wallet,
   addrHex,
   reject,
@@ -24,7 +23,7 @@ export const connectToOneWallet: TConnectToOneWallet = async (
 
   if (!userAddress) {
     // @ts-ignore
-    let { address } = await window.onewallet.getAccount();
+    let { address } = await window.keplr.getAccount();
 
     userAddress = hmy.crypto.getAddress(address).checksum;
   }
@@ -36,7 +35,7 @@ export const connectToOneWallet: TConnectToOneWallet = async (
       tx.from = userAddress;
 
       // @ts-ignore
-      const signTx = await window.onewallet.signTransaction(tx);
+      const signTx = await window.keplr.signTransaction(tx);
 
       return signTx;
     } catch (e) {

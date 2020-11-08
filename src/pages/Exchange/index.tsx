@@ -58,7 +58,7 @@ export class Exchange extends React.Component<
 
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        if (!user.isOneWallet) {
+        if (!user.isKeplrWallet) {
           return actionModals.open(() => <AuthWarning />, {
             title: '',
             applyText: 'Got it',

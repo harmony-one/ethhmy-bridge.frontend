@@ -20,8 +20,9 @@ export class UserStoreEx extends StoreConstructor {
   public status: statusFetching;
   redirectUrl: string;
 
-  private onewallet: any;
-  @observable public isOneWallet = false;
+  private keplrWallet: any;
+  private keplrOfflineSigner: any;
+  @observable public isKeplrWallet = false;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
@@ -33,7 +34,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
 
-  @observable public oneRate = 0;
+  @observable public scrtRate = 0;
   @observable public ethRate = 0;
 
   @observable public hrc20Address = '';
@@ -46,9 +47,18 @@ export class UserStoreEx extends StoreConstructor {
 
     setInterval(async () => {
       // @ts-ignore
-      this.isOneWallet = window.onewallet && window.onewallet.isOneWallet;
+      this.isKeplrWallet = !!window.keplr && !!(window as any).getOfflineSigner;
       // @ts-ignore
-      this.onewallet = window.onewallet;
+      this.keplrWallet = window.keplr;
+
+      const chainId = 'secret-2';
+      if (this.isKeplrWallet) {
+        await this.keplrWallet.enable(chainId);
+
+        this.keplrOfflineSigner = (window as any).getOfflineSigner(chainId);
+        const accounts = await this.keplrOfflineSigner.getAccounts();
+        this.address = accounts[0].address;
+      }
 
       // await this.getBalances();
       // await this.getOneBalance();
@@ -59,10 +69,10 @@ export class UserStoreEx extends StoreConstructor {
     this.getRates();
 
     // @ts-ignore
-    this.isOneWallet = window.onewallet && window.onewallet.isOneWallet;
+    this.isKeplrWallet = !!window.keplr;
     // @ts-ignore
-    this.onewallet = window.onewallet;
-
+    this.keplrWallet = window.keplr;
+    /* 
     const session = localStorage.getItem('harmony_session');
 
     const sessionObj = JSON.parse(session);
@@ -78,8 +88,9 @@ export class UserStoreEx extends StoreConstructor {
 
       this.stores.exchange.transaction.oneAddress = this.address;
 
-      this.getOneBalance();
+      this.getSecretBalance();
     }
+ */
   }
 
   @action public setInfoReading() {
@@ -88,7 +99,7 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public signIn() {
-    return this.onewallet
+    return this.keplrWallet
       .getAccount()
       .then(account => {
         this.sessionType = `mathwallet`;
@@ -99,12 +110,12 @@ export class UserStoreEx extends StoreConstructor {
 
         this.syncLocalStorage();
 
-        this.getOneBalance();
+        this.getSecretBalance();
 
         return Promise.resolve();
       })
       .catch(e => {
-        this.onewallet.forgetIdentity();
+        this.keplrWallet.forgetIdentity();
       });
   }
 
@@ -139,7 +150,7 @@ export class UserStoreEx extends StoreConstructor {
     }
   };
 
-  @action public getOneBalance = async () => {
+  @action public getSecretBalance = async () => {
     if (this.address) {
       let res = await getHmyBalance(this.address);
       this.balance = res && res.result;
@@ -147,10 +158,10 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public signOut() {
-    if (this.isOneWallet) {
+    if (this.isKeplrWallet) {
       this.isAuthorized = false;
 
-      return this.onewallet
+      return this.keplrWallet
         .forgetIdentity()
         .then(() => {
           this.sessionType = null;
@@ -185,8 +196,8 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public signTransaction(txn: any) {
-    if (this.sessionType === 'mathwallet' && this.isOneWallet) {
-      return this.onewallet.signTransaction(txn);
+    if (this.sessionType === 'mathwallet' && this.isKeplrWallet) {
+      return this.keplrWallet.signTransaction(txn);
     }
   }
 
@@ -197,16 +208,19 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async getRates() {
-    let res = await agent.get<{ body: IOperation }>(
-      'https://api.binance.com/api/v1/ticker/24hr?symbol=ONEUSDT',
+    const scrtbtc = await agent.get<{ body: IOperation }>(
+      'https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC',
+    );
+    const btcusdt = await agent.get<{ body: IOperation }>(
+      'https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT',
     );
 
-    this.oneRate = res.body.lastPrice;
+    this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
 
-    res = await agent.get<{ body: IOperation }>(
+    const ethusdt = await agent.get<{ body: IOperation }>(
       'https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT',
     );
 
-    this.ethRate = res.body.lastPrice;
+    this.ethRate = ethusdt.body.lastPrice;
   }
 }

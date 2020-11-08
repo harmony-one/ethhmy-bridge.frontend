@@ -54,12 +54,12 @@ export const Price = observer(
         {...props.boxProps}
       >
         <Text style={{ fontSize: 14 }}>{`${props.value} ${
-          props.isEth ? 'ETH' : 'ONE'
+          props.isEth ? 'ETH' : 'SCRT'
         }`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
           $
           {formatWithSixDecimals(
-            props.value * (props.isEth ? user.ethRate : user.oneRate),
+            props.value * (props.isEth ? user.ethRate : user.scrtRate),
           )}
         </Text>
       </Box>
