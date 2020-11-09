@@ -210,7 +210,7 @@ export class Exchange extends React.Component<
       </Box>
     );
 
-    return (
+     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE ? (
           <Box direction="row">
