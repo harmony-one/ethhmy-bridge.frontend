@@ -249,6 +249,27 @@ export class Exchange extends StoreConstructor {
         );
       }
 
+      // if (!operationId) {
+      //   const bridgeSDK = new BridgeSDK({ logLevel: 2 }); // 2 - full logs, 1 - only success & errors, 0 - logs off
+      //
+      //   await bridgeSDK.init(configs.testnet);
+      //
+      //   await bridgeSDK.setUseOneWallet(true);
+      //   await bridgeSDK.setUseMetamask(true);
+      //
+      //   await bridgeSDK.sendToken(
+      //     {
+      //       ...this.transaction,
+      //       amount: Number(this.transaction.amount),
+      //       type: this.mode,
+      //       token: this.token,
+      //     },
+      //     id => this.setOperationId(id),
+      //   );
+      //
+      //   return;
+      // }
+
       await this.setOperationId(operationId);
 
       if (
@@ -275,12 +296,16 @@ export class Exchange extends StoreConstructor {
         await sleep(3000);
       }
 
-      if (this.operation.oneAddress !== this.stores.user.address) {
-        return;
+      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
+          return;
+        }
       }
 
-      if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
-        return;
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        if (this.operation.oneAddress !== this.stores.user.address) {
+          return;
+        }
       }
 
       switch (this.token) {
