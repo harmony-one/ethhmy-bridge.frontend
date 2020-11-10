@@ -11,7 +11,7 @@ import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals } from '../utils';
-import { SigningCosmosClient } from '@cosmjs/launchpad';
+import { SigningCosmWasmClient } from 'secretjs';
 
 const defaults = {};
 
@@ -23,7 +23,7 @@ export class UserStoreEx extends StoreConstructor {
 
   private keplrWallet: any;
   private keplrOfflineSigner: any;
-  private cosmJS: SigningCosmosClient;
+  private cosmJS: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
@@ -50,7 +50,8 @@ export class UserStoreEx extends StoreConstructor {
 
     setInterval(async () => {
       // @ts-ignore
-      this.isKeplrWallet = !!window.keplr && !!(window as any).getOfflineSigner;
+      this.isKeplrWallet =
+        !!(window as any).keplr && !!(window as any).getOfflineSigner;
       // @ts-ignore
       this.keplrWallet = window.keplr;
 
@@ -63,7 +64,7 @@ export class UserStoreEx extends StoreConstructor {
         this.address = accounts[0].address;
         this.isAuthorized = true;
 
-        this.cosmJS = new SigningCosmosClient(
+        this.cosmJS = new SigningCosmWasmClient(
           'https://secret-2.node.enigma.co/',
           this.address,
           this.keplrOfflineSigner,
