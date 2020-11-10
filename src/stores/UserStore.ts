@@ -74,6 +74,12 @@ export class UserStoreEx extends StoreConstructor {
               // 'Purpose' is fixed to 44.
               coinType: 529,
             },
+            // (Optional) The number of the coin type.
+            // This field is only used to fetch the address from ENS.
+            // Ideally, it is recommended to be the same with BIP44 path's coin type.
+            // However, some early chains may choose to use the Cosmos Hub BIP44 path of '118'.
+            // So, this is separated to support such chains.
+            coinType: 529,
             stakeCurrency: {
               // Coin denomination to be displayed to the user.
               coinDenom: 'SCRT',
