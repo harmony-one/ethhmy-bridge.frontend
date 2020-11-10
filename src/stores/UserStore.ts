@@ -44,6 +44,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hrc20Balance = '';
 
   @observable public isInfoReading = false;
+  @observable public chainId: string;
 
   constructor(stores) {
     super(stores);
@@ -55,20 +56,103 @@ export class UserStoreEx extends StoreConstructor {
       // @ts-ignore
       this.keplrWallet = window.keplr;
 
-      const chainId = 'secret-2';
+      this.chainId = 'holodeck-2';
       if (this.isKeplrWallet) {
-        await this.keplrWallet.enable(chainId);
+        try {
+          await this.keplrWallet.experimentalSuggestChain({
+            // Chain-id of the Cosmos SDK chain.
+            chainId: 'holodeck-2',
+            // The name of the chain to be displayed to the user.
+            chainName: 'Secret Testnet',
+            // RPC endpoint of the chain.
+            rpc: 'http://bootstrap.secrettestnet.io:26657',
+            // REST endpoint of the chain.
+            rest: 'https://bootstrap.secrettestnet.io',
+            // Staking coin information
+            bip44: {
+              // You can only set the coin type of BIP44.
+              // 'Purpose' is fixed to 44.
+              coinType: 529,
+            },
+            stakeCurrency: {
+              // Coin denomination to be displayed to the user.
+              coinDenom: 'SCRT',
+              // Actual denom (i.e. uatom, uscrt) used by the blockchain.
+              coinMinimalDenom: 'uscrt',
+              // # of decimal points to convert minimal denomination to user-facing denomination.
+              coinDecimals: 6,
+              // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
+              // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
+              // coinGeckoId: ""
+            },
+            // Bech32 configuration to show the address to user.
+            // This field is the interface of
+            // {
+            //   bech32PrefixAccAddr: string;
+            //   bech32PrefixAccPub: string;
+            //   bech32PrefixValAddr: string;
+            //   bech32PrefixValPub: string;
+            //   bech32PrefixConsAddr: string;
+            //   bech32PrefixConsPub: string;
+            // }
+            bech32Config: {
+              bech32PrefixAccAddr: 'secret',
+              bech32PrefixAccPub: 'secretpub',
+              bech32PrefixValAddr: 'secretvaloper',
+              bech32PrefixValPub: 'secretvaloperpub',
+              bech32PrefixConsAddr: 'secretvalcons',
+              bech32PrefixConsPub: 'secretvalconspub',
+            },
+            // List of all coin/tokens used in this chain.
+            currencies: [
+              {
+                // Coin denomination to be displayed to the user.
+                coinDenom: 'SCRT',
+                // Actual denom (i.e. uatom, uscrt) used by the blockchain.
+                coinMinimalDenom: 'uscrt',
+                // # of decimal points to convert minimal denomination to user-facing denomination.
+                coinDecimals: 6,
+                // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
+                // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
+                // coinGeckoId: ""
+              },
+            ],
+            // List of coin/tokens used as a fee token in this chain.
+            feeCurrencies: [
+              {
+                // Coin denomination to be displayed to the user.
+                coinDenom: 'SCRT',
+                // Actual denom (i.e. uatom, uscrt) used by the blockchain.
+                coinMinimalDenom: 'uscrt',
+                // # of decimal points to convert minimal denomination to user-facing denomination.
+                coinDecimals: 6,
+                // (Optional) Keplr can show the fiat value of the coin if a coingecko id is provided.
+                // You can get id from https://api.coingecko.com/api/v3/coins/list if it is listed.
+                // coinGeckoId: ""
+              },
+            ],
+          });
+        } catch (error) {
+          console.error(error);
+        }
+        try {
+          await this.keplrWallet.enable(this.chainId);
 
-        this.keplrOfflineSigner = (window as any).getOfflineSigner(chainId);
-        const accounts = await this.keplrOfflineSigner.getAccounts();
-        this.address = accounts[0].address;
-        this.isAuthorized = true;
+          this.keplrOfflineSigner = (window as any).getOfflineSigner(
+            this.chainId,
+          );
+          const accounts = await this.keplrOfflineSigner.getAccounts();
+          this.address = accounts[0].address;
+          this.isAuthorized = true;
 
-        this.cosmJS = new SigningCosmWasmClient(
-          'https://secret-2.node.enigma.co/',
-          this.address,
-          this.keplrOfflineSigner,
-        );
+          this.cosmJS = new SigningCosmWasmClient(
+            'https://bootstrap.secrettestnet.io/',
+            this.address,
+            this.keplrOfflineSigner,
+          );
+        } catch (error) {
+          console.error(error);
+        }
       }
 
       // await this.getBalances();
@@ -109,25 +193,25 @@ export class UserStoreEx extends StoreConstructor {
     this.syncLocalStorage();
   }
 
-  @action public signIn() {
-    return this.keplrWallet
-      .getAccount()
-      .then(account => {
-        this.sessionType = `mathwallet`;
-        this.address = account.address;
-        this.isAuthorized = true;
+  @action public async signIn() {
+    if (this.isKeplrWallet) {
+      try {
+        await this.keplrWallet.enable(this.chainId);
+      } catch (error) {
+        console.error(error);
+      }
 
-        this.stores.exchange.transaction.oneAddress = this.address;
+      this.keplrOfflineSigner = (window as any).getOfflineSigner(this.chainId);
+      const accounts = await this.keplrOfflineSigner.getAccounts();
+      this.address = accounts[0].address;
+      this.isAuthorized = true;
 
-        this.syncLocalStorage();
-
-        this.getSecretBalance();
-
-        return Promise.resolve();
-      })
-      .catch(e => {
-        this.keplrWallet.forgetIdentity();
-      });
+      this.cosmJS = new SigningCosmWasmClient(
+        'https://bootstrap.secrettestnet.io/',
+        this.address,
+        this.keplrOfflineSigner,
+      );
+    }
   }
 
   @action public getBalances = async () => {
