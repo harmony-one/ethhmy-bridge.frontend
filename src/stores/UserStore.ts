@@ -29,7 +29,10 @@ export class UserStoreEx extends StoreConstructor {
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
 
-  @observable public balance: string = '0';
+  @observable public balance_SCRT: string = '0';
+  @observable public balance_sETH: string = '0';
+  @observable public balance_sTUSD: string = '0';
+  @observable public balance_sYEENUS: string = '0';
   /* 
   @observable public hmyBUSDBalance: string = '0';
   @observable public hmyLINKBalance: string = '0';
@@ -137,6 +140,16 @@ export class UserStoreEx extends StoreConstructor {
                 // coinGeckoId: ""
               },
             ],
+            // (Optional) This is used to set the fee of the transaction.
+            // If this field is not provided, Keplr extension will set the default gas price as (low: 0.01, average: 0.025, high: 0.04).
+            // Currently, Keplr doesn't support dynamic calculation of the gas prices based on on-chain data.
+            // Make sure that the gas prices are higher than the minimum gas prices accepted by chain validators and RPC/REST endpoint.
+            gasPriceStep: {
+              low: 0.1,
+              average: 0.25,
+              high: 0.4,
+            },
+            features: ['secretwasm'],
           });
         } catch (error) {
           console.error(error);
@@ -224,7 +237,7 @@ export class UserStoreEx extends StoreConstructor {
     if (this.address) {
       try {
         const account = await this.cosmJS.getAccount(this.address);
-        this.balance = divDecimals(
+        this.balance_SCRT = divDecimals(
           account.balance.filter(x => x.denom === 'uscrt')[0].amount,
           6,
         );
@@ -262,7 +275,7 @@ export class UserStoreEx extends StoreConstructor {
   @action public getSecretBalance = async () => {
     if (this.address) {
       const account = await this.cosmJS.getAccount(this.address);
-      this.balance = divDecimals(
+      this.balance_SCRT = divDecimals(
         account.balance.filter(x => x.denom === 'uscrt')[0].amount,
         6,
       );

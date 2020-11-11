@@ -135,7 +135,7 @@ export class Exchange extends React.Component<
           label: 'ETH',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.balance
+              ? user.balance_SCRT
               : userMetamask.ethBalance,
         };
     }
@@ -210,7 +210,7 @@ export class Exchange extends React.Component<
       </Box>
     );
 
-     return (
+    return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE ? (
           <Box direction="row">
