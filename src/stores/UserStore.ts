@@ -256,7 +256,7 @@ export class UserStoreEx extends StoreConstructor {
           this.balance_sETH = divDecimals(sEthBalance.balance.amount, 18);
         }
 
-        const sTUSD = 'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2';
+        const sTUSD = 'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68';
         const sTusdBalance = await this.cosmJS.queryContractSmart(sTUSD, {
           balance: {
             address: this.address,
@@ -270,7 +270,7 @@ export class UserStoreEx extends StoreConstructor {
           this.balance_sTUSD = divDecimals(sTusdBalance.balance.amount, 18);
         }
 
-        const sYEENUS = 'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68';
+        const sYEENUS = 'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2';
         const sYeenusBalance = await this.cosmJS.queryContractSmart(sYEENUS, {
           balance: {
             address: this.address,
