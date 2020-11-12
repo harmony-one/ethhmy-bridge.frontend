@@ -64,17 +64,27 @@ export const tokens = [
   {
     label: 'TrueUSD (TUSD)',
     href:
-      'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376',
-    image: 'https://etherscan.io/token/images/trueusd_32.png',
-    snip20address: 'TBD',
+      'https://ropsten.etherscan.io/token/0x1cB0906955623920c86A3963593a02a405Bb97fC' /* ropsten */,
+    // 'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376' /* mainnet */,
+    image: 'https:/etherscan.io/token/images/trueusd_32.png',
+    snip20address:
+      'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68' /* holodeck-2 */,
   },
   {
-    label: 'Dai Stablecoin (DAI)',
+    label: 'Yeenus (TUSD)',
     href:
-      'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f',
-    image: 'https://etherscan.io/token/images/MCDDai_32.png',
-    snip20address: 'TBD',
+      'https://ropsten.etherscan.io/token/0xF6fF95D53E08c9660dC7820fD5A775484f77183A' /* ropsten */,
+    image: 'https://ropsten.etherscan.io/images/main/empty-token.png',
+    snip20address:
+      'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2' /* holodeck-2s */,
   },
+  // {
+  //   label: 'Dai Stablecoin (DAI)',
+  //   href:
+  //     'https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f',
+  //   image: 'https://etherscan.io/token/images/MCDDai_32.png',
+  //   snip20address: 'TBD',
+  // },
   /*
   {
     label: 'Binance USD (BUSD)',
