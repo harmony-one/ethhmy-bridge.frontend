@@ -1,9 +1,10 @@
 import { IOperation, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
+import * as _ from 'lodash';
 
 let servers = require('../../appengine-servers.json');
 
-if(process.env.NETWORK === 'testnet') {
+if (process.env.NETWORK === 'testnet') {
   servers = require('../../appengine-servers.testnet.json');
 }
 
@@ -124,7 +125,7 @@ export const getTokensInfo = async (
     params,
   );
 
-  const content = res.body.content;
+  const content = _.uniqWith(res.body.content, _.isEqual);
 
   return { ...res.body, content };
 };
