@@ -236,11 +236,35 @@ export class UserStoreEx extends StoreConstructor {
   @action public getBalances = async () => {
     if (this.address) {
       try {
-        const account = await this.cosmJS.getAccount(this.address);
+        const scrtAccount = await this.cosmJS.getAccount(this.address);
         this.balance_SCRT = divDecimals(
-          account.balance.filter(x => x.denom === 'uscrt')[0].amount,
+          scrtAccount.balance.filter(x => x.denom === 'uscrt')[0].amount,
           6,
         );
+
+        const sEthBalance = await this.cosmJS.queryContractSmart(
+          'secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek' /* sETH */,
+          { balance: { address: this.address, key: 'banana' } },
+        );
+        if (sEthBalance && sEthBalance.balance) {
+          this.balance_sETH = divDecimals(sEthBalance.balance.amount, 18);
+        }
+
+        const sTusdBalance = await this.cosmJS.queryContractSmart(
+          'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2' /* sTUSD */,
+          { balance: { address: this.address, key: 'banana' } },
+        );
+        if (sTusdBalance && sTusdBalance.balance) {
+          this.balance_sTUSD = divDecimals(sTusdBalance.balance.amount, 18);
+        }
+
+        const sYeenusBalance = await this.cosmJS.queryContractSmart(
+          'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68' /* sTUSD */,
+          { balance: { address: this.address, key: 'banana' } },
+        );
+        if (sYeenusBalance && sYeenusBalance.balance) {
+          this.balance_sYEENUS = divDecimals(sYeenusBalance.balance.amount, 8);
+        }
 
         /* 
         let res = await getHmyBalance(this.address);
