@@ -242,26 +242,44 @@ export class UserStoreEx extends StoreConstructor {
           6,
         );
 
-        const sEthBalance = await this.cosmJS.queryContractSmart(
-          'secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek' /* sETH */,
-          { balance: { address: this.address, key: 'banana' } },
-        );
+        const sETH = 'secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek';
+        const sEthBalance = await this.cosmJS.queryContractSmart(sETH, {
+          balance: {
+            address: this.address,
+            key: await this.keplrWallet.getSecret20ViewingKey(
+              this.chainId,
+              sETH,
+            ),
+          },
+        });
         if (sEthBalance && sEthBalance.balance) {
           this.balance_sETH = divDecimals(sEthBalance.balance.amount, 18);
         }
 
-        const sTusdBalance = await this.cosmJS.queryContractSmart(
-          'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2' /* sTUSD */,
-          { balance: { address: this.address, key: 'banana' } },
-        );
+        const sTUSD = 'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2';
+        const sTusdBalance = await this.cosmJS.queryContractSmart(sTUSD, {
+          balance: {
+            address: this.address,
+            key: await this.keplrWallet.getSecret20ViewingKey(
+              this.chainId,
+              sTUSD,
+            ),
+          },
+        });
         if (sTusdBalance && sTusdBalance.balance) {
           this.balance_sTUSD = divDecimals(sTusdBalance.balance.amount, 18);
         }
 
-        const sYeenusBalance = await this.cosmJS.queryContractSmart(
-          'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68' /* sTUSD */,
-          { balance: { address: this.address, key: 'banana' } },
-        );
+        const sYEENUS = 'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68';
+        const sYeenusBalance = await this.cosmJS.queryContractSmart(sYEENUS, {
+          balance: {
+            address: this.address,
+            key: await this.keplrWallet.getSecret20ViewingKey(
+              this.chainId,
+              sYEENUS,
+            ),
+          },
+        });
         if (sYeenusBalance && sYeenusBalance.balance) {
           this.balance_sYEENUS = divDecimals(sYeenusBalance.balance.amount, 8);
         }
