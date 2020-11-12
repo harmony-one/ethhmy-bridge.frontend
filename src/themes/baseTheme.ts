@@ -110,7 +110,7 @@ export const baseTheme: any = {
   inputTextColor: 'black',
   inputBorderRadius: 4,
 
-  brandTitle: 'Rusal classic theme',
+  brandTitle: 'Bridge base theme',
   brandUrl: 'https://example.com',
   brandImage: 'https://placehold.it/350x150',
 

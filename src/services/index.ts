@@ -1,7 +1,11 @@
 import { IOperation, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 
-const servers = require('../../appengine-servers.json');
+let servers = require('../../appengine-servers.json');
+
+if(process.env.NETWORK === 'testnet') {
+  servers = require('../../appengine-servers.testnet.json');
+}
 
 const threshold = process.env.THRESHOLD;
 
@@ -116,7 +120,7 @@ export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
   const res = await agent.get<{ body: ITokenInfo[] }>(
-    'https://be4.bridge.hmny.io' + '/tokens/',
+    process.env.ASSETS_INFO_SERVICE + '/tokens/',
     params,
   );
 

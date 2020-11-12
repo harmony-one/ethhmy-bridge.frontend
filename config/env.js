@@ -86,6 +86,9 @@ function getClientEnvironment(publicUrl) {
 
         ETH_GAS_API_KEY: process.env.ETH_GAS_API_KEY,
 
+        ASSETS_INFO_SERVICE: process.env.ASSETS_INFO_SERVICE,
+        NETWORK: process.env.NETWORK,
+
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
