@@ -40,7 +40,7 @@ export const CustomHeader = (props: IHeaderProps) => {
   const { dataIndex, sortable } = column;
   const { filters = {}, sorter, sorters = {} } = dataLayerConfig;
   const filter = getFilterByKey(dataIndex, filters);
-  const sorterValue = getSorterValue(sorter, dataIndex);
+  //const sorterValue = getSorterValue(sorter, dataIndex);
 
   const removeFilterByKey = (key: string) => {
     const { type } = column.filter || {};
@@ -97,17 +97,17 @@ export const CustomHeader = (props: IHeaderProps) => {
             flex: '0 0 auto',
           }}
         >
-          <Sorter
-            sortable={sortable}
-            value={sorterValue}
-            dataIndex={dataIndex}
-            onChange={sortType => {
-              onChangeDataFlow({
-                sorters: { ...sorters, [dataIndex]: sortType },
-                sorter: sortType !== 'none' ? `${dataIndex},${sortType}` : 'none',
-              });
-            }}
-          />
+          {/*<Sorter*/}
+          {/*  sortable={sortable}*/}
+          {/*  value={}*/}
+          {/*  dataIndex={dataIndex}*/}
+          {/*  onChange={sortType => {*/}
+          {/*    onChangeDataFlow({*/}
+          {/*      sorters: { ...sorters, [dataIndex]: sortType },*/}
+          {/*      sorter: sortType !== 'none' ? `${dataIndex},${sortType}` : 'none',*/}
+          {/*    });*/}
+          {/*  }}*/}
+          {/*/>*/}
           <Filter
             column={column}
             value={filter}

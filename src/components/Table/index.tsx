@@ -93,16 +93,16 @@ export class Table extends React.Component<IProps> {
 
       return {
         ...column,
-        title: (
-          <CustomHeader
-            dataLayerConfig={dataLayerConfig}
-            hasAnyActiveFilter={false}
-            title={title}
-            column={column}
-            options={options}
-            onChangeDataFlow={onChangeDataFlow}
-          />
-        ),
+        // title: (
+        //   <CustomHeader
+        //     dataLayerConfig={dataLayerConfig}
+        //     hasAnyActiveFilter={false}
+        //     title={title}
+        //     column={column}
+        //     options={options}
+        //     //onChangeDataFlow={onChangeDataFlow}
+        //   />
+        // ),
       };
     });
   }

@@ -34,7 +34,7 @@ const StepRow = ({
   const explorerUrl =
     (isEth(action.type)
       ? process.env.ETH_EXPLORER_URL
-      : process.env.HMY_EXPLORER_URL) + '/tx/';
+      : process.env.SCRT_EXPLORER_URL) + '/tx/';
 
   return (
     <Box
@@ -77,7 +77,7 @@ const StepRow = ({
           </Box>
           <Box>
             <a
-              href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
+              href={process.env.SCRT_EXPLORER_URL + '/address/' + hrc20Address}
               target="_blank"
             >
               {truncateAddressString(hrc20Address, 10)}

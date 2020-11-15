@@ -94,7 +94,7 @@ const actionColumns: IColumn<IAction>[] = [
         href={
           (isEth(action.type)
             ? process.env.ETH_EXPLORER_URL
-            : process.env.HMY_EXPLORER_URL) +
+            : process.env.SCRT_EXPLORER_URL) +
           '/tx/' +
           action.transactionHash
         }
@@ -172,7 +172,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
   const erc20Address = props.data.erc20Address || '';
 
   const token = tokens.data.find(
-    t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+    t => t.src_address.toLowerCase() === erc20Address.toLowerCase(),
   );
 
   return (
@@ -232,7 +232,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   href={
                     process.env.ETH_EXPLORER_URL +
                     '/token/' +
-                    token.erc20Address
+                    token.src_address
                   }
                   target="_blank"
                 >
@@ -242,9 +242,9 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <a
                   className={styles.addressLink}
                   href={
-                    process.env.HMY_EXPLORER_URL +
+                    process.env.SCRT_EXPLORER_URL +
                     '/address/' +
-                    token.hrc20Address
+                    token.dst_address
                   }
                   target="_blank"
                 >
@@ -262,7 +262,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   href={
                     (isEth(action.type)
                       ? process.env.ETH_EXPLORER_URL
-                      : process.env.HMY_EXPLORER_URL) +
+                      : process.env.SCRT_EXPLORER_URL) +
                     '/tx/' +
                     action.transactionHash
                   }

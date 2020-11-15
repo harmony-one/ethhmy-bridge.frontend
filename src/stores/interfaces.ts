@@ -62,9 +62,13 @@ export interface ITokenInfo {
   name: string;
   symbol: string;
   decimals: string;
-  erc20Address: string;
-  hrc20Address: string;
-  totalLocked: string;
-  totalLockedNormal: string;
-  totalLockedUSD: string;
+  src_address: string;
+  src_network: string;
+  dst_address: string;
+  dst_network: string;
+  src_coin: string;
+
+  // totalLocked: string;
+  // totalLockedNormal: string;
+  // totalLockedUSD: string;
 }

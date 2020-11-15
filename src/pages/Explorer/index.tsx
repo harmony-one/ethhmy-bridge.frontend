@@ -35,7 +35,7 @@ const oneAddress = value => (
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 5)}
@@ -97,7 +97,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
   //   render: value => (
   //     <a
   //       className={styles.addressLink}
-  //       href={`${process.env.HMY_EXPLORER_URL}/address/${value}`}
+  //       href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
   //       target="_blank"
   //     >
   //       {truncateAddressString(value, 5)}

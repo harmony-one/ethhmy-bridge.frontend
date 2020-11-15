@@ -188,14 +188,14 @@ export const WalletBalances = observer(() => {
                 asset="sYEENUS"
                 value={formatWithSixDecimals(user.balance_sYEENUS)}
               />
-              {/* 
+              {/*
               {user.hrc20Address ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(user.hrc20Balance)}
                   selected={exchange.token === TOKEN.ERC20}
                   link={`${
-                    process.env.HMY_EXPLORER_URL
+                    process.env.SCRT_EXPLORER_URL
                   }/address/${getBech32Address(
                     user.hrc20Address,
                   )}?txType=hrc20`}
@@ -206,7 +206,7 @@ export const WalletBalances = observer(() => {
                 value={formatWithSixDecimals(user.hmyBUSDBalance)}
                 selected={exchange.token === TOKEN.ETH}
                 link={`${
-                  process.env.HMY_EXPLORER_URL
+                  process.env.SCRT_EXPLORER_URL
                 }/address/${getBech32Address(
                   process.env.HMY_BUSD_CONTRACT,
                 )}?txType=hrc20`}
@@ -217,7 +217,7 @@ export const WalletBalances = observer(() => {
                 value={formatWithSixDecimals(user.hmyLINKBalance)}
                 selected={exchange.token === TOKEN.LINK}
                 link={`${
-                  process.env.HMY_EXPLORER_URL
+                  process.env.SCRT_EXPLORER_URL
                 }/address/${getBech32Address(
                   process.env.HMY_LINK_CONTRACT,
                 )}?txType=hrc20`}

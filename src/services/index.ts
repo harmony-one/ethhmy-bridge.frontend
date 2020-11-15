@@ -115,16 +115,29 @@ export const getOperations = async (
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
-  const res = await agent.get<{ body: ITokenInfo[] }>(
-    'https://be4.bridge.hmny.io' + '/tokens/',
+  const res = await agent.get<{ body: {tokens: ITokenInfo[]} }>(
+    'http://localhost:8000' + '/tokens/',
     params,
   );
 
-  const content = res.body.content;
+  const content = res.body.tokens;
 
   return { ...res.body, content };
+  // return await callAvailableServer(async url => {
+  //   const res = await agent.get<{ body: ITokenInfo[] }>(
+  //     url + '/tokens/',
+  //     params,
+  //   );
+  //
+  //   const content = res.body.content;
+  //
+  //   return { ...res.body, content };
+  //
+  // });
 };
 
+
+// todo: remove this
 export const mintTokens = async ({ address, token }) => {
   const res = await agent.post<{
     body: { status: string; transactionHash: string; error: string };

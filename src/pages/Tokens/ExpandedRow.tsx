@@ -61,7 +61,7 @@ const renderActionFee = (action: IAction): string => {
   if (fee.isEth) {
     return fee.value + ' ETH';
   } else {
-    return fee.value + ' ONE';
+    return fee.value + ' SCRT';
   }
 };
 
@@ -88,7 +88,7 @@ const actionColumns: IColumn<IAction>[] = [
         href={
           (isEth(action.type)
             ? process.env.ETH_EXPLORER_URL
-            : process.env.HMY_EXPLORER_URL) +
+            : process.env.SCRT_EXPLORER_URL) +
           '/tx/' +
           action.transactionHash
         }
@@ -216,7 +216,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 href={
                   (isEth(action.type)
                     ? process.env.ETH_EXPLORER_URL
-                    : process.env.HMY_EXPLORER_URL) +
+                    : process.env.SCRT_EXPLORER_URL) +
                   '/tx/' +
                   action.transactionHash
                 }

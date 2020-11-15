@@ -15,7 +15,7 @@ import {
 import * as styles from './styles.styl';
 import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
-import { getBech32Address } from '../../blockchain-bridge';
+import { getScrtAddress } from '../../blockchain-bridge';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -30,12 +30,12 @@ const ethAddress = value => (
   </Box>
 );
 
-const oneAddress = value => (
+const scrtAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?txType=hrc20`}
+      href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 10)}
@@ -43,6 +43,7 @@ const oneAddress = value => (
   </Box>
 );
 
+// todo: handle multiple networks
 const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   {
     title: 'Symbol',
@@ -64,17 +65,17 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   },
   {
     title: 'ERC20 Address',
-    key: 'erc20Address',
-    dataIndex: 'erc20Address',
+    key: 'src_address',
+    dataIndex: 'src_address',
     width: 280,
     render: value => ethAddress(value),
   },
   {
-    title: 'HRC20 Address',
-    key: 'hrc20Address',
-    dataIndex: 'hrc20Address',
+    title: 'Secret Network Address',
+    key: 'dst_address',
+    dataIndex: 'dst_address',
     width: 300,
-    render: value => oneAddress(getBech32Address(value)),
+    render: value => scrtAddress(getScrtAddress(value)),
   },
   // {
   //   title: 'Decimals',
@@ -84,35 +85,35 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   //   className: styles.centerHeader,
   //   align: 'center',
   // },
-  {
-    title: 'Total Locked',
-    // sortable: true,
-    key: 'totalLockedNormal',
-    dataIndex: 'totalLockedNormal',
-    width: 140,
-    render: value => (
-      <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value)}
-      </Box>
-    ),
-    // className: styles.centerHeader,
-    // align: 'center',
-  },
-  {
-    title: 'Total Locked USD',
-    sortable: true,
-    key: 'totalLockedUSD',
-    defaultSort: 'asc',
-    dataIndex: 'totalLockedUSD',
-    width: 210,
-    className: styles.rightHeaderSort,
-    align: 'right',
-    render: value => (
-      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        {formatWithTwoDecimals(value)}
-      </Box>
-    ),
-  },
+  // {
+  //   title: 'Total Locked',
+  //   // sortable: true,
+  //   key: 'totalLockedNormal',
+  //   dataIndex: 'totalLockedNormal',
+  //   width: 140,
+  //   render: value => (
+  //     <Box direction="column" justify="center">
+  //       {formatWithTwoDecimals(value)}
+  //     </Box>
+  //   ),
+  //   // className: styles.centerHeader,
+  //   // align: 'center',
+  // },
+  // {
+  //   title: 'Total Locked USD',
+  //   sortable: true,
+  //   key: 'totalLockedUSD',
+  //   defaultSort: 'asc',
+  //   dataIndex: 'totalLockedUSD',
+  //   width: 210,
+  //   className: styles.rightHeaderSort,
+  //   align: 'right',
+  //   render: value => (
+  //     <Box direction="column" justify="center" pad={{ right: 'medium' }}>
+  //       {formatWithTwoDecimals(value)}
+  //     </Box>
+  //   ),
+  // },
 ];
 
 export const Tokens = observer((props: any) => {
@@ -122,10 +123,10 @@ export const Tokens = observer((props: any) => {
   const [columns, setColumns] = useState(getColumns(user));
 
   useEffect(() => {
-    tokens.init();
+    tokens.init({sorters: {}, sorter: 'none'});
     tokens.fetch();
   }, []);
-  /* 
+  /*
   useEffect(() => {
     setColumns(getColumns(user));
   }, [user.hmyLINKBalanceManager]);
@@ -138,6 +139,7 @@ export const Tokens = observer((props: any) => {
 
   const filteredData = tokens.data.filter(token => {
     if (search) {
+      // todo: check dst_network
       return (
         Object.values(token).some(value =>
           value
@@ -145,7 +147,7 @@ export const Tokens = observer((props: any) => {
             .toLowerCase()
             .includes(search.toLowerCase()),
         ) ||
-        getBech32Address(token.hrc20Address).toLowerCase() ===
+        getScrtAddress(token.dst_address).toLowerCase() ===
           search.toLowerCase()
       );
     }
@@ -168,16 +170,16 @@ export const Tokens = observer((props: any) => {
           <Box direction="column">
             <Title size="small">
               Total Value Locked (USD){' '}
-              <span
-                style={{
-                  marginLeft: 5,
-                  color: '#47b8eb',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                {formatWithTwoDecimals(tokens.totalLockedUSD)}
-              </span>
+              {/*/!*<span*/}
+              {/*  style={{*/}
+              {/*    marginLeft: 5,*/}
+              {/*    color: '#47b8eb',*/}
+              {/*    fontWeight: 600,*/}
+              {/*    letterSpacing: 0.2,*/}
+              {/*  }}*/}
+              {/*>*/}
+              {/*  {formatWithTwoDecimals(tokens.totalLockedUSD)}*/}
+              {/*</span>*!/*/}
             </Title>
           </Box>
 

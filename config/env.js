@@ -84,7 +84,7 @@ function getClientEnvironment(publicUrl) {
         HMY_LINK_MANAGER_CONTRACT: process.env.HMY_LINK_MANAGER_CONTRACT,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
-        HMY_EXPLORER_URL: process.env.HMY_EXPLORER_URL,
+        SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
 
         ETH_GAS_API_KEY: process.env.ETH_GAS_API_KEY,
 
