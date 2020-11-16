@@ -56,133 +56,98 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    let waitingForKeplrUser = false;
-    setInterval(async () => {
-      // @ts-ignore
-      this.isKeplrWallet =
-        !!(window as any).keplr && !!(window as any).getOfflineSigner;
-      // @ts-ignore
-      this.keplrWallet = window.keplr;
+    // Setup Keplr wallet
+    new Promise((accept, _reject) => {
+      // 1. Every one second, check if Keplr was injected to the page
+      const keplrCheckInterval = setInterval(async () => {
+        this.isKeplrWallet =
+          !!(window as any).keplr && !!(window as any).getOfflineSigner;
+        this.keplrWallet = (window as any).keplr;
 
+        if (this.isKeplrWallet) {
+          // 2. Keplr is present, stop checking and continue to setup
+          clearInterval(keplrCheckInterval);
+          accept();
+        }
+      }, 1000);
+    }).then(async () => {
+      // 3. Keplr is present, setup Secret Network and SNIP20s
       this.chainId = 'holodeck-2';
-      if (this.isKeplrWallet) {
-        try {
-          if (!waitingForKeplrUser) {
-            waitingForKeplrUser = true;
-            await this.keplrWallet.experimentalSuggestChain({
-              chainId: 'holodeck-2',
-              chainName: 'Secret Testnet',
-              rpc: 'http://bootstrap.secrettestnet.io:26657',
-              rest: 'https://bootstrap.secrettestnet.io',
-              bip44: {
-                coinType: 529,
-              },
-              coinType: 529,
-              stakeCurrency: {
-                coinDenom: 'SCRT',
-                coinMinimalDenom: 'uscrt',
-                coinDecimals: 6,
-              },
-              bech32Config: {
-                bech32PrefixAccAddr: 'secret',
-                bech32PrefixAccPub: 'secretpub',
-                bech32PrefixValAddr: 'secretvaloper',
-                bech32PrefixValPub: 'secretvaloperpub',
-                bech32PrefixConsAddr: 'secretvalcons',
-                bech32PrefixConsPub: 'secretvalconspub',
-              },
-              currencies: [
-                {
-                  coinDenom: 'SCRT',
-                  coinMinimalDenom: 'uscrt',
-                  coinDecimals: 6,
-                },
-              ],
-              feeCurrencies: [
-                {
-                  coinDenom: 'SCRT',
-                  coinMinimalDenom: 'uscrt',
-                  coinDecimals: 6,
-                },
-              ],
-              gasPriceStep: {
-                low: 0.1,
-                average: 0.25,
-                high: 0.4,
-              },
-              features: ['secretwasm'],
-            });
-            waitingForKeplrUser = false;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        try {
-          if (!waitingForKeplrUser) {
-            waitingForKeplrUser = true;
-            await this.keplrWallet.suggestToken(this.chainId, sETH);
-            waitingForKeplrUser = false;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        try {
-          if (!waitingForKeplrUser) {
-            waitingForKeplrUser = true;
-            await this.keplrWallet.suggestToken(this.chainId, sTUSD);
-            waitingForKeplrUser = false;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        try {
-          if (!waitingForKeplrUser) {
-            waitingForKeplrUser = true;
-            await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
-            waitingForKeplrUser = false;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        try {
-          if (!waitingForKeplrUser) {
-            waitingForKeplrUser = true;
-            await this.keplrWallet.enable(this.chainId);
-            waitingForKeplrUser = false;
-          }
-        } catch (error) {
-          console.error(error);
-        }
-        try {
-          this.keplrOfflineSigner = (window as any).getOfflineSigner(
-            this.chainId,
-          );
-          const accounts = await this.keplrOfflineSigner.getAccounts();
-          this.address = accounts[0].address;
-          this.isAuthorized = true;
+      try {
+        // Setup Secret Testnet (not needed on mainnet)
+        await this.keplrWallet.experimentalSuggestChain({
+          chainId: this.chainId,
+          chainName: 'Secret Testnet',
+          rpc: 'http://bootstrap.secrettestnet.io:26657',
+          rest: 'https://bootstrap.secrettestnet.io',
+          bip44: {
+            coinType: 529,
+          },
+          coinType: 529,
+          stakeCurrency: {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
+          },
+          bech32Config: {
+            bech32PrefixAccAddr: 'secret',
+            bech32PrefixAccPub: 'secretpub',
+            bech32PrefixValAddr: 'secretvaloper',
+            bech32PrefixValPub: 'secretvaloperpub',
+            bech32PrefixConsAddr: 'secretvalcons',
+            bech32PrefixConsPub: 'secretvalconspub',
+          },
+          currencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          feeCurrencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          gasPriceStep: {
+            low: 0.1,
+            average: 0.25,
+            high: 0.4,
+          },
+          features: ['secretwasm'],
+        });
 
-          this.cosmJS = new SigningCosmWasmClient(
-            'https://bootstrap.secrettestnet.io/',
-            this.address,
-            this.keplrOfflineSigner,
-          );
-        } catch (error) {
-          console.error(error);
-        }
+        // Ask the user for permission
+        await this.keplrWallet.enable(this.chainId);
+
+        this.keplrOfflineSigner = (window as any).getOfflineSigner(
+          this.chainId,
+        );
+        const accounts = await this.keplrOfflineSigner.getAccounts();
+        this.address = accounts[0].address;
+        this.isAuthorized = true;
+
+        this.cosmJS = new SigningCosmWasmClient(
+          'https://bootstrap.secrettestnet.io/',
+          this.address,
+          this.keplrOfflineSigner,
+        );
+
+        // Add SNIP20s to this wallet
+        await this.keplrWallet.suggestToken(this.chainId, sETH);
+        await this.keplrWallet.suggestToken(this.chainId, sTUSD);
+        await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
+      } catch (error) {
+        console.error(error);
       }
+    });
 
-      // await this.getBalances();
-      // await this.getOneBalance();
-    }, 3000);
-
-    setInterval(() => this.getBalances(), 3 * 1000);
+    setInterval(() => this.getBalances(), 5 * 1000);
 
     this.getRates();
 
-    // @ts-ignore
-    this.isKeplrWallet = !!window.keplr;
-    // @ts-ignore
-    this.keplrWallet = window.keplr;
     /* 
     const session = localStorage.getItem('harmony_session');
 
