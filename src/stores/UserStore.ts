@@ -56,22 +56,27 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
+    // Setup Keplr wallet
     new Promise((accept, _reject) => {
+      // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
           !!(window as any).keplr && !!(window as any).getOfflineSigner;
         this.keplrWallet = (window as any).keplr;
 
         if (this.isKeplrWallet) {
+          // 2. Keplr is present, stop checking and continue to setup
           clearInterval(keplrCheckInterval);
           accept();
         }
       }, 1000);
     }).then(async () => {
+      // 3. Keplr is present, setup Secret Network and SNIP20s
       this.chainId = 'holodeck-2';
       try {
+        // Setup Secret Testnet (not needed on mainnet)
         await this.keplrWallet.experimentalSuggestChain({
-          chainId: 'holodeck-2',
+          chainId: this.chainId,
           chainName: 'Secret Testnet',
           rpc: 'http://bootstrap.secrettestnet.io:26657',
           rest: 'https://bootstrap.secrettestnet.io',
@@ -114,6 +119,7 @@ export class UserStoreEx extends StoreConstructor {
           features: ['secretwasm'],
         });
 
+        // Ask the user for permission
         await this.keplrWallet.enable(this.chainId);
 
         this.keplrOfflineSigner = (window as any).getOfflineSigner(
@@ -129,6 +135,7 @@ export class UserStoreEx extends StoreConstructor {
           this.keplrOfflineSigner,
         );
 
+        // Add SNIP20s to this wallet
         await this.keplrWallet.suggestToken(this.chainId, sETH);
         await this.keplrWallet.suggestToken(this.chainId, sTUSD);
         await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
