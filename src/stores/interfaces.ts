@@ -68,7 +68,7 @@ export interface ITokenInfo {
   dst_network: string;
   src_coin: string;
 
-  // totalLocked: string;
-  // totalLockedNormal: string;
-  // totalLockedUSD: string;
+  totalLocked: string;
+  totalLockedNormal: string;
+  totalLockedUSD: string;
 }
