@@ -72,76 +72,7 @@ export class UserStoreEx extends StoreConstructor {
       }, 1000);
     }).then(async () => {
       // 3. Keplr is present, setup Secret Network and SNIP20s
-      this.chainId = 'holodeck-2';
-      try {
-        // Setup Secret Testnet (not needed on mainnet)
-        await this.keplrWallet.experimentalSuggestChain({
-          chainId: this.chainId,
-          chainName: 'Secret Testnet',
-          rpc: 'http://bootstrap.secrettestnet.io:26657',
-          rest: 'https://bootstrap.secrettestnet.io',
-          bip44: {
-            coinType: 529,
-          },
-          coinType: 529,
-          stakeCurrency: {
-            coinDenom: 'SCRT',
-            coinMinimalDenom: 'uscrt',
-            coinDecimals: 6,
-          },
-          bech32Config: {
-            bech32PrefixAccAddr: 'secret',
-            bech32PrefixAccPub: 'secretpub',
-            bech32PrefixValAddr: 'secretvaloper',
-            bech32PrefixValPub: 'secretvaloperpub',
-            bech32PrefixConsAddr: 'secretvalcons',
-            bech32PrefixConsPub: 'secretvalconspub',
-          },
-          currencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          feeCurrencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          gasPriceStep: {
-            low: 0.1,
-            average: 0.25,
-            high: 0.4,
-          },
-          features: ['secretwasm'],
-        });
-
-        // Ask the user for permission
-        await this.keplrWallet.enable(this.chainId);
-
-        this.keplrOfflineSigner = (window as any).getOfflineSigner(
-          this.chainId,
-        );
-        const accounts = await this.keplrOfflineSigner.getAccounts();
-        this.address = accounts[0].address;
-        this.isAuthorized = true;
-
-        this.cosmJS = new SigningCosmWasmClient(
-          'https://bootstrap.secrettestnet.io/',
-          this.address,
-          this.keplrOfflineSigner,
-        );
-
-        // Add SNIP20s to this wallet
-        await this.keplrWallet.suggestToken(this.chainId, sETH);
-        await this.keplrWallet.suggestToken(this.chainId, sTUSD);
-        await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
-      } catch (error) {
-        console.error(error);
-      }
+      await this.signIn();
     });
 
     setInterval(() => this.getBalances(), 5 * 1000);
@@ -175,12 +106,55 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async signIn() {
-    if (this.isKeplrWallet) {
-      try {
-        await this.keplrWallet.enable(this.chainId);
-      } catch (error) {
-        console.error(error);
-      }
+    this.chainId = 'holodeck-2';
+    try {
+      // Setup Secret Testnet (not needed on mainnet)
+      await this.keplrWallet.experimentalSuggestChain({
+        chainId: this.chainId,
+        chainName: 'Secret Testnet',
+        rpc: 'http://bootstrap.secrettestnet.io:26657',
+        rest: 'https://bootstrap.secrettestnet.io',
+        bip44: {
+          coinType: 529,
+        },
+        coinType: 529,
+        stakeCurrency: {
+          coinDenom: 'SCRT',
+          coinMinimalDenom: 'uscrt',
+          coinDecimals: 6,
+        },
+        bech32Config: {
+          bech32PrefixAccAddr: 'secret',
+          bech32PrefixAccPub: 'secretpub',
+          bech32PrefixValAddr: 'secretvaloper',
+          bech32PrefixValPub: 'secretvaloperpub',
+          bech32PrefixConsAddr: 'secretvalcons',
+          bech32PrefixConsPub: 'secretvalconspub',
+        },
+        currencies: [
+          {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
+          },
+        ],
+        feeCurrencies: [
+          {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
+          },
+        ],
+        gasPriceStep: {
+          low: 0.1,
+          average: 0.25,
+          high: 0.4,
+        },
+        features: ['secretwasm'],
+      });
+
+      // Ask the user for permission
+      await this.keplrWallet.enable(this.chainId);
 
       this.keplrOfflineSigner = (window as any).getOfflineSigner(this.chainId);
       const accounts = await this.keplrOfflineSigner.getAccounts();
@@ -192,6 +166,13 @@ export class UserStoreEx extends StoreConstructor {
         this.address,
         this.keplrOfflineSigner,
       );
+
+      // Add SNIP20s to
+      await this.keplrWallet.suggestToken(this.chainId, sETH);
+      await this.keplrWallet.suggestToken(this.chainId, sTUSD);
+      await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
+    } catch (error) {
+      console.error(error);
     }
   }
 
