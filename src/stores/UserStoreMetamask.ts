@@ -2,7 +2,11 @@ import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import { getEthBalance, getErc20Balance } from '../blockchain-bridge';
+import {
+  getEthBalance,
+  getErc20Balance,
+  ethMethodsERC20,
+} from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 
 const defaults = {};
@@ -190,16 +194,21 @@ export class UserStoreMetamask extends StoreConstructor {
   };
 
   @action.bound public setToken = async (erc20Address: string) => {
-    /*
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '0';
+    /* 
     this.stores.user.hrc20Address = '';
     this.stores.user.hrc20Balance = '0';
-
+    */
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
+    this.erc20Balance = divDecimals(
+      await getErc20Balance(this.ethAddress, erc20Address),
+      this.erc20TokenDetails.decimals,
+    );
 
+    /*   
     const address = await hmyMethodsERC20.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
@@ -207,7 +216,7 @@ export class UserStoreMetamask extends StoreConstructor {
       this.syncLocalStorage();
     } else {
       this.stores.user.hrc20Address = '';
-    }
+    } 
     */
   };
 
