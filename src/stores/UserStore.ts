@@ -86,7 +86,7 @@ export class UserStoreEx extends StoreConstructor {
 
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
-      keplrCheckPromise.then(this.signIn);
+      keplrCheckPromise.then(() => this.signIn());
     }
   }
 
