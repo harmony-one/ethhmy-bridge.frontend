@@ -65,7 +65,9 @@ export class UserStoreEx extends StoreConstructor {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
-          !!(window as any).keplr && !!(window as any).getOfflineSigner;
+          !!(window as any).keplr &&
+          !!(window as any).getOfflineSigner &&
+          !!(window as any).getEnigmaUtils;
         this.keplrWallet = (window as any).keplr;
 
         if (this.isKeplrWallet) {
@@ -82,7 +84,7 @@ export class UserStoreEx extends StoreConstructor {
 
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
-      keplrCheckPromise.then(() => this.signIn());
+      keplrCheckPromise.then(this.signIn);
     }
   }
 
@@ -153,6 +155,7 @@ export class UserStoreEx extends StoreConstructor {
         'https://bootstrap.secrettestnet.io/',
         this.address,
         this.keplrOfflineSigner,
+        (window as any).getEnigmaUtils(this.chainId),
       );
 
       // Add SNIP20s to
