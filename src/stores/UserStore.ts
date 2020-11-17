@@ -1,12 +1,14 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
+/*
 import {
   getHmyBalance,
   hmyMethodsERC20,
   hmyMethodsBUSD,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
+*/
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
