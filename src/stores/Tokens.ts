@@ -10,19 +10,19 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
       pollingInterval: 30000,
       isLocal: true,
       paginationData: { pageSize: 100 },
-      // sorter: 'totalLockedUSD, asc',
+      sorter: 'totalLockedUSD, asc',
       //sorter: 'none',
-      sorters: {}
-      // sorters: {
-      //   totalLockedUSD: 'asc',
-      // },
+      //sorters: {}
+      sorters: {
+        totalLockedUSD: 'asc',
+      },
     });
 
 
 
   }
   //
-  // @computed get totalLockedUSD() {
-  //   return this.data.reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
-  // }
+  @computed get totalLockedUSD() {
+    return this.data.reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
+  }
 }

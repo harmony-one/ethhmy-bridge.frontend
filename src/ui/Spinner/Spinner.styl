@@ -1,6 +1,6 @@
 @keyframes spin {
 	from {
-		transform: rotate(0);
+		transform: rotate(0deg);
 	}
 	to {
 		transform: rotate(360deg);
@@ -20,7 +20,7 @@
 	width 60px
 	height 60px
 	position relative
-
+	animation: spin 1.6s linear infinite;
 	&:after {
 		display block
 		content: ''

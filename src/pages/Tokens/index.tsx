@@ -64,11 +64,11 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 160,
   },
   {
-    title: 'ERC20 Address',
+    title: 'Ethereum Address',
     key: 'src_address',
     dataIndex: 'src_address',
     width: 280,
-    render: value => ethAddress(value),
+    render: value => value === 'native' ? "native" : ethAddress(value),
   },
   {
     title: 'Secret Network Address',
@@ -77,43 +77,43 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 300,
     render: value => scrtAddress(getScrtAddress(value)),
   },
-  // {
-  //   title: 'Decimals',
-  //   key: 'decimals',
-  //   dataIndex: 'decimals',
-  //   width: 100,
-  //   className: styles.centerHeader,
-  //   align: 'center',
-  // },
-  // {
-  //   title: 'Total Locked',
-  //   // sortable: true,
-  //   key: 'totalLockedNormal',
-  //   dataIndex: 'totalLockedNormal',
-  //   width: 140,
-  //   render: value => (
-  //     <Box direction="column" justify="center">
-  //       {formatWithTwoDecimals(value)}
-  //     </Box>
-  //   ),
-  //   // className: styles.centerHeader,
-  //   // align: 'center',
-  // },
-  // {
-  //   title: 'Total Locked USD',
-  //   sortable: true,
-  //   key: 'totalLockedUSD',
-  //   defaultSort: 'asc',
-  //   dataIndex: 'totalLockedUSD',
-  //   width: 210,
-  //   className: styles.rightHeaderSort,
-  //   align: 'right',
-  //   render: value => (
-  //     <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-  //       {formatWithTwoDecimals(value)}
-  //     </Box>
-  //   ),
-  // },
+  {
+    title: 'Decimals',
+    key: 'decimals',
+    dataIndex: 'decimals',
+    width: 100,
+    className: styles.centerHeader,
+    align: 'center',
+  },
+  {
+    title: 'Total Locked',
+    sortable: true,
+    key: 'totalLockedNormal',
+    dataIndex: 'totalLockedNormal',
+    width: 140,
+    render: value => (
+      <Box direction="column" justify="center">
+        {formatWithTwoDecimals(value) }
+      </Box>
+    ),
+    className: styles.centerHeader,
+    align: 'center',
+  },
+  {
+    title: 'Total Locked USD',
+    sortable: true,
+    key: 'totalLockedUSD',
+    defaultSort: 'asc',
+    dataIndex: 'totalLockedUSD',
+    width: 210,
+    className: styles.rightHeaderSort,
+    align: 'right',
+    render: value => (
+      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
+        ${formatWithTwoDecimals(value)}
+      </Box>
+    ),
+  },
 ];
 
 export const Tokens = observer((props: any) => {
@@ -170,20 +170,24 @@ export const Tokens = observer((props: any) => {
           <Box direction="column">
             <Title size="small">
               Total Value Locked (USD){' '}
-              {/*/!*<span*/}
-              {/*  style={{*/}
-              {/*    marginLeft: 5,*/}
-              {/*    color: '#47b8eb',*/}
-              {/*    fontWeight: 600,*/}
-              {/*    letterSpacing: 0.2,*/}
-              {/*  }}*/}
-              {/*>*/}
-              {/*  {formatWithTwoDecimals(tokens.totalLockedUSD)}*/}
-              {/*</span>*!/*/}
+              <span
+                style={{
+                  marginLeft: 5,
+                  color: '#47b8eb',
+                  fontWeight: 600,
+                  letterSpacing: 0.2,
+                }}
+              >
+                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
+              </span>
             </Title>
           </Box>
+          {
+            lastUpdateAgo ? <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+              :
+              <Text> </Text>  // this makes sure the TVL is sort of in the middle of the page
+          }
 
-          <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
         </Box>
 
         <Box
