@@ -70,16 +70,16 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           }}
         >
           <Box direction="row" align="center">
-            <Box
+            {/* <Box
               align="center"
               margin={{ right: 'small' }}
               onClick={goToBridge}
             >
               <MainLogo src="/scrt.svg" />
-            </Box>
+            </Box> */}
             <Box>
               <Title size="medium" color="BlackTxt" bold>
-                🌈 Bifrost
+                🌉 Secret Bridge
               </Title>
             </Box>
           </Box>
