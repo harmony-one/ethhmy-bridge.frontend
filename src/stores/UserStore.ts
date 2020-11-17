@@ -29,6 +29,7 @@ export class UserStoreEx extends StoreConstructor {
   private keplrOfflineSigner: any;
   private cosmJS: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
+  @observable public error: string;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
@@ -56,8 +57,11 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    // Setup Keplr wallet
-    new Promise((accept, _reject) => {
+    setInterval(() => this.getBalances(), 5 * 1000);
+
+    this.getRates();
+
+    const keplrCheckPromise = new Promise((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
@@ -65,39 +69,21 @@ export class UserStoreEx extends StoreConstructor {
         this.keplrWallet = (window as any).keplr;
 
         if (this.isKeplrWallet) {
-          // 2. Keplr is present, stop checking and continue to setup
+          // Keplr is present, stop checking
           clearInterval(keplrCheckInterval);
           accept();
         }
       }, 1000);
-    }).then(async () => {
-      // 3. Keplr is present, setup Secret Network and SNIP20s
-      await this.signIn();
     });
 
-    setInterval(() => this.getBalances(), 5 * 1000);
-
-    this.getRates();
-
-    /* 
-    const session = localStorage.getItem('harmony_session');
+    const session = localStorage.getItem('keplr_session');
 
     const sessionObj = JSON.parse(session);
 
-    if (sessionObj && sessionObj.isInfoReading) {
-      this.isInfoReading = sessionObj.isInfoReading;
-    }
-
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
-      this.sessionType = sessionObj.sessionType;
-      this.isAuthorized = true;
-
-      this.stores.exchange.transaction.oneAddress = this.address;
-
-      this.getSecretBalance();
+      keplrCheckPromise.then(() => this.signIn());
     }
- */
   }
 
   @action public setInfoReading() {
@@ -106,6 +92,8 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async signIn() {
+    this.error = '';
+
     this.chainId = 'holodeck-2';
     try {
       // Setup Secret Testnet (not needed on mainnet)
@@ -171,8 +159,10 @@ export class UserStoreEx extends StoreConstructor {
       await this.keplrWallet.suggestToken(this.chainId, sETH);
       await this.keplrWallet.suggestToken(this.chainId, sTUSD);
       await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
+      this.syncLocalStorage();
     } catch (error) {
-      console.error(error);
+      this.error = error.message;
+      this.isAuthorized = false;
     }
   }
 
@@ -265,47 +255,24 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public signOut() {
-    if (this.isKeplrWallet) {
-      this.isAuthorized = false;
-
-      return this.keplrWallet
-        .forgetIdentity()
-        .then(() => {
-          this.sessionType = null;
-          this.address = null;
-          this.isAuthorized = false;
-
-          // this.balanceGem = '0';
-          // this.balanceDai = '0';
-          // this.balance = '0';
-          //
-          // this.vat = { ink: '0', art: '0' };
-
-          this.syncLocalStorage();
-
-          return Promise.resolve();
-        })
-        .catch(err => {
-          console.error(err.message);
-        });
-    }
+    this.isAuthorized = false;
+    this.address = null;
+    this.syncLocalStorage();
   }
 
   private syncLocalStorage() {
     localStorage.setItem(
-      'harmony_session',
+      'keplr_session',
       JSON.stringify({
         address: this.address,
-        sessionType: this.sessionType,
-        isInfoReading: this.isInfoReading,
       }),
     );
   }
 
   @action public signTransaction(txn: any) {
-    if (this.sessionType === 'mathwallet' && this.isKeplrWallet) {
+    /*  if (this.sessionType === 'mathwallet' && this.isKeplrWallet) {
       return this.keplrWallet.signTransaction(txn);
-    }
+    } */
   }
 
   public saveRedirectUrl(url: string) {

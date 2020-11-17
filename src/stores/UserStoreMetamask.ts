@@ -44,8 +44,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     setInterval(() => this.getBalances(), 5 * 1000);
 
-    /*
-    const session = localStorage.getItem('harmony_metamask_session');
+    const session = localStorage.getItem('metamask_session');
 
     const sessionObj = JSON.parse(session);
 
@@ -56,7 +55,6 @@ export class UserStoreMetamask extends StoreConstructor {
     if (sessionObj && sessionObj.erc20Address) {
       this.setToken(sessionObj.erc20Address);
     }
-    */
   }
 
   @action.bound
@@ -155,7 +153,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   private syncLocalStorage() {
     localStorage.setItem(
-      'harmony_metamask_session',
+      'metamask_session',
       JSON.stringify({
         ethAddress: this.ethAddress,
         erc20Address: this.erc20Address,

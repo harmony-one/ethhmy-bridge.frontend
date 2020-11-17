@@ -261,6 +261,7 @@ export const WalletBalances = observer(() => {
                 Connect Keplr
               </Button>
               {!user.isKeplrWallet ? <Error error="Keplr not found" /> : null}
+              {user.error ? <Error error={user.error} /> : null}
             </Box>
           )}
         </Box>
