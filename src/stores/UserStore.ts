@@ -59,7 +59,8 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    setInterval(() => this.getBalances(), 5 * 1000);
+    this.getBalances();
+    setInterval(() => this.getBalances(), 5000);
 
     this.getRates();
 
