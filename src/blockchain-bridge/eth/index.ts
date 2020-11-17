@@ -33,14 +33,14 @@ const ethLINKManagerContract = new web3.eth.Contract(
   process.env.ETH_MANAGER_CONTRACT,
 );
 
-export const ethMethodsBUSD = new EthMethods({
+export const ethMethodsTUSD = new EthMethods({
   web3: web3,
   //ethTokenContract: ethBUSDContract,
   ethManagerContract: ethBUSDManagerContract,
   //ethManagerAddress: process.env.ETH_MANAGER_CONTRACT,
 });
 
-export const ethMethodsLINK = new EthMethods({
+export const ethMethodsYEENUS = new EthMethods({
   web3: web3,
   //ethTokenContract: ethLINKContract,
   ethManagerContract: ethLINKManagerContract,

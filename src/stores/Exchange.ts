@@ -290,7 +290,7 @@ export class Exchange extends StoreConstructor {
           break;
 
         case TOKEN.LINK:
-          ethMethods = contract.ethMethodsLINK;
+          ethMethods = contract.ethMethodsYEENUS;
           hmyMethods = contract.hmyMethodsLINK;
           break;
 
