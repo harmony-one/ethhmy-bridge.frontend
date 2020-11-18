@@ -11688,10 +11688,10 @@ secp256k1@^4.0.1:
     node-addon-api "^2.0.0"
     node-gyp-build "^4.2.0"
 
-secretjs@0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/secretjs/-/secretjs-0.10.0.tgz#70a40da8763a95c8cab410629cc0c23bf450cff6"
-  integrity sha512-8/UcL6mroonrGJBNPwehk3zkdBOksqem/7/5D7F2sVODnsWbZB2sqNchsUWFF0nZe+xHyDqt4OskjEcWbgSsPw==
+secretjs@0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/secretjs/-/secretjs-0.10.2.tgz#92f9952fff9ac7b23ade736b74f92b84fdb32c7b"
+  integrity sha512-2wR6cUyRQI38YfFzCamrn92t1e4roHVBDyHVR14gxv8AU55QxO/JmB+P27bMZwSjlHbCp4uK2bai3ptYmC3E9w==
   dependencies:
     "@iov/crypto" "^2.1.0"
     "@iov/encoding" "^2.1.0"

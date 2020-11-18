@@ -1,12 +1,14 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
+/*
 import {
   getHmyBalance,
   hmyMethodsERC20,
   hmyMethodsBUSD,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
+*/
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -29,6 +31,7 @@ export class UserStoreEx extends StoreConstructor {
   private keplrOfflineSigner: any;
   private cosmJS: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
+  @observable public error: string;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
@@ -56,117 +59,36 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    // Setup Keplr wallet
-    new Promise((accept, _reject) => {
+    this.getBalances();
+    setInterval(() => this.getBalances(), 5000);
+
+    this.getRates();
+
+    const keplrCheckPromise = new Promise((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
-          !!(window as any).keplr && !!(window as any).getOfflineSigner;
+          !!(window as any).keplr &&
+          !!(window as any).getOfflineSigner &&
+          !!(window as any).getEnigmaUtils;
         this.keplrWallet = (window as any).keplr;
 
         if (this.isKeplrWallet) {
-          // 2. Keplr is present, stop checking and continue to setup
+          // Keplr is present, stop checking
           clearInterval(keplrCheckInterval);
           accept();
         }
       }, 1000);
-    }).then(async () => {
-      // 3. Keplr is present, setup Secret Network and SNIP20s
-      this.chainId = 'holodeck-2';
-      try {
-        // Setup Secret Testnet (not needed on mainnet)
-        await this.keplrWallet.experimentalSuggestChain({
-          chainId: this.chainId,
-          chainName: 'Secret Testnet',
-          rpc: 'http://bootstrap.secrettestnet.io:26657',
-          rest: 'https://bootstrap.secrettestnet.io',
-          bip44: {
-            coinType: 529,
-          },
-          coinType: 529,
-          stakeCurrency: {
-            coinDenom: 'SCRT',
-            coinMinimalDenom: 'uscrt',
-            coinDecimals: 6,
-          },
-          bech32Config: {
-            bech32PrefixAccAddr: 'secret',
-            bech32PrefixAccPub: 'secretpub',
-            bech32PrefixValAddr: 'secretvaloper',
-            bech32PrefixValPub: 'secretvaloperpub',
-            bech32PrefixConsAddr: 'secretvalcons',
-            bech32PrefixConsPub: 'secretvalconspub',
-          },
-          currencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          feeCurrencies: [
-            {
-              coinDenom: 'SCRT',
-              coinMinimalDenom: 'uscrt',
-              coinDecimals: 6,
-            },
-          ],
-          gasPriceStep: {
-            low: 0.1,
-            average: 0.25,
-            high: 0.4,
-          },
-          features: ['secretwasm'],
-        });
-
-        // Ask the user for permission
-        await this.keplrWallet.enable(this.chainId);
-
-        this.keplrOfflineSigner = (window as any).getOfflineSigner(
-          this.chainId,
-        );
-        const accounts = await this.keplrOfflineSigner.getAccounts();
-        this.address = accounts[0].address;
-        this.isAuthorized = true;
-
-        this.cosmJS = new SigningCosmWasmClient(
-          'https://bootstrap.secrettestnet.io/',
-          this.address,
-          this.keplrOfflineSigner,
-        );
-
-        // Add SNIP20s to this wallet
-        await this.keplrWallet.suggestToken(this.chainId, sETH);
-        await this.keplrWallet.suggestToken(this.chainId, sTUSD);
-        await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
-      } catch (error) {
-        console.error(error);
-      }
     });
 
-    setInterval(() => this.getBalances(), 5 * 1000);
-
-    this.getRates();
-
-    /* 
-    const session = localStorage.getItem('harmony_session');
+    const session = localStorage.getItem('keplr_session');
 
     const sessionObj = JSON.parse(session);
 
-    if (sessionObj && sessionObj.isInfoReading) {
-      this.isInfoReading = sessionObj.isInfoReading;
-    }
-
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
-      this.sessionType = sessionObj.sessionType;
-      this.isAuthorized = true;
-
-      this.stores.exchange.transaction.oneAddress = this.address;
-
-      this.getSecretBalance();
+      keplrCheckPromise.then(() => this.signIn());
     }
- */
   }
 
   @action public setInfoReading() {
@@ -175,12 +97,57 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async signIn() {
-    if (this.isKeplrWallet) {
-      try {
-        await this.keplrWallet.enable(this.chainId);
-      } catch (error) {
-        console.error(error);
-      }
+    this.error = '';
+
+    this.chainId = 'holodeck-2';
+    try {
+      // Setup Secret Testnet (not needed on mainnet)
+      await this.keplrWallet.experimentalSuggestChain({
+        chainId: this.chainId,
+        chainName: 'Secret Testnet',
+        rpc: 'http://bootstrap.secrettestnet.io:26657',
+        rest: 'https://bootstrap.secrettestnet.io',
+        bip44: {
+          coinType: 529,
+        },
+        coinType: 529,
+        stakeCurrency: {
+          coinDenom: 'SCRT',
+          coinMinimalDenom: 'uscrt',
+          coinDecimals: 6,
+        },
+        bech32Config: {
+          bech32PrefixAccAddr: 'secret',
+          bech32PrefixAccPub: 'secretpub',
+          bech32PrefixValAddr: 'secretvaloper',
+          bech32PrefixValPub: 'secretvaloperpub',
+          bech32PrefixConsAddr: 'secretvalcons',
+          bech32PrefixConsPub: 'secretvalconspub',
+        },
+        currencies: [
+          {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
+          },
+        ],
+        feeCurrencies: [
+          {
+            coinDenom: 'SCRT',
+            coinMinimalDenom: 'uscrt',
+            coinDecimals: 6,
+          },
+        ],
+        gasPriceStep: {
+          low: 0.1,
+          average: 0.25,
+          high: 0.4,
+        },
+        features: ['secretwasm'],
+      });
+
+      // Ask the user for permission
+      await this.keplrWallet.enable(this.chainId);
 
       this.keplrOfflineSigner = (window as any).getOfflineSigner(this.chainId);
       const accounts = await this.keplrOfflineSigner.getAccounts();
@@ -191,7 +158,17 @@ export class UserStoreEx extends StoreConstructor {
         'https://bootstrap.secrettestnet.io/',
         this.address,
         this.keplrOfflineSigner,
+        (window as any).getEnigmaUtils(this.chainId),
       );
+
+      // Add SNIP20s to
+      await this.keplrWallet.suggestToken(this.chainId, sETH);
+      await this.keplrWallet.suggestToken(this.chainId, sTUSD);
+      await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
+      this.syncLocalStorage();
+    } catch (error) {
+      this.error = error.message;
+      this.isAuthorized = false;
     }
   }
 
@@ -284,47 +261,24 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public signOut() {
-    if (this.isKeplrWallet) {
-      this.isAuthorized = false;
-
-      return this.keplrWallet
-        .forgetIdentity()
-        .then(() => {
-          this.sessionType = null;
-          this.address = null;
-          this.isAuthorized = false;
-
-          // this.balanceGem = '0';
-          // this.balanceDai = '0';
-          // this.balance = '0';
-          //
-          // this.vat = { ink: '0', art: '0' };
-
-          this.syncLocalStorage();
-
-          return Promise.resolve();
-        })
-        .catch(err => {
-          console.error(err.message);
-        });
-    }
+    this.isAuthorized = false;
+    this.address = null;
+    this.syncLocalStorage();
   }
 
   private syncLocalStorage() {
     localStorage.setItem(
-      'harmony_session',
+      'keplr_session',
       JSON.stringify({
         address: this.address,
-        sessionType: this.sessionType,
-        isInfoReading: this.isInfoReading,
       }),
     );
   }
 
   @action public signTransaction(txn: any) {
-    if (this.sessionType === 'mathwallet' && this.isKeplrWallet) {
+    /*  if (this.sessionType === 'mathwallet' && this.isKeplrWallet) {
       return this.keplrWallet.signTransaction(txn);
-    }
+    } */
   }
 
   public saveRedirectUrl(url: string) {

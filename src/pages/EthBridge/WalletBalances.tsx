@@ -100,17 +100,31 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="ETH"
                 value={formatWithSixDecimals(userMetamask.ethBalance)}
-                selected={exchange.token === TOKEN.ETH}
+                // selected={exchange.token === TOKEN.ETH}
               />
 
-              {userMetamask.erc20TokenDetails ? (
+              <AssetRow
+                asset="TUSD"
+                value={formatWithSixDecimals(userMetamask.ethTUSDBalance)}
+                // selected={exchange.token === TOKEN.ERC20}
+                // link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
+              />
+
+              <AssetRow
+                asset="YEENUS"
+                value={formatWithSixDecimals(userMetamask.ethYEENUSBalance)}
+                // selected={exchange.token === TOKEN.ERC20}
+                // link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
+              />
+
+              {/*   {userMetamask.erc20TokenDetails ? (
                 <AssetRow
                   asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(userMetamask.erc20Balance)}
                   selected={exchange.token === TOKEN.ERC20}
                   link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
                 />
-              ) : null}
+              ) : null} */}
 
               {/*<AssetRow*/}
               {/*  asset="Ethereum BUSD"*/}
@@ -247,6 +261,7 @@ export const WalletBalances = observer(() => {
                 Connect Keplr
               </Button>
               {!user.isKeplrWallet ? <Error error="Keplr not found" /> : null}
+              {user.error ? <Error error={user.error} /> : null}
             </Box>
           )}
         </Box>

@@ -23,14 +23,14 @@ export class EthMethods {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    //const bob = this.web3.utils.fromAscii(userAddr)
-    const scrtHexAddr = this.web3.utils.fromAscii(userAddr) // todo: add validation
+    const secretAddrHex = this.web3.utils.fromAscii(userAddr);
+    // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
-      .swap(scrtHexAddr)
+      .swap(secretAddrHex)
       .estimateGas({
         value: ethToWei(amount),
-        from: accounts[0]
+        from: accounts[0],
       });
 
     const gasLimit = Math.max(
@@ -39,7 +39,7 @@ export class EthMethods {
     );
 
     return await this.ethManagerContract.methods
-      .swap(scrtHexAddr)
+      .swap(secretAddrHex)
       .send({
         value: ethToWei(amount),
         from: accounts[0],

@@ -256,6 +256,8 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
+      this.transaction.erc20Address = this.transaction.erc20Address.trim();
+      this.transaction.scrtAddress = this.transaction.scrtAddress.trim();
       // let operationId = id;
 
       if (this.token === TOKEN.ERC20) {

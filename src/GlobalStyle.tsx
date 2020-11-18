@@ -3,6 +3,7 @@ import { createGlobalStyle } from 'styled-components';
 export const GlobalStyle = createGlobalStyle<any>`
   body {
     font-family: ${props => props.theme.fontBase || 'Nunito'};
+    overflow-x: hidden;
   }
   
   @-webkit-keyframes autofill {

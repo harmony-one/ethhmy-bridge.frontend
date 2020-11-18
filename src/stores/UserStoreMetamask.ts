@@ -4,14 +4,15 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
   getEthBalance,
+  getErc20Balance,
   ethMethodsERC20,
-  hmyMethodsERC20,
-  ethMethodsLINK,
-  ethMethodsBUSD,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 
 const defaults = {};
+
+const TUSD = '0x1cB0906955623920c86A3963593a02a405Bb97fC';
+const YEENUS = '0xF6fF95D53E08c9660dC7820fD5A775484f77183A';
 
 export interface IERC20Token {
   name: string;
@@ -31,8 +32,8 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @observable public ethAddress: string;
   @observable public ethBalance: string = '0';
-  @observable public ethBUSDBalance: string = '0';
-  @observable public ethLINKBalance: string = '0';
+  @observable public ethTUSDBalance: string = '0';
+  @observable public ethYEENUSBalance: string = '0';
 
   @observable erc20Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
@@ -41,9 +42,10 @@ export class UserStoreMetamask extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    setInterval(() => this.getBalances(), 3 * 1000);
+    this.getBalances();
+    setInterval(() => this.getBalances(), 5000);
 
-    const session = localStorage.getItem('harmony_metamask_session');
+    const session = localStorage.getItem('metamask_session');
 
     const sessionObj = JSON.parse(session);
 
@@ -77,8 +79,8 @@ export class UserStoreMetamask extends StoreConstructor {
     this.isAuthorized = false;
     this.ethBalance = '0';
     this.ethAddress = '';
-    this.ethLINKBalance = '0';
-    this.ethBUSDBalance = '0';
+    this.ethYEENUSBalance = '0';
+    this.ethTUSDBalance = '0';
 
     this.syncLocalStorage();
 
@@ -152,7 +154,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   private syncLocalStorage() {
     localStorage.setItem(
-      'harmony_metamask_session',
+      'metamask_session',
       JSON.stringify({
         ethAddress: this.ethAddress,
         erc20Address: this.erc20Address,
@@ -163,6 +165,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
       try {
+        /* 
         if (this.erc20Address) {
           const erc20Balance = await ethMethodsERC20.checkEthBalance(
             this.erc20Address,
@@ -174,14 +177,13 @@ export class UserStoreMetamask extends StoreConstructor {
             this.erc20TokenDetails.decimals,
           );
         }
+        */
 
-        let res = 0;
+        const tusdBalance = await getErc20Balance(this.ethAddress, TUSD);
+        this.ethTUSDBalance = divDecimals(tusdBalance, 18);
 
-        // res = await ethMethodsLINK.checkEthBalance(this.ethAddress);
-        // this.ethLINKBalance = divDecimals(res, 18);
-        //
-        // res = await ethMethodsBUSD.checkEthBalance(this.ethAddress);
-        // this.ethBUSDBalance = divDecimals(res, 18);
+        const yeenusBalance = await getErc20Balance(this.ethAddress, YEENUS);
+        this.ethYEENUSBalance = divDecimals(yeenusBalance, 8);
 
         this.ethBalance = await getEthBalance(this.ethAddress);
       } catch (e) {
@@ -194,12 +196,18 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '0';
+    /* 
     this.stores.user.hrc20Address = '';
     this.stores.user.hrc20Balance = '0';
-
+    */
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
+    this.erc20Balance = divDecimals(
+      await getErc20Balance(this.ethAddress, erc20Address),
+      this.erc20TokenDetails.decimals,
+    );
 
+    /*   
     const address = await hmyMethodsERC20.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
@@ -207,7 +215,8 @@ export class UserStoreMetamask extends StoreConstructor {
       this.syncLocalStorage();
     } else {
       this.stores.user.hrc20Address = '';
-    }
+    } 
+    */
   };
 
   @action public reset() {
