@@ -7,12 +7,14 @@ import { useEffect, useState } from 'react';
 import { tokens } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
+import { EXCHANGE_MODE } from 'stores/interfaces';
 
 export const ERC20Select = observer(() => {
-  const { userMetamask } = useStores();
+  const { userMetamask, exchange } = useStores();
   const [erc20, setERC20] = useState(userMetamask.erc20Address);
   const [error, setError] = useState('');
   const [token, setToken] = useState('');
+  const [snip20, setSnip20] = useState('');
   const [custom, setCustom] = useState(false);
 
   useEffect(() => {
@@ -24,15 +26,8 @@ export const ERC20Select = observer(() => {
     <Box direction="column" margin={{ top: 'xlarge' }}>
       <Box direction="row" align="center" justify="between">
         <Text size="large" bold>
-          ERC20 token address
+          Token
         </Text>
-        {/* 
-        <Checkbox
-          label="use custom address"
-          value={custom}
-          onChange={setCustom}
-        />
-        */}
       </Box>
 
       {!custom ? (
@@ -40,21 +35,27 @@ export const ERC20Select = observer(() => {
           <Select
             options={tokens.map(t => ({
               ...t,
-              text: t.label,
+              text:
+                exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                  ? t.label
+                  : t.secretLabel,
               value: t.address,
             }))}
             value={token}
             onChange={async value => {
               setToken(value);
+              setSnip20(
+                tokens.filter(t => t.address === value)[0].snip20address,
+              );
 
               setError('');
               try {
-                await userMetamask.setToken(value);
+                await userMetamask.setToken(value, tokens);
               } catch (e) {
                 setError(e.message);
               }
             }}
-            placeholder="Select your ERC20 token"
+            placeholder="Select your token"
           />
           {token ? (
             <Box
@@ -66,23 +67,23 @@ export const ERC20Select = observer(() => {
               <Text>Address:</Text>
               <a
                 className={styles.addressLink}
-                href={`https://etherscan.io/token/${token}`}
+                href={
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? `https://etherscan.io/token/${token}`
+                    : `https://explorer.secrettestnet.io/account/${snip20}`
+                }
                 target="_blank"
               >
-                {truncateAddressString(token, 16)}
+                {truncateAddressString(
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? token : snip20,
+                  16,
+                )}
               </a>
             </Box>
           ) : null}
         </Box>
       ) : (
         <>
-          <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
-            <TextInput
-              placeholder="Input ERC20 token address"
-              value={erc20}
-              onChange={setERC20}
-            />
-          </Box>
           <Box direction="row" justify="end">
             <Button
               onClick={async () => {

@@ -17,9 +17,9 @@ import { SigningCosmWasmClient } from 'secretjs';
 
 const defaults = {};
 
-const sETH = 'secret1k0jntykt7e4g3y88ltc60czgjuqdy4c9e8fzek';
-const sTUSD = 'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68';
-const sYEENUS = 'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2';
+const sETH = 'secret1gf4u2mcxswreylr3sqj2vg4dn2tll0xqdqrg6l';
+const sTUSD = 'secret1lsuf99lvtjx4se8j458080zqau63j4l5dn8y8r';
+const sYEENUS = 'secret1yt3gd4mvem2m6uu0uq3fm0h29uf0tgu9f4l8x6';
 
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
@@ -40,18 +40,15 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balance_sETH: string = '0';
   @observable public balance_sTUSD: string = '0';
   @observable public balance_sYEENUS: string = '0';
-  /* 
-  @observable public hmyBUSDBalance: string = '0';
-  @observable public hmyLINKBalance: string = '0';
-  */
+
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
 
   @observable public scrtRate = 0;
   @observable public ethRate = 0;
 
-  @observable public hrc20Address = '';
-  @observable public hrc20Balance = '';
+  @observable public snip20Address = '';
+  @observable public snip20Balance = '';
 
   @observable public isInfoReading = false;
   @observable public chainId: string;
@@ -172,6 +169,37 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
+  @action public getSnip20Balance = async snip20Address => {
+    const balanceResponse = await this.cosmJS.queryContractSmart(
+      snip20Address,
+      {
+        balance: {
+          address: this.address,
+          key: await this.keplrWallet.getSecret20ViewingKey(
+            this.chainId,
+            snip20Address,
+          ),
+        },
+      },
+    );
+
+    if (Number(balanceResponse.balance.amount) === 0) {
+      return '0';
+    }
+
+    const decimalsResponse = await this.cosmJS.queryContractSmart(
+      snip20Address,
+      {
+        token_info: {},
+      },
+    );
+
+    return divDecimals(
+      balanceResponse.balance.amount,
+      decimalsResponse.token_info.decimals,
+    );
+  };
+
   @action public getBalances = async () => {
     if (this.address) {
       try {
@@ -224,14 +252,14 @@ export class UserStoreEx extends StoreConstructor {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
-        if (this.hrc20Address) {
-          const hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
-            this.hrc20Address,
+        if (this.snip20Address) {
+          const snip20Balance = await hmyMethodsERC20.checkHmyBalance(
+            this.snip20Address,
             this.address,
           );
 
-          this.hrc20Balance = divDecimals(
-            hrc20Balance,
+          this.snip20Balance = divDecimals(
+            snip20Balance,
             this.stores.userMetamask.erc20TokenDetails.decimals,
           );
         }

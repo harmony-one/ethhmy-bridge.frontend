@@ -63,20 +63,22 @@ export const tokens = [
   */
   {
     label: 'TrueUSD (TUSD)',
+    secretLabel: 'TrueUSD (sTUSD)',
     href:
       'https://ropsten.etherscan.io/token/0x1cB0906955623920c86A3963593a02a405Bb97fC' /* ropsten */,
     // 'https://etherscan.io/token/0x0000000000085d4780B73119b644AE5ecd22b376' /* mainnet */,
     image: 'https:/etherscan.io/token/images/trueusd_32.png',
     snip20address:
-      'secret1psm5jn08l2ms7sef2pxywr42fa8pay877vpg68' /* holodeck-2 */,
+      'secret1lsuf99lvtjx4se8j458080zqau63j4l5dn8y8r' /* holodeck-2 */,
   },
   {
     label: 'Yeenus (YEENUS)',
+    secretLabel: 'Yeenus (sYEENUS)',
     href:
       'https://ropsten.etherscan.io/token/0xF6fF95D53E08c9660dC7820fD5A775484f77183A' /* ropsten */,
     image: 'https://ropsten.etherscan.io/images/main/empty-token.png',
     snip20address:
-      'secret17nfn68fdkvvplr8s0tu7qkhxfw08j7rwne5sl2' /* holodeck-2 */,
+      'secret1yt3gd4mvem2m6uu0uq3fm0h29uf0tgu9f4l8x6' /* holodeck-2 */,
   },
   // {
   //   label: 'Dai Stablecoin (DAI)',

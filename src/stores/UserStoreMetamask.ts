@@ -192,14 +192,13 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   };
 
-  @action.bound public setToken = async (erc20Address: string) => {
+  @action.bound public setToken = async (erc20Address: string, tokens?) => {
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '0';
-    /* 
-    this.stores.user.hrc20Address = '';
-    this.stores.user.hrc20Balance = '0';
-    */
+    this.stores.user.snip20Address = '';
+    this.stores.user.snip20Balance = '0';
+
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
     this.erc20Balance = divDecimals(
@@ -207,16 +206,24 @@ export class UserStoreMetamask extends StoreConstructor {
       this.erc20TokenDetails.decimals,
     );
 
-    /*   
-    const address = await hmyMethodsERC20.getMappingFor(erc20Address);
+    if (tokens) {
+      const token = tokens.filter(t => t.address === this.erc20Address)[0];
+      if (token.snip20address) {
+        this.stores.user.snip20Address = token.snip20address;
+        this.stores.user.snip20Balance = await this.stores.user.getSnip20Balance(
+          token.snip20address,
+        );
+      }
+    }
 
-    if (!!Number(address)) {
-      this.stores.user.hrc20Address = address;
-      this.syncLocalStorage();
-    } else {
-      this.stores.user.hrc20Address = '';
-    } 
-    */
+    // const address = await hmyMethodsERC20.getMappingFor(erc20Address);
+
+    // if (!!Number(address)) {
+    //   this.stores.user.snip20Address = address;
+    //   this.syncLocalStorage();
+    // } else {
+    //   this.stores.user.snip20Balance = '';
+    // }
   };
 
   @action public reset() {
