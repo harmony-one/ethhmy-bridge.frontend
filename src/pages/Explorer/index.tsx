@@ -5,16 +5,16 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { EXCHANGE_MODE, IOperation, TOKEN } from 'stores/interfaces';
+import { EXCHANGE_MODE, IOperation, ISwap, TOKEN } from 'stores/interfaces';
 import {
-  dateTimeAgoFormat,
+  dateTimeAgoFormat, dateTimeFormat,
   formatWithSixDecimals,
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ExpandedRow, getOperationFee } from './ExpandedRow';
-import { ERC20Token, Price } from './Components';
+import { ERC20Token, FormatWithDecimals, Price, SecretToken } from './Components';
 import { Checkbox } from 'components/Base/components/Inputs';
 
 const ethAddress = value => (
@@ -35,7 +35,7 @@ const oneAddress = value => (
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/account/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 5)}
@@ -43,7 +43,7 @@ const oneAddress = value => (
   </Box>
 );
 
-const getColumns = ({ user }): IColumn<IOperation>[] => [
+const getColumns = ({ user }): IColumn<ISwap>[] => [
   // {
   //   title: 'Type',
   //   key: 'type',
@@ -52,27 +52,36 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
   //   render: value => <OperationType type={value} />,
   // },
 
-  {
-    title: 'From',
-    key: 'ethAddress',
-    dataIndex: 'ethAddress',
-    width: 200,
-    render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_SCRT
-        ? ethAddress(data.ethAddress)
-        : oneAddress(data.oneAddress),
-  },
-
+  // {
+  //   title: 'From',
+  //   key: 'src_address',
+  //   dataIndex: 'src_address',
+  //   width: 280,
+  //   render: (value, data) =>
+  //     data.src_network === "Ethereum"
+  //       ? ethAddress(value)
+  //       : oneAddress(value),
+  // },
   {
     title: 'To',
-    key: 'oneAddress',
-    dataIndex: 'oneAddress',
+    key: 'dst_address',
+    dataIndex: 'dst_address',
     width: 200,
     render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_SCRT
-        ? oneAddress(data.oneAddress)
-        : ethAddress(data.ethAddress),
+      data.src_network === "Ethereum"
+        ? oneAddress(value)
+        : ethAddress(value),
   },
+  // {
+  //   title: 'To',
+  //   key: 'dst_address',
+  //   dataIndex: 'dst_address',
+  //   width: 200,
+  //   render: (value, data) =>
+  //     data.type === EXCHANGE_MODE.ETH_TO_SCRT
+  //       ? oneAddress(data.oneAddress)
+  //       : ethAddress(data.ethAddress),
+  // },
 
   // {
   //   title: 'Eth address',
@@ -114,12 +123,29 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     ),
   },
   {
-    title: 'Asset',
-    key: 'token',
-    dataIndex: 'token',
-    width: 100,
+    title: 'From Asset',
+    key: 'src_coin',
+    dataIndex: 'src_coin',
+    width: 200,
     render: (value, data) => (
-      <ERC20Token value={value} erc20Address={data.erc20Address} />
+      data.src_network === "Ethereum"
+        ?
+      <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin}/>
+      :
+      <SecretToken value={TOKEN.S20} secretAddress={data.src_coin}/>
+    ),
+  },
+  {
+    title: 'To Asset',
+    key: 'dst_coin',
+    dataIndex: 'dst_coin',
+    width: 200,
+    render: (value, data) => (
+      data.dst_network === "Ethereum"
+        ?
+        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin}/>
+        :
+        data.dst_coin
     ),
   },
   {
@@ -127,28 +153,33 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     key: 'amount',
     dataIndex: 'amount',
     width: 120,
-    render: value => formatWithSixDecimals(value),
+    render: (value, data) =>
+      data.src_network === "Ethereum"
+        ?
+      <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.src_coin} />
+      :
+      <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.dst_coin} />
   },
   {
-    title: 'Age',
-    key: 'timestamp',
-    dataIndex: 'timestamp',
-    width: 160,
-    render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
+    title: 'Time',
+    key: 'created_on',
+    dataIndex: 'created_on',
+    width: 120,
+    render: value => dateTimeFormat(value),
   },
-  {
-    title: 'Txn fee',
-    key: 'fee',
-    dataIndex: 'fee',
-    className: styles.rightHeader,
-    width: 180,
-    render: (value, data) => {
-      const fee = getOperationFee(data);
-      const isETH = data.type === EXCHANGE_MODE.ETH_TO_SCRT;
-
-      return <Price value={fee} isEth={isETH} />;
-    },
-  },
+  // {
+  //   title: 'Txn fee',
+  //   key: 'fee',
+  //   dataIndex: 'fee',
+  //   className: styles.rightHeader,
+  //   width: 180,
+  //   render: (value, data) => {
+  //     const fee = getOperationFee(data);
+  //     const isETH = data.type === EXCHANGE_MODE.ETH_TO_SCRT;
+  //
+  //     return <Price value={fee} isEth={isETH} />;
+  //   },
+  // },
 ];
 
 export const Explorer = observer((props: any) => {
@@ -160,7 +191,8 @@ export const Explorer = observer((props: any) => {
   useEffect(() => {
     tokens.init();
     tokens.fetch();
-    operations.init();
+    operations.init({isLocal: true, sorter: 'created_on, desc'});
+    operations.fetch();
   }, []);
 
   useEffect(() => {
@@ -224,12 +256,12 @@ export const Explorer = observer((props: any) => {
             onRowClicked={() => {}}
             tableParams={{
               rowKey: (data: any) => data.id,
-              expandable: {
-                expandedRowKeys,
-                onExpandedRowsChange: setExpandedRowKeys,
-                expandedRowRender: (data: any) => <ExpandedRow data={data} />,
-                expandRowByClick: true,
-              },
+              // expandable: {
+              //   expandedRowKeys,
+              //   onExpandedRowsChange: setExpandedRowKeys,
+              //   expandedRowRender: (data: any) => <ExpandedRow data={data} />,
+              //   expandRowByClick: true,
+              // },
             }}
           />
         </Box>

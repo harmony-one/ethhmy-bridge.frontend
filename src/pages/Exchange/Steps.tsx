@@ -67,7 +67,8 @@ const StatusDescription: Record<number, string> = {
   4: 'Transfer Complete!',
   5: 'Transfer failed!',
   6: 'Sent Transaction... waiting for on-chain confirmation',
-  7: 'Waiting for user transaction '
+  7: 'Waiting for user transaction ',
+  8: 'Waiting for allowance'
 };
 
 export const Steps = observer(() => {

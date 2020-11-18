@@ -6,7 +6,7 @@ import * as React from 'react';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
-import { formatWithSixDecimals } from '../../utils';
+import { divDecimals, formatWithSixDecimals } from '../../utils';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -72,6 +72,36 @@ interface IERC20TokenProps {
   erc20Address?: string;
 }
 
+interface ISecretTokenProps {
+  value: TOKEN;
+  secretAddress?: string;
+}
+
+interface ITokenParams {
+  type: TOKEN;
+  amount: string | number;
+  address?: string;
+}
+
+export const FormatWithDecimals = observer((props: ITokenParams) => {
+  const { tokens } = useStores();
+  const { type, amount, address } = props;
+
+  if (type === TOKEN.ERC20 || type === TOKEN.S20) {
+    const token = tokens.data.find(
+      t => t.src_address.toLowerCase() === address.toLowerCase(),
+    );
+
+    if (token) {
+      return <Box>{divDecimals(amount, token.decimals)}</Box>;
+    }
+  } else if (type === TOKEN.ETH) {
+    return <Box>{formatWithSixDecimals(amount)}</Box>;
+  }
+
+  return <Box>{amount}</Box>;
+});
+
 export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { tokens } = useStores();
   const { value, erc20Address } = props;
@@ -84,6 +114,28 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
     if (token) {
       return <Box>{token.symbol}</Box>;
     }
+  } else if (value === TOKEN.ETH) {
+      return <Box>Ethereum</Box>;
+  }
+
+  return <Box>{value ? value.toUpperCase() : '--'}</Box>;
+});
+
+
+export const SecretToken = observer((props: ISecretTokenProps) => {
+  const { tokens } = useStores();
+  const { value, secretAddress } = props;
+
+  if (value === TOKEN.ERC20 || value === TOKEN.S20) {
+    const token = tokens.data.find(
+      t => t.dst_address.toLowerCase() === secretAddress.toLowerCase(),
+    );
+
+    if (token) {
+      return <Box>secret-{token.symbol}</Box>;
+    }
+  } else if (value === TOKEN.ETH) {
+    return <Box>secret-Ethereum</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;

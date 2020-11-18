@@ -304,6 +304,7 @@ export class Exchange extends StoreConstructor {
 
   async swapErcToScrt() {
     this.operation = this.defaultOperation;
+    this.operation.status = 8;
     this.setStatus()
 
     await contract.ethMethodsERC20.callApprove(
@@ -311,6 +312,9 @@ export class Exchange extends StoreConstructor {
       this.transaction.amount,
       this.stores.userMetamask.erc20TokenDetails.decimals
     );
+
+    this.operation.status = 7;
+    this.setStatus();
 
     const transaction = await contract.ethMethodsERC20.swapToken(
       this.transaction.erc20Address,
@@ -329,7 +333,7 @@ export class Exchange extends StoreConstructor {
     // this.operation.status
     await this.waitForResult();
 
-    this.setStatus()
+    this.setStatus();
     return;
   }
 

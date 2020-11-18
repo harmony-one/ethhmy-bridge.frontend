@@ -1,4 +1,4 @@
-import { IOperation, ITokenInfo } from '../stores/interfaces';
+import { IOperation, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 
 const servers = require('../../appengine-servers.json');
@@ -17,27 +17,6 @@ const callAvailableServer = async (
     } catch (e) {
       error = e;
     }
-  }
-
-  throw error;
-};
-
-const callActionN = async (func: (url: string) => Promise<any>) => {
-  let error;
-  let confirmSuccess = 0;
-  let res;
-
-  for (let i = 0; i < servers.length; i++) {
-    try {
-      res = await func(servers[i]);
-      confirmSuccess++;
-    } catch (e) {
-      error = e;
-    }
-  }
-
-  if (confirmSuccess >= Number(threshold)) {
-    return res;
   }
 
   throw error;
@@ -115,14 +94,16 @@ export const getOperation = async (id): Promise<IOperation> => {
 
 export const getOperations = async (
   params: any,
-): Promise<{ content: IOperation[] }> => {
+): Promise<{ content: ISwap[] }> => {
   return callAvailableServer(async url => {
-    const res = await agent.get<{ body: IOperation[] }>(
+    const res = await agent.get<{ body: ISwap[] }>(
       url + '/swaps/',
       params,
     );
 
-    return res.body;
+    const content = res.body.swaps;
+
+    return { content: content };
   });
 };
 

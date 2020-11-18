@@ -7,6 +7,7 @@ export enum TOKEN {
   ETH = 'eth',
   LINK = 'link',
   ERC20 = 'erc20',
+  S20 = 'secret20'
 }
 
 export enum ACTION_TYPE {
@@ -58,6 +59,21 @@ export interface IOperation {
   erc20Address?: string;
 }
 
+export interface ISwap {
+  dst_coin: string;
+  dst_network: string;
+  dst_tx_hash: string;
+  amount: number;
+  dst_address: string;
+  src_address?: string;
+  src_coin: string;
+  src_network: string;
+  src_tx_hash: string;
+  created_on: Date;
+  status: number;
+}
+
+
 export interface ITokenInfo {
   name: string;
   symbol: string;
@@ -67,7 +83,6 @@ export interface ITokenInfo {
   dst_address: string;
   dst_network: string;
   src_coin: string;
-
   totalLocked: string;
   totalLockedNormal: string;
   totalLockedUSD: string;
