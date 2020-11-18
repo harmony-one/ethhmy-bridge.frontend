@@ -121,21 +121,22 @@ export const Steps = observer(() => {
 
   return (
     <Box direction="column" className={styles.stepsContainer}>
-      {steps.map((action, idx) => (
-        <StepRow
-          key={action.id}
-          action={action}
-          number={idx}
-          active={
-            action.status === STATUS.IN_PROGRESS ||
-            (action.status === STATUS.WAITING &&
-              (!!idx ? steps[idx - 1].status === STATUS.SUCCESS : true))
-          }
-          hrc20Address={
-            action.type === ACTION_TYPE.getHRC20Address ? user.hrc20Address : ''
-          }
-        />
-      ))}
+      {' '}
+    {/*  {steps.map((action, idx) => (*/}
+    {/*  <StepRow*/}
+    {/*    key={action.id}*/}
+    {/*    action={action}*/}
+    {/*    number={idx}*/}
+    {/*    active={*/}
+    {/*      action.status === STATUS.IN_PROGRESS ||*/}
+    {/*      (action.status === STATUS.WAITING &&*/}
+    {/*        (!!idx ? steps[idx - 1].status === STATUS.SUCCESS : true))*/}
+    {/*    }*/}
+    {/*    hrc20Address={*/}
+    {/*      action.type === ACTION_TYPE.getHRC20Address ? user.hrc20Address : ''*/}
+    {/*    }*/}
+    {/*  />*/}
+    {/*))}*/}
     </Box>
   );
 });

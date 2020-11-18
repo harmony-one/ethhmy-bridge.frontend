@@ -48,7 +48,7 @@ export interface IOperation {
   id: string;
   type: EXCHANGE_MODE;
   token: TOKEN;
-  status: STATUS;
+  status: number;
   amount: number;
   fee: number;
   ethAddress: string;

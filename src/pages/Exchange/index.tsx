@@ -99,7 +99,7 @@ export class Exchange extends React.Component<
     const { user, exchange, userMetamask } = this.props;
 
     switch (exchange.token) {
-      /* 
+      /*
       case TOKEN.ETH:
         return {
           label: 'ETH',
@@ -358,7 +358,7 @@ export class Exchange extends React.Component<
                 <Box direction="column" fill={true}>
                   <Input
                     label="Secret Address"
-                    name="oneAddress"
+                    name="scrtAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
@@ -371,7 +371,7 @@ export class Exchange extends React.Component<
                         textAlign: 'right',
                       }}
                       onClick={() =>
-                        (exchange.transaction.oneAddress = user.address)
+                        (exchange.transaction.scrtAddress = user.address)
                       }
                     >
                       Use my address

@@ -46,6 +46,7 @@ const callActionN = async (func: (url: string) => Promise<any>) => {
 const callAction = async (func: (url: string) => Promise<any>) => {
   let error;
 
+  // todo: this is stupid
   const res: any[] = await Promise.all(
     servers.map(async url => {
       try {
@@ -74,6 +75,19 @@ export const createOperation = async params => {
   });
 };
 
+export const getStatus = async params => {
+  return callAction(async url => {
+    const res = await agent.get<IOperation>(url + `/operations/${params.id}`);
+
+    if (res.body.swap) {
+      return res.body.swap.status
+    } else {
+      return res.body.operation.status
+    }
+  });
+};
+
+
 export const confirmAction = async ({
   operationId,
   actionType,
@@ -92,7 +106,7 @@ export const confirmAction = async ({
 export const getOperation = async (id): Promise<IOperation> => {
   return callAvailableServer(async url => {
     const res = await agent.get<{ body: IOperation }>(
-      url + '/operations/' + id,
+      url + '/swaps/' + id,
     );
 
     return res.body;
@@ -104,7 +118,7 @@ export const getOperations = async (
 ): Promise<{ content: IOperation[] }> => {
   return callAvailableServer(async url => {
     const res = await agent.get<{ body: IOperation[] }>(
-      url + '/operations/',
+      url + '/swaps/',
       params,
     );
 

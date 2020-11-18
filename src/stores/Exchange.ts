@@ -1,13 +1,7 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
-import {
-  ACTION_TYPE,
-  EXCHANGE_MODE,
-  IOperation,
-  STATUS,
-  TOKEN,
-} from './interfaces';
+import { ACTION_TYPE, EXCHANGE_MODE, IOperation, STATUS, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
@@ -41,7 +35,7 @@ export class Exchange extends StoreConstructor {
   @observable isFeeLoading = false;
 
   defaultTransaction = {
-    oneAddress: '',
+    scrtAddress: '',
     ethAddress: '',
     amount: '0',
     erc20Address: '',
@@ -102,7 +96,7 @@ export class Exchange extends StoreConstructor {
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.SCRT_TO_ETH:
-                this.transaction.oneAddress = this.stores.user.address;
+                this.transaction.scrtAddress = this.stores.user.address;
                 break;
             }
           },
@@ -150,14 +144,14 @@ export class Exchange extends StoreConstructor {
   setAddressByMode() {
     if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
       // this.transaction.oneAddress = this.stores.user.address;
-      this.transaction.oneAddress = '';
+      this.transaction.scrtAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
     }
 
     if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
       // this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
       this.transaction.ethAddress = '';
-      this.transaction.oneAddress = this.stores.user.address;
+      this.transaction.scrtAddress = this.stores.user.address;
     }
   }
 
@@ -165,7 +159,7 @@ export class Exchange extends StoreConstructor {
   setMode(mode: EXCHANGE_MODE) {
     if (
       this.operation &&
-      [STATUS.IN_PROGRESS, STATUS.WAITING].includes(this.operation.status)
+      [4, 5].includes(this.operation.status)
     ) {
       return;
     }
@@ -187,18 +181,17 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setStatus() {
     switch (this.operation.status) {
-      case STATUS.ERROR:
+      case 5:
         this.actionStatus = 'error';
         this.stepNumber = this.stepsConfig.length - 1;
         break;
 
-      case STATUS.SUCCESS:
+      case 4:
         this.actionStatus = 'success';
         this.stepNumber = this.stepsConfig.length - 1;
         break;
 
-      case STATUS.WAITING:
-      case STATUS.IN_PROGRESS:
+      default:
         this.stepNumber = 2;
         this.actionStatus = 'fetching';
         break;
@@ -213,22 +206,32 @@ export class Exchange extends StoreConstructor {
     this.token = this.operation.token;
     this.transaction.amount = String(this.operation.amount);
     this.transaction.ethAddress = this.operation.ethAddress;
-    this.transaction.oneAddress = this.operation.oneAddress;
+    this.transaction.scrtAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
 
     this.setStatus();
   }
 
   @action.bound
-  async createOperation() {
-    this.operation = await operationService.createOperation({
-      ...this.transaction,
-      type: this.mode,
-      token: this.token,
+  async createOperation(transactionHash) {
+
+    const token = this.token === TOKEN.ETH ? 'native' : this.transaction.erc20Address;
+
+    const operation = await operationService.createOperation({
+      //tx: this.transaction,
+      transactionHash,
+      //mode: this.mode,
+      //token,
       id: uuid(),
     });
+    this.operation = operation.operation;
+    return this.operation;
+  }
 
-    return this.operation.id;
+  async getStatus(id) {
+    return await operationService.getStatus({
+      id
+    });
   }
 
   getActionByType = (type: ACTION_TYPE) =>
@@ -239,17 +242,15 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
-      // let operationId = id;
-      //
+      let operationId = id;
+
       // if (!operationId) {
       //   operationId = await this.createOperation();
       //
-      //   this.stores.routing.push(
-      //     this.token + '/operations/' + this.operation.id,
-      //   );
-      // }
       //
-      // await this.setOperationId(operationId);
+      // }
+
+      //await this.setOperationId(operationId);
       //
       // if (
       //   this.operation.status === STATUS.SUCCESS ||
@@ -282,16 +283,19 @@ export class Exchange extends StoreConstructor {
       // if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
       //   return;
       // }
+      const createOperation = async (
+        transactionHash,
+      ) => {
+        await this.createOperation(transactionHash);
+        this.stores.routing.push(
+          this.token + '/operations/' + this.operation.id,
+        );
+      };
 
       switch (this.token) {
         case TOKEN.ETH:
           ethMethods = contract.ethMethodsETH;
           hmyMethods = contract.hmyMethodsBUSD;
-          break;
-
-        case TOKEN.LINK:
-          ethMethods = contract.ethMethodsLINK;
-          hmyMethods = contract.hmyMethodsLINK;
           break;
 
         case TOKEN.ERC20:
@@ -354,10 +358,10 @@ export class Exchange extends StoreConstructor {
           if (lockToken.status === STATUS.WAITING) {
             await ethMethods.lockToken(
               this.transaction.erc20Address,
-              this.transaction.oneAddress,
+              this.transaction.scrtAddress,
               this.transaction.amount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, lockToken.type),
+              hash => createOperation(hash),
             );
           }
 
@@ -446,11 +450,27 @@ export class Exchange extends StoreConstructor {
           // if (lockToken && lockToken.status === STATUS.WAITING) {
           //
           // }
-          await ethMethods.swapEth (
-            this.transaction.oneAddress,
+          let transaction = await ethMethods.swapEth (
+            this.transaction.scrtAddress,
             this.transaction.amount,
-            hash => {},
           );
+
+          await createOperation(transaction.transactionHash)
+
+          //operationId = await this.createOperation(transactionHash);
+          this.operation.status = 2
+
+          while (![4, 5].includes(this.operation.status)) {
+            await sleep(2000);
+            const lolStatus = await this.getStatus(this.operation.id)
+            console.log(lolStatus)
+            if (lolStatus === 4) {
+              this.operation.status = lolStatus;
+            } else if (lolStatus === 5) {
+              this.operation.status = lolStatus;
+            }
+          }
+          this.setStatus()
           return;
         }
 
@@ -487,7 +507,7 @@ export class Exchange extends StoreConstructor {
             await hmyMethods.burnToken(
               this.transaction.ethAddress,
               this.transaction.amount,
-              hash => confirmCallback(hash, burnToken.type),
+              hash => createOperation(hash),
             );
           }
 

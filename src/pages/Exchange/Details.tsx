@@ -117,7 +117,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         />
         <AssetRow
           label="Secret Address"
-          value={truncateAddressString(exchange.transaction.oneAddress)}
+          value={truncateAddressString(exchange.transaction.scrtAddress)}
           address={true}
         />
         {exchange.token === TOKEN.ERC20 ? (
