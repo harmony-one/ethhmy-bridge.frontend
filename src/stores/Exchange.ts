@@ -41,6 +41,20 @@ export class Exchange extends StoreConstructor {
     erc20Address: '',
   };
 
+  defaultOperation: IOperation = {
+    actions: undefined,
+    amount: 0,
+    ethAddress: '',
+    fee: 0,
+    id: '',
+    oneAddress: '',
+    status: 7,
+    timestamp: 0,
+    token: undefined,
+    type: undefined
+
+  }
+
   @observable transaction = this.defaultTransaction;
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_SCRT;
   @observable token: TOKEN;
@@ -242,276 +256,20 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
-      let operationId = id;
-
-      // if (!operationId) {
-      //   operationId = await this.createOperation();
-      //
-      //
-      // }
-
-      //await this.setOperationId(operationId);
-      //
-      // if (
-      //   this.operation.status === STATUS.SUCCESS ||
-      //   this.operation.status === STATUS.ERROR
-      // ) {
-      //   return;
-      // }
-      // this.operation.status = STATUS.SUCCESS
-      const confirmCallback = async (
-        transactionHash,
-        actionType: ACTION_TYPE,
-      ) => {
-        // this.operation = await operationService.confirmAction({
-        //   operationId,
-        //   transactionHash,
-        //   actionType,
-        // });
-      };
-
-      let ethMethods, hmyMethods;
-
-      // if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
-      //   await sleep(3000);
-      // }
-      //
-      // if (this.operation.oneAddress !== this.stores.user.address) {
-      //   return;
-      // }
-      //
-      // if (this.operation.ethAddress !== this.stores.userMetamask.ethAddress) {
-      //   return;
-      // }
-      const createOperation = async (
-        transactionHash,
-      ) => {
-        await this.createOperation(transactionHash);
-        this.stores.routing.push(
-          this.token + '/operations/' + this.operation.id,
-        );
-      };
-
-      switch (this.token) {
-        case TOKEN.ETH:
-          ethMethods = contract.ethMethodsETH;
-          hmyMethods = contract.hmyMethodsBUSD;
-          break;
-
-        case TOKEN.ERC20:
-          ethMethods = contract.ethMethodsERC20;
-          hmyMethods = contract.hmyMethodsERC20;
-          break;
-      }
+      // let operationId = id;
 
       if (this.token === TOKEN.ERC20) {
-        let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
-
-        while (
-          getHRC20Action &&
-          [STATUS.IN_PROGRESS, STATUS.WAITING].includes(getHRC20Action.status)
-        ) {
-          await sleep(3000);
-          getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
-        }
-
-        if (!this.stores.user.hrc20Address) {
-          await this.stores.userMetamask.setToken(
-            this.transaction.erc20Address,
-          );
-        }
 
         if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-          let approveEthManger = this.getActionByType(
-            ACTION_TYPE.approveEthManger,
-          );
-
-          if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            const { amount, erc20Address } = this.transaction;
-
-            ethMethods.approveEthManger(
-              erc20Address,
-              amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, approveEthManger.type),
-            );
-          }
-
-          while (
-            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-              approveEthManger.status,
-            )
-          ) {
-            approveEthManger = this.getActionByType(
-              ACTION_TYPE.approveEthManger,
-            );
-
-            await sleep(500);
-          }
-
-          if (approveEthManger.status !== STATUS.SUCCESS) {
-            return;
-          }
-
-          const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
-
-          if (lockToken.status === STATUS.WAITING) {
-            await ethMethods.lockToken(
-              this.transaction.erc20Address,
-              this.transaction.scrtAddress,
-              this.transaction.amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => createOperation(hash),
-            );
-          }
-
-          return;
+          await this.swapErcToScrt();
+        } else {
+          await this.swapScrtToEth();
         }
-
-        if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-          const hrc20Address = this.stores.user.hrc20Address;
-
-          let approveHmyManger = this.getActionByType(
-            ACTION_TYPE.approveHmyManger,
-          );
-
-          if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
-            await hmyMethods.approveHmyManger(
-              hrc20Address,
-              this.transaction.amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, approveHmyManger.type),
-            );
-          }
-
-          while (
-            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-              approveHmyManger.status,
-            )
-          ) {
-            approveHmyManger = this.getActionByType(
-              ACTION_TYPE.approveHmyManger,
-            );
-
-            await sleep(500);
-          }
-
-          if (approveHmyManger.status !== STATUS.SUCCESS) {
-            return;
-          }
-
-          const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
-
-          if (burnToken && burnToken.status === STATUS.WAITING) {
-            await hmyMethods.burnToken(
-              hrc20Address,
-              this.transaction.ethAddress,
-              this.transaction.amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, burnToken.type),
-            );
-          }
-
-          return;
-        }
-      } else {
+      } else {  // ***ETH to Secret-Eth***
         if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-          // ***ETH to Secret-Eth***
-
-
-          // let approveEthManger = this.getActionByType(
-          //   ACTION_TYPE.approveEthManger,
-          // );
-
-          // if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-          //
-          // }
-          // ethMethods.approveEthManger(this.transaction.amount, hash =>
-          //   {},
-          // );
-          // while (
-          //   [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-          //     approveEthManger.status,
-          //   )
-          // ) {
-          //   approveEthManger = this.getActionByType(
-          //     ACTION_TYPE.approveEthManger,
-          //   );
-
-            //await sleep(5000);
-          //}
-          //
-          // if (approveEthManger.status !== STATUS.SUCCESS) {
-          //   return;
-          // }
-
-          // const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
-          //
-          // if (lockToken && lockToken.status === STATUS.WAITING) {
-          //
-          // }
-          let transaction = await ethMethods.swapEth (
-            this.transaction.scrtAddress,
-            this.transaction.amount,
-          );
-
-          await createOperation(transaction.transactionHash)
-
-          //operationId = await this.createOperation(transactionHash);
-          this.operation.status = 2
-
-          while (![4, 5].includes(this.operation.status)) {
-            await sleep(2000);
-            const lolStatus = await this.getStatus(this.operation.id)
-            console.log(lolStatus)
-            if (lolStatus === 4) {
-              this.operation.status = lolStatus;
-            } else if (lolStatus === 5) {
-              this.operation.status = lolStatus;
-            }
-          }
-          this.setStatus()
-          return;
-        }
-
-        if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-          let approveHmyManger = this.getActionByType(
-            ACTION_TYPE.approveHmyManger,
-          );
-
-          if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
-            await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.type),
-            );
-          }
-
-          while (
-            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-              approveHmyManger.status,
-            )
-          ) {
-            approveHmyManger = this.getActionByType(
-              ACTION_TYPE.approveHmyManger,
-            );
-
-            await sleep(500);
-          }
-
-          if (approveHmyManger.status !== STATUS.SUCCESS) {
-            return;
-          }
-
-          const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
-
-          if (burnToken && burnToken.status === STATUS.WAITING) {
-            await hmyMethods.burnToken(
-              this.transaction.ethAddress,
-              this.transaction.amount,
-              hash => createOperation(hash),
-            );
-          }
-
-          return;
+          await this.swapEthToScrt();
+        } else if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+          await this.swapScrtToEth();
         }
       }
 
@@ -527,6 +285,102 @@ export class Exchange extends StoreConstructor {
     }
 
     this.stepNumber = this.stepsConfig.length - 1;
+  }
+
+  async waitForResult() {
+    while (![4, 5].includes(this.operation.status)) {
+      await sleep(2000);
+      const lolStatus = await this.getStatus(this.operation.id)
+      console.log(lolStatus)
+      if (lolStatus === 4) {
+        this.operation.status = lolStatus;
+      } else if (lolStatus === 5) {
+        this.operation.status = lolStatus;
+      }
+    }
+  }
+
+  async swapErcToScrt() {
+    this.operation = this.defaultOperation;
+    this.setStatus()
+
+    await contract.ethMethodsERC20.callApprove(
+      this.transaction.erc20Address,
+      this.transaction.amount,
+      this.stores.userMetamask.erc20TokenDetails.decimals
+    );
+
+    const transaction = await contract.ethMethodsERC20.swapToken(
+      this.transaction.erc20Address,
+      this.transaction.scrtAddress,
+      this.transaction.amount,
+      this.stores.userMetamask.erc20TokenDetails.decimals,
+    );
+
+    this.txHash = transaction.transactionHash
+    await this.createOperation(transaction.transactionHash)
+    this.stores.routing.push(
+      this.token + '/operations/' + this.operation.id,
+    );
+
+    // //operationId = await this.createOperation(transactionHash);
+    // this.operation.status
+    await this.waitForResult();
+
+    this.setStatus()
+    return;
+  }
+
+  async swapEthToScrt() {
+    this.operation = this.defaultOperation;
+    this.setStatus()
+
+    let transaction = await contract.ethMethodsETH.swapEth (
+      this.transaction.scrtAddress,
+      this.transaction.amount,
+    );
+
+    this.txHash = transaction.transactionHash
+    await this.createOperation(transaction.transactionHash)
+    this.stores.routing.push(
+      this.token + '/operations/' + this.operation.id,
+    );
+
+    // //operationId = await this.createOperation(transactionHash);
+    // this.operation.status
+    await this.waitForResult();
+
+    this.setStatus()
+    return;
+  }
+
+  swapScrtToEth() {
+    this.operation = this.defaultOperation;
+    this.setStatus()
+
+    // await contract.hmyMethodsERC20.approveHmyManger(
+    //   hrc20Address,
+    //   this.transaction.amount,
+    //   this.stores.userMetamask.erc20TokenDetails.decimals,
+    //   hash => confirmCallback(hash, approveHmyManger.type),
+    // );
+    //await hmyMethods.burnToken(
+    //               hrc20Address,
+    //               this.transaction.ethAddress,
+    //               this.transaction.amount,
+    //               this.stores.userMetamask.erc20TokenDetails.decimals,
+    //               hash => confirmCallback(hash, burnToken.type),
+    //            );
+
+    //    // this.txHash = transaction.transactionHash
+    //     // //operationId = await this.createOperation(transactionHash);
+    //         this.stores.routing.push(
+    //       this.token + '/operations/' + this.operation.id,
+    //     );
+    //     // await this.waitForResult();
+
+    this.setStatus()
+    return;
   }
 
   clear() {

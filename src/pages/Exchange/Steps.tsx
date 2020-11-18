@@ -6,33 +6,30 @@ import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { ACTION_TYPE, IAction, STATUS } from 'stores/interfaces';
+import { ACTION_TYPE, EXCHANGE_MODE, STATUS } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
-import { STEPS_TITLE } from './steps-constants';
 
 const StepRow = ({
-  action,
-  active,
-  number,
-  hrc20Address,
+  status,
+  srcTransactionHash,
+  dstTransactionHash,
+  type,
 }: {
-  action: IAction;
-  hrc20Address?: string;
-  number: number;
-  active: boolean;
+  status: number;
+  srcTransactionHash: string;
+  dstTransactionHash?: string;
+  type: EXCHANGE_MODE;
 }) => {
-  const completed = action.status === STATUS.SUCCESS;
 
-  const label = STEPS_TITLE[action.type] || action.type;
+  const label = StatusDescription[status] //STEPS_TITLE[status];
 
   const textClassName = cn(
     styles.stepRow,
-    active ? styles.active : '',
-    completed ? styles.completed : '',
+    styles.active
   );
 
-  const explorerUrl =
-    (isEth(action.type)
+  const srcExplorerUrl =
+    (type === EXCHANGE_MODE.ETH_TO_SCRT
       ? process.env.ETH_EXPLORER_URL
       : process.env.SCRT_EXPLORER_URL) + '/tx/';
 
@@ -42,72 +39,35 @@ const StepRow = ({
       style={{ borderBottom: '1px solid #dedede' }}
       margin={{ bottom: 'medium' }}
     >
-      <Text className={textClassName}>{number + 1 + '. ' + label}</Text>
-      <Box direction="row" justify="between">
-        <Text className={textClassName}>Status: {statuses[action.status]}</Text>
-        {action.timestamp && (
-          <Text className={textClassName}>
-            {dateTimeFormat(action.timestamp * 1000)}
-          </Text>
-        )}
-      </Box>
-      {action.transactionHash && (
-        <Box direction="row" justify="between">
-          <Text className={textClassName}>Tx hash: </Text>
-          <a href={explorerUrl + action.transactionHash} target="_blank">
-            {truncateAddressString(action.transactionHash, 10)}
-          </a>
-        </Box>
-      )}
+      <Box direction="row" justify="between"> </Box>
+      <Text className={textClassName}>{label} {status === 7 ? `from ${WalletType[type]}` : null}</Text>
 
-      {hrc20Address && (
-        <Box
-          direction="row"
-          justify="between"
-          align="center"
-          className={textClassName}
-        >
-          <Box direction="row" align="center">
-            <img
-              className={styles.imgToken}
-              style={{ height: 18 }}
-              src="/scrt.svg"
-            />
-            <Text>HRC20 address:</Text>
-          </Box>
-          <Box>
-            <a
-              href={process.env.SCRT_EXPLORER_URL + '/address/' + hrc20Address}
-              target="_blank"
-            >
-              {truncateAddressString(hrc20Address, 10)}
-            </a>
-          </Box>
-        </Box>
-      )}
-
-      {action.message && (
-        <Text className={textClassName}>{action.message}</Text>
-      )}
-      {action.error && <Error error={action.error} />}
+      {/*     {srcTransactionHash && (*/}
+      {/*          <Box direction="row" justify="between">*/}
+      {/*            <Text className={textClassName}>Tx hash: </Text>*/}
+      {/*            <a href={srcExplorerUrl + srcTransactionHash} target="_blank">*/}
+      {/*              {truncateAddressString(srcTransactionHash, 10)}*/}
+      {/*            </a>*/}
+      {/*          </Box>*/}
+      {/*  )}*/}
+      {/*</Box>*/}
     </Box>
   );
 };
 
-const isEth = type =>
-  [
-    'approveEthManger',
-    'lockToken',
-    'unlockToken',
-    'unlockTokenRollback',
-    'waitingBlockNumber',
-  ].includes(type);
+const WalletType: Record< EXCHANGE_MODE, string> = {
+  [EXCHANGE_MODE.ETH_TO_SCRT]: "Metamask",
+  [EXCHANGE_MODE.SCRT_TO_ETH]: "Keplr"
+}
 
-const statuses: Record<STATUS, string> = {
-  waiting: 'Waiting',
-  success: 'Success',
-  in_progress: 'In progress',
-  error: 'Error',
+const StatusDescription: Record<number, string> = {
+  1: 'Bridge confirmed Transaction, waiting for Signatures',
+  2: 'Bridge Transaction Signed, waiting for broadcast',
+  3: 'Bridge Transaction Sent, waiting for confirmation',
+  4: 'Transfer Complete!',
+  5: 'Transfer failed!',
+  6: 'Sent Transaction... waiting for on-chain confirmation',
+  7: 'Waiting for user transaction '
 };
 
 export const Steps = observer(() => {
@@ -117,26 +77,16 @@ export const Steps = observer(() => {
     return null;
   }
 
-  const steps = exchange.operation.actions;
-
+  const status = exchange.operation.status;
+  console.log(exchange.txHash)
   return (
     <Box direction="column" className={styles.stepsContainer}>
-      {' '}
-    {/*  {steps.map((action, idx) => (*/}
-    {/*  <StepRow*/}
-    {/*    key={action.id}*/}
-    {/*    action={action}*/}
-    {/*    number={idx}*/}
-    {/*    active={*/}
-    {/*      action.status === STATUS.IN_PROGRESS ||*/}
-    {/*      (action.status === STATUS.WAITING &&*/}
-    {/*        (!!idx ? steps[idx - 1].status === STATUS.SUCCESS : true))*/}
-    {/*    }*/}
-    {/*    hrc20Address={*/}
-    {/*      action.type === ACTION_TYPE.getHRC20Address ? user.hrc20Address : ''*/}
-    {/*    }*/}
-    {/*  />*/}
-    {/*))}*/}
+      <StepRow
+        key={status}
+        status={status}
+        srcTransactionHash={exchange.txHash}
+        type={exchange.mode}
+      />
     </Box>
   );
 });
