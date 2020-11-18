@@ -23,14 +23,14 @@ export class EthMethods {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    //const bob = this.web3.utils.fromAscii(userAddr)
-    const hmyAddrHex = this.web3.utils.fromAscii(userAddr) //this.web3.eth.abi.encodeParameter('bytes', userAddr) //getAddress(userAddr).checksum; todo: add validation
+    const secretAddrHex = this.web3.utils.fromAscii(userAddr);
+    // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
-      .swap(hmyAddrHex)
+      .swap(secretAddrHex)
       .estimateGas({
         value: ethToWei(amount),
-        from: accounts[0]
+        from: accounts[0],
       });
 
     const gasLimit = Math.max(
@@ -39,12 +39,12 @@ export class EthMethods {
     );
 
     let transaction = await this.ethManagerContract.methods
-      .swap(hmyAddrHex)
+      .swap(secretAddrHex)
       .send({
         value: ethToWei(amount),
         from: accounts[0],
         gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3)
+        gasPrice: await getGasPrice(this.web3),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 

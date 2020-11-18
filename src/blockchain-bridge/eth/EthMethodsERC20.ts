@@ -57,10 +57,11 @@ export class EthMethodsERC20 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
-    const hmyAddrHex = getAddress(userAddr).checksum;
+    const secretAddrHex = this.web3.utils.fromAscii(userAddr);
+    // TODO: add validation
 
     const estimateGas = await this.ethManagerContract.methods
-      .swapToken(hmyAddrHex, mulDecimals(amount, decimals), erc20Address)
+      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(
@@ -69,7 +70,7 @@ export class EthMethodsERC20 {
     );
 
     let transaction = await this.ethManagerContract.methods
-      .swapToken(hmyAddrHex, mulDecimals(amount, decimals), erc20Address)
+      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),

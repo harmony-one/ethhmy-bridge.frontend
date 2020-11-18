@@ -358,7 +358,7 @@ export class Exchange extends React.Component<
                 <Box direction="column" fill={true}>
                   <Input
                     label="Secret Address"
-                    name="oneAddress"
+                    name="secretAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
@@ -371,7 +371,7 @@ export class Exchange extends React.Component<
                         textAlign: 'right',
                       }}
                       onClick={() =>
-                        (exchange.transaction.oneAddress = user.address)
+                        (exchange.transaction.secretAddress = user.address)
                       }
                     >
                       Use my address
