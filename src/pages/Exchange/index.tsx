@@ -126,18 +126,22 @@ export class Exchange extends React.Component<
           label: userMetamask.erc20TokenDetails.symbol,
           maxAmount:
             exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.hrc20Balance
+              ? user.snip20Balance
               : userMetamask.erc20Balance,
         };
 
       default:
-        return {
-          label: 'ETH',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.balance_SCRT
-              : userMetamask.ethBalance,
-        };
+        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+          return {
+            label: 'sETH',
+            maxAmount: user.balance_sETH,
+          };
+        } else {
+          return {
+            label: 'ETH',
+            maxAmount: userMetamask.ethBalance,
+          };
+        }
     }
   }
 
@@ -225,23 +229,11 @@ export class Exchange extends React.Component<
               }}
             >
               <img className={styles.imgToken} src="/eth.svg" />
-              <Text>ETH</Text>
+              <Text>
+                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'sETH' : 'ETH'}
+              </Text>
             </Box>
-            {/*
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.LINK ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.LINK);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/link.png" />
-              <Text>LINK</Text>
-            </Box>
- */}
+
             <Box
               className={cn(
                 styles.itemToken,
@@ -253,7 +245,11 @@ export class Exchange extends React.Component<
               }}
             >
               <img className={styles.imgToken} src="/eth.svg" />
-              <Text>ERC20</Text>
+              <Text>
+                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+                  ? 'SNIP20'
+                  : 'ERC20'}
+              </Text>
             </Box>
           </Box>
         ) : null}
@@ -265,30 +261,7 @@ export class Exchange extends React.Component<
         >
           {exchange.step.id === EXCHANGE_STEPS.BASE ? (
             <Box direction="column" fill={true}>
-              {/*<Box direction="column" fill={true}>*/}
-              {/*  <Input*/}
-              {/*    label="ERC20 Address"*/}
-              {/*    name="erc20Address"*/}
-              {/*    style={{ width: '100%' }}*/}
-              {/*    placeholder="ERC20 address"*/}
-              {/*    rules={[isRequired]}*/}
-              {/*  />*/}
-              {/*  <Box direction="row" justify="end">*/}
-              {/*    <Button*/}
-              {/*      onClick={() => {*/}
-              {/*        userMetamask.setToken(exchange.transaction.erc20Address);*/}
-              {/*      }}*/}
-              {/*    >*/}
-              {/*      Check address*/}
-              {/*    </Button>*/}
-              {/*  </Box>*/}
-              {/*</Box>*/}
-
               {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
-
-              {/*<Box direction="column" fill={true}>*/}
-              {/*  <TokenDetails />*/}
-              {/*</Box>*/}
 
               <Box
                 direction="column"
@@ -332,7 +305,7 @@ export class Exchange extends React.Component<
               {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? (
                 <Box direction="column" fill={true}>
                   <Input
-                    label="ETH Address"
+                    label="Destination ETH Address"
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
@@ -357,7 +330,7 @@ export class Exchange extends React.Component<
               ) : (
                 <Box direction="column" fill={true}>
                   <Input
-                    label="Secret Address"
+                    label="Destination Secret Address"
                     name="scrtAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"

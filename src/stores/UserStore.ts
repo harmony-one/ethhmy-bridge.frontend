@@ -40,18 +40,15 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balance_sETH: string = '0';
   @observable public balance_sTUSD: string = '0';
   @observable public balance_sYEENUS: string = '0';
-  /* 
-  @observable public hmyBUSDBalance: string = '0';
-  @observable public hmyLINKBalance: string = '0';
-  */
+
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
 
   @observable public scrtRate = 0;
   @observable public ethRate = 0;
 
-  @observable public hrc20Address = '';
-  @observable public hrc20Balance = '';
+  @observable public snip20Address = '';
+  @observable public snip20Balance = '';
 
   @observable public isInfoReading = false;
   @observable public chainId: string;
@@ -172,6 +169,37 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
+  @action public getSnip20Balance = async snip20Address => {
+    const balanceResponse = await this.cosmJS.queryContractSmart(
+      snip20Address,
+      {
+        balance: {
+          address: this.address,
+          key: await this.keplrWallet.getSecret20ViewingKey(
+            this.chainId,
+            snip20Address,
+          ),
+        },
+      },
+    );
+
+    if (Number(balanceResponse.balance.amount) === 0) {
+      return '0';
+    }
+
+    const decimalsResponse = await this.cosmJS.queryContractSmart(
+      snip20Address,
+      {
+        token_info: {},
+      },
+    );
+
+    return divDecimals(
+      balanceResponse.balance.amount,
+      decimalsResponse.token_info.decimals,
+    );
+  };
+
   @action public getBalances = async () => {
     if (this.address) {
       try {
@@ -224,14 +252,14 @@ export class UserStoreEx extends StoreConstructor {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
 
-        if (this.hrc20Address) {
-          const hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
-            this.hrc20Address,
+        if (this.snip20Address) {
+          const snip20Balance = await hmyMethodsERC20.checkHmyBalance(
+            this.snip20Address,
             this.address,
           );
 
-          this.hrc20Balance = divDecimals(
-            hrc20Balance,
+          this.snip20Balance = divDecimals(
+            snip20Balance,
             this.stores.userMetamask.erc20TokenDetails.decimals,
           );
         }

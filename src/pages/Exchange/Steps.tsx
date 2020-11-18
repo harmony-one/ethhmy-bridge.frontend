@@ -20,13 +20,9 @@ const StepRow = ({
   dstTransactionHash?: string;
   type: EXCHANGE_MODE;
 }) => {
+  const label = StatusDescription[status]; //STEPS_TITLE[status];
 
-  const label = StatusDescription[status] //STEPS_TITLE[status];
-
-  const textClassName = cn(
-    styles.stepRow,
-    styles.active
-  );
+  const textClassName = cn(styles.stepRow, styles.active);
 
   const srcExplorerUrl =
     (type === EXCHANGE_MODE.ETH_TO_SCRT
@@ -39,8 +35,12 @@ const StepRow = ({
       style={{ borderBottom: '1px solid #dedede' }}
       margin={{ bottom: 'medium' }}
     >
-      <Box direction="row" justify="between"> </Box>
-      <Text className={textClassName}>{label} {status === 7 ? `from ${WalletType[type]}` : null}</Text>
+      <Box direction="row" justify="between">
+        {' '}
+      </Box>
+      <Text className={textClassName}>
+        {label} {status === 7 ? `from ${WalletType[type]}` : null}
+      </Text>
 
       {/*     {srcTransactionHash && (*/}
       {/*          <Box direction="row" justify="between">*/}
@@ -55,10 +55,10 @@ const StepRow = ({
   );
 };
 
-const WalletType: Record< EXCHANGE_MODE, string> = {
-  [EXCHANGE_MODE.ETH_TO_SCRT]: "Metamask",
-  [EXCHANGE_MODE.SCRT_TO_ETH]: "Keplr"
-}
+const WalletType: Record<EXCHANGE_MODE, string> = {
+  [EXCHANGE_MODE.ETH_TO_SCRT]: 'Metamask',
+  [EXCHANGE_MODE.SCRT_TO_ETH]: 'Keplr',
+};
 
 const StatusDescription: Record<number, string> = {
   1: 'Bridge confirmed Transaction, waiting for Signatures',
@@ -67,7 +67,7 @@ const StatusDescription: Record<number, string> = {
   4: 'Transfer Complete!',
   5: 'Transfer failed!',
   6: 'Sent Transaction... waiting for on-chain confirmation',
-  7: 'Waiting for user transaction '
+  7: 'Waiting for user transaction ',
 };
 
 export const Steps = observer(() => {
@@ -78,7 +78,7 @@ export const Steps = observer(() => {
   }
 
   const status = exchange.operation.status;
-  console.log(exchange.txHash)
+  console.log(exchange.txHash);
   return (
     <Box direction="column" className={styles.stepsContainer}>
       <StepRow
