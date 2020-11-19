@@ -185,11 +185,6 @@ export const WalletBalances = observer(() => {
                 asset="Secret Address"
                 value={truncateAddressString(user.address)}
               />
-
-              <AssetRow
-                asset="SCRT"
-                value={formatWithSixDecimals(user.balance_SCRT)}
-              />
               <AssetRow
                 asset="sETH"
                 value={formatWithSixDecimals(user.balance_sETH)}

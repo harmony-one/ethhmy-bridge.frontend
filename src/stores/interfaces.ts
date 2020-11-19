@@ -7,7 +7,7 @@ export enum TOKEN {
   ETH = 'eth',
   LINK = 'link',
   ERC20 = 'erc20',
-  S20 = 'secret20'
+  S20 = 'secret20',
 }
 
 export enum ACTION_TYPE {
@@ -72,7 +72,6 @@ export interface ISwap {
   created_on: Date;
   status: number;
 }
-
 
 export interface ITokenInfo {
   name: string;

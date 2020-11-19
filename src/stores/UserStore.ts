@@ -29,14 +29,13 @@ export class UserStoreEx extends StoreConstructor {
 
   private keplrWallet: any;
   private keplrOfflineSigner: any;
-  private cosmJS: SigningCosmWasmClient;
+  @observable public cosmJS: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
   @observable public error: string;
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
 
-  @observable public balance_SCRT: string = '0';
   @observable public balance_sETH: string = '0';
   @observable public balance_sTUSD: string = '0';
   @observable public balance_sYEENUS: string = '0';
@@ -156,6 +155,16 @@ export class UserStoreEx extends StoreConstructor {
         this.address,
         this.keplrOfflineSigner,
         (window as any).getEnigmaUtils(this.chainId),
+        {
+          init: {
+            amount: [{ amount: '250000', denom: 'uscrt' }],
+            gas: '250000',
+          },
+          exec: {
+            amount: [{ amount: '250000', denom: 'uscrt' }],
+            gas: '250000',
+          },
+        },
       );
 
       // Add SNIP20s to
@@ -203,12 +212,6 @@ export class UserStoreEx extends StoreConstructor {
   @action public getBalances = async () => {
     if (this.address) {
       try {
-        const scrtAccount = await this.cosmJS.getAccount(this.address);
-        this.balance_SCRT = divDecimals(
-          scrtAccount.balance.filter(x => x.denom === 'uscrt')[0].amount,
-          6,
-        );
-
         const sEthBalance = await this.cosmJS.queryContractSmart(sETH, {
           balance: {
             address: this.address,
@@ -275,16 +278,6 @@ export class UserStoreEx extends StoreConstructor {
       } catch (e) {
         console.error(e);
       }
-    }
-  };
-
-  @action public getSecretBalance = async () => {
-    if (this.address) {
-      const account = await this.cosmJS.getAccount(this.address);
-      this.balance_SCRT = divDecimals(
-        account.balance.filter(x => x.denom === 'uscrt')[0].amount,
-        6,
-      );
     }
   };
 

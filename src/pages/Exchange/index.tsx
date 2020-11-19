@@ -271,7 +271,8 @@ export class Exchange extends React.Component<
               >
                 <NumberInput
                   label={`${(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                  exchange.token === TOKEN.ERC20
+                  exchange.token === TOKEN.ERC20 &&
+                  this.tokenInfo.label
                     ? 's'
                     : '') + this.tokenInfo.label} Amount`}
                   name="amount"
@@ -406,7 +407,7 @@ export class Exchange extends React.Component<
               fill={true}
             >
               <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign two transactions
+                You will be prompted to sign one transaction
               </Text>
             </Box>
           </>

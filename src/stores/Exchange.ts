@@ -11,8 +11,9 @@ import {
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import { sleep, uuid } from '../utils';
+import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import { tokens } from '../pages/Exchange/tokens';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -33,6 +34,28 @@ export interface IStepConfig {
   title?: string;
 }
 
+export const FormatWithoutDecimals = (
+  type: TOKEN,
+  amount: string,
+  address: string,
+) => {
+  if (type === TOKEN.ERC20 || type === TOKEN.S20) {
+    const token = tokens.find(t =>
+      [t.snip20address.toLowerCase(), t.address.toLocaleLowerCase()].includes(
+        address.toLowerCase(),
+      ),
+    );
+
+    if (token) {
+      return mulDecimals(amount, token.decimals);
+    }
+  } else if (type === TOKEN.ETH) {
+    return mulDecimals(amount, 18);
+  }
+
+  return amount;
+};
+
 export class Exchange extends StoreConstructor {
   @observable error = '';
   @observable txHash = '';
@@ -45,6 +68,7 @@ export class Exchange extends StoreConstructor {
     ethAddress: '',
     amount: '0',
     erc20Address: '',
+    snip20Address: '',
   };
 
   defaultOperation: IOperation = {
@@ -105,6 +129,7 @@ export class Exchange extends StoreConstructor {
             this.stepNumber = this.stepNumber + 1;
             // this.transaction.oneAddress = this.stores.user.address;
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+            this.transaction.snip20Address = this.stores.user.snip20Address;
 
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_SCRT:
@@ -302,7 +327,7 @@ export class Exchange extends StoreConstructor {
   async swapErc20ToScrt() {
     this.operation = this.defaultOperation;
     this.operation.status = 8;
-    this.setStatus()
+    this.setStatus();
 
     await contract.ethMethodsERC20.callApprove(
       this.transaction.erc20Address,
@@ -357,19 +382,34 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
-    // await contract.hmyMethodsERC20.approveHmyManger(
-    //   hrc20Address,
-    //   this.transaction.amount,
-    //   this.stores.userMetamask.erc20TokenDetails.decimals,
-    //   hash => confirmCallback(hash, approveHmyManger.type),
-    // );
-    //await hmyMethods.burnToken(
-    //               hrc20Address,
-    //               this.transaction.ethAddress,
-    //               this.transaction.amount,
-    //               this.stores.userMetamask.erc20TokenDetails.decimals,
-    //               hash => confirmCallback(hash, burnToken.type),
-    //            );
+    /* 
+    # Generate swap tx on secret network
+    swap = {"send": {"amount": str(TRANSFER_AMOUNT_ERC),
+                     "msg": base64.b64encode(ethr_leader.signer.address.encode()).decode(),
+                     "recipient": swap_contract_addr}}
+    tx_hash = run(f"secretcli tx compute execute {secret_token_addr} "
+                  f"'{json.dumps(swap)}' --from t1 -b block -y --gas 300000", shell=True, stdout=PIPE, stderr=PIPE)
+    */
+
+    const msg = {
+      send: {
+        amount: FormatWithoutDecimals(
+          TOKEN.S20,
+          this.transaction.amount,
+          this.transaction.snip20Address,
+        ),
+        msg: btoa(this.transaction.ethAddress),
+        recipient:
+          'secret1u8mgmspdeakpf7u8leq68d5xtkykskwrytevyn' /* Swap contract */,
+      },
+    };
+
+    const response = await this.stores.user.cosmJS.execute(
+      this.transaction.snip20Address,
+      msg,
+    );
+
+    console.log(response);
 
     //    // this.txHash = transaction.transactionHash
     //     // //operationId = await this.createOperation(transactionHash);

@@ -6,7 +6,7 @@ import * as React from 'react';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
-import { divDecimals, formatWithSixDecimals } from '../../utils';
+import { divDecimals, formatWithSixDecimals, mulDecimals } from '../../utils';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -115,12 +115,11 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
       return <Box>{token.symbol}</Box>;
     }
   } else if (value === TOKEN.ETH) {
-      return <Box>Ethereum</Box>;
+    return <Box>Ethereum</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;
 });
-
 
 export const SecretToken = observer((props: ISecretTokenProps) => {
   const { tokens } = useStores();
