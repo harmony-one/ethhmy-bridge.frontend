@@ -382,15 +382,6 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
-    /* 
-    # Generate swap tx on secret network
-    swap = {"send": {"amount": str(TRANSFER_AMOUNT_ERC),
-                     "msg": base64.b64encode(ethr_leader.signer.address.encode()).decode(),
-                     "recipient": swap_contract_addr}}
-    tx_hash = run(f"secretcli tx compute execute {secret_token_addr} "
-                  f"'{json.dumps(swap)}' --from t1 -b block -y --gas 300000", shell=True, stdout=PIPE, stderr=PIPE)
-    */
-
     const msg = {
       send: {
         amount: FormatWithoutDecimals(
