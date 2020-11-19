@@ -298,7 +298,10 @@ export class Exchange extends React.Component<
                 <Text size="small" style={{ textAlign: 'right' }}>
                   <b>*Max Available</b> ={' '}
                   {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
-                  {this.tokenInfo.label}
+                  {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+                  exchange.token === TOKEN.ERC20
+                    ? 's'
+                    : '') + this.tokenInfo.label}
                 </Text>
               </Box>
 
