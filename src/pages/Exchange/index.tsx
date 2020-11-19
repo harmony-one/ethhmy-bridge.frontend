@@ -270,7 +270,10 @@ export class Exchange extends React.Component<
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
                 <NumberInput
-                  label={`${this.tokenInfo.label} Amount`}
+                  label={`${(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+                  exchange.token === TOKEN.ERC20
+                    ? 's'
+                    : '') + this.tokenInfo.label} Amount`}
                   name="amount"
                   type="decimal"
                   precision="6"
