@@ -47,10 +47,10 @@ export const FormatWithoutDecimals = (
     );
 
     if (token) {
-      return mulDecimals(amount, token.decimals);
+      return mulDecimals(amount, token.decimals).toString();
     }
   } else if (type === TOKEN.ETH) {
-    return mulDecimals(amount, 18);
+    return mulDecimals(amount, 18).toString();
   }
 
   return amount;
