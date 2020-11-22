@@ -8,6 +8,7 @@ import {
   ethMethodsERC20,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
+import Web3 from 'web3';
 
 const defaults = {};
 
@@ -63,7 +64,7 @@ export class UserStoreMetamask extends StoreConstructor {
     if (accounts.length === 0) {
       return this.setError('Please connect to MetaMask');
     } else {
-      this.ethAddress = accounts[0];
+      this.ethAddress = Web3.utils.toChecksumAddress(accounts[0]);
       this.syncLocalStorage();
     }
   }
