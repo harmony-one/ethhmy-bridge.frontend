@@ -123,7 +123,6 @@ export class Exchange extends StoreConstructor {
           title: 'Continue',
           onClick: async () => {
             this.stepNumber = this.stepNumber + 1;
-            // this.transaction.oneAddress = this.stores.user.address;
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
             this.transaction.snip20Address = this.stores.user.snip20Address;
 
