@@ -157,12 +157,12 @@ export class UserStoreEx extends StoreConstructor {
         (window as any).getEnigmaUtils(this.chainId),
         {
           init: {
-            amount: [{ amount: '250000', denom: 'uscrt' }],
-            gas: '250000',
+            amount: [{ amount: '300000', denom: 'uscrt' }],
+            gas: '300000',
           },
           exec: {
-            amount: [{ amount: '250000', denom: 'uscrt' }],
-            gas: '250000',
+            amount: [{ amount: '300000', denom: 'uscrt' }],
+            gas: '300000',
           },
         },
       );
