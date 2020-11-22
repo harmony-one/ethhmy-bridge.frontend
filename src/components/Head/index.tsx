@@ -85,19 +85,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           </Box>
 
           <Box direction="row" align="center" gap="15px">
-            {getTokenServiceEnable ? (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  isGetTokens ? styles.selected : '',
-                )}
-                onClick={() => {
-                  routing.push(`/get-tokens`);
-                }}
-              >
-                <Text>Get tokens</Text>
-              </Box>
-            ) : null}
 
             <Box
               className={cn(

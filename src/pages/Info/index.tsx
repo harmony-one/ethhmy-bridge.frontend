@@ -23,7 +23,7 @@ export const InfoPage = () => {
               }}
               size="large"
             >
-              {'Ethereum <> Harmony Bridge'}
+              {'Ethereum <> Secret Bridge'}
             </Title>
           </Box>
           <Box

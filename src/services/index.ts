@@ -1,9 +1,14 @@
 import { IOperation, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
+import { SwapStatus } from '../constants';
 
 const servers = require('../../appengine-servers.json');
 
 const threshold = process.env.THRESHOLD;
+
+const backendUrl = url => {
+  return `${process.env.BACKEND_URL}${url}`
+}
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -47,88 +52,66 @@ const callAction = async (func: (url: string) => Promise<any>) => {
 };
 
 export const createOperation = async params => {
-  return callAction(async url => {
-    const res = await agent.post<IOperation>(url + '/operations', params);
+  const url = backendUrl(`/operations`);
 
-    return res.body;
-  });
+  const res = await agent.post<IOperation>(url, params);
+
+  return res.body;
 };
 
-export const getStatus = async params => {
-  return callAction(async url => {
-    const res = await agent.get<IOperation>(url + `/operations/${params.id}`);
+export const getStatus = async (params): Promise<SwapStatus> => {
+  const url = backendUrl(`/operations/${params.id}`);
 
-    if (res.body.swap) {
-      return res.body.swap.status
-    } else {
-      return res.body.operation.status
-    }
-  });
-};
+  const res = await agent.get<IOperation>(url);
 
-
-export const confirmAction = async ({
-  operationId,
-  actionType,
-  transactionHash,
-}) => {
-  return callAction(async url => {
-    const res = await agent.post<{ body: IOperation }>(
-      `${url}/operations/${operationId}/actions/${actionType}/confirm`,
-      { transactionHash },
-    );
-
-    return res.body;
-  });
+  if (res.body.swap) {
+    return SwapStatus[SwapStatus[res.body.swap.status]];
+  } else {
+    return SwapStatus[SwapStatus[res.body.operation.status]];
+  }
 };
 
 export const getOperation = async (id): Promise<IOperation> => {
-  return callAvailableServer(async url => {
-    const res = await agent.get<{ body: IOperation }>(
-      url + '/swaps/' + id,
-    );
+  const url = backendUrl(`/swaps/${id}`);
 
-    return res.body;
-  });
+  const res = await agent.get<{ body: IOperation }>(
+    url,
+  );
+
+  return res.body;
+
 };
 
 export const getOperations = async (
   params: any,
 ): Promise<{ content: ISwap[] }> => {
-  return callAvailableServer(async url => {
-    const res = await agent.get<{ body: ISwap[] }>(
-      url + '/swaps/',
-      params,
-    );
 
-    const content = res.body.swaps;
+  const url = backendUrl('/swaps/');
 
-    return { content: content };
-  });
+  const res = await agent.get<{ body: ISwap[] }>(
+    url,
+    params,
+  );
+
+  const content = res.body.swaps;
+
+  return { content: content };
 };
 
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
+
+  const url = backendUrl('/tokens/');
+
   const res = await agent.get<{ body: {tokens: ITokenInfo[]} }>(
-    'http://localhost:8000' + '/tokens/',
+    url,
     params,
   );
 
   const content = res.body.tokens;
 
   return { ...res.body, content };
-  // return await callAvailableServer(async url => {
-  //   const res = await agent.get<{ body: ITokenInfo[] }>(
-  //     url + '/tokens/',
-  //     params,
-  //   );
-  //
-  //   const content = res.body.content;
-  //
-  //   return { ...res.body, content };
-  //
-  // });
 };
 
 

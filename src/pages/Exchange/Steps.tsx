@@ -8,17 +8,20 @@ import * as styles from './feeds.styl';
 import { useStores } from 'stores';
 import { ACTION_TYPE, EXCHANGE_MODE, STATUS } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
+import { SwapStatus } from '../../constants';
 
 const StepRow = ({
   status,
   srcTransactionHash,
   dstTransactionHash,
   type,
+  txId
 }: {
   status: number;
   srcTransactionHash: string;
   dstTransactionHash?: string;
   type: EXCHANGE_MODE;
+  txId?: string
 }) => {
   const label = StatusDescription[status]; //STEPS_TITLE[status];
 
@@ -39,9 +42,11 @@ const StepRow = ({
         {' '}
       </Box>
       <Text className={textClassName}>
-        {label} {status === 7 ? `from ${WalletType[type]}` : null}
+        {label} {status === SwapStatus.SWAP_WAIT_SEND ? `from ${WalletType[type]}` : null}
       </Text>
-
+      <Text className={textClassName}>
+        {txId ? `Your transaction ID is: ${txId}` : null }
+      </Text>
       {/*     {srcTransactionHash && (*/}
       {/*          <Box direction="row" justify="between">*/}
       {/*            <Text className={textClassName}>Tx hash: </Text>*/}
@@ -60,15 +65,16 @@ const WalletType: Record<EXCHANGE_MODE, string> = {
   [EXCHANGE_MODE.SCRT_TO_ETH]: 'Keplr',
 };
 
-const StatusDescription: Record<number, string> = {
-  1: 'Bridge confirmed Transaction, waiting for Signatures',
-  2: 'Bridge Transaction Signed, waiting for broadcast',
-  3: 'Bridge Transaction Sent, waiting for confirmation',
-  4: 'Transfer Complete!',
-  5: 'Transfer failed!',
-  6: 'Sent Transaction... waiting for on-chain confirmation',
-  7: 'Waiting for user transaction ',
-  8: 'Waiting for allowance',
+const StatusDescription: Record<SwapStatus, string> = {
+  [SwapStatus.SWAP_UNSIGNED]: 'Bridge confirmed Transaction, waiting for Signatures',
+  [SwapStatus.SWAP_SIGNED]: 'Bridge Transaction Signed, waiting for broadcast',
+  [SwapStatus.SWAP_SUBMITTED]: 'Bridge Transaction Sent, waiting for confirmation',
+  [SwapStatus.SWAP_CONFIRMED]: 'Transfer Complete!',
+  [SwapStatus.SWAP_FAILED]: 'Transfer failed!',
+  [SwapStatus.SWAP_RETRY]: 'Failed to broadcast transaction. Retrying...',
+  [SwapStatus.SWAP_SENT]: 'Sent Transaction... waiting for on-chain confirmation',
+  [SwapStatus.SWAP_WAIT_SEND]: 'Waiting for user transaction ',
+  [SwapStatus.SWAP_WAIT_APPROVE]: 'Waiting for allowance',
 };
 
 export const Steps = observer(() => {
@@ -87,6 +93,7 @@ export const Steps = observer(() => {
         status={status}
         srcTransactionHash={exchange.txHash}
         type={exchange.mode}
+        txId={exchange.operation.id}
       />
     </Box>
   );

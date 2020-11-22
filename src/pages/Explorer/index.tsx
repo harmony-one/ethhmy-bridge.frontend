@@ -5,17 +5,13 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { EXCHANGE_MODE, IOperation, ISwap, TOKEN } from 'stores/interfaces';
-import {
-  dateTimeAgoFormat, dateTimeFormat,
-  formatWithSixDecimals,
-  truncateAddressString,
-} from 'utils';
+import { ISwap, TOKEN } from 'stores/interfaces';
+import { dateTimeFormat, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { ExpandedRow, getOperationFee } from './ExpandedRow';
-import { ERC20Token, FormatWithDecimals, Price, SecretToken } from './Components';
+import { ERC20Token, FormatWithDecimals, SecretToken } from './Components';
 import { Checkbox } from 'components/Base/components/Inputs';
+import { SwapStatus } from '../../constants';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -42,6 +38,19 @@ const oneAddress = value => (
     </a>
   </Box>
 );
+
+const swapToText = (status: SwapStatus): string => {
+  switch (status) {
+    case SwapStatus.SWAP_FAILED:
+      return "failed"
+
+    case SwapStatus.SWAP_CONFIRMED:
+      return "success"
+
+    default:
+      return "sending..."
+  }
+}
 
 const getColumns = ({ user }): IColumn<ISwap>[] => [
   // {
@@ -118,9 +127,10 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     key: 'status',
     dataIndex: 'status',
     width: 140,
-    render: value => (
-      <Box className={cn(styles.status, styles[value])}>{value}</Box>
-    ),
+    render: value => {
+      let status = swapToText(SwapStatus[SwapStatus[value]])
+      return (<Box className={cn(styles.status, styles[status])}>{status}</Box>);
+    },
   },
   {
     title: 'From Asset',

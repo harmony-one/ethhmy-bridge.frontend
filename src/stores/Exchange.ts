@@ -1,13 +1,7 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
-import { statusFetching } from '../constants';
-import {
-  ACTION_TYPE,
-  EXCHANGE_MODE,
-  IOperation,
-  STATUS,
-  TOKEN,
-} from './interfaces';
+import { statusFetching, SwapStatus } from '../constants';
+import { ACTION_TYPE, EXCHANGE_MODE, IOperation, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
@@ -78,7 +72,7 @@ export class Exchange extends StoreConstructor {
     fee: 0,
     id: '',
     oneAddress: '',
-    status: 7,
+    status: SwapStatus.SWAP_WAIT_SEND,
     timestamp: 0,
     token: undefined,
     type: undefined,
@@ -201,7 +195,7 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
-    if (this.operation && [4, 5].includes(this.operation.status)) {
+    if (this.operation && [SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(this.operation.status)) {
       return;
     }
 
@@ -222,12 +216,12 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setStatus() {
     switch (this.operation.status) {
-      case 5:
+      case SwapStatus.SWAP_FAILED:
         this.actionStatus = 'error';
         this.stepNumber = this.stepsConfig.length - 1;
         break;
 
-      case 4:
+      case SwapStatus.SWAP_CONFIRMED:
         this.actionStatus = 'success';
         this.stepNumber = this.stepsConfig.length - 1;
         break;
@@ -265,6 +259,9 @@ export class Exchange extends StoreConstructor {
       //token,
       id: uuid(),
     });
+
+    operation.operation.status = SwapStatus[SwapStatus[operation.operation.status]]
+
     this.operation = operation.operation;
     return this.operation;
   }
@@ -282,6 +279,11 @@ export class Exchange extends StoreConstructor {
   async sendOperation(id: string = '') {
     try {
       this.actionStatus = 'fetching';
+
+      if (id) {
+        await this.waitForResult();
+        return
+      }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
       this.transaction.scrtAddress = this.transaction.scrtAddress.trim();
@@ -312,13 +314,16 @@ export class Exchange extends StoreConstructor {
   }
 
   async waitForResult() {
-    while (![4, 5].includes(this.operation.status)) {
+    let lolStatus = await this.getStatus(this.operation.id);
+    if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
+      this.operation.status = lolStatus;
+    }
+
+    while (![SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(this.operation.status)) {
       await sleep(2000);
-      const lolStatus = await this.getStatus(this.operation.id);
+      lolStatus = await this.getStatus(this.operation.id);
       console.log(lolStatus);
-      if (lolStatus === 4) {
-        this.operation.status = lolStatus;
-      } else if (lolStatus === 5) {
+      if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
         this.operation.status = lolStatus;
       }
     }
@@ -326,7 +331,7 @@ export class Exchange extends StoreConstructor {
 
   async swapErc20ToScrt() {
     this.operation = this.defaultOperation;
-    this.operation.status = 8;
+    this.operation.status = SwapStatus.SWAP_WAIT_APPROVE;
     this.setStatus();
 
     await contract.ethMethodsERC20.callApprove(
@@ -335,7 +340,7 @@ export class Exchange extends StoreConstructor {
       this.stores.userMetamask.erc20TokenDetails.decimals,
     );
 
-    this.operation.status = 7;
+    this.operation.status = SwapStatus.SWAP_WAIT_SEND;
     this.setStatus();
 
     const transaction = await contract.ethMethodsERC20.swapToken(
@@ -348,7 +353,6 @@ export class Exchange extends StoreConstructor {
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
     this.stores.routing.push(this.token + '/operations/' + this.operation.id);
-
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
     await this.waitForResult();

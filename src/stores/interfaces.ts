@@ -1,3 +1,5 @@
+import { SwapStatus } from '../constants';
+
 export enum EXCHANGE_MODE {
   ETH_TO_SCRT = 'eth_to_scrt',
   SCRT_TO_ETH = 'scrt_to_eth',
@@ -49,7 +51,7 @@ export interface IOperation {
   id: string;
   type: EXCHANGE_MODE;
   token: TOKEN;
-  status: number;
+  status: SwapStatus;
   amount: number;
   fee: number;
   ethAddress: string;

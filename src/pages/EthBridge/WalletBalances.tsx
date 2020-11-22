@@ -9,7 +9,7 @@ import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { TOKEN } from '../../stores/interfaces';
-import { getBech32Address } from '../../blockchain-bridge';
+
 // import { Routes } from '../../constants';
 
 const AssetRow = observer<any>(props => {
