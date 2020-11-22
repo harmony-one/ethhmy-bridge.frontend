@@ -384,20 +384,20 @@ export class Exchange extends React.Component<
             {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? (
               <Box
                 direction="row"
-                justify="end"
+                // justify="end"
                 fill={true}
                 margin={{ top: 'small' }}
               >
                 <Text color="Red500" style={{ textAlign: 'right' }}>
-                  The metamask may ask you to sign with slightly higher fee due
-                  to 150000 gas limit estimate, however you will be charged
-                  similar to the above estimate based on the actual gas used.
+                  Metamask may ask you to sign with slightly higher fee due to
+                  150000 gas limit estimate, however you will be charged similar
+                  to the above estimate based on the actual gas used.
                 </Text>
               </Box>
             ) : null}
             <Box
               direction="row"
-              justify="end"
+              // justify="end"
               margin={{
                 top:
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT

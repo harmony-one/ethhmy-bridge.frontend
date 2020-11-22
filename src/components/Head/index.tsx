@@ -77,11 +77,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <MainLogo src="/scrt.svg" />
             </Box> */}
-            <Box>
-              <Title size="medium" color="BlackTxt" bold>
-                🌉 Secret Bridge
-              </Title>
-            </Box>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <Box>
+                <Title size="medium" color="BlackTxt" bold>
+                  🌉 Secret Bridge
+                </Title>
+              </Box>
+            </a>
           </Box>
 
           <Box direction="row" align="center" gap="15px">

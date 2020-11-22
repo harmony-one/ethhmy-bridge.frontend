@@ -8,6 +8,7 @@ import * as contract from '../blockchain-bridge';
 import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { tokens } from '../pages/Exchange/tokens';
+import { sETH } from './UserStore';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -290,7 +291,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.ethAddress = this.transaction.ethAddress.trim();
 
       if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-        await this.swapSnip20ToEth();
+        await this.swapSnip20ToEth(this.token === TOKEN.ETH);
       } else if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
         if (this.token === TOKEN.ERC20) {
           await this.swapErc20ToScrt();
@@ -382,29 +383,32 @@ export class Exchange extends StoreConstructor {
     return;
   }
 
-  async swapSnip20ToEth() {
+  async swapSnip20ToEth(isEth: boolean) {
     this.operation = this.defaultOperation;
     this.setStatus();
 
+    let amount: string;
+    if (isEth) {
+      this.transaction.snip20Address = sETH;
+      amount = FormatWithoutDecimals(TOKEN.ETH, this.transaction.amount, sETH);
+    } else {
+      amount = FormatWithoutDecimals(
+        TOKEN.S20,
+        this.transaction.amount,
+        this.transaction.snip20Address,
+      );
+    }
+
     const msg = {
       send: {
-        amount: FormatWithoutDecimals(
-          TOKEN.S20,
-          this.transaction.amount,
-          this.transaction.snip20Address,
-        ),
+        amount: amount,
         msg: btoa(this.transaction.ethAddress),
         recipient:
           'secret1u8mgmspdeakpf7u8leq68d5xtkykskwrytevyn' /* Swap contract */,
       },
     };
 
-    const response = await this.stores.user.cosmJS.execute(
-      this.transaction.snip20Address,
-      msg,
-    );
-
-    console.log(response);
+    await this.stores.user.cosmJS.execute(this.transaction.snip20Address, msg);
 
     //    // this.txHash = transaction.transactionHash
     //     // //operationId = await this.createOperation(transactionHash);

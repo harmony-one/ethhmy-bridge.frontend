@@ -17,9 +17,9 @@ import { SigningCosmWasmClient } from 'secretjs';
 
 const defaults = {};
 
-const sETH = 'secret1gf4u2mcxswreylr3sqj2vg4dn2tll0xqdqrg6l';
-const sTUSD = 'secret1lsuf99lvtjx4se8j458080zqau63j4l5dn8y8r';
-const sYEENUS = 'secret1yt3gd4mvem2m6uu0uq3fm0h29uf0tgu9f4l8x6';
+export const sETH = 'secret1gf4u2mcxswreylr3sqj2vg4dn2tll0xqdqrg6l';
+export const sTUSD = 'secret1lsuf99lvtjx4se8j458080zqau63j4l5dn8y8r';
+export const sYEENUS = 'secret1yt3gd4mvem2m6uu0uq3fm0h29uf0tgu9f4l8x6';
 
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
@@ -157,12 +157,12 @@ export class UserStoreEx extends StoreConstructor {
         (window as any).getEnigmaUtils(this.chainId),
         {
           init: {
-            amount: [{ amount: '250000', denom: 'uscrt' }],
-            gas: '250000',
+            amount: [{ amount: '300000', denom: 'uscrt' }],
+            gas: '300000',
           },
           exec: {
-            amount: [{ amount: '250000', denom: 'uscrt' }],
-            gas: '250000',
+            amount: [{ amount: '300000', denom: 'uscrt' }],
+            gas: '300000',
           },
         },
       );

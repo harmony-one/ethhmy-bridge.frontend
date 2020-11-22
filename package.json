@@ -12,8 +12,7 @@
     "test:debug": "jest --config=jest.config.debug.js",
     "version": "echo $npm_package_version",
     "predeploy": "npm run build && cp CNAME build/CNAME && cp build/index.html build/404.html",
-    "deploy": "gh-pages -d build",
-    "analyze": "source-map-explorer 'build/static/js/*.js'"
+    "deploy": "gh-pages -d build"
   },
   "repository": {
     "type": "git",
@@ -50,8 +49,7 @@
     "react-scrollbars-custom": "^4.0.21",
     "react-select": "^3.1.0",
     "react-switch": "^5.0.1",
-    "secretjs": "^0.10.3",
-    "source-map-explorer": "^2.5.0",
+    "secretjs": "0.10.3",
     "superagent": "^6.0.0",
     "tslib": "^1.10.0",
     "web3": "1.2.11"
