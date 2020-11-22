@@ -9,6 +9,7 @@ import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { tokens } from '../pages/Exchange/tokens';
 import { sETH } from './UserStore';
+import { Attribute, Log } from 'secretjs/types/logs';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -196,7 +197,12 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
-    if (this.operation && [SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(this.operation.status)) {
+    if (
+      this.operation &&
+      [SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(
+        this.operation.status,
+      )
+    ) {
       return;
     }
 
@@ -261,7 +267,8 @@ export class Exchange extends StoreConstructor {
       id: uuid(),
     });
 
-    operation.operation.status = SwapStatus[SwapStatus[operation.operation.status]]
+    operation.operation.status =
+      SwapStatus[SwapStatus[operation.operation.status]];
 
     this.operation = operation.operation;
     return this.operation;
@@ -283,7 +290,7 @@ export class Exchange extends StoreConstructor {
 
       if (id) {
         await this.waitForResult();
-        return
+        return;
       }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
@@ -316,15 +323,25 @@ export class Exchange extends StoreConstructor {
 
   async waitForResult() {
     let lolStatus = await this.getStatus(this.operation.id);
-    if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
+    if (
+      lolStatus === SwapStatus.SWAP_CONFIRMED ||
+      lolStatus === SwapStatus.SWAP_FAILED
+    ) {
       this.operation.status = lolStatus;
     }
 
-    while (![SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(this.operation.status)) {
+    while (
+      ![SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(
+        this.operation.status,
+      )
+    ) {
       await sleep(2000);
       lolStatus = await this.getStatus(this.operation.id);
       console.log(lolStatus);
-      if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
+      if (
+        lolStatus === SwapStatus.SWAP_CONFIRMED ||
+        lolStatus === SwapStatus.SWAP_FAILED
+      ) {
         this.operation.status = lolStatus;
       }
     }
@@ -354,8 +371,7 @@ export class Exchange extends StoreConstructor {
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
     this.stores.routing.push(this.token + '/operations/' + this.operation.id);
-    // //operationId = await this.createOperation(transactionHash);
-    // this.operation.status
+
     await this.waitForResult();
 
     this.setStatus();
@@ -399,25 +415,39 @@ export class Exchange extends StoreConstructor {
       );
     }
 
-    const msg = {
-      send: {
-        amount: amount,
-        msg: btoa(this.transaction.ethAddress),
-        recipient:
-          'secret1u8mgmspdeakpf7u8leq68d5xtkykskwrytevyn' /* Swap contract */,
+    const tx = await this.stores.user.cosmJS.execute(
+      this.transaction.snip20Address,
+      {
+        send: {
+          amount: amount,
+          msg: btoa(this.transaction.ethAddress),
+          recipient:
+            'secret1u8mgmspdeakpf7u8leq68d5xtkykskwrytevyn' /* Swap contract */,
+        },
       },
-    };
+    );
 
-    await this.stores.user.cosmJS.execute(this.transaction.snip20Address, msg);
+    const txIdKvp = tx.logs[0].events[0].attributes.find(
+      kv => kv.key === 'tx_id',
+    );
 
-    //    // this.txHash = transaction.transactionHash
-    //     // //operationId = await this.createOperation(transactionHash);
-    //         this.stores.routing.push(
-    //       this.token + '/operations/' + this.operation.id,
-    //     );
-    //     // await this.waitForResult();
+    let tx_id: string;
+    if (txIdKvp && txIdKvp.value) {
+      tx_id = txIdKvp.value;
+    } else {
+      this.operation.status == SwapStatus.SWAP_FAILED;
+      this.setStatus();
+      throw 'Cannot find tx_id';
+    }
+
+    await this.createOperation(tx_id);
+
+    this.stores.routing.push(this.token + '/operations/' + this.operation.id);
+
+    await this.waitForResult();
 
     this.setStatus();
+
     return;
   }
 
