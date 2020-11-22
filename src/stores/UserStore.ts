@@ -64,10 +64,14 @@ export class UserStoreEx extends StoreConstructor {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
-          !!(window as any).keplr &&
-          !!(window as any).getOfflineSigner &&
-          !!(window as any).getEnigmaUtils;
-        this.keplrWallet = (window as any).keplr;
+          // @ts-ignore
+          !!window.keplr &&
+          // @ts-ignore
+          !!window.getOfflineSigner &&
+          // @ts-ignore
+          !!window.getEnigmaUtils;
+        // @ts-ignore
+        this.keplrWallet = window.keplr;
 
         if (this.isKeplrWallet) {
           // Keplr is present, stop checking
@@ -145,7 +149,8 @@ export class UserStoreEx extends StoreConstructor {
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 
-      this.keplrOfflineSigner = (window as any).getOfflineSigner(this.chainId);
+      // @ts-ignore
+      this.keplrOfflineSigner = window.getOfflineSigner(this.chainId);
       const accounts = await this.keplrOfflineSigner.getAccounts();
       this.address = accounts[0].address;
       this.isAuthorized = true;
@@ -154,7 +159,8 @@ export class UserStoreEx extends StoreConstructor {
         'https://bootstrap.secrettestnet.io/',
         this.address,
         this.keplrOfflineSigner,
-        (window as any).getEnigmaUtils(this.chainId),
+        // @ts-ignore
+        window.getEnigmaUtils(this.chainId),
         {
           init: {
             amount: [{ amount: '300000', denom: 'uscrt' }],
