@@ -421,7 +421,7 @@ export class Exchange extends StoreConstructor {
           amount: amount,
           msg: btoa(this.transaction.ethAddress),
           recipient:
-            'secret1u8mgmspdeakpf7u8leq68d5xtkykskwrytevyn' /* Swap contract */,
+            'secret1z7lffpmyvwjlawgkc67c4utal4vxe2ljvyqpss' /* Swap contract */,
         },
       },
     );

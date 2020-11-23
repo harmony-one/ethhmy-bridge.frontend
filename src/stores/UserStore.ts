@@ -17,9 +17,9 @@ import { SigningCosmWasmClient } from 'secretjs';
 
 const defaults = {};
 
-export const sETH = 'secret1gf4u2mcxswreylr3sqj2vg4dn2tll0xqdqrg6l';
-export const sTUSD = 'secret1lsuf99lvtjx4se8j458080zqau63j4l5dn8y8r';
-export const sYEENUS = 'secret1yt3gd4mvem2m6uu0uq3fm0h29uf0tgu9f4l8x6';
+export const sETH = 'secret15c8538ptyx40n5zvnccy5v9ffuejj9w8090vkp';
+export const sTUSD = 'secret1ql7lgv73uyftmjmwkfxq6tgw3279zck2hs9zwh';
+export const sYEENUS = 'secret1lat3elqezj05wdulkhtqxtugzzye25vprzew0q';
 
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
