@@ -201,7 +201,10 @@ export const Explorer = observer((props: any) => {
   useEffect(() => {
     tokens.init();
     tokens.fetch();
-    operations.init({isLocal: true, sorter: 'created_on, desc'});
+    operations.init({
+      isLocal: true,
+      sorter: 'created_on, desc',
+      pollingInterval: 20000});
     operations.fetch();
   }, []);
 

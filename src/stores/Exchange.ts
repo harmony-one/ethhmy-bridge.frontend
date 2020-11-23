@@ -83,22 +83,21 @@ export class Exchange extends StoreConstructor {
   @observable mode: EXCHANGE_MODE = EXCHANGE_MODE.ETH_TO_SCRT;
   @observable token: TOKEN;
 
-  constructor(stores) {
-    super(stores);
-
-    setInterval(async () => {
-      if (this.operation) {
-        const operation = await operationService.getOperation(
-          this.operation.id,
-        );
-
-        if (this.operation && this.operation.id === operation.id) {
-          this.operation = operation;
-          this.setStatus();
-        }
-      }
-    }, 3000);
-  }
+  // constructor(stores) {
+  //   super(stores);
+  //
+  //   setInterval(async () => {
+  //     if (this.operation && this.operation.id) {
+  //       const operation = await operationService.getSwap(
+  //         this.operation.id,
+  //       );
+  //       if (this.operation.id === operation.id) {
+  //         this.operation = operation;
+  //         this.setStatus();
+  //       }
+  //     }
+  //   }, 3000);
+  // }
 
   @computed
   get step() {
@@ -236,14 +235,35 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async setOperationId(operationId: string) {
-    this.operation = await operationService.getOperation(operationId);
+    this.operation = this.defaultOperation;
+    this.operation.id = operationId;
+    //this.stores.routing.push('/operations/' + this.operation.id);
 
-    this.mode = this.operation.type;
-    this.token = this.operation.token;
-    this.transaction.amount = String(this.operation.amount);
-    this.transaction.ethAddress = this.operation.ethAddress;
-    this.transaction.scrtAddress = this.operation.oneAddress;
-    this.transaction.erc20Address = this.operation.erc20Address;
+    const swap = await operationService.getOperation({id: operationId});
+
+    if (swap.swap) {
+
+      this.operation.type = swap.swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
+      this.operation.token = TOKEN.ETH;
+      if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
+        this.transaction.ethAddress = swap.swap.src_address;
+        this.transaction.scrtAddress = swap.swap.dst_address;
+        this.transaction.amount = String(swap.swap.amount);
+        this.txHash = swap.swap.src_tx_hash;
+      } else {
+        this.transaction.scrtAddress = swap.swap.src_address;
+        this.transaction.ethAddress  = swap.swap.dst_address;
+        this.transaction.amount = String(swap.swap.amount);
+        this.txHash = swap.swap.dst_tx_hash;
+      }
+    }
+
+    // this.mode = this.operation.type;
+    // this.token = this.operation.token;
+    // this.transaction.amount = String(this.operation.amount);
+    // this.transaction.ethAddress = this.operation.ethAddress;
+    // this.transaction.scrtAddress = this.operation.oneAddress;
+    // this.transaction.erc20Address = this.operation.erc20Address;
 
     this.setStatus();
   }
@@ -281,8 +301,13 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
+
+      // this is used if you access /operations/<id> directly. i.e. if someone gets bored and hits refresh, or if we want to add a button
+      // that links to this view
       if (id) {
+        this.stores.routing.push('/operations/' + this.operation.id);
         await this.waitForResult();
+        this.setStatus();
         return
       }
 
@@ -353,7 +378,7 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push(this.token + '/operations/' + this.operation.id);
+    this.stores.routing.push('/operations/' + this.operation.id);
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
     await this.waitForResult();
@@ -373,7 +398,7 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push(this.token + '/operations/' + this.operation.id);
+    this.stores.routing.push('/operations/' + this.operation.id);
 
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
@@ -428,6 +453,5 @@ export class Exchange extends StoreConstructor {
     this.txHash = '';
     this.actionStatus = 'init';
     this.stepNumber = 0;
-    this.stores.routing.push(`/${this.token}`);
   }
 }
