@@ -388,7 +388,7 @@ export class Exchange extends React.Component<
                 fill={true}
                 margin={{ top: 'small' }}
               >
-                <Text color="Red500" style={{ textAlign: 'right' }}>
+                <Text color="Red500" style={{ textAlign: 'left' }}>
                   Metamask may ask you to sign with slightly higher fee due to
                   150000 gas limit estimate, however you will be charged similar
                   to the above estimate based on the actual gas used.
@@ -407,7 +407,18 @@ export class Exchange extends React.Component<
               fill={true}
             >
               <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign one transaction
+                You will be prompted to sign{' '}
+                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+                exchange.token === TOKEN.ERC20 ? (
+                  <b>two</b>
+                ) : (
+                  <b>one</b>
+                )}{' '}
+                transaction
+                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+                exchange.token === TOKEN.ERC20
+                  ? 's'
+                  : ''}
               </Text>
             </Box>
           </>
