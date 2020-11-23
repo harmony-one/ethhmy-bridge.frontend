@@ -71,7 +71,18 @@ export const getStatus = async (params): Promise<SwapStatus> => {
   }
 };
 
-export const getOperation = async (id): Promise<IOperation> => {
+export const getOperation = async (params): Promise<{operation: IOperation, swap: ISwap}> => {
+  const url = backendUrl(`/operations/${params.id}`);
+
+  const res = await agent.get<{ body: {operation: IOperation, swap: ISwap }}>(
+    url,
+  );
+
+  return res.body;
+
+};
+
+export const getSwap = async (id): Promise<IOperation> => {
   const url = backendUrl(`/swaps/${id}`);
 
   const res = await agent.get<{ body: IOperation }>(
