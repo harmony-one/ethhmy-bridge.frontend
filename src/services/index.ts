@@ -124,13 +124,3 @@ export const getTokensInfo = async (
 
   return { ...res.body, content };
 };
-
-
-// todo: remove this
-export const mintTokens = async ({ address, token }) => {
-  const res = await agent.post<{
-    body: { status: string; transactionHash: string; error: string };
-  }>(`${servers[0]}/get-token`, { address, token });
-
-  return res.body;
-};
