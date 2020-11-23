@@ -12,6 +12,8 @@ import cn from 'classnames';
 import { ERC20Token, FormatWithDecimals, SecretToken } from './Components';
 import { Checkbox } from 'components/Base/components/Inputs';
 import { SwapStatus } from '../../constants';
+import { getScrtAddress } from '../../blockchain-bridge/scrt';
+import { SearchInput } from '../../components/Search';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -197,6 +199,7 @@ export const Explorer = observer((props: any) => {
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     tokens.init();
@@ -234,6 +237,25 @@ export const Explorer = observer((props: any) => {
 
   const isAuthorized = userMetamask.ethAddress || user.address;
 
+
+  // todo: make this a button.. it's too slow as a live search
+  const filteredData = operations.allData.filter(value => {
+    if (search) {
+      return (
+        Object.values(value).some(value =>
+          value
+            .toString()
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+        ) ||
+        getScrtAddress(value.dst_address).toLowerCase() ===
+        search.toLowerCase()
+      );
+    }
+
+    return true;
+  });
+
   return (
     <BaseContainer>
       <PageContainer>
@@ -245,6 +267,8 @@ export const Explorer = observer((props: any) => {
           align="start"
           margin={{ top: 'xlarge' }}
         >
+
+
           {isAuthorized ? (
             <Box
               direction="row"
@@ -260,8 +284,12 @@ export const Explorer = observer((props: any) => {
               />
             </Box>
           ) : null}
+          <Box className={styles.search} justify="end">
+            <SearchInput value={search} onChange={setSearch} />
+          </Box>
+
           <Table
-            data={operations.data}
+            data={search ? filteredData : operations.data}
             columns={columns}
             isPending={operations.isPending}
             dataLayerConfig={operations.dataFlow}

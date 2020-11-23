@@ -22,7 +22,7 @@ export const SearchInput = observer(
         renderRight={
           params.value && <CleanIcon onClick={() => params.onChange('')} />
         }
-        placeholder="Search by asset details"
+        placeholder="Search"
         value={params.value}
         onChange={value => params.onChange(value)}
         {...({} as any)} // dirty hack for typechecking onKeyDown
