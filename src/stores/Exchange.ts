@@ -9,7 +9,6 @@ import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { tokens } from '../pages/Exchange/tokens';
 import { sETH } from './UserStore';
-import { Attribute, Log } from 'secretjs/types/logs';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -249,7 +248,11 @@ export class Exchange extends StoreConstructor {
     if (swap.swap) {
 
       this.operation.type = swap.swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
-      this.operation.token = TOKEN.ETH;
+      this.token = swap.swap.src_coin === 'native' ? TOKEN.ETH :
+        this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT ?
+          TOKEN.ERC20 : TOKEN.S20;
+      console.log(`op type: ${this.token}`)
+
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
@@ -275,8 +278,6 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async createOperation(transactionHash) {
-    const token =
-      this.token === TOKEN.ETH ? 'native' : this.transaction.erc20Address;
 
     const operation = await operationService.createOperation({
       //tx: this.transaction,
@@ -311,7 +312,8 @@ export class Exchange extends StoreConstructor {
       // this is used if you access /operations/<id> directly. i.e. if someone gets bored and hits refresh, or if we want to add a button
       // that links to this view
       if (id) {
-        this.stores.routing.push('/operations/' + this.operation.id);
+        // this is here so we can refresh the page
+        this.stores.routing.push(this.operation.id);
         await this.waitForResult();
         this.setStatus();
         return
@@ -394,7 +396,7 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push('/operations/' + this.operation.id);
+    this.stores.routing.push(TOKEN.ERC20 + '/operations/' + this.operation.id);
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
     await this.waitForResult();
@@ -414,7 +416,7 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
     await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push('/operations/' + this.operation.id);
+    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
@@ -467,7 +469,7 @@ export class Exchange extends StoreConstructor {
 
     await this.createOperation(tx_id);
 
-    this.stores.routing.push(this.token + '/operations/' + this.operation.id);
+    this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     await this.waitForResult();
 
