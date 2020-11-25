@@ -12,7 +12,7 @@ export const tokens = [
   },
   {
     label: 'Yeenus (YEENUS)',
-    secretLabel: 'Secret  Yeenus (sYEENUS)',
+    secretLabel: 'Secret Yeenus (sYEENUS)',
     href:
       'https://ropsten.etherscan.io/token/0xF6fF95D53E08c9660dC7820fD5A775484f77183A' /* ropsten */,
     image: 'https://ropsten.etherscan.io/images/main/empty-token.png',
