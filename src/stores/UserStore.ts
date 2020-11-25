@@ -185,6 +185,10 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public getSnip20Balance = async snip20Address => {
+    if (!this.cosmJS) {
+      return '0';
+    }
+
     const balanceResponse = await this.cosmJS.queryContractSmart(
       snip20Address,
       {

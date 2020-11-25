@@ -121,11 +121,6 @@ export class UserStoreMetamask extends StoreConstructor {
       });
 
       try {
-        const params = await this.provider.request({
-          method: 'eth_requestAccounts',
-        });
-        this.handleAccountsChanged(params);
-
         if (isNew) {
           await this.provider.request({
             method: 'wallet_requestPermissions',
@@ -138,6 +133,11 @@ export class UserStoreMetamask extends StoreConstructor {
         }
 
         this.isAuthorized = true;
+
+        const params = await this.provider.request({
+          method: 'eth_requestAccounts',
+        });
+        this.handleAccountsChanged(params);
       } catch (err) {
         if (err.code === 4001) {
           this.isAuthorized = false;
