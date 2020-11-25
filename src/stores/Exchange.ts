@@ -243,15 +243,20 @@ export class Exchange extends StoreConstructor {
     this.operation.id = operationId;
     //this.stores.routing.push('/operations/' + this.operation.id);
 
-    const swap = await operationService.getOperation({id: operationId});
+    const swap = await operationService.getOperation({ id: operationId });
 
     if (swap.swap) {
-
-      this.operation.type = swap.swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
-      this.token = swap.swap.src_coin === 'native' ? TOKEN.ETH :
-        this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT ?
-          TOKEN.ERC20 : TOKEN.S20;
-      console.log(`op type: ${this.token}`)
+      this.operation.type =
+        swap.swap.src_network === 'Ethereum'
+          ? EXCHANGE_MODE.ETH_TO_SCRT
+          : EXCHANGE_MODE.SCRT_TO_ETH;
+      this.token =
+        swap.swap.src_coin === 'native'
+          ? TOKEN.ETH
+          : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
+          ? TOKEN.ERC20
+          : TOKEN.S20;
+      console.log(`op type: ${this.token}`);
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
         this.transaction.ethAddress = swap.swap.src_address;
@@ -260,7 +265,7 @@ export class Exchange extends StoreConstructor {
         this.txHash = swap.swap.src_tx_hash;
       } else {
         this.transaction.scrtAddress = swap.swap.src_address;
-        this.transaction.ethAddress  = swap.swap.dst_address;
+        this.transaction.ethAddress = swap.swap.dst_address;
         this.transaction.amount = String(swap.swap.amount);
         this.txHash = swap.swap.dst_tx_hash;
       }
@@ -278,7 +283,6 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async createOperation(transactionHash) {
-
     const operation = await operationService.createOperation({
       //tx: this.transaction,
       transactionHash,
@@ -308,7 +312,6 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
-
       // this is used if you access /operations/<id> directly. i.e. if someone gets bored and hits refresh, or if we want to add a button
       // that links to this view
       if (id) {
@@ -316,7 +319,7 @@ export class Exchange extends StoreConstructor {
         this.stores.routing.push(this.operation.id);
         await this.waitForResult();
         this.setStatus();
-        return
+        return;
       }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
@@ -418,8 +421,6 @@ export class Exchange extends StoreConstructor {
     await this.createOperation(transaction.transactionHash);
     this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
-    // //operationId = await this.createOperation(transactionHash);
-    // this.operation.status
     await this.waitForResult();
 
     this.setStatus();
@@ -454,7 +455,7 @@ export class Exchange extends StoreConstructor {
       },
     );
 
-    const txIdKvp = tx.logs[0].events[0].attributes.find(
+    const txIdKvp = tx.logs[0].events[1].attributes.find(
       kv => kv.key === 'tx_id',
     );
 
@@ -467,15 +468,13 @@ export class Exchange extends StoreConstructor {
       throw 'Cannot find tx_id';
     }
 
-    await this.createOperation(tx_id);
+    await this.createOperation(`${tx_id}${this.transaction.snip20Address}`);
 
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     await this.waitForResult();
 
     this.setStatus();
-
-    return;
   }
 
   clear() {
