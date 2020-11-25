@@ -16,7 +16,7 @@ export const Spinner: React.FC<React.SVGAttributes<SVGElement>> = props => {
           r={radius}
           cx={middle}
           cy={middle}
-          strokeWidth="1"
+          strokeWidth="0"
           fill="none"
           stroke={props.color || 'black'}
           strokeDasharray={Math.floor(2 * radius * Math.PI - 6)}
