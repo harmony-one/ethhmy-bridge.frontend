@@ -120,34 +120,34 @@ export class UserStoreMetamask extends StoreConstructor {
         this.ethAddress = null;
       });
 
-      this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .then(async params => {
-          this.handleAccountsChanged(params);
-
-          if (isNew) {
-            await this.provider.request({
-              method: 'wallet_requestPermissions',
-              params: [
-                {
-                  eth_accounts: {},
-                },
-              ],
-            });
-          }
-
-          this.isAuthorized = true;
-        })
-        .catch(err => {
-          if (err.code === 4001) {
-            this.isAuthorized = false;
-            this.ethAddress = null;
-            this.syncLocalStorage();
-            return this.setError('Please connect to MetaMask.');
-          } else {
-            console.error(err);
-          }
+      try {
+        const params = await this.provider.request({
+          method: 'eth_requestAccounts',
         });
+        this.handleAccountsChanged(params);
+
+        if (isNew) {
+          await this.provider.request({
+            method: 'wallet_requestPermissions',
+            params: [
+              {
+                eth_accounts: {},
+              },
+            ],
+          });
+        }
+
+        this.isAuthorized = true;
+      } catch (err) {
+        if (err.code === 4001) {
+          this.isAuthorized = false;
+          this.ethAddress = null;
+          this.syncLocalStorage();
+          return this.setError('Please connect to MetaMask.');
+        } else {
+          console.error(err);
+        }
+      }
     } catch (e) {
       return this.setError(e.message);
     }
