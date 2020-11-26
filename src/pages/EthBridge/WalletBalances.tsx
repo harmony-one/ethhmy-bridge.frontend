@@ -113,7 +113,7 @@ export const WalletBalances = observer(() => {
                     key={idx}
                     asset={token.display_props.symbol}
                     value={formatWithSixDecimals(
-                      userMetamask.balanceToken[token.src_coin],
+                      userMetamask.balanceToken[token.src_coin] || '0',
                     )}
                     link={`${process.env.ETH_EXPLORER_URL}/token/${token.src_address}`}
                     selected={
@@ -171,7 +171,9 @@ export const WalletBalances = observer(() => {
               />
               <AssetRow
                 asset="sETH"
-                value={formatWithSixDecimals(user.balanceToken['Ethereum'])}
+                value={formatWithSixDecimals(
+                  user.balanceToken['Ethereum'] || '0',
+                )}
                 link={(() => {
                   const eth = tokens.allData.find(
                     token => token.src_coin === 'Ethereum',
@@ -193,7 +195,7 @@ export const WalletBalances = observer(() => {
                     key={idx}
                     asset={'s' + token.display_props.symbol}
                     value={formatWithSixDecimals(
-                      user.balanceToken[token.src_coin],
+                      user.balanceToken[token.src_coin] || '0',
                     )}
                     link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
                     selected={
