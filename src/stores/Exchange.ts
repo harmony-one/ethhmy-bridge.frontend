@@ -7,8 +7,6 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { tokens } from '../pages/Exchange/tokens';
-import { sETH } from './UserStore';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -28,28 +26,6 @@ export interface IStepConfig {
   }>;
   title?: string;
 }
-
-export const FormatWithoutDecimals = (
-  type: TOKEN,
-  amount: string,
-  address: string,
-) => {
-  if (type === TOKEN.ERC20 || type === TOKEN.S20) {
-    const token = tokens.find(t =>
-      [t.snip20address.toLowerCase(), t.address.toLocaleLowerCase()].includes(
-        address.toLowerCase(),
-      ),
-    );
-
-    if (token) {
-      return mulDecimals(amount, token.decimals).toString();
-    }
-  } else if (type === TOKEN.ETH) {
-    return mulDecimals(amount, 18).toString();
-  }
-
-  return amount;
-};
 
 export class Exchange extends StoreConstructor {
   @observable error = '';
@@ -431,17 +407,15 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
-    let amount: string;
+    let decimals: number | string;
     if (isEth) {
-      this.transaction.snip20Address = sETH;
-      amount = FormatWithoutDecimals(TOKEN.ETH, this.transaction.amount, sETH);
+      decimals = 18;
     } else {
-      amount = FormatWithoutDecimals(
-        TOKEN.S20,
-        this.transaction.amount,
-        this.transaction.snip20Address,
-      );
+      decimals = this.stores.tokens.allData.find(
+        t => t.dst_address === this.transaction.snip20Address,
+      ).decimals;
     }
+    const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     const tx = await this.stores.user.cosmJS.execute(
       this.transaction.snip20Address,
@@ -449,8 +423,7 @@ export class Exchange extends StoreConstructor {
         send: {
           amount: amount,
           msg: btoa(this.transaction.ethAddress),
-          recipient:
-            'secret1z7lffpmyvwjlawgkc67c4utal4vxe2ljvyqpss' /* Swap contract */,
+          recipient: process.env.SCRT_SWAP_CONTRACT,
         },
       },
     );

@@ -134,7 +134,7 @@ export class Exchange extends React.Component<
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
           return {
             label: 'sETH',
-            maxAmount: user.balance_sETH,
+            maxAmount: user.balanceToken['Ethereum'],
           };
         } else {
           return {

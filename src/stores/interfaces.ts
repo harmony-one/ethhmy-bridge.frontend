@@ -87,4 +87,9 @@ export interface ITokenInfo {
   totalLocked: string;
   totalLockedNormal: string;
   totalLockedUSD: string;
+  display_props: {
+    image: string;
+    label: string;
+    symbol: string;
+  };
 }
