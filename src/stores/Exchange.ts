@@ -410,6 +410,9 @@ export class Exchange extends StoreConstructor {
     let decimals: number | string;
     if (isEth) {
       decimals = 18;
+      this.transaction.snip20Address = this.stores.tokens.allData.find(
+        t => t.src_coin === 'Ethereum',
+      ).dst_address;
     } else {
       decimals = this.stores.tokens.allData.find(
         t => t.dst_address === this.transaction.snip20Address,
