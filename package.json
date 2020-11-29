@@ -1,12 +1,12 @@
 {
   "name": "ethereum-bridge-frontend",
-  "homepage": "https://scrt.eth.bridge.enigma.co/",
-  "version": "0.0.2",
+  "homepage": "https://ethbridge.enigma.co/",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js --progress --colors --open",
-    "build": "node scripts/build.js --stats",
+    "build": "node scripts/build.js --stats && cp build/index.html build/404.html",
     "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:debug": "jest --config=jest.config.debug.js",
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/harmony-one/ethhmy-bridge.frontend"
+    "url": "https://github.com/enigmampc/ethhmy-bridge.frontend"
   },
   "dependencies": {
     "@metamask/detect-provider": "^1.1.0",
@@ -26,7 +26,6 @@
     "core-decorators": "^0.20.0",
     "eth-sig-util": "^2.5.3",
     "ethjs": "^0.4.0",
-    "gh-pages": "3.1.0",
     "grommet": "^2.8.1",
     "lodash": "^4.17.15",
     "mobx": "5.15.0",
