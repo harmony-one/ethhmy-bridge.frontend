@@ -277,21 +277,27 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
-  async createOperation(transactionHash) {
+  async createOperation(transactionHash?: string) {
+    let params = transactionHash ? {id: uuid(), transactionHash} : {id: uuid()};
 
-    const operation = await operationService.createOperation({
-      //tx: this.transaction,
-      transactionHash,
-      //mode: this.mode,
-      //token,
-      id: uuid(),
-    });
+    const operation = await operationService.createOperation(params);
 
     operation.operation.status =
       SwapStatus[SwapStatus[operation.operation.status]];
 
     this.operation = operation.operation;
     return this.operation;
+  }
+
+  @action.bound
+  async updateOperation(id: string, transactionHash: string) {
+    const result = await operationService.updateOperation(id, transactionHash);
+
+    if (result.result === "failed") {
+      throw(Error(`Failed to update operation ${this.operation.id}, tx hash: ${transactionHash}. Please contact support with these details`))
+    }
+
+    return await this.getStatus(id)
   }
 
   async getStatus(id) {
@@ -409,14 +415,18 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
+    await this.createOperation();
+    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+
     let transaction = await contract.ethMethodsETH.swapEth(
       this.transaction.scrtAddress,
       this.transaction.amount,
     );
 
     this.txHash = transaction.transactionHash;
-    await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+
+    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
+    this.setStatus();
 
     // //operationId = await this.createOperation(transactionHash);
     // this.operation.status
