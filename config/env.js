@@ -69,7 +69,7 @@ function getClientEnvironment(publicUrl) {
         PRIVATE_KEY: process.env.PRIVATE_KEY,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
-        SCRT_SWAP_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
+        SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
