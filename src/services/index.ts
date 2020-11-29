@@ -33,6 +33,15 @@ export const createOperation = async params => {
   return res.body;
 };
 
+export const updateOperation = async (id: string, transactionHash: string) => {
+  const url = backendUrl(`/operations/${id}`);
+
+  const res = await agent.post<IOperation>(url, {transactionHash});
+
+  return res.body;
+};
+
+
 export const getStatus = async (params): Promise<SwapStatus> => {
   const url = backendUrl(`/operations/${params.id}`);
 
