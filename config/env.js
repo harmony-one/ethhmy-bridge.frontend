@@ -69,19 +69,7 @@ function getClientEnvironment(publicUrl) {
         PRIVATE_KEY: process.env.PRIVATE_KEY,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
-
-        ETH_BUSD_CONTRACT: process.env.ETH_BUSD_CONTRACT,
-        ETH_BUSD_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
-        HMY_BUSD_CONTRACT: process.env.HMY_BUSD_CONTRACT,
-        HMY_BUSD_MANAGER_CONTRACT: process.env.HMY_BUSD_MANAGER_CONTRACT,
-
-        ETH_ERC20_MANAGER_CONTRACT: process.env.ETH_ERC20_MANAGER_CONTRACT,
-        HMY_ERC20_MANAGER_CONTRACT: process.env.HMY_ERC20_MANAGER_CONTRACT,
-
-        ETH_LINK_CONTRACT: process.env.ETH_LINK_CONTRACT,
-        ETH_LINK_MANAGER_CONTRACT: process.env.ETH_LINK_MANAGER_CONTRACT,
-        HMY_LINK_CONTRACT: process.env.HMY_LINK_CONTRACT,
-        HMY_LINK_MANAGER_CONTRACT: process.env.HMY_LINK_MANAGER_CONTRACT,
+        SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
@@ -92,13 +80,10 @@ function getClientEnvironment(publicUrl) {
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
 
-        HMY_NODE_URL: process.env.HMY_NODE_URL,
-        HMY_CHAIN_ID: process.env.HMY_CHAIN_ID,
         GAS_LIMIT: process.env.GAS_LIMIT,
         GAS_PRICE: process.env.GAS_PRICE,
 
         BACKEND_URL: process.env.BACKEND_URL,
-        THRESHOLD: process.env.THRESHOLD,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
       },
     );

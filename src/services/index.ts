@@ -4,8 +4,6 @@ import { SwapStatus } from '../constants';
 
 const servers = require('../../appengine-servers.json');
 
-const threshold = process.env.THRESHOLD;
-
 const backendUrl = url => {
   return `${process.env.BACKEND_URL}${url}`;
 };
@@ -22,30 +20,6 @@ const callAvailableServer = async (
     } catch (e) {
       error = e;
     }
-  }
-
-  throw error;
-};
-
-const callAction = async (func: (url: string) => Promise<any>) => {
-  let error;
-
-  // todo: this is stupid
-  const res: any[] = await Promise.all(
-    servers.map(async url => {
-      try {
-        return await func(url);
-      } catch (e) {
-        error = e;
-        return false;
-      }
-    }),
-  );
-
-  const success = res.filter(r => !!r);
-
-  if (success.length >= Number(threshold)) {
-    return success[0];
   }
 
   throw error;

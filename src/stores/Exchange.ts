@@ -259,7 +259,9 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async createOperation(transactionHash?: string) {
-    let params = transactionHash ? {id: uuid(), transactionHash} : {id: uuid()};
+    let params = transactionHash
+      ? { id: uuid(), transactionHash }
+      : { id: uuid() };
 
     const operation = await operationService.createOperation(params);
 
@@ -274,11 +276,13 @@ export class Exchange extends StoreConstructor {
   async updateOperation(id: string, transactionHash: string) {
     const result = await operationService.updateOperation(id, transactionHash);
 
-    if (result.result === "failed") {
-      throw(Error(`Failed to update operation ${this.operation.id}, tx hash: ${transactionHash}. Please contact support with these details`))
+    if (result.result === 'failed') {
+      throw Error(
+        `Failed to update operation ${this.operation.id}, tx hash: ${transactionHash}. Please contact support with these details`,
+      );
     }
 
-    return await this.getStatus(id)
+    return await this.getStatus(id);
   }
 
   async getStatus(id) {
@@ -408,7 +412,10 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
 
-    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
+    this.operation.status = await this.updateOperation(
+      this.operation.id,
+      transaction.transactionHash,
+    );
     this.setStatus();
 
     await this.waitForResult();
