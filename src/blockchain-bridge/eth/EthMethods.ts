@@ -1,7 +1,5 @@
 import { Contract } from 'web3-eth-contract';
-import { getAddress } from '@harmony-js/crypto';
 import Web3 from 'web3';
-import { mulDecimals } from '../../utils';
 import { ethToWei, getGasPrice } from './helpers';
 const BN = require('bn.js');
 
@@ -38,14 +36,12 @@ export class EthMethods {
       Number(process.env.ETH_GAS_LIMIT),
     );
 
-    return await this.ethManagerContract.methods
-      .swap(secretAddrHex)
-      .send({
-        value: ethToWei(amount),
-        from: accounts[0],
-        gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3)
-      });
+    return await this.ethManagerContract.methods.swap(secretAddrHex).send({
+      value: ethToWei(amount),
+      from: accounts[0],
+      gas: new BN(gasLimit),
+      gasPrice: await getGasPrice(this.web3),
+    });
   };
 
   checkEthBalance = async addr => {

@@ -1,5 +1,4 @@
 import { Contract } from 'web3-eth-contract';
-import { getAddress } from '@harmony-js/crypto';
 import Web3 from 'web3';
 import { mulDecimals } from '../../utils';
 import { getGasPrice } from './helpers';
@@ -22,11 +21,7 @@ export class EthMethodsERC20 {
     this.ethManagerAddress = params.ethManagerAddress;
   }
 
-  callApprove = async (
-    erc20Address,
-    amount,
-    decimals
-  ) => {
+  callApprove = async (erc20Address, amount, decimals) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -45,12 +40,7 @@ export class EthMethodsERC20 {
       });
   };
 
-  swapToken = async (
-    erc20Address,
-    userAddr,
-    amount,
-    decimals,
-  ) => {
+  swapToken = async (erc20Address, userAddr, amount, decimals) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 

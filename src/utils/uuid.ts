@@ -1,7 +1,5 @@
-import { randomBytes } from '@harmony-js/crypto/dist/random';
+import { v4 as uuidv4 } from 'uuid';
 
 export const uuid = () => {
-  return [randomBytes(4), randomBytes(4), randomBytes(4), randomBytes(4)].join(
-    '-',
-  );
+  return uuidv4();
 };
