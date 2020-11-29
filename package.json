@@ -7,12 +7,11 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js --progress --colors --open",
     "build": "node scripts/build.js --stats",
+    "build-test": "cross-env NODE_ENV=development node scripts/build.js --stats",
     "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:debug": "jest --config=jest.config.debug.js",
-    "version": "echo $npm_package_version",
-    "predeploy": "npm run build && cp CNAME build/CNAME && cp build/index.html build/404.html",
-    "deploy": "gh-pages -d build"
+    "version": "echo $npm_package_version"
   },
   "repository": {
     "type": "git",
