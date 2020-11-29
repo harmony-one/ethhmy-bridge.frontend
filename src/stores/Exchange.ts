@@ -364,6 +364,9 @@ export class Exchange extends StoreConstructor {
     this.operation.status = SwapStatus.SWAP_WAIT_APPROVE;
     this.setStatus();
 
+    await this.createOperation();
+    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+
     await contract.ethMethodsERC20.callApprove(
       this.transaction.erc20Address,
       this.transaction.amount,
@@ -381,10 +384,10 @@ export class Exchange extends StoreConstructor {
     );
 
     this.txHash = transaction.transactionHash;
-    await this.createOperation(transaction.transactionHash);
-    this.stores.routing.push(TOKEN.ERC20 + '/operations/' + this.operation.id);
-    // //operationId = await this.createOperation(transactionHash);
-    // this.operation.status
+
+    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
+    this.setStatus();
+
     await this.waitForResult();
 
     this.setStatus();
@@ -418,6 +421,7 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
+
     let decimals: number | string;
     if (isEth) {
       decimals = 18;
@@ -430,6 +434,9 @@ export class Exchange extends StoreConstructor {
       ).decimals;
     }
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
+
+    await this.createOperation();
+    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
     const tx = await this.stores.user.cosmJS.execute(
       this.transaction.snip20Address,
@@ -455,9 +462,7 @@ export class Exchange extends StoreConstructor {
       throw 'Cannot find tx_id';
     }
 
-    await this.createOperation(`${tx_id}${this.transaction.snip20Address}`);
-
-    this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
+    this.operation.status = await this.updateOperation(this.operation.id, `${tx_id}${this.transaction.snip20Address}`);
 
     await this.waitForResult();
 
