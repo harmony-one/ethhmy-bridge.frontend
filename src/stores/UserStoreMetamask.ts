@@ -9,11 +9,9 @@ import {
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import Web3 from 'web3';
+import { ITokenInfo } from './interfaces';
 
 const defaults = {};
-
-const TUSD = '0x1cB0906955623920c86A3963593a02a405Bb97fC';
-const YEENUS = '0xF6fF95D53E08c9660dC7820fD5A775484f77183A';
 
 export interface IERC20Token {
   name: string;
@@ -33,8 +31,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @observable public ethAddress: string;
   @observable public ethBalance: string = '0';
-  @observable public ethTUSDBalance: string = '0';
-  @observable public ethYEENUSBalance: string = '0';
+  @observable public balanceToken: { [key: string]: string } = {};
 
   @observable erc20Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
@@ -80,8 +77,7 @@ export class UserStoreMetamask extends StoreConstructor {
     this.isAuthorized = false;
     this.ethBalance = '0';
     this.ethAddress = '';
-    this.ethYEENUSBalance = '0';
-    this.ethTUSDBalance = '0';
+    this.balanceToken = {};
 
     this.syncLocalStorage();
 
@@ -120,34 +116,34 @@ export class UserStoreMetamask extends StoreConstructor {
         this.ethAddress = null;
       });
 
-      this.provider
-        .request({ method: 'eth_requestAccounts' })
-        .then(async params => {
-          this.handleAccountsChanged(params);
+      try {
+        if (isNew) {
+          await this.provider.request({
+            method: 'wallet_requestPermissions',
+            params: [
+              {
+                eth_accounts: {},
+              },
+            ],
+          });
+        }
 
-          if (isNew) {
-            await this.provider.request({
-              method: 'wallet_requestPermissions',
-              params: [
-                {
-                  eth_accounts: {},
-                },
-              ],
-            });
-          }
+        this.isAuthorized = true;
 
-          this.isAuthorized = true;
-        })
-        .catch(err => {
-          if (err.code === 4001) {
-            this.isAuthorized = false;
-            this.ethAddress = null;
-            this.syncLocalStorage();
-            return this.setError('Please connect to MetaMask.');
-          } else {
-            console.error(err);
-          }
+        const params = await this.provider.request({
+          method: 'eth_requestAccounts',
         });
+        this.handleAccountsChanged(params);
+      } catch (err) {
+        if (err.code === 4001) {
+          this.isAuthorized = false;
+          this.ethAddress = null;
+          this.syncLocalStorage();
+          return this.setError('Please connect to MetaMask.');
+        } else {
+          console.error(err);
+        }
+      }
     } catch (e) {
       return this.setError(e.message);
     }
@@ -165,31 +161,15 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
-      try {
-        /* 
-        if (this.erc20Address) {
-          const erc20Balance = await ethMethodsERC20.checkEthBalance(
-            this.erc20Address,
-            this.ethAddress,
-          );
-
-          this.erc20Balance = divDecimals(
-            erc20Balance,
-            this.erc20TokenDetails.decimals,
-          );
-        }
-        */
-
-        const tusdBalance = await getErc20Balance(this.ethAddress, TUSD);
-        this.ethTUSDBalance = divDecimals(tusdBalance, 18);
-
-        const yeenusBalance = await getErc20Balance(this.ethAddress, YEENUS);
-        this.ethYEENUSBalance = divDecimals(yeenusBalance, 8);
-
-        this.ethBalance = await getEthBalance(this.ethAddress);
-      } catch (e) {
-        console.error(e);
+      for (const token of this.stores.tokens.allData) {
+        getErc20Balance(this.ethAddress, token.src_address).then(b => {
+          this.balanceToken[token.src_coin] = divDecimals(b, token.decimals);
+        });
       }
+
+      getEthBalance(this.ethAddress).then(b => {
+        this.ethBalance = b;
+      });
     }
   };
 
@@ -208,11 +188,13 @@ export class UserStoreMetamask extends StoreConstructor {
     );
 
     if (tokens) {
-      const token = tokens.filter(t => t.address === this.erc20Address)[0];
-      if (token.snip20address) {
-        this.stores.user.snip20Address = token.snip20address;
+      const token = tokens.allData.find(
+        t => t.src_address === this.erc20Address,
+      );
+      if (token.dst_address) {
+        this.stores.user.snip20Address = token.dst_address;
         this.stores.user.snip20Balance = await this.stores.user.getSnip20Balance(
-          token.snip20address,
+          token.dst_address,
         );
       }
     }

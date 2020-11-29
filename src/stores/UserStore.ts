@@ -14,12 +14,9 @@ import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
+import { sortedLastIndex } from 'lodash';
 
 const defaults = {};
-
-export const sETH = 'secret15c8538ptyx40n5zvnccy5v9ffuejj9w8090vkp';
-export const sTUSD = 'secret1ql7lgv73uyftmjmwkfxq6tgw3279zck2hs9zwh';
-export const sYEENUS = 'secret1lat3elqezj05wdulkhtqxtugzzye25vprzew0q';
 
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
@@ -36,9 +33,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
 
-  @observable public balance_sETH: string = '0';
-  @observable public balance_sTUSD: string = '0';
-  @observable public balance_sYEENUS: string = '0';
+  @observable public balanceToken: { [key: string]: string } = {};
 
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
@@ -173,10 +168,14 @@ export class UserStoreEx extends StoreConstructor {
         },
       );
 
-      // Add SNIP20s to
-      await this.keplrWallet.suggestToken(this.chainId, sETH);
-      await this.keplrWallet.suggestToken(this.chainId, sTUSD);
-      await this.keplrWallet.suggestToken(this.chainId, sYEENUS);
+      // Add SNIP20s to Keplr
+      this.stores.tokens.init();
+      await this.stores.tokens.fetch();
+      for (const token of this.stores.tokens.allData) {
+        await this.keplrWallet.suggestToken(this.chainId, token.dst_address);
+        this.balanceToken[token.src_coin] = '0';
+      }
+
       this.syncLocalStorage();
     } catch (error) {
       this.error = error.message;
@@ -185,6 +184,10 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public getSnip20Balance = async snip20Address => {
+    if (!this.cosmJS) {
+      return '0';
+    }
+
     const balanceResponse = await this.cosmJS.queryContractSmart(
       snip20Address,
       {
@@ -217,72 +220,23 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     if (this.address) {
-      try {
-        const sEthBalance = await this.cosmJS.queryContractSmart(sETH, {
-          balance: {
-            address: this.address,
-            key: await this.keplrWallet.getSecret20ViewingKey(
-              this.chainId,
-              sETH,
-            ),
-          },
-        });
-        if (sEthBalance && sEthBalance.balance) {
-          this.balance_sETH = divDecimals(sEthBalance.balance.amount, 18);
-        }
-
-        const sTusdBalance = await this.cosmJS.queryContractSmart(sTUSD, {
-          balance: {
-            address: this.address,
-            key: await this.keplrWallet.getSecret20ViewingKey(
-              this.chainId,
-              sTUSD,
-            ),
-          },
-        });
-        if (sTusdBalance && sTusdBalance.balance) {
-          this.balance_sTUSD = divDecimals(sTusdBalance.balance.amount, 18);
-        }
-
-        const sYeenusBalance = await this.cosmJS.queryContractSmart(sYEENUS, {
-          balance: {
-            address: this.address,
-            key: await this.keplrWallet.getSecret20ViewingKey(
-              this.chainId,
-              sYEENUS,
-            ),
-          },
-        });
-        if (sYeenusBalance && sYeenusBalance.balance) {
-          this.balance_sYEENUS = divDecimals(sYeenusBalance.balance.amount, 8);
-        }
-
-        /* 
-        let res = await getHmyBalance(this.address);
-        this.balance = res && res.result;
-
-        if (this.snip20Address) {
-          const snip20Balance = await hmyMethodsERC20.checkHmyBalance(
-            this.snip20Address,
-            this.address,
-          );
-
-          this.snip20Balance = divDecimals(
-            snip20Balance,
-            this.stores.userMetamask.erc20TokenDetails.decimals,
-          );
-        }
-
-        let resBalance = 0;
-
-        resBalance = await hmyMethodsBUSD.checkHmyBalance(this.address);
-        this.hmyBUSDBalance = divDecimals(resBalance, 18);
-
-        resBalance = await hmyMethodsLINK.checkHmyBalance(this.address);
-        this.hmyLINKBalance = divDecimals(resBalance, 18);
- */
-      } catch (e) {
-        console.error(e);
+      for (const token of this.stores.tokens.allData) {
+        const tokenBalance = await this.cosmJS
+          .queryContractSmart(token.dst_address, {
+            balance: {
+              address: this.address,
+              key: await this.keplrWallet.getSecret20ViewingKey(
+                this.chainId,
+                token.dst_address,
+              ),
+            },
+          })
+          .then(({ balance }) => {
+            this.balanceToken[token.src_coin] = divDecimals(
+              balance.amount,
+              token.decimals,
+            );
+          });
       }
     }
   };

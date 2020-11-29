@@ -8,7 +8,7 @@ import * as styles from './wallet-balances.styl';
 import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { TOKEN } from '../../stores/interfaces';
+import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 
 // import { Routes } from '../../constants';
 
@@ -50,7 +50,7 @@ const AssetRow = observer<any>(props => {
 });
 
 export const WalletBalances = observer(() => {
-  const { user, userMetamask, actionModals, exchange } = useStores();
+  const { user, userMetamask, actionModals, exchange, tokens } = useStores();
 
   return (
     <Box
@@ -100,45 +100,29 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="ETH"
                 value={formatWithSixDecimals(userMetamask.ethBalance)}
-                // selected={exchange.token === TOKEN.ETH}
+                selected={
+                  exchange.token === TOKEN.ETH &&
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                }
               />
 
-              <AssetRow
-                asset="TUSD"
-                value={formatWithSixDecimals(userMetamask.ethTUSDBalance)}
-                // selected={exchange.token === TOKEN.ERC20}
-                // link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
-              />
-
-              <AssetRow
-                asset="YEENUS"
-                value={formatWithSixDecimals(userMetamask.ethYEENUSBalance)}
-                // selected={exchange.token === TOKEN.ERC20}
-                // link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
-              />
-
-              {/*   {userMetamask.erc20TokenDetails ? (
-                <AssetRow
-                  asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
-                  value={formatWithSixDecimals(userMetamask.erc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
-                  link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
-                />
-              ) : null} */}
-
-              {/*<AssetRow*/}
-              {/*  asset="Ethereum BUSD"*/}
-              {/*  value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}*/}
-              {/*  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}*/}
-              {/*/>*/}
-
-              {/*<AssetRow*/}
-              {/*  asset="Ethereum LINK"*/}
-              {/*  value={formatWithSixDecimals(userMetamask.ethLINKBalance)}*/}
-              {/*  selected={exchange.token === TOKEN.LINK}*/}
-              {/*  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}*/}
-              {/*  last={true}*/}
-              {/*/>*/}
+              {tokens.allData
+                .filter(token => token.display_props)
+                .map((token, idx) => (
+                  <AssetRow
+                    key={idx}
+                    asset={token.display_props.symbol}
+                    value={formatWithSixDecimals(
+                      userMetamask.balanceToken[token.src_coin] || '0',
+                    )}
+                    link={`${process.env.ETH_EXPLORER_URL}/token/${token.src_address}`}
+                    selected={
+                      exchange.token === TOKEN.ERC20 &&
+                      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+                      userMetamask.erc20Address === token.src_address
+                    }
+                  />
+                ))}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">
@@ -187,51 +171,40 @@ export const WalletBalances = observer(() => {
               />
               <AssetRow
                 asset="sETH"
-                value={formatWithSixDecimals(user.balance_sETH)}
+                value={formatWithSixDecimals(
+                  user.balanceToken['Ethereum'] || '0',
+                )}
+                link={(() => {
+                  const eth = tokens.allData.find(
+                    token => token.src_coin === 'Ethereum',
+                  );
+                  if (!eth) {
+                    return undefined;
+                  }
+                  return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
+                })()}
+                selected={
+                  exchange.token === TOKEN.ETH &&
+                  exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+                }
               />
-              <AssetRow
-                asset="sTUSD"
-                value={formatWithSixDecimals(user.balance_sTUSD)}
-              />
-              <AssetRow
-                asset="sYEENUS"
-                value={formatWithSixDecimals(user.balance_sYEENUS)}
-              />
-              {/*
-              {user.hrc20Address ? (
-                <AssetRow
-                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
-                  value={formatWithSixDecimals(user.hrc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
-                  link={`${
-                    process.env.SCRT_EXPLORER_URL
-                  }/address/${getBech32Address(
-                    user.hrc20Address,
-                  )}?txType=hrc20`}
-                />
-              ) : null}
-              <AssetRow
-                asset="Harmony BUSD"
-                value={formatWithSixDecimals(user.hmyBUSDBalance)}
-                selected={exchange.token === TOKEN.ETH}
-                link={`${
-                  process.env.SCRT_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_BUSD_CONTRACT,
-                )}?txType=hrc20`}
-              />
-
-              <AssetRow
-                asset="Harmony LINK"
-                value={formatWithSixDecimals(user.hmyLINKBalance)}
-                selected={exchange.token === TOKEN.LINK}
-                link={`${
-                  process.env.SCRT_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_LINK_CONTRACT,
-                )}?txType=hrc20`}
-              />
-               */}
+              {tokens.allData
+                .filter(token => token.display_props)
+                .map((token, idx) => (
+                  <AssetRow
+                    key={idx}
+                    asset={'s' + token.display_props.symbol}
+                    value={formatWithSixDecimals(
+                      user.balanceToken[token.src_coin] || '0',
+                    )}
+                    link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
+                    selected={
+                      exchange.token === TOKEN.ERC20 &&
+                      exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+                      user.snip20Address === token.dst_address
+                    }
+                  />
+                ))}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

@@ -4,13 +4,13 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Button, TextInput, Text, Select, Checkbox } from 'components/Base';
 import { useEffect, useState } from 'react';
-import { tokens } from './tokens';
+// import { tokens } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { EXCHANGE_MODE } from 'stores/interfaces';
 
 export const ERC20Select = observer(() => {
-  const { userMetamask, exchange } = useStores();
+  const { userMetamask, exchange, tokens } = useStores();
   const [erc20, setERC20] = useState(userMetamask.erc20Address);
   const [error, setError] = useState('');
   const [token, setToken] = useState('');
@@ -33,19 +33,23 @@ export const ERC20Select = observer(() => {
       {!custom ? (
         <Box margin={{ top: 'small', bottom: 'medium' }}>
           <Select
-            options={tokens.map(t => ({
-              ...t,
-              text:
-                exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                  ? t.label
-                  : t.secretLabel,
-              value: t.address,
-            }))}
+            options={tokens.allData
+              .filter(token => token.display_props)
+              .map(token => ({
+                ...token,
+                image: token.display_props.image,
+                text: `${
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'Secret'
+                } ${token.display_props.label} (${
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 's'
+                }${token.display_props.symbol})`,
+                value: token.src_address,
+              }))}
             value={token}
             onChange={async value => {
               setToken(value);
               setSnip20(
-                tokens.filter(t => t.address === value)[0].snip20address,
+                tokens.allData.find(t => t.src_address === value).dst_address,
               );
 
               setError('');
@@ -69,8 +73,8 @@ export const ERC20Select = observer(() => {
                 className={styles.addressLink}
                 href={
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                    ? `https://etherscan.io/token/${token}`
-                    : `https://explorer.secrettestnet.io/account/${snip20}`
+                    ? `${process.env.ETH_EXPLORER_URL}/token/${token}`
+                    : `${process.env.SCRT_EXPLORER_URL}/account/${snip20}`
                 }
                 target="_blank"
               >

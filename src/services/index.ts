@@ -7,8 +7,8 @@ const servers = require('../../appengine-servers.json');
 const threshold = process.env.THRESHOLD;
 
 const backendUrl = url => {
-  return `${process.env.BACKEND_URL}${url}`
-}
+  return `${process.env.BACKEND_URL}${url}`;
+};
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -80,38 +80,32 @@ export const getStatus = async (params): Promise<SwapStatus> => {
   }
 };
 
-export const getOperation = async (params): Promise<{operation: IOperation, swap: ISwap}> => {
+export const getOperation = async (
+  params,
+): Promise<{ operation: IOperation; swap: ISwap }> => {
   const url = backendUrl(`/operations/${params.id}`);
 
-  const res = await agent.get<{ body: {operation: IOperation, swap: ISwap }}>(
+  const res = await agent.get<{ body: { operation: IOperation; swap: ISwap } }>(
     url,
   );
 
   return res.body;
-
 };
 
 export const getSwap = async (id): Promise<IOperation> => {
   const url = backendUrl(`/swaps/${id}`);
 
-  const res = await agent.get<{ body: IOperation }>(
-    url,
-  );
+  const res = await agent.get<{ body: IOperation }>(url);
 
   return res.body;
-
 };
 
 export const getOperations = async (
   params: any,
 ): Promise<{ content: ISwap[] }> => {
-
   const url = backendUrl('/swaps/');
 
-  const res = await agent.get<{ body: ISwap[] }>(
-    url,
-    params,
-  );
+  const res = await agent.get<{ body: ISwap[] }>(url, params);
 
   const content = res.body.swaps;
 
@@ -121,13 +115,9 @@ export const getOperations = async (
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
-
   const url = backendUrl('/tokens/');
 
-  const res = await agent.get<{ body: {tokens: ITokenInfo[]} }>(
-    url,
-    params,
-  );
+  const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
 
   const content = res.body.tokens;
 

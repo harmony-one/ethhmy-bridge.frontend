@@ -7,8 +7,6 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { tokens } from '../pages/Exchange/tokens';
-import { sETH } from './UserStore';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -28,28 +26,6 @@ export interface IStepConfig {
   }>;
   title?: string;
 }
-
-export const FormatWithoutDecimals = (
-  type: TOKEN,
-  amount: string,
-  address: string,
-) => {
-  if (type === TOKEN.ERC20 || type === TOKEN.S20) {
-    const token = tokens.find(t =>
-      [t.snip20address.toLowerCase(), t.address.toLocaleLowerCase()].includes(
-        address.toLowerCase(),
-      ),
-    );
-
-    if (token) {
-      return mulDecimals(amount, token.decimals).toString();
-    }
-  } else if (type === TOKEN.ETH) {
-    return mulDecimals(amount, 18).toString();
-  }
-
-  return amount;
-};
 
 export class Exchange extends StoreConstructor {
   @observable error = '';
@@ -243,15 +219,20 @@ export class Exchange extends StoreConstructor {
     this.operation.id = operationId;
     //this.stores.routing.push('/operations/' + this.operation.id);
 
-    const swap = await operationService.getOperation({id: operationId});
+    const swap = await operationService.getOperation({ id: operationId });
 
     if (swap.swap) {
-
-      this.operation.type = swap.swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
-      this.token = swap.swap.src_coin === 'native' ? TOKEN.ETH :
-        this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT ?
-          TOKEN.ERC20 : TOKEN.S20;
-      console.log(`op type: ${this.token}`)
+      this.operation.type =
+        swap.swap.src_network === 'Ethereum'
+          ? EXCHANGE_MODE.ETH_TO_SCRT
+          : EXCHANGE_MODE.SCRT_TO_ETH;
+      this.token =
+        swap.swap.src_coin === 'native'
+          ? TOKEN.ETH
+          : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
+          ? TOKEN.ERC20
+          : TOKEN.S20;
+      console.log(`op type: ${this.token}`);
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
         this.transaction.ethAddress = swap.swap.src_address;
@@ -260,7 +241,7 @@ export class Exchange extends StoreConstructor {
         this.txHash = swap.swap.src_tx_hash;
       } else {
         this.transaction.scrtAddress = swap.swap.src_address;
-        this.transaction.ethAddress  = swap.swap.dst_address;
+        this.transaction.ethAddress = swap.swap.dst_address;
         this.transaction.amount = String(swap.swap.amount);
         this.txHash = swap.swap.dst_tx_hash;
       }
@@ -314,7 +295,6 @@ export class Exchange extends StoreConstructor {
     try {
       this.actionStatus = 'fetching';
 
-
       // this is used if you access /operations/<id> directly. i.e. if someone gets bored and hits refresh, or if we want to add a button
       // that links to this view
       if (id) {
@@ -322,7 +302,7 @@ export class Exchange extends StoreConstructor {
         this.stores.routing.push(this.operation.id);
         await this.waitForResult();
         this.setStatus();
-        return
+        return;
       }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
@@ -428,8 +408,6 @@ export class Exchange extends StoreConstructor {
     this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
     this.setStatus();
 
-    // //operationId = await this.createOperation(transactionHash);
-    // this.operation.status
     await this.waitForResult();
 
     this.setStatus();
@@ -440,17 +418,18 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
-    let amount: string;
+    let decimals: number | string;
     if (isEth) {
-      this.transaction.snip20Address = sETH;
-      amount = FormatWithoutDecimals(TOKEN.ETH, this.transaction.amount, sETH);
+      decimals = 18;
+      this.transaction.snip20Address = this.stores.tokens.allData.find(
+        t => t.src_coin === 'Ethereum',
+      ).dst_address;
     } else {
-      amount = FormatWithoutDecimals(
-        TOKEN.S20,
-        this.transaction.amount,
-        this.transaction.snip20Address,
-      );
+      decimals = this.stores.tokens.allData.find(
+        t => t.dst_address === this.transaction.snip20Address,
+      ).decimals;
     }
+    const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     const tx = await this.stores.user.cosmJS.execute(
       this.transaction.snip20Address,
@@ -458,13 +437,12 @@ export class Exchange extends StoreConstructor {
         send: {
           amount: amount,
           msg: btoa(this.transaction.ethAddress),
-          recipient:
-            'secret1z7lffpmyvwjlawgkc67c4utal4vxe2ljvyqpss' /* Swap contract */,
+          recipient: process.env.SCRT_SWAP_CONTRACT,
         },
       },
     );
 
-    const txIdKvp = tx.logs[0].events[0].attributes.find(
+    const txIdKvp = tx.logs[0].events[1].attributes.find(
       kv => kv.key === 'tx_id',
     );
 
@@ -477,15 +455,13 @@ export class Exchange extends StoreConstructor {
       throw 'Cannot find tx_id';
     }
 
-    await this.createOperation(tx_id);
+    await this.createOperation(`${tx_id}${this.transaction.snip20Address}`);
 
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     await this.waitForResult();
 
     this.setStatus();
-
-    return;
   }
 
   clear() {

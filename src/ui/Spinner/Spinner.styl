@@ -1,35 +1,29 @@
 @keyframes spin {
 	from {
-		transform: rotate(0deg);
-	}
-	to {
 		transform: rotate(360deg);
 	}
-}
 
-.spinner {
-	animation: spin 1.6s linear infinite;
-
-	circle {
-		stroke: "#1d2b5e"
+	to {
+		transform: rotate(0deg);
 	}
 }
 
 .spinnerContainer {
-	display block
-	width 60px
-	height 60px
-	position relative
-	animation: spin 1.6s linear infinite;
+	// display: block;
+	width: 64px;
+	height: 64px;
+	position: relative;
+	animation: spin 1.6s infinite;
+
 	&:after {
-		display block
-		content: ''
-		position absolute
-		background url("https://s2.coinmarketcap.com/static/img/coins/64x64/5604.png")
-		background-size cover
-		width 40px
-		height 40px
-		top 9px
-		left: 10px
+		display: block;
+		content: '';
+		position: absolute;
+		background: url('https://s2.coinmarketcap.com/static/img/coins/64x64/5604.png');
+		background-size: cover;
+		width: 40px;
+		height: 40px;
+		top: 9px;
+		left: 10px;
 	}
 }
