@@ -7,7 +7,6 @@
     "start": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config config/webpack.config.js --progress --colors --open",
     "build": "node scripts/build.js --stats",
-    "build-test": "cross-env NODE_ENV=development node scripts/build.js --stats",
     "test": "jest --verbose",
     "test:watch": "jest --watch",
     "test:debug": "jest --config=jest.config.debug.js",
