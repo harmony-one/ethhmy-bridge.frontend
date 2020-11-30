@@ -445,7 +445,7 @@ export class Exchange extends StoreConstructor {
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     await this.createOperation();
-    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+    this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     const tx = await this.stores.user.cosmJS.execute(
       this.transaction.snip20Address,
