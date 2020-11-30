@@ -169,7 +169,7 @@ export class UserStoreMetamask extends StoreConstructor {
       }
 
       getEthBalance(this.ethAddress).then(b => {
-        this.ethBalance = b;
+        this.ethBalance = formatWithSixDecimals(b);
       });
     }
   };
