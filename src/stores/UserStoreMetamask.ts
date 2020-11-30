@@ -9,7 +9,6 @@ import {
 } from '../blockchain-bridge';
 import { divDecimals, formatWithSixDecimals } from '../utils';
 import Web3 from 'web3';
-import { ITokenInfo } from './interfaces';
 
 const defaults = {};
 

@@ -5,7 +5,7 @@ import { Button, Icon, Text, Title } from 'components/Base';
 import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
-import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
+import { truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';

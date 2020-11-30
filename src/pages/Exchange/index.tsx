@@ -17,7 +17,7 @@ import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed, observable } from 'mobx';
+import { autorun, computed } from 'mobx';
 import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';

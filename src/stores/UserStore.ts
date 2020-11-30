@@ -14,7 +14,6 @@ import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals, formatWithSixDecimals } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
-import { sortedLastIndex } from 'lodash';
 
 const defaults = {};
 
