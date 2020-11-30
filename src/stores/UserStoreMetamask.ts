@@ -7,7 +7,7 @@ import {
   getErc20Balance,
   ethMethodsERC20,
 } from '../blockchain-bridge';
-import { divDecimals } from '../utils';
+import { divDecimals, formatWithSixDecimals } from '../utils';
 import Web3 from 'web3';
 import { ITokenInfo } from './interfaces';
 
@@ -30,7 +30,7 @@ export class UserStoreMetamask extends StoreConstructor {
   private provider: any;
 
   @observable public ethAddress: string;
-  @observable public ethBalance: string = '0';
+  @observable public ethBalance: string = '';
   @observable public balanceToken: { [key: string]: string } = {};
 
   @observable erc20Address: string = '';
@@ -75,7 +75,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound
   public async signOut() {
     this.isAuthorized = false;
-    this.ethBalance = '0';
+    this.ethBalance = '';
     this.ethAddress = '';
     this.balanceToken = {};
 
@@ -163,7 +163,9 @@ export class UserStoreMetamask extends StoreConstructor {
     if (this.ethAddress) {
       for (const token of this.stores.tokens.allData) {
         getErc20Balance(this.ethAddress, token.src_address).then(b => {
-          this.balanceToken[token.src_coin] = divDecimals(b, token.decimals);
+          this.balanceToken[token.src_coin] = formatWithSixDecimals(
+            divDecimals(b, token.decimals),
+          );
         });
       }
 
@@ -176,9 +178,9 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public setToken = async (erc20Address: string, tokens?) => {
     this.erc20TokenDetails = null;
     this.erc20Address = '';
-    this.erc20Balance = '0';
+    this.erc20Balance = '';
     this.stores.user.snip20Address = '';
-    this.stores.user.snip20Balance = '0';
+    this.stores.user.snip20Balance = '';
 
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;

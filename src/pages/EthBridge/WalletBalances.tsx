@@ -9,6 +9,8 @@ import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
+import Loader from 'react-loader-spinner';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 // import { Routes } from '../../constants';
 
@@ -40,9 +42,13 @@ const AssetRow = observer<any>(props => {
 
       <Box direction="column" align="end">
         <Box className={styles.priceColumn}>
-          <Text color={props.selected ? '#00ADE8' : null} bold={true}>
-            {props.value}
-          </Text>
+          {!props.value ? (
+            <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+          ) : (
+            <Text color={props.selected ? '#00ADE8' : null} bold={true}>
+              {props.value}
+            </Text>
+          )}
         </Box>
       </Box>
     </Box>
@@ -99,7 +105,7 @@ export const WalletBalances = observer(() => {
 
               <AssetRow
                 asset="ETH"
-                value={formatWithSixDecimals(userMetamask.ethBalance)}
+                value={userMetamask.ethBalance}
                 selected={
                   exchange.token === TOKEN.ETH &&
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
@@ -112,9 +118,7 @@ export const WalletBalances = observer(() => {
                   <AssetRow
                     key={idx}
                     asset={token.display_props.symbol}
-                    value={formatWithSixDecimals(
-                      userMetamask.balanceToken[token.src_coin] || '0',
-                    )}
+                    value={userMetamask.balanceToken[token.src_coin]}
                     link={`${process.env.ETH_EXPLORER_URL}/token/${token.src_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&
@@ -171,9 +175,7 @@ export const WalletBalances = observer(() => {
               />
               <AssetRow
                 asset="sETH"
-                value={formatWithSixDecimals(
-                  user.balanceToken['Ethereum'] || '0',
-                )}
+                value={user.balanceToken['Ethereum']}
                 link={(() => {
                   const eth = tokens.allData.find(
                     token => token.src_coin === 'Ethereum',
@@ -194,9 +196,7 @@ export const WalletBalances = observer(() => {
                   <AssetRow
                     key={idx}
                     asset={'s' + token.display_props.symbol}
-                    value={formatWithSixDecimals(
-                      user.balanceToken[token.src_coin] || '0',
-                    )}
+                    value={user.balanceToken[token.src_coin]}
                     link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&

@@ -12,7 +12,7 @@ import {
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals } from '../utils';
+import { divDecimals, formatWithSixDecimals } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 import { sortedLastIndex } from 'lodash';
 
@@ -173,7 +173,6 @@ export class UserStoreEx extends StoreConstructor {
       await this.stores.tokens.fetch();
       for (const token of this.stores.tokens.allData) {
         await this.keplrWallet.suggestToken(this.chainId, token.dst_address);
-        this.balanceToken[token.src_coin] = '0';
       }
 
       this.syncLocalStorage();
@@ -232,9 +231,8 @@ export class UserStoreEx extends StoreConstructor {
             },
           })
           .then(({ balance }) => {
-            this.balanceToken[token.src_coin] = divDecimals(
-              balance.amount,
-              token.decimals,
+            this.balanceToken[token.src_coin] = formatWithSixDecimals(
+              divDecimals(balance.amount, token.decimals),
             );
           });
       }

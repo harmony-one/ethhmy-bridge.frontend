@@ -37,7 +37,7 @@ export class Exchange extends StoreConstructor {
   defaultTransaction = {
     scrtAddress: '',
     ethAddress: '',
-    amount: '0',
+    amount: '',
     erc20Address: '',
     snip20Address: '',
   };
@@ -389,7 +389,10 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
 
-    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
+    this.operation.status = await this.updateOperation(
+      this.operation.id,
+      transaction.transactionHash,
+    );
     this.setStatus();
 
     await this.waitForResult();
@@ -427,7 +430,6 @@ export class Exchange extends StoreConstructor {
   async swapSnip20ToEth(isEth: boolean) {
     this.operation = this.defaultOperation;
     this.setStatus();
-
 
     let decimals: number | string;
     if (isEth) {
@@ -469,7 +471,10 @@ export class Exchange extends StoreConstructor {
       throw 'Cannot find tx_id';
     }
 
-    this.operation.status = await this.updateOperation(this.operation.id, `${tx_id}${this.transaction.snip20Address}`);
+    this.operation.status = await this.updateOperation(
+      this.operation.id,
+      `${tx_id}${this.transaction.snip20Address}`,
+    );
 
     await this.waitForResult();
 
