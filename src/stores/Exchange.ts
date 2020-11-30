@@ -473,8 +473,9 @@ export class Exchange extends StoreConstructor {
 
     this.operation.status = await this.updateOperation(
       this.operation.id,
-      `${tx_id}${this.transaction.snip20Address}`,
+      `${tx_id}|${this.transaction.snip20Address}`,
     );
+    this.setStatus();
 
     await this.waitForResult();
 
