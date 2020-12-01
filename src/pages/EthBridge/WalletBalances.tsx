@@ -174,7 +174,7 @@ export const WalletBalances = observer(() => {
                 value={truncateAddressString(user.address)}
               />
               <AssetRow
-                asset="sETH"
+                asset="secretETH"
                 value={user.balanceToken['Ethereum']}
                 link={(() => {
                   const eth = tokens.allData.find(
