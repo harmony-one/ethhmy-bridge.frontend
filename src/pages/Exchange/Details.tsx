@@ -211,23 +211,22 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 <Text size="small">Hide details</Text>
               </Box>
             ) : null}
-
-            {/*<AssetRow*/}
-            {/*  label="Total"*/}
-            {/*  value={formatWithSixDecimals(*/}
-            {/*    Number(exchange.transaction.amount) + exchange.networkFee,*/}
-            {/*  )}*/}
-            {/*/>*/}
           </Box>
         ) : null}
 
         {exchange.txHash ? (
           <Box direction="column" margin={{ top: 'large' }}>
-            <AssetRow
-              label="Transaction hash"
-              value={truncateAddressString(exchange.txHash)}
-              address={true}
-            />
+            <a
+              href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
+              style={{ textDecoration: 'none' }}
+              target="_blank"
+            >
+              <AssetRow
+                label="Transaction hash"
+                value={truncateAddressString(exchange.txHash)}
+                address={true}
+              />
+            </a>
           </Box>
         ) : null}
       </Box>

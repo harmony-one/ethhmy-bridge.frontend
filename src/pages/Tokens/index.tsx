@@ -51,11 +51,21 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     dataIndex: 'symbol',
     width: 140,
     className: styles.leftHeader,
-    render: value => (
-      <Box direction="column" justify="center" pad={{ left: 'medium' }}>
-        {value ? value.toUpperCase() : '--'}
-      </Box>
-    ),
+    render: value => {
+      const { tokens } = useStores();
+
+      let symbol =
+        tokens.allData.find(t => t.name === value)?.display_props?.symbol ||
+        '--';
+      if (value === 'Ethereum') {
+        symbol = 'ETH';
+      }
+      return (
+        <Box direction="column" justify="center" pad={{ left: 'medium' }}>
+          {symbol}
+        </Box>
+      );
+    },
   },
   {
     title: 'Name',
@@ -68,7 +78,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'src_address',
     dataIndex: 'src_address',
     width: 280,
-    render: value => value === 'native' ? "native" : ethAddress(value),
+    render: value => (value === 'native' ? 'native' : ethAddress(value)),
   },
   {
     title: 'Secret Network Address',
@@ -93,7 +103,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 140,
     render: value => (
       <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value) }
+        {formatWithTwoDecimals(value)}
       </Box>
     ),
     className: styles.centerHeader,
@@ -123,7 +133,7 @@ export const Tokens = observer((props: any) => {
   const [columns, setColumns] = useState(getColumns(user));
 
   useEffect(() => {
-    tokens.init({sorters: {}, sorter: 'none'});
+    tokens.init({ sorters: {}, sorter: 'none' });
     tokens.fetch();
   }, []);
   /*
@@ -147,8 +157,7 @@ export const Tokens = observer((props: any) => {
             .toLowerCase()
             .includes(search.toLowerCase()),
         ) ||
-        getScrtAddress(token.dst_address).toLowerCase() ===
-          search.toLowerCase()
+        getScrtAddress(token.dst_address).toLowerCase() === search.toLowerCase()
       );
     }
 
@@ -182,12 +191,12 @@ export const Tokens = observer((props: any) => {
               </span>
             </Title>
           </Box>
-          {
-            lastUpdateAgo ? <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
-              :
-              <Text> </Text>  // this makes sure the TVL is sort of in the middle of the page
+          {lastUpdateAgo ? (
+            <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+          ) : (
+            <Text> </Text>
+          ) // this makes sure the TVL is sort of in the middle of the page
           }
-
         </Box>
 
         <Box

@@ -44,15 +44,15 @@ const oneAddress = value => (
 const swapToText = (status: SwapStatus): string => {
   switch (status) {
     case SwapStatus.SWAP_FAILED:
-      return "failed"
+      return 'failed';
 
     case SwapStatus.SWAP_CONFIRMED:
-      return "success"
+      return 'success';
 
     default:
-      return "sending..."
+      return 'sending...';
   }
-}
+};
 
 const getColumns = ({ user }): IColumn<ISwap>[] => [
   // {
@@ -74,14 +74,12 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
   //       : oneAddress(value),
   // },
   {
-    title: 'To',
+    title: 'Recipient',
     key: 'dst_address',
     dataIndex: 'dst_address',
     width: 200,
     render: (value, data) =>
-      data.src_network === "Ethereum"
-        ? oneAddress(value)
-        : ethAddress(value),
+      data.src_network === 'Ethereum' ? oneAddress(value) : ethAddress(value),
   },
   // {
   //   title: 'To',
@@ -130,35 +128,33 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     dataIndex: 'status',
     width: 140,
     render: value => {
-      let status = swapToText(SwapStatus[SwapStatus[value]])
-      return (<Box className={cn(styles.status, styles[status])}>{status}</Box>);
+      let status = swapToText(SwapStatus[SwapStatus[value]]);
+      return <Box className={cn(styles.status, styles[status])}>{status}</Box>;
     },
   },
   {
-    title: 'From Asset',
+    title: 'From',
     key: 'src_coin',
     dataIndex: 'src_coin',
     width: 200,
-    render: (value, data) => (
-      data.src_network === "Ethereum"
-        ?
-      <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin}/>
-      :
-      <SecretToken value={TOKEN.S20} secretAddress={data.src_coin}/>
-    ),
+    render: (value, data) =>
+      data.src_network === 'Ethereum' ? (
+        <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin} />
+      ) : (
+        <SecretToken value={TOKEN.S20} secretAddress={data.src_coin} />
+      ),
   },
   {
-    title: 'To Asset',
+    title: 'To',
     key: 'dst_coin',
     dataIndex: 'dst_coin',
     width: 200,
-    render: (value, data) => (
-      data.dst_network === "Ethereum"
-        ?
-        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin}/>
-        :
+    render: (value, data) =>
+      data.dst_network === 'Ethereum' ? (
+        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />
+      ) : (
         data.dst_coin
-    ),
+      ),
   },
   {
     title: 'Amount',
@@ -166,11 +162,19 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     dataIndex: 'amount',
     width: 120,
     render: (value, data) =>
-      data.src_network === "Ethereum"
-        ?
-      <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.src_coin} />
-      :
-      <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.dst_coin} />
+      data.src_network === 'Ethereum' ? (
+        <FormatWithDecimals
+          type={TOKEN.ERC20}
+          amount={value}
+          address={data.src_coin}
+        />
+      ) : (
+        <FormatWithDecimals
+          type={TOKEN.ERC20}
+          amount={value}
+          address={data.dst_coin}
+        />
+      ),
   },
   {
     title: 'Time',
@@ -207,7 +211,8 @@ export const Explorer = observer((props: any) => {
     operations.init({
       isLocal: true,
       sorter: 'created_on, desc',
-      pollingInterval: 20000});
+      pollingInterval: 20000,
+    });
     operations.fetch();
   }, []);
 
@@ -237,7 +242,6 @@ export const Explorer = observer((props: any) => {
 
   const isAuthorized = userMetamask.ethAddress || user.address;
 
-
   // todo: make this a button.. it's too slow as a live search
   const filteredData = operations.allData.filter(value => {
     if (search) {
@@ -248,8 +252,7 @@ export const Explorer = observer((props: any) => {
             .toLowerCase()
             .includes(search.toLowerCase()),
         ) ||
-        getScrtAddress(value.dst_address).toLowerCase() ===
-        search.toLowerCase()
+        getScrtAddress(value.dst_address).toLowerCase() === search.toLowerCase()
       );
     }
 
@@ -267,8 +270,6 @@ export const Explorer = observer((props: any) => {
           align="start"
           margin={{ top: 'xlarge' }}
         >
-
-
           {isAuthorized ? (
             <Box
               direction="row"
