@@ -230,7 +230,9 @@ export class Exchange extends React.Component<
             >
               <img className={styles.imgToken} src="/eth.svg" />
               <Text>
-                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'sETH' : 'ETH'}
+                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+                  ? 'secretETH'
+                  : 'ETH'}
               </Text>
             </Box>
 
