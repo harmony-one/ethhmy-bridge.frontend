@@ -37,6 +37,7 @@
     "rc-tooltip": "^4.2.1",
     "react": "16.12.0",
     "react-cookie-banner": "^4.1.0",
+    "react-copy-to-clipboard": "5.0.2",
     "react-dom": "16.12.0",
     "react-in-viewport": "^1.0.0-alpha.11",
     "react-loader-spinner": "3.1.14",

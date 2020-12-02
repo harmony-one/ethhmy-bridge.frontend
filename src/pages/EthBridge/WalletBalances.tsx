@@ -11,6 +11,7 @@ import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 // import { Routes } from '../../constants';
 
@@ -45,9 +46,23 @@ const AssetRow = observer<any>(props => {
           {!props.value ? (
             <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
           ) : (
-            <Text color={props.selected ? '#00ADE8' : null} bold={true}>
-              {props.value}
-            </Text>
+            <Box direction="row">
+              <Text color={props.selected ? '#00ADE8' : null} bold={true}>
+                {props.address
+                  ? truncateAddressString(props.value, 10)
+                  : props.value}
+              </Text>
+              {props.address && (
+                <CopyToClipboard text={props.value}>
+                  <Icon
+                    glyph="PrintFormCopy"
+                    size="1em"
+                    color="#1c2a5e"
+                    style={{ marginLeft: 10, width: 20 }}
+                  />
+                </CopyToClipboard>
+              )}
+            </Box>
           )}
         </Box>
       </Box>
@@ -100,7 +115,8 @@ export const WalletBalances = observer(() => {
             <>
               <AssetRow
                 asset="ETH Address"
-                value={truncateAddressString(userMetamask.ethAddress)}
+                value={userMetamask.ethAddress}
+                address={true}
               />
 
               <AssetRow
@@ -171,7 +187,8 @@ export const WalletBalances = observer(() => {
             <>
               <AssetRow
                 asset="Secret Address"
-                value={truncateAddressString(user.address)}
+                value={user.address}
+                address={true}
               />
               <AssetRow
                 asset="secretETH"
