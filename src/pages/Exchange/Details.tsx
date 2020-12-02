@@ -160,7 +160,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                   boxProps={{ pad: {} }}
                 />
               ) : (
-                <Text>...loading</Text>
+                <Text>loading...</Text>
               )}
             </AssetRow>
 
