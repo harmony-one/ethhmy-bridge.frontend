@@ -7,7 +7,8 @@ import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
-// import { EXPLORER_URL } from '../../blockchain';
+import Loader from 'react-loader-spinner';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const AssetRow = props => {
   return (
@@ -160,7 +161,12 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                   boxProps={{ pad: {} }}
                 />
               ) : (
-                <Text>loading...</Text>
+                <Loader
+                  type="ThreeDots"
+                  color="#00BFFF"
+                  height="1em"
+                  width="1em"
+                />
               )}
             </AssetRow>
 
