@@ -13,9 +13,53 @@ import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-// import { Routes } from '../../constants';
-
 const AssetRow = observer<any>(props => {
+  let value = (
+    <Box direction="row">
+      <Text color={props.selected ? '#00ADE8' : null} bold={true}>
+        {props.address ? truncateAddressString(props.value, 10) : props.value}
+      </Text>
+      {props.address && (
+        <CopyToClipboard text={props.value}>
+          <Icon
+            glyph="PrintFormCopy"
+            size="1em"
+            color="#1c2a5e"
+            style={{ marginLeft: 10, width: 20 }}
+          />
+        </CopyToClipboard>
+      )}
+    </Box>
+  );
+
+  if (!props.value) {
+    value = (
+      <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+    );
+  }
+  if (props.value === 'Unlock') {
+    value = (
+      <Box direction="row">
+        <span
+          onClick={() => {
+            props.userStore.keplrWallet.suggestToken(
+              props.userStore.chainId,
+              props.token.dst_address,
+            );
+          }}
+        >
+          <Text
+            color={props.selected ? '#00ADE8' : null}
+            bold={true}
+            style={{ cursor: 'pointer' }}
+          >
+            🚀 Connect Token 🚀
+          </Text>
+        </span>
+      </Box>
+    );
+  }
+
   return (
     <Box
       className={cn(
@@ -42,29 +86,7 @@ const AssetRow = observer<any>(props => {
       </Box>
 
       <Box direction="column" align="end">
-        <Box className={styles.priceColumn}>
-          {!props.value ? (
-            <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-          ) : (
-            <Box direction="row">
-              <Text color={props.selected ? '#00ADE8' : null} bold={true}>
-                {props.address
-                  ? truncateAddressString(props.value, 10)
-                  : props.value}
-              </Text>
-              {props.address && (
-                <CopyToClipboard text={props.value}>
-                  <Icon
-                    glyph="PrintFormCopy"
-                    size="1em"
-                    color="#1c2a5e"
-                    style={{ marginLeft: 10, width: 20 }}
-                  />
-                </CopyToClipboard>
-              )}
-            </Box>
-          )}
-        </Box>
+        <Box className={styles.priceColumn}>{value}</Box>
       </Box>
     </Box>
   );
@@ -129,7 +151,12 @@ export const WalletBalances = observer(() => {
               />
 
               {tokens.allData
-                .filter(token => token.display_props)
+                .filter(
+                  token =>
+                    token.display_props &&
+                    exchange.token === TOKEN.ERC20 &&
+                    userMetamask.erc20Address === token.src_address,
+                )
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
@@ -190,30 +217,44 @@ export const WalletBalances = observer(() => {
                 value={user.address}
                 address={true}
               />
-              <AssetRow
-                asset="secretETH"
-                value={user.balanceToken['Ethereum']}
-                link={(() => {
-                  const eth = tokens.allData.find(
+              <AssetRow asset="SCRT" value={user.balanceSCRT} />
+              {exchange.token === TOKEN.ETH ? (
+                <AssetRow
+                  asset="secretETH"
+                  value={user.balanceToken['Ethereum']}
+                  token={tokens.allData.find(
                     token => token.src_coin === 'Ethereum',
-                  );
-                  if (!eth) {
-                    return undefined;
+                  )}
+                  userStore={user}
+                  link={(() => {
+                    const eth = tokens.allData.find(
+                      token => token.src_coin === 'Ethereum',
+                    );
+                    if (!eth) {
+                      return undefined;
+                    }
+                    return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
+                  })()}
+                  selected={
+                    exchange.token === TOKEN.ETH &&
+                    exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   }
-                  return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
-                })()}
-                selected={
-                  exchange.token === TOKEN.ETH &&
-                  exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-                }
-              />
+                />
+              ) : null}
               {tokens.allData
-                .filter(token => token.display_props)
+                .filter(
+                  token =>
+                    token.display_props &&
+                    exchange.token === TOKEN.ERC20 &&
+                    user.snip20Address === token.dst_address,
+                )
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
                     asset={'s' + token.display_props.symbol}
                     value={user.balanceToken[token.src_coin]}
+                    token={token}
+                    userStore={user}
                     link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&

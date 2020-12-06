@@ -31,6 +31,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
+  @observable public balanceSCRT: string;
 
   @observable public balanceToken: { [key: string]: string } = {};
 
@@ -167,12 +168,9 @@ export class UserStoreEx extends StoreConstructor {
         },
       );
 
-      // Add SNIP20s to Keplr
+      // Load tokens from DB
       this.stores.tokens.init();
       await this.stores.tokens.fetch();
-      for (const token of this.stores.tokens.allData) {
-        await this.keplrWallet.suggestToken(this.chainId, token.dst_address);
-      }
 
       this.syncLocalStorage();
     } catch (error) {
@@ -186,9 +184,9 @@ export class UserStoreEx extends StoreConstructor {
       return '0';
     }
 
-    const balanceResponse = await this.cosmJS.queryContractSmart(
-      snip20Address,
-      {
+    let balanceResponse;
+    try {
+      balanceResponse = await this.cosmJS.queryContractSmart(snip20Address, {
         balance: {
           address: this.address,
           key: await this.keplrWallet.getSecret20ViewingKey(
@@ -196,8 +194,10 @@ export class UserStoreEx extends StoreConstructor {
             snip20Address,
           ),
         },
-      },
-    );
+      });
+    } catch (e) {
+      return 'Unlock';
+    }
 
     if (Number(balanceResponse.balance.amount) === 0) {
       return '0';
@@ -218,22 +218,37 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     if (this.address) {
+      this.cosmJS.getAccount(this.address).then(account => {
+        try {
+          this.balanceSCRT = formatWithSixDecimals(
+            divDecimals(account.balance[0].amount, 6),
+          );
+        } catch (e) {
+          this.balanceSCRT = '0';
+        }
+      });
+
       for (const token of this.stores.tokens.allData) {
-        const tokenBalance = await this.cosmJS
-          .queryContractSmart(token.dst_address, {
-            balance: {
-              address: this.address,
-              key: await this.keplrWallet.getSecret20ViewingKey(
-                this.chainId,
-                token.dst_address,
-              ),
-            },
-          })
-          .then(({ balance }) => {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(
-              divDecimals(balance.amount, token.decimals),
-            );
-          });
+        try {
+          this.cosmJS
+            .queryContractSmart(token.dst_address, {
+              balance: {
+                address: this.address,
+                key: await this.keplrWallet.getSecret20ViewingKey(
+                  this.chainId,
+                  token.dst_address,
+                ),
+              },
+            })
+            .then(({ balance }) => {
+              this.balanceToken[token.src_coin] = formatWithSixDecimals(
+                divDecimals(balance.amount, token.decimals),
+              );
+            })
+            .catch(err => {});
+        } catch (err) {
+          this.balanceToken[token.src_coin] = 'Unlock';
+        }
       }
     }
   };

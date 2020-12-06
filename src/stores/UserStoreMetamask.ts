@@ -199,15 +199,6 @@ export class UserStoreMetamask extends StoreConstructor {
         );
       }
     }
-
-    // const address = await hmyMethodsERC20.getMappingFor(erc20Address);
-
-    // if (!!Number(address)) {
-    //   this.stores.user.snip20Address = address;
-    //   this.syncLocalStorage();
-    // } else {
-    //   this.stores.user.snip20Balance = '';
-    // }
   };
 
   @action public reset() {
