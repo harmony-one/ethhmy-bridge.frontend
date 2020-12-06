@@ -53,7 +53,7 @@ const AssetRow = observer<any>(props => {
             bold={true}
             style={{ cursor: 'pointer' }}
           >
-            🚀 Connect Token 🚀
+            🚀 Unlock Token 🚀
           </Text>
         </span>
       </Box>
@@ -179,7 +179,7 @@ export const WalletBalances = observer(() => {
                   userMetamask.signIn(true);
                 }}
               >
-                Connect Metamask
+                Connect with Metamask
               </Button>
               {userMetamask.error ? <Error error={userMetamask.error} /> : null}
             </Box>
@@ -284,7 +284,7 @@ export const WalletBalances = observer(() => {
                   }
                 }}
               >
-                Connect Keplr
+                Connect with Keplr
               </Button>
               {!user.isKeplrWallet ? <Error error="Keplr not found" /> : null}
               {user.error ? <Error error={user.error} /> : null}
