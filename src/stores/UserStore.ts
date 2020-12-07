@@ -199,6 +199,10 @@ export class UserStoreEx extends StoreConstructor {
       return 'Unlock';
     }
 
+    if (balanceResponse.viewing_key_error) {
+      return 'Fix Unlock';
+    }
+
     if (Number(balanceResponse.balance.amount) === 0) {
       return '0';
     }
@@ -231,8 +235,8 @@ export class UserStoreEx extends StoreConstructor {
       for (const token of this.stores.tokens.allData) {
         try {
           const balance = await this.getSnip20Balance(token.dst_address);
-          if (balance === 'Unlock') {
-            this.balanceToken[token.src_coin] = 'Unlock';
+          if (balance.includes('Unlock')) {
+            this.balanceToken[token.src_coin] = balance;
           } else {
             this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
           }
