@@ -230,22 +230,9 @@ export class UserStoreEx extends StoreConstructor {
 
       for (const token of this.stores.tokens.allData) {
         try {
-          this.cosmJS
-            .queryContractSmart(token.dst_address, {
-              balance: {
-                address: this.address,
-                key: await this.keplrWallet.getSecret20ViewingKey(
-                  this.chainId,
-                  token.dst_address,
-                ),
-              },
-            })
-            .then(({ balance }) => {
-              this.balanceToken[token.src_coin] = formatWithSixDecimals(
-                divDecimals(balance.amount, token.decimals),
-              );
-            })
-            .catch(err => {});
+          this.balanceToken[token.src_coin] = formatWithSixDecimals(
+            await this.getSnip20Balance(token.dst_address),
+          );
         } catch (err) {
           this.balanceToken[token.src_coin] = 'Unlock';
         }
