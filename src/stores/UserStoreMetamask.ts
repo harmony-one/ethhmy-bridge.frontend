@@ -117,14 +117,19 @@ export class UserStoreMetamask extends StoreConstructor {
 
       try {
         if (isNew) {
-          await this.provider.request({
-            method: 'wallet_requestPermissions',
-            params: [
+          await new Promise((accept, reject) =>
+            this.provider.send(
               {
-                eth_accounts: {},
+                method: 'wallet_requestPermissions',
+                params: [
+                  {
+                    eth_accounts: {},
+                  },
+                ],
               },
-            ],
-          });
+              err => (err ? reject(err) : accept()),
+            ),
+          );
         }
 
         this.isAuthorized = true;
