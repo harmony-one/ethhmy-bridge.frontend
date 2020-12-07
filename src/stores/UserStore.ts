@@ -230,9 +230,12 @@ export class UserStoreEx extends StoreConstructor {
 
       for (const token of this.stores.tokens.allData) {
         try {
-          this.balanceToken[token.src_coin] = formatWithSixDecimals(
-            await this.getSnip20Balance(token.dst_address),
-          );
+          const balance = await this.getSnip20Balance(token.dst_address);
+          if (balance === 'Unlock') {
+            this.balanceToken[token.src_coin] = 'Unlock';
+          } else {
+            this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+          }
         } catch (err) {
           this.balanceToken[token.src_coin] = 'Unlock';
         }
