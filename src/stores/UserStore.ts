@@ -94,53 +94,54 @@ export class UserStoreEx extends StoreConstructor {
   @action public async signIn() {
     this.error = '';
 
-    this.chainId = 'holodeck-2';
+    this.chainId = process.env.CHAINID;
     try {
       // Setup Secret Testnet (not needed on mainnet)
-      await this.keplrWallet.experimentalSuggestChain({
-        chainId: this.chainId,
-        chainName: 'Secret Testnet',
-        rpc: 'http://bootstrap.secrettestnet.io:26657',
-        rest: 'https://bootstrap.secrettestnet.io',
-        bip44: {
+      if (process.env.ENV !== 'MAINNET') {
+        await this.keplrWallet.experimentalSuggestChain({
+          chainId: this.chainId,
+          chainName: 'Secret-2',
+          rpc: process.env.SECRETRPC,
+          rest: process.env.SECRETLCD,
+          bip44: {
+            coinType: 529,
+          },
           coinType: 529,
-        },
-        coinType: 529,
-        stakeCurrency: {
-          coinDenom: 'SCRT',
-          coinMinimalDenom: 'uscrt',
-          coinDecimals: 6,
-        },
-        bech32Config: {
-          bech32PrefixAccAddr: 'secret',
-          bech32PrefixAccPub: 'secretpub',
-          bech32PrefixValAddr: 'secretvaloper',
-          bech32PrefixValPub: 'secretvaloperpub',
-          bech32PrefixConsAddr: 'secretvalcons',
-          bech32PrefixConsPub: 'secretvalconspub',
-        },
-        currencies: [
-          {
+          stakeCurrency: {
             coinDenom: 'SCRT',
             coinMinimalDenom: 'uscrt',
             coinDecimals: 6,
           },
-        ],
-        feeCurrencies: [
-          {
-            coinDenom: 'SCRT',
-            coinMinimalDenom: 'uscrt',
-            coinDecimals: 6,
+          bech32Config: {
+            bech32PrefixAccAddr: 'secret',
+            bech32PrefixAccPub: 'secretpub',
+            bech32PrefixValAddr: 'secretvaloper',
+            bech32PrefixValPub: 'secretvaloperpub',
+            bech32PrefixConsAddr: 'secretvalcons',
+            bech32PrefixConsPub: 'secretvalconspub',
           },
-        ],
-        gasPriceStep: {
-          low: 0.1,
-          average: 0.25,
-          high: 0.4,
-        },
-        features: ['secretwasm'],
-      });
-
+          currencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          feeCurrencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          gasPriceStep: {
+            low: 0.1,
+            average: 0.25,
+            high: 0.4,
+          },
+          features: ['secretwasm'],
+        });
+      }
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 
@@ -151,7 +152,7 @@ export class UserStoreEx extends StoreConstructor {
       this.isAuthorized = true;
 
       this.cosmJS = new SigningCosmWasmClient(
-        'https://bootstrap.secrettestnet.io/',
+        process.env.SECRETLCD,
         this.address,
         this.keplrOfflineSigner,
         // @ts-ignore
