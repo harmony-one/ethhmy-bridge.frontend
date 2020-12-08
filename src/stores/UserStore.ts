@@ -94,15 +94,15 @@ export class UserStoreEx extends StoreConstructor {
   @action public async signIn() {
     this.error = '';
 
-    this.chainId = process.env.CHAINID;
+    this.chainId = process.env.CHAIN_ID;
     try {
       // Setup Secret Testnet (not needed on mainnet)
       if (process.env.ENV !== 'MAINNET') {
         await this.keplrWallet.experimentalSuggestChain({
           chainId: this.chainId,
-          chainName: 'Secret-2',
-          rpc: process.env.SECRETRPC,
-          rest: process.env.SECRETLCD,
+          chainName: process.env.CHAIN_NAME,
+          rpc: process.env.SECRET_RPC,
+          rest: process.env.SECRET_LCD,
           bip44: {
             coinType: 529,
           },
@@ -152,7 +152,7 @@ export class UserStoreEx extends StoreConstructor {
       this.isAuthorized = true;
 
       this.cosmJS = new SigningCosmWasmClient(
-        process.env.SECRETLCD,
+        process.env.SECRET_LCD,
         this.address,
         this.keplrOfflineSigner,
         // @ts-ignore
