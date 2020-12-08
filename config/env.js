@@ -49,6 +49,7 @@ function getClientEnvironment(publicUrl) {
         return env;
       },
       {
+        ENV: process.env.ENV,
         APP_VERSION: process.env.APP_VERSION,
         BUILD_TIME: new Date(),
         // Useful for determining whether we’re running in production mode.
@@ -67,6 +68,11 @@ function getClientEnvironment(publicUrl) {
         ).toString('base64'),
 
         PRIVATE_KEY: process.env.PRIVATE_KEY,
+
+        CHAIN_ID: process.env.CHAIN_ID,
+        CHAIN_NAME: process.env.CHAIN_NAME,
+        SECRET_RPC: process.env.SECRET_RPC,
+        SECRET_LCD: process.env.SECRET_LCD,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
