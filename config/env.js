@@ -86,6 +86,8 @@ function getClientEnvironment(publicUrl) {
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
 
+        SWAP_FEE: process.env.SWAP_FEE,
+
         GAS_LIMIT: process.env.GAS_LIMIT,
         GAS_PRICE: process.env.GAS_PRICE,
 

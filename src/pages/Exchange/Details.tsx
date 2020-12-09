@@ -130,7 +130,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 />
               )}
             </AssetRow>
-
+            {
+              exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ?
+              <AssetRow label="Swap Fee" value="">
+                {!exchange.isFeeLoading ? (
+                  <Price
+                    value={exchange.swapFee}
+                    isEth={true}
+                    boxProps={{ pad: {} }}
+                  />
+                ) : (
+                  <Loader
+                    type="ThreeDots"
+                    color="#00BFFF"
+                    height="1em"
+                    width="1em"
+                  />
+                )}
+              </AssetRow> : null
+            }
             {!isShowDetail && isETH && !exchange.isFeeLoading ? (
               <Box
                 direction="row"
