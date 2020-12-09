@@ -100,6 +100,7 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="ETH"
                 value={formatWithSixDecimals(userMetamask.ethBalance)}
+                selected={exchange.token === TOKEN.ETH}
               />
 
               {userMetamask.erc20TokenDetails ? (
@@ -177,11 +178,24 @@ export const WalletBalances = observer(() => {
                 value={formatWithSixDecimals(ones(user.balance))}
               />
 
-              {user.hrc20Address ? (
+              {user.hrc20Address && exchange.token === TOKEN.ERC20 ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(user.hrc20Balance)}
                   selected={exchange.token === TOKEN.ERC20}
+                  link={`${
+                    process.env.HMY_EXPLORER_URL
+                  }/address/${getBech32Address(
+                    user.hrc20Address,
+                  )}?txType=hrc20`}
+                />
+              ) : null}
+
+              {user.hrc20Address && exchange.token === TOKEN.ETH ? (
+                <AssetRow
+                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
+                  value={formatWithSixDecimals(user.hrc20Balance)}
+                  selected={exchange.token === TOKEN.ETH}
                   link={`${
                     process.env.HMY_EXPLORER_URL
                   }/address/${getBech32Address(

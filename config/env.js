@@ -89,6 +89,9 @@ function getClientEnvironment(publicUrl) {
         ASSETS_INFO_SERVICE: process.env.ASSETS_INFO_SERVICE,
         NETWORK: process.env.NETWORK,
 
+        ETH_HRC20: process.env.ETH_HRC20,
+        ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
+
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,

@@ -209,4 +209,9 @@ export class UserStoreEx extends StoreConstructor {
 
     this.ethRate = res.body.lastPrice;
   }
+
+  @action public setHRC20Token(token: string) {
+    this.hrc20Address = token;
+    this.hrc20Balance = '0';
+  }
 }

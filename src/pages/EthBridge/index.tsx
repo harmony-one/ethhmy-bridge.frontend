@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -9,7 +10,6 @@ import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
-import { useEffect } from 'react';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 
 const LargeButton = (props: {
@@ -56,12 +56,26 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing } = useStores();
+  const { user, exchange, routing, userMetamask } = useStores();
 
   useEffect(() => {
     if (props.match.params.token) {
-      if ([TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20].includes(props.match.params.token)) {
+      if (
+        [TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20, TOKEN.ETH].includes(
+          props.match.params.token,
+        )
+      ) {
         exchange.setToken(props.match.params.token);
+
+        if (TOKEN.ETH === props.match.params.token) {
+          user.setHRC20Token(process.env.ETH_HRC20);
+          userMetamask.setTokenDetails({
+            name: 'ETH',
+            decimals: '18',
+            erc20Address: '',
+            symbol: 'ETH',
+          });
+        }
       } else {
         routing.push(TOKEN.BUSD);
       }

@@ -210,6 +210,10 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   };
 
+  @action.bound public setTokenDetails = (tokenDetails: IERC20Token) => {
+    this.erc20TokenDetails = tokenDetails;
+  };
+
   @action public reset() {
     Object.assign(this, defaults);
   }
