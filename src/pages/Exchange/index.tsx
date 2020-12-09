@@ -99,24 +99,6 @@ export class Exchange extends React.Component<
     const { user, exchange, userMetamask } = this.props;
 
     switch (exchange.token) {
-      /*
-      case TOKEN.ETH:
-        return {
-          label: 'ETH',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.balance
-              : userMetamask.ethBalance,
-        };
-      case TOKEN.LINK:
-        return {
-          label: 'LINK',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.hmyLINKBalance
-              : userMetamask.ethLINKBalance,
-        };
-*/
       case TOKEN.ERC20:
         if (!userMetamask.erc20TokenDetails) {
           return { label: '', maxAmount: '0' };
@@ -291,7 +273,8 @@ export class Exchange extends React.Component<
 
                       if (
                         value &&
-                        Number(value) > Number(this.tokenInfo.maxAmount)
+                        Number(value) >
+                          Number(this.tokenInfo.maxAmount.replace(/,/g, ''))
                       ) {
                         const defaultMsg = `Exceeded the maximum amount`;
                         errors.push(defaultMsg);
@@ -302,8 +285,7 @@ export class Exchange extends React.Component<
                   ]}
                 />
                 <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
+                  <b>*Max Available</b> = {this.tokenInfo.maxAmount}{' '}
                   {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20
                     ? 's'
