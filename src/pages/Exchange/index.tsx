@@ -25,6 +25,7 @@ import { ERC20Select } from './ERC20Select';
 export interface ITokenInfo {
   label: string;
   maxAmount: string;
+  minAmount: string;
 }
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
@@ -101,27 +102,39 @@ export class Exchange extends React.Component<
     switch (exchange.token) {
       case TOKEN.ERC20:
         if (!userMetamask.erc20TokenDetails) {
-          return { label: '', maxAmount: '0' };
+          return { label: '', maxAmount: '0', minAmount: '0' };
         }
 
         return {
           label: userMetamask.erc20TokenDetails.symbol,
           maxAmount:
             exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.snip20Balance
+              ? !user.snip20Balance || user.snip20Balance.includes('Unlock')
+                ? '0'
+                : user.snip20Balance
               : userMetamask.erc20Balance,
+          minAmount:
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+              ? user.snip20BalanceMin || '0'
+              : userMetamask.erc20BalanceMin || '0',
         };
 
       default:
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
           return {
             label: 'secretETH',
-            maxAmount: user.balanceToken['Ethereum'] || '0',
+            maxAmount:
+              !user.balanceToken['Ethereum'] ||
+              user.balanceToken['Ethereum'].includes('Unlock')
+                ? '0'
+                : user.balanceToken['Ethereum'],
+            minAmount: user.balanceTokenMin['Ethereum'] || '0',
           };
         } else {
           return {
             label: 'ETH',
             maxAmount: userMetamask.ethBalance,
+            minAmount: userMetamask.ethBalanceMin || '0',
           };
         }
     }
@@ -276,8 +289,13 @@ export class Exchange extends React.Component<
                         Number(value) >
                           Number(this.tokenInfo.maxAmount.replace(/,/g, ''))
                       ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
+                        errors.push('Exceeded the maximum amount');
+                      } else if (
+                        value &&
+                        Number(value) <
+                          Number(this.tokenInfo.minAmount.replace(/,/g, ''))
+                      ) {
+                        errors.push('Below the minimum amount');
                       }
 
                       callback(errors);
@@ -285,7 +303,14 @@ export class Exchange extends React.Component<
                   ]}
                 />
                 <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> = {this.tokenInfo.maxAmount}{' '}
+                  <b>Min / Max</b> ={' '}
+                  {formatWithSixDecimals(
+                    this.tokenInfo.minAmount.replace(/,/g, ''),
+                  )}
+                  {' / '}
+                  {formatWithSixDecimals(
+                    this.tokenInfo.maxAmount.replace(/,/g, ''),
+                  )}{' '}
                   {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20
                     ? 's'

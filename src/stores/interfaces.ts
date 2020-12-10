@@ -91,5 +91,7 @@ export interface ITokenInfo {
     image: string;
     label: string;
     symbol: string;
+    min_to_scrt: string;
+    min_from_scrt: string;
   };
 }

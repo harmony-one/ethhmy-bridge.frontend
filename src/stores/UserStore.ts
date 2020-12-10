@@ -34,6 +34,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balanceSCRT: string;
 
   @observable public balanceToken: { [key: string]: string } = {};
+  @observable public balanceTokenMin: { [key: string]: string } = {};
 
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
@@ -43,6 +44,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public snip20Address = '';
   @observable public snip20Balance = '';
+  @observable public snip20BalanceMin = '';
 
   @observable public isInfoReading = false;
   @observable public chainId: string;
@@ -243,6 +245,13 @@ export class UserStoreEx extends StoreConstructor {
           }
         } catch (err) {
           this.balanceToken[token.src_coin] = 'Unlock';
+        }
+
+        try {
+          this.balanceTokenMin[token.src_coin] =
+            token.display_props.min_from_scrt;
+        } catch (e) {
+          // Ethereum?
         }
       }
     }
