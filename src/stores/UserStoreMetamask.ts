@@ -201,6 +201,7 @@ export class UserStoreMetamask extends StoreConstructor {
         this.stores.user.snip20Address = token.dst_address;
         this.stores.user.snip20Balance = await this.stores.user.getSnip20Balance(
           token.dst_address,
+          token.decimals
         );
       }
     }

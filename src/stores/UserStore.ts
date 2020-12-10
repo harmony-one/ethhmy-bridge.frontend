@@ -14,6 +14,7 @@ import * as agent from 'superagent';
 import { IOperation } from './interfaces';
 import { divDecimals, formatWithSixDecimals } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
+import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
 
 const defaults = {};
 
@@ -34,6 +35,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balanceSCRT: string;
 
   @observable public balanceToken: { [key: string]: string } = {};
+
+  @observable public balanceRewards: { [key: string]: string } = {};
 
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
@@ -180,45 +183,83 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getSnip20Balance = async snip20Address => {
+  @action public getBridgeRewardsBalance = async (snip20Address: string, decimals: string): Promise<string> => {
     if (!this.cosmJS) {
       return '0';
     }
 
-    let balanceResponse;
-    try {
-      balanceResponse = await this.cosmJS.queryContractSmart(snip20Address, {
-        balance: {
-          address: this.address,
-          key: await this.keplrWallet.getSecret20ViewingKey(
-            this.chainId,
-            snip20Address,
-          ),
-        },
-      });
-    } catch (e) {
-      return 'Unlock';
+    const height = await this.cosmJS.getHeight();
+
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error("Token not found")
     }
 
-    if (balanceResponse.viewing_key_error) {
-      return 'Fix Unlock';
-    }
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
 
-    if (Number(balanceResponse.balance.amount) === 0) {
+    const result = await QueryRewards({
+      cosmJS: this.cosmJS,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+      height: String(height),
+    });
+
+    return result
+  };
+
+  @action public getBridgeDepositBalance = async (snip20Address: string, decimals: string): Promise<string> => {
+    if (!this.cosmJS) {
       return '0';
     }
 
-    const decimalsResponse = await this.cosmJS.queryContractSmart(
-      snip20Address,
-      {
-        token_info: {},
-      },
-    );
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error("Token not found")
+    }
 
-    return divDecimals(
-      balanceResponse.balance.amount,
-      decimalsResponse.token_info.decimals,
-    );
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    return await QueryDeposit({
+      cosmJS: this.cosmJS,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+    });
+  };
+
+
+  @action public getSnip20Balance = async (snip20Address: string, decimals: string): Promise<string> => {
+    if (!this.cosmJS) {
+      return '0';
+    }
+
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error("Token not found")
+    }
+
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    return await Snip20GetBalance({
+      cosmJS: this.cosmJS,
+      token: snip20Address,
+      address: this.address,
+      key: viewingKey,
+      decimals: decimalsNum,
+    });
   };
 
   @action public getBalances = async () => {
@@ -235,7 +276,7 @@ export class UserStoreEx extends StoreConstructor {
 
       for (const token of this.stores.tokens.allData) {
         try {
-          const balance = await this.getSnip20Balance(token.dst_address);
+          const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
           if (balance.includes('Unlock')) {
             this.balanceToken[token.src_coin] = balance;
           } else {
@@ -245,7 +286,53 @@ export class UserStoreEx extends StoreConstructor {
           this.balanceToken[token.src_coin] = 'Unlock';
         }
       }
-    }
+
+      // todo: make this less hardcoded
+      try {
+        const balance = await this.getBridgeRewardsBalance("secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m", "6")
+
+        console.log(balance)
+
+        if (balance.includes('Unlock')) {
+          this.balanceRewards["ETH Rewards"] = balance;
+        } else {
+          this.balanceRewards["ETH Rewards"] = formatWithSixDecimals(balance);
+        }
+      } catch (err) {
+        this.balanceRewards["ETH Rewards"] = 'Unlock';
+      }
+
+      // todo: make this less hardcoded
+      try {
+        const balance = await this.getBridgeDepositBalance("secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m", "6")
+
+        console.log(balance)
+
+        if (balance.includes('Unlock')) {
+          this.balanceRewards["ETH Deposit"] = balance;
+        } else {
+          this.balanceRewards["ETH Deposit"] = formatWithSixDecimals(balance);
+        }
+      } catch (err) {
+        this.balanceRewards["ETH Deposit"] = 'Unlock';
+      }
+
+      // todo: make this less hardcoded
+      try {
+        const balance = await this.getSnip20Balance("secret1s7c6xp9wltthk5r6mmavql4xld5me3g37guhsx", "6")
+
+        console.log(balance)
+
+        if (balance.includes('Unlock')) {
+          this.balanceRewards["sscrt"] = balance;
+        } else {
+          this.balanceRewards["sscrt"] = formatWithSixDecimals(balance);
+        }
+      } catch (err) {
+        this.balanceRewards["sscrt"] = 'Unlock';
+      }
+
+      }
   };
 
   @action public signOut() {

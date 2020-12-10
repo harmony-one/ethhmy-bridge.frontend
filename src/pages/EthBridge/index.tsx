@@ -9,6 +9,7 @@ import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
+import { Rewards } from './Rewards';
 import { useEffect } from 'react';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 
@@ -138,8 +139,12 @@ export const EthBridge = observer((props: any) => {
             {/*  </DisableWrap>*/}
             {/*</Box>*/}
           </Box>
-          <WalletBalances />
+          <Box>
+            <WalletBalances />
+            <Rewards />
+          </Box>
         </Box>
+
       </PageContainer>
     </BaseContainer>
   );
