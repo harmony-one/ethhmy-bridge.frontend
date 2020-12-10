@@ -10,7 +10,7 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Checkbox, Icon, Select, Text } from 'components/Base';
+import { Button, Icon, Text } from 'components/Base';
 import { formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';

@@ -81,12 +81,20 @@ export class Exchange extends StoreConstructor {
   }
 
   @observable ethNetworkFee = 0;
+  @observable ethSwapFee = 0;
 
   @computed
   get networkFee() {
     return this.mode === EXCHANGE_MODE.ETH_TO_SCRT
       ? this.ethNetworkFee
       : 0.0134438;
+  }
+
+  @computed
+  get swapFee() {
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH
+      ? this.ethSwapFee
+      : 0;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -105,11 +113,14 @@ export class Exchange extends StoreConstructor {
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
-                this.ethNetworkFee = await getNetworkFee();
+                this.ethNetworkFee = await getNetworkFee(process.env.ETH_GAS_LIMIT);
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.SCRT_TO_ETH:
                 this.transaction.scrtAddress = this.stores.user.address;
+                this.isFeeLoading = true;
+                this.ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
+                this.isFeeLoading = false;
                 break;
             }
           },
