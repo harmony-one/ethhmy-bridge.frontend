@@ -222,8 +222,9 @@ export class Exchange extends React.Component<
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE ? (
-          <Box direction="row">
+          <Box direction="row" wrap={true} align="center" justify="start">
             <Box
+              style={{ width: 140 }}
               className={cn(
                 styles.itemToken,
                 exchange.token === TOKEN.BUSD ? styles.selected : '',
@@ -258,6 +259,7 @@ export class Exchange extends React.Component<
               )}
               onClick={() => {
                 exchange.setToken(TOKEN.ERC20);
+                userMetamask.setToken('');
                 routing.push(`/${exchange.token}`);
               }}
             >
@@ -266,6 +268,7 @@ export class Exchange extends React.Component<
             </Box>
 
             <Box
+              style={{ width: 140 }}
               className={cn(
                 styles.itemToken,
                 exchange.token === TOKEN.ERC721 ? styles.selected : '',
@@ -328,8 +331,12 @@ export class Exchange extends React.Component<
               {/*  </Box>*/}
               {/*</Box>*/}
 
-              {[TOKEN.ERC20, TOKEN.ERC721].includes(exchange.token) ? (
-                <ERC20Select type={exchange.token} />
+              {exchange.token === TOKEN.ERC20 ? (
+                <ERC20Select type={exchange.token} options={true} />
+              ) : null}
+
+              {exchange.token === TOKEN.ERC721 ? (
+                <ERC20Select type={exchange.token} options={false} />
               ) : null}
 
               {/*<Box direction="column" fill={true}>*/}

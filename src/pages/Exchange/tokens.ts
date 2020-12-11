@@ -1,4 +1,4 @@
-export const tokens = [
+export const tokensMainnet = [
   {
     label: 'Tether USD (USDT)',
     href:
