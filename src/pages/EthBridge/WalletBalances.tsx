@@ -178,7 +178,8 @@ export const WalletBalances = observer(() => {
                 value={formatWithSixDecimals(ones(user.balance))}
               />
 
-              {user.hrc20Address && exchange.token === TOKEN.ERC20 ? (
+              {user.hrc20Address &&
+              [TOKEN.ERC20, TOKEN.ERC721].includes(exchange.token) ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(user.hrc20Balance)}

@@ -53,8 +53,20 @@ const ethManagerContract = new web3.eth.Contract(
   process.env.ETH_ERC20_MANAGER_CONTRACT,
 );
 
+const ethManagerERC721Json = require('../out/ERC721EthManager.json');
+const ethManagerContractERC721 = new web3.eth.Contract(
+  ethManagerERC721Json.abi,
+  process.env.ETH_ERC721_MANAGER_CONTRACT,
+);
+
 export const ethMethodsERC20 = new EthMethodsERC20({
   web3: web3,
   ethManagerContract: ethManagerContract,
   ethManagerAddress: process.env.ETH_ERC20_MANAGER_CONTRACT,
+});
+
+export const ethMethodsERС721 = new EthMethodsERC20({
+  web3: web3,
+  ethManagerContract: ethManagerContractERC721,
+  ethManagerAddress: process.env.ETH_ERC721_MANAGER_CONTRACT,
 });

@@ -8,6 +8,8 @@ import {
   hmyMethodsERC20,
   ethMethodsLINK,
   ethMethodsBUSD,
+  ethMethodsERС721,
+  hmyMethodsERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 
@@ -201,6 +203,28 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20Address = erc20Address;
 
     const address = await hmyMethodsERC20.getMappingFor(erc20Address);
+
+    if (!!Number(address)) {
+      this.stores.user.hrc20Address = address;
+      this.syncLocalStorage();
+    } else {
+      this.stores.user.hrc20Address = '';
+    }
+  };
+
+  @action.bound public setERC721Token = async (erc20Address: string) => {
+    this.erc20TokenDetails = null;
+    this.erc20Address = '';
+    this.erc20Balance = '0';
+    this.stores.user.hrc20Address = '';
+    this.stores.user.hrc20Balance = '0';
+
+    const details = await ethMethodsERС721.tokenDetailsERC721(erc20Address);
+    this.erc20Address = erc20Address;
+
+    this.erc20TokenDetails = { ...details, decimals: '0' };
+
+    const address = await hmyMethodsERC721.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;

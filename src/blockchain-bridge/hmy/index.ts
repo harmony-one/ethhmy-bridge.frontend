@@ -58,3 +58,14 @@ export const hmyMethodsERC20 = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContract,
 });
+
+const hmyManagerJson721 = require('../out/ERC721HmyManager.json');
+const hmyManagerContract721 = this.hmy.contracts.createContract(
+  hmyManagerJson721.abi,
+  process.env.HMY_ERC721_MANAGER_CONTRACT,
+);
+
+export const hmyMethodsERC721 = new HmyMethodsERC20({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContract721,
+});

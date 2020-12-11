@@ -328,6 +328,11 @@ export class Exchange extends StoreConstructor {
           ethMethods = contract.ethMethodsBUSD;
           hmyMethods = contract.hmyMethodsERC20;
           break;
+
+        case TOKEN.ERC721:
+          ethMethods = contract.ethMethodsERС721;
+          hmyMethods = contract.hmyMethodsERC20;
+          break;
       }
 
       if (this.token === TOKEN.ETH) {
@@ -371,7 +376,7 @@ export class Exchange extends StoreConstructor {
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveHmyManger.status,
             )
-            ) {
+          ) {
             approveHmyManger = this.getActionByType(
               ACTION_TYPE.approveHmyManger,
             );
@@ -399,7 +404,7 @@ export class Exchange extends StoreConstructor {
         }
       }
 
-      if (this.token === TOKEN.ERC20) {
+      if (this.token === TOKEN.ERC20 || this.token === TOKEN.ERC721) {
         let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
 
         while (

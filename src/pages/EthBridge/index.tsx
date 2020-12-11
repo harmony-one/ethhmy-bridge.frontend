@@ -61,7 +61,7 @@ export const EthBridge = observer((props: any) => {
   useEffect(() => {
     if (props.match.params.token) {
       if (
-        [TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20, TOKEN.ETH].includes(
+        [TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20, TOKEN.ETH, TOKEN.ERC721].includes(
           props.match.params.token,
         )
       ) {

@@ -8,6 +8,7 @@ export enum TOKEN {
   LINK = 'link',
   ERC20 = 'erc20',
   ETH = 'eth',
+  ERC721 = 'erc721',
 }
 
 export enum ACTION_TYPE {

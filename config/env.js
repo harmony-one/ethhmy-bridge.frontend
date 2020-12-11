@@ -101,6 +101,10 @@ function getClientEnvironment(publicUrl) {
         GAS_LIMIT: process.env.GAS_LIMIT,
         GAS_PRICE: process.env.GAS_PRICE,
 
+        NFT_TOKEN_MANAGER_CONTRACT: process.env.NFT_TOKEN_MANAGER_CONTRACT,
+        ETH_ERC721_MANAGER_CONTRACT: process.env.ETH_ERC721_MANAGER_CONTRACT,
+        HMY_ERC721_MANAGER_CONTRACT: process.env.HMY_ERC721_MANAGER_CONTRACT,
+
         BACKEND_URL: process.env.BACKEND_URL,
         THRESHOLD: process.env.THRESHOLD,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,

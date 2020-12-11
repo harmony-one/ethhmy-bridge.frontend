@@ -116,10 +116,19 @@ export class Exchange extends React.Component<
               : userMetamask.ethLINKBalance,
         };
 
+      case TOKEN.ERC721:
       case TOKEN.ERC20:
         if (!userMetamask.erc20TokenDetails) {
           return { label: '', maxAmount: '0' };
         }
+
+        return {
+          label: userMetamask.erc20TokenDetails.symbol,
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.erc20Balance,
+        };
 
       case TOKEN.ETH:
         return {
@@ -128,14 +137,6 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.ethBalance,
-        };
-
-        return {
-          label: userMetamask.erc20TokenDetails.symbol,
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-              ? user.hrc20Balance
-              : userMetamask.erc20Balance,
         };
 
       default:
@@ -267,6 +268,20 @@ export class Exchange extends React.Component<
             <Box
               className={cn(
                 styles.itemToken,
+                exchange.token === TOKEN.ERC721 ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.ERC721);
+                routing.push(`/${exchange.token}`);
+              }}
+            >
+              <img className={styles.imgToken} src="/eth.svg" />
+              <Text>ERC721</Text>
+            </Box>
+
+            <Box
+              className={cn(
+                styles.itemToken,
                 exchange.token === TOKEN.ETH ? styles.selected : '',
               )}
               onClick={() => {
@@ -313,7 +328,9 @@ export class Exchange extends React.Component<
               {/*  </Box>*/}
               {/*</Box>*/}
 
-              {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
+              {[TOKEN.ERC20, TOKEN.ERC721].includes(exchange.token) ? (
+                <ERC20Select type={exchange.token} />
+              ) : null}
 
               {/*<Box direction="column" fill={true}>*/}
               {/*  <TokenDetails />*/}
@@ -326,7 +343,11 @@ export class Exchange extends React.Component<
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
                 <NumberInput
-                  label={`${this.tokenInfo.label} Amount`}
+                  label={
+                    exchange.token === TOKEN.ERC721
+                      ? `${this.tokenInfo.label} Token ID`
+                      : `${this.tokenInfo.label} Amount`
+                  }
                   name="amount"
                   type="decimal"
                   precision="6"
@@ -340,6 +361,7 @@ export class Exchange extends React.Component<
                       const errors = [];
 
                       if (
+                        exchange.token !== TOKEN.ERC721 &&
                         value &&
                         Number(value) > Number(this.tokenInfo.maxAmount)
                       ) {
@@ -351,11 +373,13 @@ export class Exchange extends React.Component<
                     },
                   ]}
                 />
-                <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
-                  {this.tokenInfo.label}
-                </Text>
+                {exchange.token !== TOKEN.ERC721 ? (
+                  <Text size="small" style={{ textAlign: 'right' }}>
+                    <b>*Max Available</b> ={' '}
+                    {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
+                    {this.tokenInfo.label}
+                  </Text>
+                ) : null}
               </Box>
 
               {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (

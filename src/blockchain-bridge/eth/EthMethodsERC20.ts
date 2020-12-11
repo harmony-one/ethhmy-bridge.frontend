@@ -107,4 +107,22 @@ export class EthMethodsERC20 {
 
     return { name, symbol, decimals, erc20Address };
   };
+
+  tokenDetailsERC721 = async erc20Address => {
+    if (!this.web3.utils.isAddress(erc20Address)) {
+      throw new Error('Invalid token address');
+    }
+
+    const MyERC20Json = require('../out/MyERC721.json');
+    const erc20Contract = new this.web3.eth.Contract(
+      MyERC20Json.abi,
+      erc20Address,
+    );
+
+    const name = await erc20Contract.methods.name().call();
+    const symbol = await erc20Contract.methods.symbol().call();
+    // const decimals = await erc20Contract.methods.decimals().call();
+
+    return { name, symbol, erc20Address };
+  };
 }

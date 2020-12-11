@@ -7,8 +7,9 @@ import { useEffect, useState } from 'react';
 import { tokens } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
+import { TOKEN } from '../../stores/interfaces';
 
-export const ERC20Select = observer(() => {
+export const ERC20Select = observer<{ type: TOKEN }>(({ type }) => {
   const { userMetamask } = useStores();
   const [erc20, setERC20] = useState(userMetamask.erc20Address);
   const [error, setError] = useState('');
@@ -53,7 +54,11 @@ export const ERC20Select = observer(() => {
                 setError(e.message);
               }
             }}
-            placeholder="Select your ERC20 token"
+            placeholder={
+              type === TOKEN.ERC721
+                ? 'Select your ERC721 token'
+                : 'Select your ERC20 token'
+            }
           />
           {token ? (
             <Box
@@ -77,7 +82,11 @@ export const ERC20Select = observer(() => {
         <>
           <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
             <TextInput
-              placeholder="Input ERC20 token address"
+              placeholder={
+                type === TOKEN.ERC721
+                  ? 'Input ERC721 token address'
+                  : 'Input ERC20 token address'
+              }
               value={erc20}
               onChange={setERC20}
             />
@@ -87,7 +96,11 @@ export const ERC20Select = observer(() => {
               onClick={async () => {
                 setError('');
                 try {
-                  await userMetamask.setToken(erc20);
+                  if (type === TOKEN.ERC721) {
+                    await userMetamask.setERC721Token(erc20);
+                  } else {
+                    await userMetamask.setToken(erc20);
+                  }
                 } catch (e) {
                   setError(e.message);
                 }
