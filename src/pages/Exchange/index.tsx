@@ -259,7 +259,6 @@ export class Exchange extends React.Component<
               )}
               onClick={() => {
                 exchange.setToken(TOKEN.ERC20);
-                userMetamask.setToken('');
                 routing.push(`/${exchange.token}`);
               }}
             >
