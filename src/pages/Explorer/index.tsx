@@ -127,7 +127,8 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     key: 'amount',
     dataIndex: 'amount',
     width: 120,
-    render: value => formatWithSixDecimals(value),
+    render: (value, data) =>
+      data.token === TOKEN.ERC721 ? 1 : formatWithSixDecimals(value),
   },
   {
     title: 'Age',

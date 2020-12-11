@@ -108,6 +108,40 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
 
     const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_ONE;
 
+    const getAmount = () => {
+      switch (exchange.token) {
+        case TOKEN.ERC20:
+          return (
+            <AssetRow
+              label={`${String(
+                userMetamask.erc20TokenDetails &&
+                  userMetamask.erc20TokenDetails.symbol,
+              ).toUpperCase()} amount`}
+              value={formatWithSixDecimals(exchange.transaction.amount)}
+            />
+          );
+
+        case TOKEN.ERC721:
+          return (
+            <AssetRow
+              label={`${String(
+                userMetamask.erc20TokenDetails &&
+                  userMetamask.erc20TokenDetails.symbol,
+              ).toUpperCase()} token ID`}
+              value={exchange.transaction.amount}
+            />
+          );
+
+        default:
+          return (
+            <AssetRow
+              label={`${String(exchange.token).toUpperCase()} amount`}
+              value={formatWithSixDecimals(exchange.transaction.amount)}
+            />
+          );
+      }
+    };
+
     return (
       <Box direction="column">
         <AssetRow
@@ -120,20 +154,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           value={truncateAddressString(exchange.transaction.oneAddress)}
           address={true}
         />
-        {exchange.token === TOKEN.ERC20 ? (
-          <AssetRow
-            label={`${String(
-              userMetamask.erc20TokenDetails &&
-                userMetamask.erc20TokenDetails.symbol,
-            ).toUpperCase()} amount`}
-            value={formatWithSixDecimals(exchange.transaction.amount)}
-          />
-        ) : (
-          <AssetRow
-            label={`${String(exchange.token).toUpperCase()} amount`}
-            value={formatWithSixDecimals(exchange.transaction.amount)}
-          />
-        )}
+        {getAmount()}
 
         {/*<DataItem*/}
         {/*  icon="User"*/}

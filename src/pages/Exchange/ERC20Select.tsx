@@ -17,18 +17,26 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
     const [token, setToken] = useState('');
     const [custom, setCustom] = useState(false);
 
-    const [tokensList, etTokensList] = useState([]);
-
-    useEffect(() => {
-      etTokensList(
-        process.env.NETWORK === 'testnet'
-          ? tokens.data.map(t => ({
+    const getTokens = () => {
+      return process.env.NETWORK === 'testnet'
+        ? tokens.allData
+            .filter(t => !['BUSD', 'LINK'].includes(t.symbol))
+            .map(t => ({
               address: t.erc20Address,
               label: `${t.name} (${t.symbol})`,
               image: '/eth.svg',
             }))
-          : tokensMainnet,
-      );
+        : tokensMainnet;
+    };
+
+    const [tokensList, setTokensList] = useState([]);
+
+    useEffect(() => {
+      if (!!tokensList.length) {
+        return;
+      }
+
+      setTokensList(getTokens());
     }, [tokens.data]);
 
     useEffect(() => {
