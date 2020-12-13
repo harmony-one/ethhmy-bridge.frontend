@@ -415,20 +415,19 @@ export class Exchange extends React.Component<
               }}
               fill={true}
             >
-              <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign{' '}
-                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-                exchange.token === TOKEN.ERC20 ? (
-                  <b>two</b>
-                ) : (
-                  <b>one</b>
-                )}{' '}
-                transaction
-                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                exchange.token === TOKEN.ERC20
-                  ? 's'
-                  : ''}
-              </Text>
+              {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+              exchange.token === TOKEN.ERC20 ? (
+                <Text color="Red500" style={{ textAlign: 'left' }}>
+                  If it's the first time you're sending this token, you will be
+                  prompted to sign <b>two</b> transactions.
+                  <br />
+                  Otherwise you will be prompted to sign <b>one</b> transaction.
+                </Text>
+              ) : (
+                <Text color="Red500" style={{ textAlign: 'left' }}>
+                  You will be prompted to sign <b>one</b> transaction
+                </Text>
+              )}
             </Box>
           </>
         ) : null}
