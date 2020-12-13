@@ -223,7 +223,14 @@ export class Exchange extends React.Component<
                 routing.push(`/${exchange.token}`);
               }}
             >
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img
+                className={styles.imgToken}
+                src={
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? '/eth.svg'
+                    : '/scrt.svg'
+                }
+              />
               <Text>
                 {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   ? 'secretETH'
@@ -241,7 +248,14 @@ export class Exchange extends React.Component<
                 routing.push(`/${exchange.token}`);
               }}
             >
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img
+                className={styles.imgToken}
+                src={
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? '/eth.svg'
+                    : '/scrt.svg'
+                }
+              />
               <Text>
                 {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   ? 'SNIP20'
@@ -410,7 +424,7 @@ export class Exchange extends React.Component<
                   <b>one</b>
                 )}{' '}
                 transaction
-                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                 exchange.token === TOKEN.ERC20
                   ? 's'
                   : ''}
