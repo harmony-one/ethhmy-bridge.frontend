@@ -127,12 +127,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Info</Text>
             </Box>
 
-            {/*<Box
+            <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}
               onClick={() => routing.push('/faq')}
             >
               <Text>FAQ</Text>
-            </Box> */}
+            </Box>
 
             {/*<Box*/}
             {/*  direction="column"*/}
