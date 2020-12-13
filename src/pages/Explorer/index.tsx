@@ -270,7 +270,7 @@ export const Explorer = observer((props: any) => {
           align="start"
           margin={{ top: 'xlarge' }}
         >
-          {isAuthorized ? (
+          {/*    {isAuthorized ? (
             <Box
               direction="row"
               pad={{ horizontal: 'large' }}
@@ -284,7 +284,7 @@ export const Explorer = observer((props: any) => {
                 onChange={setMyOperationsHandler}
               />
             </Box>
-          ) : null}
+          ) : null} */}
           <Box className={styles.search} justify="end">
             <SearchInput value={search} onChange={setSearch} />
           </Box>
