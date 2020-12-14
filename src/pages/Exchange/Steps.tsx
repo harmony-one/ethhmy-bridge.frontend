@@ -80,7 +80,7 @@ const StatusDescription: Record<SwapStatus, string> = {
     'Bridge transaction sent, waiting for confirmation',
   [SwapStatus.SWAP_CONFIRMED]: 'Transfer complete!',
   [SwapStatus.SWAP_FAILED]:
-    'Transfer failed! Please contact info@enigma.co for more details and specify your operation ID.',
+    'Transfer failed! Please go to #🌉bridge-support on https://chat.scrt.network for more details and specify your operation ID.',
   [SwapStatus.SWAP_RETRY]: 'Failed to broadcast transaction. Retrying...',
   [SwapStatus.SWAP_SENT]:
     'Sent Transaction... waiting for on-chain confirmation',

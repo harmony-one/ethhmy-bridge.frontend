@@ -1,6 +1,5 @@
 {
   "name": "ethereum-bridge-frontend",
-  "homepage": "https://ethbridge.test.enigma.co/",
   "version": "0.0.0",
   "private": true,
   "scripts": {

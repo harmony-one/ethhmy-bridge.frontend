@@ -254,12 +254,10 @@ const faqConfig = [
     text: () => (
       <>
         <p>
-          Report any issues to{' '}
-          <a
-            href="mailto:info@enigma.co?subject=Secret-Ethereum bridge support"
-            target="_blank"
-          >
-            info@enigma.co
+          Report any issues in the <strong>#🌉bridge-support</strong> channel on
+          the{' '}
+          <a href="http://chat.scrt.network/" target="_blank">
+            Secret Network Discord server
           </a>{' '}
           with one or more of the following information:
         </p>
