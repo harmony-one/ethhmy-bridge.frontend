@@ -4,9 +4,7 @@ import * as styles from './styles.styl';
 import {
   Form,
   Input,
-  isEthAddress,
   isRequired,
-  isSecretAddress,
   MobxForm,
   NumberInput,
 } from 'components/Form';

@@ -111,11 +111,11 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
       t => t.src_address.toLowerCase() === erc20Address.toLowerCase(),
     );
 
-    if (token) {
-      return <Box>{token.symbol}</Box>;
+    if (token && token.display_props) {
+      return <Box>{token.display_props.symbol}</Box>;
     }
   } else if (value === TOKEN.ETH) {
-    return <Box>Ethereum</Box>;
+    return <Box>ETH</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;
@@ -130,11 +130,11 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
       t => t.dst_address.toLowerCase() === secretAddress.toLowerCase(),
     );
 
-    if (token) {
-      return <Box>secret-{token.symbol}</Box>;
+    if (token && token.display_props) {
+      return <Box>secret{token.display_props.symbol}</Box>;
     }
   } else if (value === TOKEN.ETH) {
-    return <Box>secret-Ethereum</Box>;
+    return <Box>secretETH</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;

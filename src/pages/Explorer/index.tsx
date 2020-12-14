@@ -5,7 +5,7 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ISwap, TOKEN } from 'stores/interfaces';
+import { ISwap, ITokenInfo, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
@@ -139,24 +139,33 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     key: 'src_coin',
     dataIndex: 'src_coin',
     width: 200,
-    render: (value, data) =>
-      data.src_network === 'Ethereum' ? (
+    render: (value, data) => {
+      return data.src_network === 'Ethereum' ? (
         <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin} />
       ) : (
         <SecretToken value={TOKEN.S20} secretAddress={data.src_coin} />
-      ),
+      );
+    },
   },
   {
     title: 'To',
     key: 'dst_coin',
     dataIndex: 'dst_coin',
     width: 200,
-    render: (value, data) =>
-      data.dst_network === 'Ethereum' ? (
-        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />
-      ) : (
-        data.dst_coin
-      ),
+    render: (value, data) => {
+      if (data.dst_network === 'Ethereum') {
+        return <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />;
+      } else {
+        const token: ITokenInfo = user.stores.tokens.allData.find(
+          t => t.dst_coin === data.dst_coin,
+        );
+        if (token && token.display_props) {
+          return <Box>secret{token.display_props.symbol}</Box>;
+        } else {
+          return <Box>secretETH</Box>;
+        }
+      }
+    },
   },
   {
     title: 'Amount',
@@ -248,11 +257,13 @@ export const Explorer = observer((props: any) => {
   const filteredData = operations.allData.filter(value => {
     if (search) {
       return (
-        Object.values(value).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+        Object.values(value).some(
+          value =>
+            value &&
+            value
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()),
         ) ||
         getScrtAddress(value.dst_address).toLowerCase() === search.toLowerCase()
       );
@@ -287,7 +298,13 @@ export const Explorer = observer((props: any) => {
               />
             </Box>
           ) : null} */}
-          <Box className={styles.search} justify="end">
+          <Box
+            className={styles.search}
+            justify="end"
+            style={{ width: '85vw' }}
+            pad={{ horizontal: '9px' }}
+            margin={{ top: 'medium', bottom: 'medium' }}
+          >
             <SearchInput value={search} onChange={setSearch} />
           </Box>
 

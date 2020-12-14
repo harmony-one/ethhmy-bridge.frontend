@@ -198,9 +198,10 @@ export const Tokens = observer((props: any) => {
         </Box>
 
         <Box
+          className={styles.search}
           pad={{ horizontal: '9px' }}
           margin={{ top: 'medium', bottom: 'medium' }}
-          // style={{ maxWidth: 500 }}
+          style={{ width: '85vw' }}
         >
           <SearchInput value={search} onChange={setSearch} />
         </Box>
