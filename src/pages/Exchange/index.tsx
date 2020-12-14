@@ -341,7 +341,7 @@ export class Exchange extends React.Component<
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired, isEthAddress]}
+                    rules={[isRequired /* isEthAddress */]}
                   />
                   {userMetamask.isAuthorized ? (
                     <Box
