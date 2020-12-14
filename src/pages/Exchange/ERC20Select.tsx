@@ -74,7 +74,7 @@ export const ERC20Select = observer(() => {
                 href={
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
                     ? `${process.env.ETH_EXPLORER_URL}/token/${token}`
-                    : `${process.env.SCRT_EXPLORER_URL}/account/${snip20}`
+                    : `${process.env.SCRT_EXPLORER_URL}/contracts/${snip20}`
                 }
                 target="_blank"
               >

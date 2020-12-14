@@ -71,101 +71,6 @@ const renderActionFee = (action: IAction): string => {
   }
 };
 
-const actionColumns: IColumn<IAction>[] = [
-  {
-    title: 'Action',
-    key: 'type',
-    dataIndex: 'type',
-    width: 240,
-    render: value => (
-      <Box className={cn(styles.actionCell, styles.type)}>
-        {STEPS_TITLE[value]}
-      </Box>
-    ),
-  },
-  {
-    title: 'tx Hash',
-    key: 'transactionHash',
-    dataIndex: 'transactionHash',
-    width: 220,
-    render: (value, action) => (
-      <a
-        className={styles.addressLink}
-        href={
-          (isEth(action.type)
-            ? process.env.ETH_EXPLORER_URL
-            : process.env.SCRT_EXPLORER_URL) +
-          '/tx/' +
-          action.transactionHash
-        }
-        target="_blank"
-      >
-        {truncateAddressString(action.transactionHash, 10)}
-      </a>
-    ),
-  },
-  {
-    title: 'Status',
-    key: 'status',
-    dataIndex: 'status',
-    width: 140,
-    render: value => (
-      <Box className={cn(styles.status, styles[value])}>{value}</Box>
-    ),
-  },
-  {
-    title: 'Age',
-    key: 'timestamp',
-    dataIndex: 'timestamp',
-    width: 140,
-    render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
-  },
-  {
-    title: 'Txn fee',
-    key: 'payload',
-    dataIndex: 'payload',
-    width: 180,
-    render: (value, data) => (data.payload ? renderActionFee(data) : '--'),
-  },
-];
-
-// export const ExpandedRow = observer((props: IExpandedRowProps) => {
-//   return (
-//     <Box
-//       pad={{ bottom: 'small', horizontal: 'large' }}
-//       direction="column"
-//       style={{ background: '#f8f8f8' }}
-//     >
-//       <Box
-//         direction="row"
-//         justify="between"
-//         align="center"
-//         margin={{ vertical: 'medium' }}
-//       >
-//         <Box direction="row" align="center">
-//           <Text size="medium">Operation type:</Text>
-//           <OperationType type={props.data.type} />
-//         </Box>
-//         <Text size="medium">ID: {props.data.id}</Text>
-//       </Box>
-//       <Table
-//         data={props.data.actions}
-//         columns={actionColumns}
-//         hidePagination
-//         dataLayerConfig={{
-//           paginationData: {
-//             pageSize: props.data.actions.length,
-//             currentPage: 1,
-//             totalPages: 1,
-//           },
-//         }}
-//         onRowClicked={() => {}}
-//         onChangeDataFlow={() => {}}
-//       />
-//     </Box>
-//   );
-// });
-
 export const ExpandedRow = observer((props: IExpandedRowProps) => {
   const { tokens } = useStores();
 
@@ -230,9 +135,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <a
                   className={styles.addressLink}
                   href={
-                    process.env.ETH_EXPLORER_URL +
-                    '/token/' +
-                    token.src_address
+                    process.env.ETH_EXPLORER_URL + '/token/' + token.src_address
                   }
                   target="_blank"
                 >
@@ -243,7 +146,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   className={styles.addressLink}
                   href={
                     process.env.SCRT_EXPLORER_URL +
-                    '/address/' +
+                    '/contracts/' +
                     token.dst_address
                   }
                   target="_blank"
@@ -261,9 +164,8 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   className={styles.addressLink}
                   href={
                     (isEth(action.type)
-                      ? process.env.ETH_EXPLORER_URL
-                      : process.env.SCRT_EXPLORER_URL) +
-                    '/tx/' +
+                      ? process.env.ETH_EXPLORER_URL + '/tx/'
+                      : process.env.SCRT_EXPLORER_URL + '/transactions/') +
                     action.transactionHash
                   }
                   target="_blank"

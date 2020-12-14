@@ -260,7 +260,7 @@ export const WalletBalances = observer(() => {
                     if (!eth) {
                       return undefined;
                     }
-                    return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
+                    return `${process.env.SCRT_EXPLORER_URL}/contracts/${eth.dst_address}`;
                   })()}
                   selected={
                     exchange.token === TOKEN.ETH &&
@@ -282,7 +282,7 @@ export const WalletBalances = observer(() => {
                     value={user.balanceToken[token.src_coin]}
                     token={token}
                     userStore={user}
-                    link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
+                    link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&
                       exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&

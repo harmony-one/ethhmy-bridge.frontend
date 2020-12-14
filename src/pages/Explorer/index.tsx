@@ -28,12 +28,12 @@ const ethAddress = value => (
   </Box>
 );
 
-const oneAddress = value => (
+const secretAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/account/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 5)}
@@ -79,7 +79,9 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     dataIndex: 'dst_address',
     width: 200,
     render: (value, data) =>
-      data.src_network === 'Ethereum' ? oneAddress(value) : ethAddress(value),
+      data.src_network === 'Ethereum'
+        ? secretAddress(value)
+        : ethAddress(value),
   },
   // {
   //   title: 'To',
@@ -115,7 +117,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
   //   render: value => (
   //     <a
   //       className={styles.addressLink}
-  //       href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
+  //       href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
   //       target="_blank"
   //     >
   //       {truncateAddressString(value, 5)}
