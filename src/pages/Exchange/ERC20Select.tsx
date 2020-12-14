@@ -34,7 +34,9 @@ export const ERC20Select = observer(() => {
         <Box margin={{ top: 'small', bottom: 'medium' }}>
           <Select
             options={tokens.allData
-              .filter(token => token.display_props)
+              .filter(
+                token => token.display_props && token.src_coin !== 'Ethereum',
+              )
               .map(token => ({
                 ...token,
                 image: token.display_props.image,
