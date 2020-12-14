@@ -44,7 +44,7 @@ const scrtAddress = value => (
 );
 
 // todo: handle multiple networks
-const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
+const getColumns = (): IColumn<ITokenInfo>[] => [
   {
     title: 'Symbol',
     key: 'symbol',
@@ -52,17 +52,9 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 140,
     className: styles.leftHeader,
     render: value => {
-      const { tokens } = useStores();
-
-      let symbol =
-        tokens.allData.find(t => t.name === value)?.display_props?.symbol ||
-        '--';
-      if (value === 'Ethereum') {
-        symbol = 'ETH';
-      }
       return (
         <Box direction="column" justify="center" pad={{ left: 'medium' }}>
-          {symbol}
+          {value}
         </Box>
       );
     },
@@ -98,71 +90,75 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   {
     title: 'Total Locked',
     sortable: true,
-    key: 'totalLockedNormal',
-    dataIndex: 'totalLockedNormal',
+    key: 'totalLocked',
+    dataIndex: 'totalLocked',
     width: 140,
     render: value => (
       <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value)}
+        {value}
       </Box>
     ),
     className: styles.centerHeader,
     align: 'center',
   },
-  {
-    title: 'Total Locked USD',
-    sortable: true,
-    key: 'totalLockedUSD',
-    defaultSort: 'asc',
-    dataIndex: 'totalLockedUSD',
-    width: 210,
-    className: styles.rightHeaderSort,
-    align: 'right',
-    render: value => (
-      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(value)}
-      </Box>
-    ),
-  },
 ];
 
 export const Tokens = observer((props: any) => {
-  const { tokens, user } = useStores();
+  const { tokens } = useStores();
   const [search, setSearch] = useState('');
 
-  const [columns, setColumns] = useState(getColumns(user));
+  const [columns, setColumns] = useState(getColumns());
 
   useEffect(() => {
     tokens.init({ sorters: {}, sorter: 'none' });
     tokens.fetch();
   }, []);
-  /*
-  useEffect(() => {
-    setColumns(getColumns(user));
-  }, [user.hmyLINKBalanceManager]);
- */
+
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
   };
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data.filter(token => {
-    if (search) {
-      // todo: check dst_network
-      return (
-        Object.values(token).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-        ) ||
-        getScrtAddress(token.dst_address).toLowerCase() === search.toLowerCase()
-      );
-    }
+  const filteredData = tokens.data
+    .filter(token => {
+      if (search) {
+        // todo: check dst_network
+        return (
+          Object.values(token).some(value =>
+            value
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()),
+          ) ||
+          getScrtAddress(token.dst_address).toLowerCase() ===
+            search.toLowerCase()
+        );
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .map(token => {
+      try {
+        token.symbol = token.display_props.symbol;
+      } catch (error) {
+        if (token.src_coin === 'Ethereum') {
+          token.symbol = 'ETH';
+        } else {
+          token.symbol = '--';
+        }
+      }
+      return token;
+    })
+    .map(token => {
+      try {
+        token.totalLocked = `${formatWithTwoDecimals(
+          token.totalLockedNormal,
+        )} ($${formatWithTwoDecimals(token.totalLockedUSD)})`;
+      } catch (error) {}
+
+      return token;
+    });
 
   return (
     <BaseContainer>
