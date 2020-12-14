@@ -366,7 +366,7 @@ export class Exchange extends React.Component<
                     name="scrtAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired, isSecretAddress]}
+                    rules={[isRequired /* isSecretAddress */]}
                   />
                   {user.isAuthorized ? (
                     <Box
