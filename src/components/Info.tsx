@@ -41,18 +41,12 @@ export const Info = ({ title }: { title: string }) => (
         cover the multisig transaction on the Ethereum side.
       </p>
       <p>
-        Please find more instructions{' '}
-        <a
-          href="https://docs.harmony.one/home/showcases/crosschain/horizon-bridge"
-          target="_blank"
-        >
-          <b>here</b>
-        </a>
-      </p>
-      <p>
         <b>
-          Report any issues to <span>info@enigma.co</span> with one or more of
-          the following informations:
+          Report any issues to{' '}
+          <a href="mailto:info@enigma.co" target="_blank">
+            info@enigma.co
+          </a>{' '}
+          with one or more of the following informations:
         </b>
         <ul>
           <li>
