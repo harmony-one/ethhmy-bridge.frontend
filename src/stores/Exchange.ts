@@ -92,9 +92,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get swapFee() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH
-      ? this.ethSwapFee
-      : 0;
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? this.ethSwapFee : 0;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -113,7 +111,9 @@ export class Exchange extends StoreConstructor {
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
-                this.ethNetworkFee = await getNetworkFee(process.env.ETH_GAS_LIMIT);
+                this.ethNetworkFee = await getNetworkFee(
+                  process.env.ETH_GAS_LIMIT,
+                );
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.SCRT_TO_ETH:
@@ -167,13 +167,9 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setAddressByMode() {
     if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-      // this.transaction.oneAddress = this.stores.user.address;
       this.transaction.scrtAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-    }
-
-    if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-      // this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+    } else if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
       this.transaction.ethAddress = '';
       this.transaction.scrtAddress = this.stores.user.address;
     }
@@ -181,15 +177,6 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
-    if (
-      this.operation &&
-      [SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(
-        this.operation.status,
-      )
-    ) {
-      return;
-    }
-
     this.clear();
     this.mode = mode;
     this.setAddressByMode();
