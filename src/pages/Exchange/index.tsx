@@ -420,8 +420,8 @@ export class Exchange extends React.Component<
               {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
               exchange.token === TOKEN.ERC20 ? (
                 <Text color="Red500" style={{ textAlign: 'left' }}>
-                  If it's the first time you're sending this token, you will be
-                  prompted to sign <b>two</b> transactions.
+                  If this is the first time you're sending this token, you will
+                  be prompted to sign <b>two</b> transactions.
                   <br />
                   Otherwise you will be prompted to sign <b>one</b> transaction.
                 </Text>

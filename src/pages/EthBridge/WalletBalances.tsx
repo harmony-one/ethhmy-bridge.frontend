@@ -52,7 +52,7 @@ const AssetRow = observer<any>(props => {
             bold={true}
             style={{ cursor: 'pointer' }}
           >
-            Unlock Token
+            🔓 Unlock Token
           </Text>
         </span>
       </Box>
