@@ -4,7 +4,9 @@ import * as styles from './styles.styl';
 import {
   Form,
   Input,
+  isEthAddress,
   isRequired,
+  isSecretAddress,
   MobxForm,
   NumberInput,
 } from 'components/Form';
@@ -327,7 +329,7 @@ export class Exchange extends React.Component<
                   )}{' '}
                   {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20
-                    ? 's'
+                    ? 'secret'
                     : '') + this.tokenInfo.label}
                 </Text>
               </Box>
@@ -339,7 +341,7 @@ export class Exchange extends React.Component<
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired]}
+                    rules={[isRequired, isEthAddress]}
                   />
                   {userMetamask.isAuthorized ? (
                     <Box
@@ -364,7 +366,7 @@ export class Exchange extends React.Component<
                     name="scrtAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired]}
+                    rules={[isRequired, isSecretAddress]}
                   />
                   {user.isAuthorized ? (
                     <Box
