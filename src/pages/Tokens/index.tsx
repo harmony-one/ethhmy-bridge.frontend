@@ -125,11 +125,13 @@ export const Tokens = observer((props: any) => {
       if (search) {
         // todo: check dst_network
         return (
-          Object.values(token).some(value =>
-            value
-              .toString()
-              .toLowerCase()
-              .includes(search.toLowerCase()),
+          Object.values(token).some(
+            value =>
+              value &&
+              value
+                .toString()
+                .toLowerCase()
+                .includes(search.toLowerCase()),
           ) ||
           getScrtAddress(token.dst_address).toLowerCase() ===
             search.toLowerCase()
