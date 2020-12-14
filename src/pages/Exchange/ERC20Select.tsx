@@ -41,7 +41,7 @@ export const ERC20Select = observer(() => {
                 text: `${
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'Secret'
                 } ${token.display_props.label} (${
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 's'
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'secret'
                 }${token.display_props.symbol})`,
                 value: token.src_address,
               }))}

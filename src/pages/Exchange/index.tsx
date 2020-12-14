@@ -284,7 +284,7 @@ export class Exchange extends React.Component<
                   label={`${(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20 &&
                   this.tokenInfo.label
-                    ? 's'
+                    ? 'secret'
                     : '') + this.tokenInfo.label} Amount`}
                   name="amount"
                   type="decimal"

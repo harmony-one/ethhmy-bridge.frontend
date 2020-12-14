@@ -80,7 +80,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <a href="/" style={{ textDecoration: 'none' }}>
               <Box>
                 <Title size="medium" color="BlackTxt" bold>
-                  Secret Bridge
+                  𝕊ecret Bridge
                 </Title>
               </Box>
             </a>

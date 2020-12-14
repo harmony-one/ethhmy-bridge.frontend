@@ -10,7 +10,7 @@ export const InfoModal = observer(() => {
   // useEffect(() => {
   //   if (!user.isInfoReading) {
   //     actionModals.open(
-  //       () => <Info title="Welcome to Ethereum <> Secret Bridge" />,
+  //       () => <Info title="Welcome to Ethereum <> 𝕊ecret Bridge" />,
   //       {
   //         title: '',
   //         applyText: 'Got it',

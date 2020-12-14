@@ -278,7 +278,7 @@ export const WalletBalances = observer(() => {
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
-                    asset={'s' + token.display_props.symbol}
+                    asset={'secret' + token.display_props.symbol}
                     value={user.balanceToken[token.src_coin]}
                     token={token}
                     userStore={user}
