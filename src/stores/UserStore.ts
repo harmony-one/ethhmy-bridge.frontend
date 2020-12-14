@@ -57,7 +57,7 @@ export class UserStoreEx extends StoreConstructor {
 
     this.getRates();
 
-    const keplrCheckPromise = new Promise((accept, _reject) => {
+    const keplrCheckPromise = new Promise<void>((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
