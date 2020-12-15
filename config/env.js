@@ -50,7 +50,6 @@ function getClientEnvironment(publicUrl) {
       },
       {
         ENV: process.env.ENV,
-        APP_VERSION: process.env.APP_VERSION,
         BUILD_TIME: new Date(),
         // Useful for determining whether we’re running in production mode.
         // Most importantly, it switches React into the correct mode.
@@ -60,12 +59,7 @@ function getClientEnvironment(publicUrl) {
         // This should only be used as an escape hatch. Normally you would put
         // images into the `src` and `import` them in code to get their paths.
         PUBLIC_URL: publicUrl,
-        API_MODE: process.env.API_MODE,
-        BASE_URL: process.env.BASE_URL,
         HIDE_CONTRACT_BTN: process.env.HIDE_CONTRACT_BTN === 'true',
-        CLIENT_AUTH_HASH: new Buffer(
-          `${process.env.BACKEND_USER}:${process.env.BACKEND_PASSWORD}`,
-        ).toString('base64'),
 
         PRIVATE_KEY: process.env.PRIVATE_KEY,
 
