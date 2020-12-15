@@ -9,7 +9,7 @@ import { Explorer } from './pages/Explorer';
 import { Tokens } from './pages/Tokens';
 import { InfoModal } from './components/InfoModal';
 import { FAQPage } from './pages/FAQ';
-import { InfoPage } from './pages/Info';
+// import { InfoPage } from './pages/Info';
 
 export const App: React.FC = () => (
   <Providers>
@@ -17,7 +17,7 @@ export const App: React.FC = () => (
       <Switch>
         <Route exact path="/tokens" component={Tokens} />
         <Route exact path="/faq" component={FAQPage} />
-        <Route exact path="/info" component={InfoPage} />
+        {/* <Route exact path="/info" component={InfoPage} /> */}
         <Route exact path="/explorer" component={Explorer} />
         <Route exact path="/:token" component={EthBridge} />
         <Route
