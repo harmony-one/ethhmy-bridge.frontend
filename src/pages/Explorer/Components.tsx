@@ -83,6 +83,7 @@ interface ITokenParams {
   address?: string;
 }
 
+
 export const FormatWithDecimals = observer((props: ITokenParams) => {
   const { tokens } = useStores();
   const { type, amount, address } = props;

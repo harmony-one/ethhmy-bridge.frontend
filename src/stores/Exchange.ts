@@ -5,8 +5,9 @@ import { ACTION_TYPE, EXCHANGE_MODE, IOperation, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import { mulDecimals, sleep, uuid } from '../utils';
+import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import { getStatus } from 'services';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -230,14 +231,29 @@ export class Exchange extends StoreConstructor {
           : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
           ? TOKEN.ERC20
           : TOKEN.S20;
-      console.log(`op type: ${this.token}`);
+
+      this.operation.status = swap.swap.status;
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
+
+        console.log(`${JSON.stringify(swap.swap)}`)
+
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
-        this.transaction.amount = String(swap.swap.amount);
+
+        const decimals = this.stores.tokens.allData.find(
+           t => t.dst_address === swap.swap.dst_address,
+        ).decimals;
+
+        this.transaction.amount = divDecimals(swap.swap.amount, decimals);
         this.txHash = swap.swap.src_tx_hash;
       } else {
+        const decimals = this.stores.tokens.allData.find(
+          t => t.dst_address === swap.swap.src_coin,
+        ).decimals;
+
+        this.transaction.amount = divDecimals(swap.swap.amount, decimals);
+
         this.transaction.scrtAddress = swap.swap.src_address;
         this.transaction.ethAddress = swap.swap.dst_address;
         this.transaction.amount = String(swap.swap.amount);
@@ -305,6 +321,8 @@ export class Exchange extends StoreConstructor {
         await this.waitForResult();
         this.setStatus();
         return;
+      } else {
+        console.log('send op without id');
       }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
