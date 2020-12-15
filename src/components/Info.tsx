@@ -20,7 +20,7 @@ export const Info = ({ title }: { title: string }) => (
           <li>1) Swap ERC-20s, or Ethereum to Secret Tokens</li>
           <li>
             2) Currently supported tokens: ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR,
-            DAI, BAND, LINK, AAVE, COMP, KNC and WBTC.
+            DAI, BAND, LINK, AAVE, COMP, KNC, USDT and WBTC.
           </li>
         </ul>
       </p>

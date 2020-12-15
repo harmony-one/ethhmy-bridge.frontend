@@ -211,7 +211,7 @@ const faqConfig = [
     text: () => (
       <p>
         Currently the bridge supports ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR, DAI,
-        BAND, LINK, AAVE, COMP, KNC and WBTC. If you’d like to see support for other
+        BAND, LINK, AAVE, COMP, KNC, USDT and WBTC. If you’d like to see support for other
         tokens, please fill{' '}
         <a href="https://airtable.com/shrLzEMvRiRFS4LpZ" target="_blank">
           this form
