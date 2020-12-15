@@ -217,9 +217,9 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.operation.id = operationId;
     //this.stores.routing.push('/operations/' + this.operation.id);
-    console.log('set op with id');
+
     const swap = await operationService.getOperation({ id: operationId });
-    console.log(`swap: ${JSON.stringify(swap)}`);
+
     if (swap.swap) {
       this.operation.type =
         swap.swap.src_network === 'Ethereum'
@@ -231,29 +231,26 @@ export class Exchange extends StoreConstructor {
           : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
           ? TOKEN.ERC20
           : TOKEN.S20;
-      console.log(`op type: ${this.token}`);
 
       this.operation.status = swap.swap.status;
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
+
+        console.log(`${JSON.stringify(swap.swap)}`)
+
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
-        console.log(`before decimals`);
 
-        console.log(`${JSON.stringify(this.stores.tokens.allData)}`);
         const decimals = this.stores.tokens.allData.find(
            t => t.dst_address === swap.swap.dst_address,
         ).decimals;
-        console.log(`after decimals`);
-        console.log(`decimals: ${decimals}`);
+
         this.transaction.amount = divDecimals(swap.swap.amount, decimals);
         this.txHash = swap.swap.src_tx_hash;
       } else {
         const decimals = this.stores.tokens.allData.find(
           t => t.dst_address === swap.swap.src_coin,
         ).decimals;
-
-        console.log(`decimals2: ${decimals}`);
 
         this.transaction.amount = divDecimals(swap.swap.amount, decimals);
 
