@@ -20,15 +20,9 @@ export const Info = ({ title }: { title: string }) => (
           <li>1) Swap ERC-20s, or Ethereum to Secret Tokens</li>
           <li>
             2) Currently supported tokens: ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR,
-            DAI, BAND, LINK, AAVE, COMP and KNC.
+            DAI, BAND, LINK, AAVE, COMP, KNC and WBTC.
           </li>
         </ul>
-      </p>
-      <p>
-        <b>
-          Each Etheruem to Secret swap requires two actions - allowance, and a
-          swap transaction. These will be handled automagically by the bridge
-        </b>
       </p>
       <p>
         Because of volatility of gas prices on Ethereum, the swap transaction
@@ -37,16 +31,17 @@ export const Info = ({ title }: { title: string }) => (
 
       <p>
         You can also do the reverse transfer, i.e., redeem your tokens back to
-        your ethereum account. This will cost you SCRT gas, and a small fee to
-        cover the multisig transaction on the Ethereum side.
+        your ethereum account. This will cost you SCRT gas, and a fee of about 500K gas,
+        in the denomination that is being withdrawn to cover the multisig transaction costs.
       </p>
       <p>
         <b>
-          Report any issues to{' '}
-          <a href="mailto:info@enigma.co" target="_blank">
-            info@enigma.co
+          Report any issues in the <strong>#🌉bridge-support</strong> channel on
+          the{' '}
+          <a href="http://chat.scrt.network/" target="_blank">
+            Secret Network Discord server
           </a>{' '}
-          with one or more of the following informations:
+          with one or more of the following information:
         </b>
         <ul>
           <li>
@@ -63,10 +58,12 @@ export const Info = ({ title }: { title: string }) => (
         </ul>
       </p>
       <p>
-        Please allow 24-48 hours for your issue resolution. Happy Bridging!!!
+        <b>Disclaimer</b>
+        <br />
+          Use at your own risk. We take no responsibilities or any liability for any claim, damages
+        or other liabilities that may arise from use of this software.
       </p>
     </div>
   </Box>
 );
 
-// Also add a Contact Us button that mailsTo: bridge@harmony.one
