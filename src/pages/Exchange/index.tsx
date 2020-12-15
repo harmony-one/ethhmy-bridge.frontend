@@ -10,7 +10,7 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Checkbox, Icon, Select, Text } from 'components/Base';
+import { Button, Icon, Text } from 'components/Base';
 import { formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
@@ -25,6 +25,7 @@ import { ERC20Select } from './ERC20Select';
 export interface ITokenInfo {
   label: string;
   maxAmount: string;
+  minAmount: string;
 }
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
@@ -99,47 +100,41 @@ export class Exchange extends React.Component<
     const { user, exchange, userMetamask } = this.props;
 
     switch (exchange.token) {
-      /*
-      case TOKEN.ETH:
-        return {
-          label: 'ETH',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.balance
-              : userMetamask.ethBalance,
-        };
-      case TOKEN.LINK:
-        return {
-          label: 'LINK',
-          maxAmount:
-            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.hmyLINKBalance
-              : userMetamask.ethLINKBalance,
-        };
-*/
       case TOKEN.ERC20:
         if (!userMetamask.erc20TokenDetails) {
-          return { label: '', maxAmount: '0' };
+          return { label: '', maxAmount: '0', minAmount: '0' };
         }
 
         return {
           label: userMetamask.erc20TokenDetails.symbol,
           maxAmount:
             exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? user.snip20Balance
+              ? !user.snip20Balance || user.snip20Balance.includes('Unlock')
+                ? '0'
+                : user.snip20Balance
               : userMetamask.erc20Balance,
+          minAmount:
+            exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
+              ? user.snip20BalanceMin || '0'
+              : userMetamask.erc20BalanceMin || '0',
         };
 
       default:
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
           return {
             label: 'secretETH',
-            maxAmount: user.balanceToken['Ethereum'] || '0',
+            maxAmount:
+              !user.balanceToken['Ethereum'] ||
+              user.balanceToken['Ethereum'].includes('Unlock')
+                ? '0'
+                : user.balanceToken['Ethereum'],
+            minAmount: user.balanceTokenMin['Ethereum'] || '0',
           };
         } else {
           return {
             label: 'ETH',
             maxAmount: userMetamask.ethBalance,
+            minAmount: userMetamask.ethBalanceMin || '0',
           };
         }
     }
@@ -228,7 +223,14 @@ export class Exchange extends React.Component<
                 routing.push(`/${exchange.token}`);
               }}
             >
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img
+                className={styles.imgToken}
+                src={
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? '/eth.svg'
+                    : '/scrt.svg'
+                }
+              />
               <Text>
                 {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   ? 'secretETH'
@@ -246,7 +248,14 @@ export class Exchange extends React.Component<
                 routing.push(`/${exchange.token}`);
               }}
             >
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img
+                className={styles.imgToken}
+                src={
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
+                    ? '/eth.svg'
+                    : '/scrt.svg'
+                }
+              />
               <Text>
                 {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   ? 'SNIP20'
@@ -275,7 +284,7 @@ export class Exchange extends React.Component<
                   label={`${(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20 &&
                   this.tokenInfo.label
-                    ? 's'
+                    ? 'secret'
                     : '') + this.tokenInfo.label} Amount`}
                   name="amount"
                   type="decimal"
@@ -291,10 +300,16 @@ export class Exchange extends React.Component<
 
                       if (
                         value &&
-                        Number(value) > Number(this.tokenInfo.maxAmount)
+                        Number(value) >
+                          Number(this.tokenInfo.maxAmount.replace(/,/g, ''))
                       ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
+                        errors.push('Exceeded the maximum amount');
+                      } else if (
+                        value &&
+                        Number(value) <
+                          Number(this.tokenInfo.minAmount.replace(/,/g, ''))
+                      ) {
+                        errors.push('Below the minimum amount');
                       }
 
                       callback(errors);
@@ -302,11 +317,17 @@ export class Exchange extends React.Component<
                   ]}
                 />
                 <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
+                  <b>Min / Max</b> ={' '}
+                  {formatWithSixDecimals(
+                    this.tokenInfo.minAmount.replace(/,/g, ''),
+                  )}
+                  {' / '}
+                  {formatWithSixDecimals(
+                    this.tokenInfo.maxAmount.replace(/,/g, ''),
+                  )}{' '}
                   {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
                   exchange.token === TOKEN.ERC20
-                    ? 's'
+                    ? 'secret'
                     : '') + this.tokenInfo.label}
                 </Text>
               </Box>
@@ -318,7 +339,7 @@ export class Exchange extends React.Component<
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired]}
+                    rules={[isRequired /* isEthAddress */]}
                   />
                   {userMetamask.isAuthorized ? (
                     <Box
@@ -343,7 +364,7 @@ export class Exchange extends React.Component<
                     name="scrtAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
-                    rules={[isRequired]}
+                    rules={[isRequired /* isSecretAddress */]}
                   />
                   {user.isAuthorized ? (
                     <Box
@@ -383,20 +404,6 @@ export class Exchange extends React.Component<
 
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <>
-            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? (
-              <Box
-                direction="row"
-                // justify="end"
-                fill={true}
-                margin={{ top: 'small' }}
-              >
-                <Text color="Red500" style={{ textAlign: 'left' }}>
-                  Metamask may ask you to sign with slightly higher fee due to
-                  150000 gas limit estimate, however you will be charged similar
-                  to the above estimate based on the actual gas used.
-                </Text>
-              </Box>
-            ) : null}
             <Box
               direction="row"
               // justify="end"
@@ -408,20 +415,19 @@ export class Exchange extends React.Component<
               }}
               fill={true}
             >
-              <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign{' '}
-                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-                exchange.token === TOKEN.ERC20 ? (
-                  <b>two</b>
-                ) : (
-                  <b>one</b>
-                )}{' '}
-                transaction
-                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-                exchange.token === TOKEN.ERC20
-                  ? 's'
-                  : ''}
-              </Text>
+              {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+              exchange.token === TOKEN.ERC20 ? (
+                <Text color="Red500" style={{ textAlign: 'left' }}>
+                  If this is the first time you're sending this token, you will
+                  be prompted to sign <b>two</b> transactions.
+                  <br />
+                  Otherwise you will be prompted to sign <b>one</b> transaction.
+                </Text>
+              ) : (
+                <Text color="Red500" style={{ textAlign: 'left' }}>
+                  You will be prompted to sign <b>one</b> transaction
+                </Text>
+              )}
             </Box>
           </>
         ) : null}

@@ -11,10 +11,82 @@ import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-
-// import { Routes } from '../../constants';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const AssetRow = observer<any>(props => {
+  let value = (
+    <Box direction="row">
+      <Text color={props.selected ? '#00ADE8' : null} bold={true}>
+        {props.address ? truncateAddressString(props.value, 10) : props.value}
+      </Text>
+      {props.address && (
+        <CopyToClipboard text={props.value}>
+          <Icon
+            glyph="PrintFormCopy"
+            size="1em"
+            color="#1c2a5e"
+            style={{ marginLeft: 10, width: 20 }}
+          />
+        </CopyToClipboard>
+      )}
+    </Box>
+  );
+
+  if (!props.value) {
+    value = (
+      <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+    );
+  } else if (props.value === 'Unlock') {
+    value = (
+      <Box direction="row">
+        <span
+          onClick={() => {
+            props.userStore.keplrWallet.suggestToken(
+              props.userStore.chainId,
+              props.token.dst_address,
+            );
+          }}
+        >
+          <Text
+            color={props.selected ? '#00ADE8' : null}
+            bold={true}
+            style={{ cursor: 'pointer' }}
+          >
+            🔓 Unlock Token
+          </Text>
+        </span>
+      </Box>
+    );
+  } else if (props.value === 'Fix Unlock') {
+    value = (
+      <Box direction="column">
+        <Text color="red">Fix Token Viewing Key</Text>
+        <Text color="red" style={{ fontSize: '0.75em' }}>
+          Keplr -{'>'}
+        </Text>
+        <Text color="red" style={{ fontSize: '0.75em' }}>
+          Secret Network -{'>'}
+        </Text>
+        <Text color="red" style={{ fontSize: '0.75em' }}>
+          Add Token -{'>'}
+        </Text>
+        <Box direction="row">
+          <Text color="red" style={{ fontSize: '0.75em' }}>
+            {props.token.dst_address}
+          </Text>
+          <CopyToClipboard text={props.token.dst_address}>
+            <Icon
+              glyph="PrintFormCopy"
+              size="0.75em"
+              color="red"
+              style={{ marginLeft: 5 }}
+            />
+          </CopyToClipboard>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box
       className={cn(
@@ -41,15 +113,7 @@ const AssetRow = observer<any>(props => {
       </Box>
 
       <Box direction="column" align="end">
-        <Box className={styles.priceColumn}>
-          {!props.value ? (
-            <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-          ) : (
-            <Text color={props.selected ? '#00ADE8' : null} bold={true}>
-              {props.value}
-            </Text>
-          )}
-        </Box>
+        <Box className={styles.priceColumn}>{value}</Box>
       </Box>
     </Box>
   );
@@ -100,7 +164,8 @@ export const WalletBalances = observer(() => {
             <>
               <AssetRow
                 asset="ETH Address"
-                value={truncateAddressString(userMetamask.ethAddress)}
+                value={userMetamask.ethAddress}
+                address={true}
               />
 
               <AssetRow
@@ -113,7 +178,12 @@ export const WalletBalances = observer(() => {
               />
 
               {tokens.allData
-                .filter(token => token.display_props)
+                .filter(
+                  token =>
+                    token.display_props &&
+                    exchange.token === TOKEN.ERC20 &&
+                    userMetamask.erc20Address === token.src_address,
+                )
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
@@ -136,7 +206,7 @@ export const WalletBalances = observer(() => {
                   userMetamask.signIn(true);
                 }}
               >
-                Connect Metamask
+                Connect with Metamask
               </Button>
               {userMetamask.error ? <Error error={userMetamask.error} /> : null}
             </Box>
@@ -171,33 +241,48 @@ export const WalletBalances = observer(() => {
             <>
               <AssetRow
                 asset="Secret Address"
-                value={truncateAddressString(user.address)}
+                value={user.address}
+                address={true}
               />
-              <AssetRow
-                asset="secretETH"
-                value={user.balanceToken['Ethereum']}
-                link={(() => {
-                  const eth = tokens.allData.find(
+              <AssetRow asset="SCRT" value={user.balanceSCRT} />
+              {exchange.token === TOKEN.ETH ? (
+                <AssetRow
+                  asset="secretETH"
+                  value={user.balanceToken['Ethereum']}
+                  token={tokens.allData.find(
                     token => token.src_coin === 'Ethereum',
-                  );
-                  if (!eth) {
-                    return undefined;
+                  )}
+                  userStore={user}
+                  link={(() => {
+                    const eth = tokens.allData.find(
+                      token => token.src_coin === 'Ethereum',
+                    );
+                    if (!eth) {
+                      return undefined;
+                    }
+                    return `${process.env.SCRT_EXPLORER_URL}/contracts/${eth.dst_address}`;
+                  })()}
+                  selected={
+                    exchange.token === TOKEN.ETH &&
+                    exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   }
-                  return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
-                })()}
-                selected={
-                  exchange.token === TOKEN.ETH &&
-                  exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-                }
-              />
+                />
+              ) : null}
               {tokens.allData
-                .filter(token => token.display_props)
+                .filter(
+                  token =>
+                    token.display_props &&
+                    exchange.token === TOKEN.ERC20 &&
+                    user.snip20Address === token.dst_address,
+                )
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
-                    asset={'s' + token.display_props.symbol}
+                    asset={'secret' + token.display_props.symbol}
                     value={user.balanceToken[token.src_coin]}
-                    link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
+                    token={token}
+                    userStore={user}
+                    link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&
                       exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
@@ -226,7 +311,7 @@ export const WalletBalances = observer(() => {
                   }
                 }}
               >
-                Connect Keplr
+                Connect with Keplr
               </Button>
               {!user.isKeplrWallet ? <Error error="Keplr not found" /> : null}
               {user.error ? <Error error={user.error} /> : null}

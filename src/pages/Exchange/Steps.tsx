@@ -2,12 +2,10 @@ import * as React from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { Text } from 'components/Base';
-import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { ACTION_TYPE, EXCHANGE_MODE, STATUS } from 'stores/interfaces';
-import { dateTimeFormat, truncateAddressString } from '../../utils';
+import { EXCHANGE_MODE } from 'stores/interfaces';
 import { SwapStatus } from '../../constants';
 
 const StepRow = ({
@@ -15,22 +13,20 @@ const StepRow = ({
   srcTransactionHash,
   dstTransactionHash,
   type,
-  txId
+  txId,
 }: {
   status: number;
   srcTransactionHash: string;
   dstTransactionHash?: string;
   type: EXCHANGE_MODE;
-  txId?: string
+  txId?: string;
 }) => {
   const label = StatusDescription[status]; //STEPS_TITLE[status];
 
-  const textClassName = cn(styles.stepRow, styles.active);
+  const textStyle =
+    status === SwapStatus.SWAP_FAILED ? styles.failed : styles.active;
 
-  const srcExplorerUrl =
-    (type === EXCHANGE_MODE.ETH_TO_SCRT
-      ? process.env.ETH_EXPLORER_URL
-      : process.env.SCRT_EXPLORER_URL) + '/tx/';
+  const textClassName = cn(styles.stepRow, textStyle);
 
   return (
     <Box
@@ -38,14 +34,25 @@ const StepRow = ({
       style={{ borderBottom: '1px solid #dedede' }}
       margin={{ bottom: 'medium' }}
     >
+      <Text className={textClassName}>
+        {status !== SwapStatus.SWAP_FAILED &&
+        status !== SwapStatus.SWAP_CONFIRMED
+          ? `Your transaction is in progress. This process may take a few minutes...`
+          : null}
+      </Text>
+
       <Box direction="row" justify="between">
         {' '}
       </Box>
+
       <Text className={textClassName}>
-        {label} {status === SwapStatus.SWAP_WAIT_SEND ? `from ${WalletType[type]}` : null}
+        {label}{' '}
+        {status === SwapStatus.SWAP_WAIT_SEND
+          ? `from ${WalletType[type]}`
+          : null}
       </Text>
       <Text className={textClassName}>
-        {txId ? `Your transaction ID is: ${txId}` : null }
+        {txId ? `Your transaction ID is: ${txId}` : null}
       </Text>
       {/*     {srcTransactionHash && (*/}
       {/*          <Box direction="row" justify="between">*/}
@@ -66,13 +73,17 @@ const WalletType: Record<EXCHANGE_MODE, string> = {
 };
 
 const StatusDescription: Record<SwapStatus, string> = {
-  [SwapStatus.SWAP_UNSIGNED]: 'Bridge confirmed Transaction, waiting for Signatures',
-  [SwapStatus.SWAP_SIGNED]: 'Bridge Transaction Signed, waiting for broadcast',
-  [SwapStatus.SWAP_SUBMITTED]: 'Bridge Transaction Sent, waiting for confirmation',
-  [SwapStatus.SWAP_CONFIRMED]: 'Transfer Complete!',
-  [SwapStatus.SWAP_FAILED]: 'Transfer failed!',
+  [SwapStatus.SWAP_UNSIGNED]:
+    'Bridge confirmed transaction, waiting for Signatures',
+  [SwapStatus.SWAP_SIGNED]: 'Bridge transaction signed, waiting for broadcast',
+  [SwapStatus.SWAP_SUBMITTED]:
+    'Bridge transaction sent, waiting for confirmation',
+  [SwapStatus.SWAP_CONFIRMED]: 'Transfer complete!',
+  [SwapStatus.SWAP_FAILED]:
+    'Transfer failed! Please go to #🌉bridge-support on https://chat.scrt.network for more details and specify your operation ID.',
   [SwapStatus.SWAP_RETRY]: 'Failed to broadcast transaction. Retrying...',
-  [SwapStatus.SWAP_SENT]: 'Sent Transaction... waiting for on-chain confirmation',
+  [SwapStatus.SWAP_SENT]:
+    'Sent Transaction... waiting for on-chain confirmation',
   [SwapStatus.SWAP_WAIT_SEND]: 'Waiting for user transaction ',
   [SwapStatus.SWAP_WAIT_APPROVE]: 'Waiting for allowance',
 };

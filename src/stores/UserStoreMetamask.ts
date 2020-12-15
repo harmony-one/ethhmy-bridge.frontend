@@ -30,11 +30,14 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @observable public ethAddress: string;
   @observable public ethBalance: string = '';
+  @observable public ethBalanceMin: string = '';
   @observable public balanceToken: { [key: string]: string } = {};
+  @observable public balanceTokenMin: { [key: string]: string } = {};
 
   @observable erc20Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
   @observable erc20Balance: string = '';
+  @observable erc20BalanceMin: string = '';
 
   constructor(stores) {
     super(stores);
@@ -75,19 +78,11 @@ export class UserStoreMetamask extends StoreConstructor {
   public async signOut() {
     this.isAuthorized = false;
     this.ethBalance = '';
+    this.ethBalanceMin = '';
     this.ethAddress = '';
     this.balanceToken = {};
 
     this.syncLocalStorage();
-
-    // await this.provider.request({
-    //   method: 'wallet_requestPermissions',
-    //   params: [
-    //     {
-    //       eth_accounts: {},
-    //     },
-    //   ],
-    // });
   }
 
   @action.bound
@@ -117,14 +112,19 @@ export class UserStoreMetamask extends StoreConstructor {
 
       try {
         if (isNew) {
-          await this.provider.request({
-            method: 'wallet_requestPermissions',
-            params: [
+          await new Promise((accept, reject) =>
+            this.provider.send(
               {
-                eth_accounts: {},
+                method: 'wallet_requestPermissions',
+                params: [
+                  {
+                    eth_accounts: {},
+                  },
+                ],
               },
-            ],
-          });
+              err => (err ? reject(err) : accept()),
+            ),
+          );
         }
 
         this.isAuthorized = true;
@@ -161,16 +161,21 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     if (this.ethAddress) {
       for (const token of this.stores.tokens.allData) {
+        if (token.src_coin === 'Ethereum') {
+          continue;
+        }
         getErc20Balance(this.ethAddress, token.src_address).then(b => {
           this.balanceToken[token.src_coin] = formatWithSixDecimals(
             divDecimals(b, token.decimals),
           );
         });
+        this.balanceTokenMin[token.src_coin] = token.display_props.min_to_scrt;
       }
 
       getEthBalance(this.ethAddress).then(b => {
         this.ethBalance = formatWithSixDecimals(b);
       });
+      this.ethBalanceMin = this.balanceTokenMin['Ethereum'];
     }
   };
 
@@ -178,8 +183,10 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '';
+    this.erc20BalanceMin = '';
     this.stores.user.snip20Address = '';
     this.stores.user.snip20Balance = '';
+    this.stores.user.snip20BalanceMin = '';
 
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
@@ -187,6 +194,9 @@ export class UserStoreMetamask extends StoreConstructor {
       await getErc20Balance(this.ethAddress, erc20Address),
       this.erc20TokenDetails.decimals,
     );
+    this.erc20BalanceMin = this.stores.tokens.allData.find(
+      t => t.src_address === erc20Address,
+    ).display_props.min_to_scrt;
 
     if (tokens) {
       const token = tokens.allData.find(
@@ -194,20 +204,14 @@ export class UserStoreMetamask extends StoreConstructor {
       );
       if (token.dst_address) {
         this.stores.user.snip20Address = token.dst_address;
-        this.stores.user.snip20Balance = await this.stores.user.getSnip20Balance(
-          token.dst_address,
-        );
+        this.stores.user.snip20Balance = this.stores.user.balanceToken[
+          token.src_coin
+        ];
+        this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[
+          token.src_coin
+        ];
       }
     }
-
-    // const address = await hmyMethodsERC20.getMappingFor(erc20Address);
-
-    // if (!!Number(address)) {
-    //   this.stores.user.snip20Address = address;
-    //   this.syncLocalStorage();
-    // } else {
-    //   this.stores.user.snip20Balance = '';
-    // }
   };
 
   @action public reset() {

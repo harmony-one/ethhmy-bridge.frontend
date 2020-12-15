@@ -4,7 +4,6 @@ import { Title } from 'components/Base';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
-import { Info } from 'components/Info';
 
 export const InfoPage = () => {
   return (
@@ -23,14 +22,8 @@ export const InfoPage = () => {
               }}
               size="large"
             >
-              {'Ethereum <> Secret Bridge'}
+              {'Ethereum <> 𝕊ecret Bridge'}
             </Title>
-          </Box>
-          <Box
-            style={{ background: 'white', borderRadius: 5 }}
-            pad={{ bottom: 'medium' }}
-          >
-            <Info title="" />
           </Box>
         </Box>
       </PageContainer>

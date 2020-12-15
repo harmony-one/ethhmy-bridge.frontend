@@ -1,5 +1,13 @@
 import * as _ from 'lodash';
-import { createValidate, isEmptyArray, isEmptyString, isInvalidDates } from './pureFunctions';
+import {
+  createValidate,
+  isEmptyArray,
+  isEmptyString,
+  isInvalidDates,
+} from './pureFunctions';
+import * as bech32 from 'bech32';
+import Web3 from 'web3';
+
 // import { isAllUnique } from 'utils/array';
 type TDocument = { id: string; type: string };
 
@@ -8,17 +16,34 @@ const webSitePattern = /^((https?|s?ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD
 export const isRequired = {
   ...createValidate(
     v => v === undefined || v === null || isEmptyString(v),
-    'This field is required!'
+    'This field is required!',
   ),
   validateType: 'requiredValidator',
 };
 
-// export const isUnique = (err: string) => {
-//   return {
-//     ...createValidate(v => (v ? !isAllUnique(v) : false), err),
-//     validateType: 'requiredValidator',
-//   };
-// };
+export const isSecretAddress = {
+  ...createValidate((v: string) => {
+    if (!v.startsWith('secret')) {
+      return true;
+    }
+
+    try {
+      bech32.decode(v);
+      return false;
+    } catch (error) {
+      return true;
+    }
+  }, 'Invalid Secret address'),
+  validateType: 'requiredValidator',
+};
+
+const web3 = new Web3();
+export const isEthAddress = {
+  ...createValidate((v: string) => {
+    return web3.utils.isAddress(v) && web3.utils.checkAddressChecksum(v);
+  }, 'Invalid Ethereum address'),
+  validateType: 'requiredValidator',
+};
 
 export const isLess = (limit: number, err: string) => ({
   ...createValidate(v => Number(v) > limit, err),
@@ -57,8 +82,9 @@ export const isNotEmptyDocumentList = {
 
 export const isHasTypeDocumentList = {
   ...createValidate(
-    (documents: TDocument[]) => documents && documents.some((doc: TDocument) => doc.type === null),
-    'Все документы должны иметь тип'
+    (documents: TDocument[]) =>
+      documents && documents.some((doc: TDocument) => doc.type === null),
+    'Все документы должны иметь тип',
   ),
   validateType: 'requiredValidator',
 };
@@ -66,26 +92,32 @@ export const isHasTypeDocumentList = {
 export const isDocumentHasType = {
   ...createValidate(
     (document: TDocument) => document && document.type === null,
-    'Документ должен иметь тип'
+    'Документ должен иметь тип',
   ),
   validateType: 'requiredValidator',
 };
 
 export const isConfirm = {
-  ...createValidate(value => value !== true, 'You must confirm this block before next actions'),
+  ...createValidate(
+    value => value !== true,
+    'You must confirm this block before next actions',
+  ),
   validateType: 'requiredValidator',
 };
 
 export const isConfirmSimplex = {
   ...createValidate(
     value => value !== true,
-    'Please read the Agreement and accept its terms before purchase'
+    'Please read the Agreement and accept its terms before purchase',
   ),
   validateType: 'requiredValidator',
 };
 
 export const isBoolean = {
-  ...createValidate(value => typeof value !== 'boolean', 'You must fill this field!'),
+  ...createValidate(
+    value => typeof value !== 'boolean',
+    'You must fill this field!',
+  ),
   validateType: 'requiredValidator',
 };
 
@@ -101,7 +133,10 @@ export const isAddress = {
 
 export const notEnoughCharacters = { min: 2, message: 'Not enough characters' };
 
-export const maxCharacters = { max: 255, message: 'Maximum string length is 255 characters' };
+export const maxCharacters = {
+  max: 255,
+  message: 'Maximum string length is 255 characters',
+};
 
 export const isNumber = {
   pattern: /^[\d]+$/gi,
@@ -120,11 +155,14 @@ export const isWebsite = {
   message: 'Website url not correct',
 };
 
-export const isYoutube = createValidate(v => !webSitePattern.test(v), 'Youtube url not correct');
+export const isYoutube = createValidate(
+  v => !webSitePattern.test(v),
+  'Youtube url not correct',
+);
 
 export const isNotChannel = createValidate(
   v => v.indexOf('channel') !== -1,
-  `Can't be a channel url`
+  `Can't be a channel url`,
 );
 
 export const isEmail = {
@@ -132,7 +170,10 @@ export const isEmail = {
   message: 'Некорректный e-mail',
 };
 
-export const isPositive = createValidate(v => _.isNumber(v) && v <= 0, 'Positive number only!');
+export const isPositive = createValidate(
+  v => _.isNumber(v) && v <= 0,
+  'Positive number only!',
+);
 
 // * Kits - grouping rules * //
 export const def = {

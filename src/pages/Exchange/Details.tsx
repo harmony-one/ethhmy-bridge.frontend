@@ -7,7 +7,9 @@ import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
-// import { EXPLORER_URL } from '../../blockchain';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Loader from 'react-loader-spinner';
+import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 const AssetRow = props => {
   return (
@@ -29,11 +31,9 @@ const AssetRow = props => {
               size="small"
               style={{
                 fontFamily: 'monospace',
-                cursor: 'pointer',
-                // textDecoration: 'underline',
               }}
             >
-              {props.value}
+              {props.address ? truncateAddressString(props.value) : props.value}
             </Text>
           </a>
         ) : (
@@ -49,57 +49,19 @@ const AssetRow = props => {
           </Text>
         )}
         {props.address && (
-          <Icon
-            glyph="PrintFormCopy"
-            size="20px"
-            color="#1c2a5e"
-            style={{ marginLeft: 10, width: 20 }}
-          />
+          <CopyToClipboard text={props.value}>
+            <Icon
+              glyph="PrintFormCopy"
+              size="1em"
+              color="#1c2a5e"
+              style={{ marginLeft: 10, width: 20 }}
+            />
+          </CopyToClipboard>
         )}
       </Box>
     </Box>
   );
 };
-
-// const DataItem = (props: {
-//   text: any;
-//   label: string;
-//   icon: string;
-//   iconSize: string;
-//   color?: string;
-//   link?: string;
-// }) => {
-//   return (
-//     <Box direction="row" justify="between" gap="10px">
-//       <Box direction="row" justify="start" align="center" gap="5px">
-//         <Icon
-//           glyph={props.icon}
-//           size={props.iconSize}
-//           color={props.color || '#1c2a5e'}
-//           style={{ marginBottom: 2, width: 20 }}
-//         />
-//         <Text color="#1c2a5e" size={'small'}>
-//           {props.label}
-//         </Text>
-//       </Box>
-//       {props.link ? (
-//         <a
-//           href={props.link}
-//           target="_blank"
-//           style={{ color: props.color || '#1c2a5e' }}
-//         >
-//           <Text color={props.color || '#1c2a5e'} size={'small'} bold={true}>
-//             {props.text}
-//           </Text>
-//         </a>
-//       ) : (
-//         <Text color={props.color || '#1c2a5e'} size={'small'} bold={true}>
-//           {props.text}
-//         </Text>
-//       )}
-//     </Box>
-//   );
-// };
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
@@ -112,12 +74,12 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
       <Box direction="column">
         <AssetRow
           label="ETH Address"
-          value={truncateAddressString(exchange.transaction.ethAddress)}
+          value={exchange.transaction.ethAddress}
           address={true}
         />
         <AssetRow
           label="Secret Address"
-          value={truncateAddressString(exchange.transaction.scrtAddress)}
+          value={exchange.transaction.scrtAddress}
           address={true}
         />
         {exchange.token === TOKEN.ERC20 ? (
@@ -160,10 +122,33 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                   boxProps={{ pad: {} }}
                 />
               ) : (
-                <Text>loading...</Text>
+                <Loader
+                  type="ThreeDots"
+                  color="#00BFFF"
+                  height="1em"
+                  width="1em"
+                />
               )}
             </AssetRow>
-
+            {
+              exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ?
+              <AssetRow label="Swap Fee" value="">
+                {!exchange.isFeeLoading ? (
+                  <Price
+                    value={exchange.swapFee}
+                    isEth={true}
+                    boxProps={{ pad: {} }}
+                  />
+                ) : (
+                  <Loader
+                    type="ThreeDots"
+                    color="#00BFFF"
+                    height="1em"
+                    width="1em"
+                  />
+                )}
+              </AssetRow> : null
+            }
             {!isShowDetail && isETH && !exchange.isFeeLoading ? (
               <Box
                 direction="row"
@@ -223,7 +208,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             >
               <AssetRow
                 label="Transaction hash"
-                value={truncateAddressString(exchange.txHash)}
+                value={exchange.txHash}
                 address={true}
               />
             </a>

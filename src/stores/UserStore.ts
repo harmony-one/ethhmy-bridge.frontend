@@ -31,8 +31,10 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
   @observable public address: string;
+  @observable public balanceSCRT: string;
 
   @observable public balanceToken: { [key: string]: string } = {};
+  @observable public balanceTokenMin: { [key: string]: string } = {};
 
   @observable public hmyBUSDBalanceManager: number = 0;
   @observable public hmyLINKBalanceManager: number = 0;
@@ -42,6 +44,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public snip20Address = '';
   @observable public snip20Balance = '';
+  @observable public snip20BalanceMin = '';
 
   @observable public isInfoReading = false;
   @observable public chainId: string;
@@ -54,7 +57,7 @@ export class UserStoreEx extends StoreConstructor {
 
     this.getRates();
 
-    const keplrCheckPromise = new Promise((accept, _reject) => {
+    const keplrCheckPromise = new Promise<void>((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
@@ -93,53 +96,54 @@ export class UserStoreEx extends StoreConstructor {
   @action public async signIn() {
     this.error = '';
 
-    this.chainId = 'holodeck-2';
+    this.chainId = process.env.CHAIN_ID;
     try {
       // Setup Secret Testnet (not needed on mainnet)
-      await this.keplrWallet.experimentalSuggestChain({
-        chainId: this.chainId,
-        chainName: 'Secret Testnet',
-        rpc: 'http://bootstrap.secrettestnet.io:26657',
-        rest: 'https://bootstrap.secrettestnet.io',
-        bip44: {
+      if (process.env.ENV !== 'MAINNET') {
+        await this.keplrWallet.experimentalSuggestChain({
+          chainId: this.chainId,
+          chainName: process.env.CHAIN_NAME,
+          rpc: process.env.SECRET_RPC,
+          rest: process.env.SECRET_LCD,
+          bip44: {
+            coinType: 529,
+          },
           coinType: 529,
-        },
-        coinType: 529,
-        stakeCurrency: {
-          coinDenom: 'SCRT',
-          coinMinimalDenom: 'uscrt',
-          coinDecimals: 6,
-        },
-        bech32Config: {
-          bech32PrefixAccAddr: 'secret',
-          bech32PrefixAccPub: 'secretpub',
-          bech32PrefixValAddr: 'secretvaloper',
-          bech32PrefixValPub: 'secretvaloperpub',
-          bech32PrefixConsAddr: 'secretvalcons',
-          bech32PrefixConsPub: 'secretvalconspub',
-        },
-        currencies: [
-          {
+          stakeCurrency: {
             coinDenom: 'SCRT',
             coinMinimalDenom: 'uscrt',
             coinDecimals: 6,
           },
-        ],
-        feeCurrencies: [
-          {
-            coinDenom: 'SCRT',
-            coinMinimalDenom: 'uscrt',
-            coinDecimals: 6,
+          bech32Config: {
+            bech32PrefixAccAddr: 'secret',
+            bech32PrefixAccPub: 'secretpub',
+            bech32PrefixValAddr: 'secretvaloper',
+            bech32PrefixValPub: 'secretvaloperpub',
+            bech32PrefixConsAddr: 'secretvalcons',
+            bech32PrefixConsPub: 'secretvalconspub',
           },
-        ],
-        gasPriceStep: {
-          low: 0.1,
-          average: 0.25,
-          high: 0.4,
-        },
-        features: ['secretwasm'],
-      });
-
+          currencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          feeCurrencies: [
+            {
+              coinDenom: 'SCRT',
+              coinMinimalDenom: 'uscrt',
+              coinDecimals: 6,
+            },
+          ],
+          gasPriceStep: {
+            low: 0.1,
+            average: 0.25,
+            high: 0.4,
+          },
+          features: ['secretwasm'],
+        });
+      }
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 
@@ -150,7 +154,7 @@ export class UserStoreEx extends StoreConstructor {
       this.isAuthorized = true;
 
       this.cosmJS = new SigningCosmWasmClient(
-        'https://bootstrap.secrettestnet.io/',
+        process.env.SECRET_LCD,
         this.address,
         this.keplrOfflineSigner,
         // @ts-ignore
@@ -167,12 +171,9 @@ export class UserStoreEx extends StoreConstructor {
         },
       );
 
-      // Add SNIP20s to Keplr
+      // Load tokens from DB
       this.stores.tokens.init();
       await this.stores.tokens.fetch();
-      for (const token of this.stores.tokens.allData) {
-        await this.keplrWallet.suggestToken(this.chainId, token.dst_address);
-      }
 
       this.syncLocalStorage();
     } catch (error) {
@@ -186,9 +187,9 @@ export class UserStoreEx extends StoreConstructor {
       return '0';
     }
 
-    const balanceResponse = await this.cosmJS.queryContractSmart(
-      snip20Address,
-      {
+    let balanceResponse;
+    try {
+      balanceResponse = await this.cosmJS.queryContractSmart(snip20Address, {
         balance: {
           address: this.address,
           key: await this.keplrWallet.getSecret20ViewingKey(
@@ -196,8 +197,14 @@ export class UserStoreEx extends StoreConstructor {
             snip20Address,
           ),
         },
-      },
-    );
+      });
+    } catch (e) {
+      return 'Unlock';
+    }
+
+    if (balanceResponse.viewing_key_error) {
+      return 'Fix Unlock';
+    }
 
     if (Number(balanceResponse.balance.amount) === 0) {
       return '0';
@@ -218,22 +225,34 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     if (this.address) {
+      this.cosmJS.getAccount(this.address).then(account => {
+        try {
+          this.balanceSCRT = formatWithSixDecimals(
+            divDecimals(account.balance[0].amount, 6),
+          );
+        } catch (e) {
+          this.balanceSCRT = '0';
+        }
+      });
+
       for (const token of this.stores.tokens.allData) {
-        const tokenBalance = await this.cosmJS
-          .queryContractSmart(token.dst_address, {
-            balance: {
-              address: this.address,
-              key: await this.keplrWallet.getSecret20ViewingKey(
-                this.chainId,
-                token.dst_address,
-              ),
-            },
-          })
-          .then(({ balance }) => {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(
-              divDecimals(balance.amount, token.decimals),
-            );
-          });
+        try {
+          const balance = await this.getSnip20Balance(token.dst_address);
+          if (balance.includes('Unlock')) {
+            this.balanceToken[token.src_coin] = balance;
+          } else {
+            this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+          }
+        } catch (err) {
+          this.balanceToken[token.src_coin] = 'Unlock';
+        }
+
+        try {
+          this.balanceTokenMin[token.src_coin] =
+            token.display_props.min_from_scrt;
+        } catch (e) {
+          // Ethereum?
+        }
       }
     }
   };
