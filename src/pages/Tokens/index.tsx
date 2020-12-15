@@ -30,12 +30,12 @@ const ethAddress = value => (
   </Box>
 );
 
-const secretAddress = value => (
+const secretContractAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 10)}
@@ -77,7 +77,7 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     key: 'dst_address',
     dataIndex: 'dst_address',
     width: 300,
-    render: value => secretAddress(getScrtAddress(value)),
+    render: value => secretContractAddress(getScrtAddress(value)),
   },
   {
     title: 'Decimals',
