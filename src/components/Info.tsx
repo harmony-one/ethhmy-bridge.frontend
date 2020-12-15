@@ -26,7 +26,7 @@ export const Info = ({ title }: { title: string }) => (
       </p>
       <p>
         Because of volatility of gas prices on Ethereum, the swap transaction
-        fee will be shown before the transaction is aproved by the user.
+        fee will be shown before the transaction is approved by the user.
       </p>
 
       <p>
