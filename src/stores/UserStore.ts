@@ -57,6 +57,10 @@ export class UserStoreEx extends StoreConstructor {
 
     this.getRates();
 
+    // Load tokens from DB
+    this.stores.tokens.init();
+    this.stores.tokens.fetch();
+
     const keplrCheckPromise = new Promise<void>((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
@@ -170,10 +174,6 @@ export class UserStoreEx extends StoreConstructor {
           },
         },
       );
-
-      // Load tokens from DB
-      this.stores.tokens.init();
-      await this.stores.tokens.fetch();
 
       this.syncLocalStorage();
     } catch (error) {
