@@ -138,7 +138,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     title: 'From',
     key: 'src_coin',
     dataIndex: 'src_coin',
-    width: 200,
+    width: 180,
     render: (value, data) => {
       return data.src_network === 'Ethereum' ? (
         <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin} />
@@ -151,7 +151,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     title: 'To',
     key: 'dst_coin',
     dataIndex: 'dst_coin',
-    width: 200,
+    width: 180,
     render: (value, data) => {
       if (data.dst_network === 'Ethereum') {
         return <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />;
@@ -191,7 +191,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     title: 'Time',
     key: 'created_on',
     dataIndex: 'created_on',
-    width: 120,
+    width: 180,
     render: value => dateTimeFormat(value),
   },
   // {
@@ -235,42 +235,27 @@ export const Explorer = observer((props: any) => {
     operations.onChangeDataFlow(props);
   };
 
-  const setMyOperationsHandler = value => {
-    let ethAddress, oneAddress;
-
-    if (value) {
-      ethAddress = userMetamask.ethAddress || undefined;
-      oneAddress = user.address || undefined;
-    }
-
-    operations.onChangeDataFlow({
-      filters: { ['ethAddress']: ethAddress, ['oneAddress']: oneAddress },
-    });
-  };
-
-  const hasFilters =
-    operations.filters['ethAddress'] && operations.filters['oneAddress'];
-
-  const isAuthorized = userMetamask.ethAddress || user.address;
-
   // todo: make this a button.. it's too slow as a live search
-  const filteredData = operations.allData.filter(value => {
-    if (search) {
-      return (
-        Object.values(value).some(
-          value =>
-            value &&
-            value
-              .toString()
-              .toLowerCase()
-              .includes(search.toLowerCase()),
-        ) ||
-        getScrtAddress(value.dst_address).toLowerCase() === search.toLowerCase()
-      );
-    }
+  const filteredData = operations.allData
+    .filter(value => {
+      if (search) {
+        return (
+          Object.values(value).some(
+            value =>
+              value &&
+              value
+                .toString()
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+          ) ||
+          getScrtAddress(value.dst_address).toLowerCase() ===
+            search.toLowerCase()
+        );
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .sort((op1, op2) => (op1.created_on > op2.created_on ? -1 : 1));
 
   return (
     <BaseContainer>
