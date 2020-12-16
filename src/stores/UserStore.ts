@@ -190,13 +190,15 @@ export class UserStoreEx extends StoreConstructor {
 
     let balanceResponse;
     try {
+      const viewingKey = await this.keplrWallet.getSecret20ViewingKey(
+        this.chainId,
+        snip20Address,
+      );
+
       balanceResponse = await this.cosmJS.queryContractSmart(snip20Address, {
         balance: {
           address: this.address,
-          key: await this.keplrWallet.getSecret20ViewingKey(
-            this.chainId,
-            snip20Address,
-          ),
+          key: viewingKey,
         },
       });
     } catch (e) {
@@ -237,6 +239,9 @@ export class UserStoreEx extends StoreConstructor {
       });
 
       for (const token of this.stores.tokens.allData) {
+        if (this.snip20Address !== token.dst_address) {
+          continue;
+        }
         try {
           const balance = await this.getSnip20Balance(token.dst_address);
           if (balance.includes('Unlock')) {
