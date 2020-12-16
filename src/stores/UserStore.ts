@@ -239,7 +239,11 @@ export class UserStoreEx extends StoreConstructor {
       });
 
       for (const token of this.stores.tokens.allData) {
-        if (this.snip20Address !== token.dst_address) {
+        if (
+          this.snip20Address !== token.dst_address &&
+          this.snip20Address !== '' &&
+          token.src_coin !== 'Ethereum'
+        ) {
           continue;
         }
         try {
