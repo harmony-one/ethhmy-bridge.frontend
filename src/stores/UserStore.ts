@@ -88,6 +88,7 @@ export class UserStoreEx extends StoreConstructor {
 
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
+      this.isInfoReading = sessionObj.isInfoReading;
       keplrCheckPromise.then(() => this.signIn());
     }
   }
@@ -268,6 +269,7 @@ export class UserStoreEx extends StoreConstructor {
       'keplr_session',
       JSON.stringify({
         address: this.address,
+        isInfoReading: this.isInfoReading,
       }),
     );
   }
