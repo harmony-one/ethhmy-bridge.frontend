@@ -152,6 +152,9 @@ export const Tokens = observer((props: any) => {
       }
       return token;
     })
+    .sort((t1, t2) =>
+      Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1,
+    )
     .map(token => {
       try {
         token.totalLocked = `${formatWithTwoDecimals(
