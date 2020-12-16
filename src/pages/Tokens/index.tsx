@@ -17,7 +17,7 @@ import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getScrtAddress } from '../../blockchain-bridge';
 
-const ethAddress = value => (
+const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
     <a
@@ -25,12 +25,12 @@ const ethAddress = value => (
       href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
       target="_blank"
     >
-      {truncateAddressString(value, 10)}
+      {truncateAddressString(value, num)}
     </a>
   </Box>
 );
 
-const secretContractAddress = value => (
+const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
@@ -38,7 +38,7 @@ const secretContractAddress = value => (
       href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
       target="_blank"
     >
-      {truncateAddressString(value, 10)}
+      {truncateAddressString(value, num)}
     </a>
   </Box>
 );
@@ -69,15 +69,15 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     title: 'Ethereum Address',
     key: 'src_address',
     dataIndex: 'src_address',
-    width: 280,
-    render: value => (value === 'native' ? 'native' : ethAddress(value)),
+    width: 220,
+    render: value => (value === 'native' ? 'native' : ethAddress(value, 8)),
   },
   {
     title: 'Secret Network Address',
     key: 'dst_address',
     dataIndex: 'dst_address',
-    width: 300,
-    render: value => secretContractAddress(getScrtAddress(value)),
+    width: 220,
+    render: value => secretContractAddress(getScrtAddress(value), 8),
   },
   {
     title: 'Decimals',
@@ -92,7 +92,7 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     sortable: true,
     key: 'totalLocked',
     dataIndex: 'totalLocked',
-    width: 140,
+    width: 300,
     render: value => (
       <Box direction="column" justify="center">
         {value}
