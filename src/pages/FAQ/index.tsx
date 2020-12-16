@@ -69,7 +69,7 @@ const faqConfig = [
           destination address. Alice will then sign TXs on Metamask to move
           tokens to a locking smart contract on Ethereum. Once assets are sent
           to the deposit contract on Ethereum, the bridge multisig operators
-          will mint secretETH/secretERC20 to the address Alice provided above.
+          will mint secretETH/secretERC20 to the address Alice provided above. There's a 3 blocks confirmation period on Ethereum, before secret tokens are minted on Secret Network.
         </p>
         <br />
         <p>
