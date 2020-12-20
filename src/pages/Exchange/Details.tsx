@@ -130,8 +130,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 />
               )}
             </AssetRow>
-            {
-              exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ?
+            {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? (
               <AssetRow label="Swap Fee" value="">
                 {!exchange.isFeeLoading ? (
                   <Price
@@ -147,8 +146,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     width="1em"
                   />
                 )}
-              </AssetRow> : null
-            }
+              </AssetRow>
+            ) : null}
             {!isShowDetail && isETH && !exchange.isFeeLoading ? (
               <Box
                 direction="row"
@@ -169,16 +168,22 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
             isShowDetail ? (
               <div style={{ opacity: 1 }}>
-                <AssetRow label="Approve (~50000 gas)" value="">
-                  <Price
-                    value={exchange.networkFee / 2}
-                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
-                    boxProps={{ pad: {} }}
-                  />
-                </AssetRow>
+                {exchange.token !== TOKEN.ETH ? (
+                  <AssetRow label="Approve (~50000 gas)" value="">
+                    <Price
+                      value={exchange.networkFee / 2}
+                      isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                      boxProps={{ pad: {} }}
+                    />
+                  </AssetRow>
+                ) : null}
                 <AssetRow label="Lock token (~50000 gas)" value="">
                   <Price
-                    value={exchange.networkFee / 2}
+                    value={
+                      exchange.token == TOKEN.ETH
+                        ? exchange.networkFee
+                        : exchange.networkFee / 2
+                    }
                     isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
                     boxProps={{ pad: {} }}
                   />
