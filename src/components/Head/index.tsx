@@ -31,6 +31,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
+    const isEarn = history.location.pathname === '/earn';
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
@@ -90,7 +91,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isEarn
                   ? styles.selected
                   : '',
               )}
@@ -125,6 +126,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               onClick={() => routing.push('/info')}
             >
               <Text>Info</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isEarn ? styles.selected : '')}
+              onClick={() => routing.push('/earn')}
+            >
+              <Text>Earn</Text>
             </Box>
 
             {/*<Box

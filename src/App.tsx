@@ -8,6 +8,7 @@ import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
 import { Tokens } from './pages/Tokens';
 import { InfoModal } from './components/InfoModal';
+import { EarnRewards } from './pages/Earn';
 import { FAQPage } from './pages/FAQ';
 import { InfoPage } from './pages/Info';
 
@@ -19,6 +20,7 @@ export const App: React.FC = () => (
         <Route exact path="/faq" component={FAQPage} />
         <Route exact path="/info" component={InfoPage} />
         <Route exact path="/explorer" component={Explorer} />
+        <Route exact path="/earn" component={EarnRewards} />
         <Route exact path="/:token" component={EthBridge} />
         <Route
           exact
