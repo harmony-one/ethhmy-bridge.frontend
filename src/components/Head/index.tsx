@@ -33,6 +33,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
 
+    if (isSwap) {
+      document.title = '𝕊ecret Swap';
+    } else {
+      document.title = '𝕊ecret Bridge';
+    }
+
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
         routing.push(
@@ -81,7 +87,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <a href="/" style={{ textDecoration: 'none' }}>
               <Box>
                 <Title size="medium" color="BlackTxt" bold>
-                  𝕊ecret Bridge
+                  𝕊ecret Finance
                 </Title>
               </Box>
             </a>
