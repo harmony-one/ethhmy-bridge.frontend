@@ -10,7 +10,6 @@ import { Tokens } from './pages/Tokens';
 import { SwapPage } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
 import { FAQPage } from './pages/FAQ';
-import 'semantic-ui-css/semantic.min.css';
 
 // import { InfoPage } from './pages/Info';
 
