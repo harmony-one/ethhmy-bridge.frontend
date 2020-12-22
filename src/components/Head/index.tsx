@@ -27,6 +27,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const { minWidth, maxWidth } = container;
 
     const isExplorer = history.location.pathname === '/explorer';
+    const isSwap = history.location.pathname === '/swap';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
@@ -90,13 +91,27 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                !isInfo &&
+                  !isFaq &&
+                  !isExplorer &&
+                  !isGetTokens &&
+                  !isTokens &&
+                  !isSwap
                   ? styles.selected
                   : '',
               )}
               onClick={goToBridge}
             >
               <Text>Bridge</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/swap`);
+              }}
+            >
+              <Text>Swap</Text>
             </Box>
 
             <Box
