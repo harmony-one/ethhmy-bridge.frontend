@@ -66,7 +66,7 @@ const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
         <Input
           style={{
             padding: 0,
-            width: '200px',
+            width: '180px',
           }}
           transparent
           size="massive"
@@ -79,6 +79,7 @@ const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
             setFromAmount(Number(value));
           }}
         />
+        {flexRowSpace}
         <Button
           primary
           style={{
@@ -155,7 +156,7 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount }) => {
         <Input
           style={{
             padding: 0,
-            width: '200px',
+            width: '180px',
           }}
           transparent
           size="massive"
