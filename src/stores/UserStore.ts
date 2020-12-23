@@ -25,7 +25,7 @@ export class UserStoreEx extends StoreConstructor {
 
   private keplrWallet: any;
   private keplrOfflineSigner: any;
-  @observable public cosmJS: SigningCosmWasmClient;
+  @observable public secretjs: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
   @observable public error: string;
 
@@ -35,9 +35,6 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public balanceToken: { [key: string]: string } = {};
   @observable public balanceTokenMin: { [key: string]: string } = {};
-
-  @observable public hmyBUSDBalanceManager: number = 0;
-  @observable public hmyLINKBalanceManager: number = 0;
 
   @observable public scrtRate = 0;
   @observable public ethRate = 0;
@@ -158,7 +155,7 @@ export class UserStoreEx extends StoreConstructor {
       this.address = accounts[0].address;
       this.isAuthorized = true;
 
-      this.cosmJS = new SigningCosmWasmClient(
+      this.secretjs = new SigningCosmWasmClient(
         process.env.SECRET_LCD,
         this.address,
         this.keplrOfflineSigner,
@@ -184,7 +181,7 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public getSnip20Balance = async snip20Address => {
-    if (!this.cosmJS) {
+    if (!this.secretjs) {
       return '0';
     }
 
@@ -195,7 +192,7 @@ export class UserStoreEx extends StoreConstructor {
         snip20Address,
       );
 
-      balanceResponse = await this.cosmJS.queryContractSmart(snip20Address, {
+      balanceResponse = await this.secretjs.queryContractSmart(snip20Address, {
         balance: {
           address: this.address,
           key: viewingKey,
@@ -213,7 +210,7 @@ export class UserStoreEx extends StoreConstructor {
       return '0';
     }
 
-    const decimalsResponse = await this.cosmJS.queryContractSmart(
+    const decimalsResponse = await this.secretjs.queryContractSmart(
       snip20Address,
       {
         token_info: {},
@@ -228,7 +225,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     if (this.address) {
-      this.cosmJS.getAccount(this.address).then(account => {
+      this.secretjs.getAccount(this.address).then(account => {
         try {
           this.balanceSCRT = formatWithSixDecimals(
             divDecimals(account.balance[0].amount, 6),

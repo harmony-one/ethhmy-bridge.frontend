@@ -463,7 +463,7 @@ export class Exchange extends StoreConstructor {
     await this.createOperation();
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
-    const tx = await this.stores.user.cosmJS.execute(
+    const tx = await this.stores.user.secretjs.execute(
       this.transaction.snip20Address,
       {
         send: {
