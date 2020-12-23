@@ -219,11 +219,18 @@ const PriceRow = ({ price, fromToken, toToken }) => {
     from: fromToken,
     to: toToken,
     price: priceNumberFormat.format(price),
-    priceInvert: priceNumberFormat.format(1 / price), // prevents multiple clicks from distorting the price
+    priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
   });
-  const [exchangeIconBackground, setExchangeIconBackground] = useState(
-    'whitesmoke',
-  );
+  const [iconBackground, setIconBackground] = useState('whitesmoke');
+
+  useEffect(() => {
+    setTokens({
+      from: fromToken,
+      to: toToken,
+      price: priceNumberFormat.format(price),
+      priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
+    });
+  }, [fromToken, toToken, price]);
 
   return (
     <div
@@ -244,17 +251,17 @@ const PriceRow = ({ price, fromToken, toToken }) => {
         name="exchange"
         style={{
           margin: '0 0 0 0.3em',
-          background: exchangeIconBackground,
+          background: iconBackground,
           cursor: 'pointer',
         }}
-        onMouseEnter={() => setExchangeIconBackground('rgb(237, 238, 242)')}
-        onMouseLeave={() => setExchangeIconBackground('whitesmoke')}
+        onMouseEnter={() => setIconBackground('rgb(237, 238, 242)')}
+        onMouseLeave={() => setIconBackground('whitesmoke')}
         onClick={() => {
           setTokens({
             from: tokens.to,
             to: tokens.from,
             price: tokens.priceInvert,
-            priceInvert: tokens.price, // prevents multiple clicks from distorting the price
+            priceInvert: tokens.price, // prevents price distortion by multiple clicks
           });
         }}
       />
