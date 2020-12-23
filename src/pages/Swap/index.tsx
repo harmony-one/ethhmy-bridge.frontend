@@ -27,7 +27,13 @@ const downArrow = (
 
 const tokenShadow = 'rgba(0, 0, 0, 0.075) 0px 6px 10px';
 
-const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
+const FromRow = ({
+  fromToken,
+  setFromToken,
+  fromAmount,
+  setFromAmount,
+  isEstimated,
+}) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
 
@@ -48,13 +54,13 @@ const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
           flexDirection: 'row',
         }}
       >
-        <span style={font}>From</span>
+        <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
         {flexRowSpace}
         <span
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Balance: {priceNumberFormat.format(balance)}
+          Balance: {balanceNumberFormat.format(balance)}
         </span>
       </div>
       <div
@@ -76,7 +82,7 @@ const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
             if (isNaN(Number(value))) {
               return;
             }
-            setFromAmount(Number(value));
+            setFromAmount(value);
           }}
         />
         {flexRowSpace}
@@ -117,7 +123,7 @@ const FromRow = ({ fromToken, setFromToken, fromAmount, setFromAmount }) => {
   );
 };
 
-const ToRow = ({ toToken, setToToken, toAmount, setToAmount }) => {
+const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
 
@@ -138,13 +144,13 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount }) => {
           flexDirection: 'row',
         }}
       >
-        <span style={font}>To</span>
+        <span style={font}>To{isEstimated ? ` (estimated)` : null}</span>
         {flexRowSpace}
         <span
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Balance: {priceNumberFormat.format(balance)}
+          Balance: {balanceNumberFormat.format(balance)}
         </span>{' '}
       </div>
       <div
@@ -166,7 +172,7 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount }) => {
             if (isNaN(Number(value))) {
               return;
             }
-            setToAmount(Number(value));
+            setToAmount(value);
           }}
         />
         {flexRowSpace}
@@ -198,6 +204,14 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount }) => {
 const priceNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 10,
   useGrouping: true,
+});
+const balanceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 6,
+  useGrouping: true,
+});
+const inputNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 20,
+  useGrouping: false,
 });
 
 const PriceRow = ({ price, fromToken, toToken }) => {
@@ -251,8 +265,14 @@ const PriceRow = ({ price, fromToken, toToken }) => {
 export const SwapPage = () => {
   const { user } = useStores();
   const [tokens, setTokens] = useState({ from: 'ETH', to: 'SCRT' });
-  const [fromAmount, setFromAmount] = useState('');
-  const [toAmount, setToAmount] = useState('');
+  const [amounts, setAmounts] = useState({
+    from: '',
+    to: '',
+    isFromEstimated: false,
+    isToEstimated: false,
+  });
+  const [buttonMessage, setButtonMessage] = useState('Enter an amount');
+  const price = 123456; /* TODO */
 
   useEffect(() => {
     // Setup Keplr
@@ -262,6 +282,18 @@ export const SwapPage = () => {
   useEffect(() => {
     // Keplr is ready
   }, [user.secretjs]);
+
+  useEffect(() => {
+    // Update buttonMessage
+    // TODO: Insufficient liquidity for this trade
+    // TODO: Insufficient XXX balance
+
+    if (amounts.from === '' && amounts.to === '') {
+      setButtonMessage('Enter an amount');
+    } else {
+      setButtonMessage('Swap');
+    }
+  }, [amounts.from, amounts.to]);
 
   return (
     <BaseContainer>
@@ -288,11 +320,28 @@ export const SwapPage = () => {
             >
               <FromRow
                 fromToken={tokens.from}
-                setFromToken={value =>
+                setFromToken={(value: string) =>
                   setTokens({ from: value, to: tokens.to })
                 }
-                fromAmount={fromAmount}
-                setFromAmount={setFromAmount}
+                fromAmount={amounts.from}
+                isEstimated={amounts.isFromEstimated}
+                setFromAmount={(value: string) => {
+                  if (value === '') {
+                    setAmounts({
+                      from: '',
+                      isFromEstimated: false,
+                      to: '',
+                      isToEstimated: false,
+                    });
+                  } else {
+                    setAmounts({
+                      from: value,
+                      isFromEstimated: false,
+                      to: inputNumberFormat.format(Number(value) / price),
+                      isToEstimated: true,
+                    });
+                  }
+                }}
               />
               <div
                 style={{
@@ -315,17 +364,46 @@ export const SwapPage = () => {
               </div>
               <ToRow
                 toToken={tokens.to}
-                setToToken={value =>
+                setToToken={(value: string) =>
                   setTokens({ to: value, from: tokens.from })
                 }
-                toAmount={toAmount}
-                setToAmount={setToAmount}
+                toAmount={amounts.to}
+                isEstimated={amounts.isToEstimated}
+                setToAmount={(value: string) => {
+                  if (value === '') {
+                    setAmounts({
+                      to: '',
+                      isToEstimated: false,
+                      from: '',
+                      isFromEstimated: false,
+                    });
+                  } else {
+                    setAmounts({
+                      to: value,
+                      isToEstimated: false,
+                      from: inputNumberFormat.format(Number(value) * price),
+                      isFromEstimated: true,
+                    });
+                  }
+                }}
               />
               <PriceRow
                 toToken={tokens.to}
                 fromToken={tokens.from}
-                price={123456} /* TODO */
+                price={price}
               />
+              <Button
+                disabled={buttonMessage !== 'Swap'}
+                primary={buttonMessage === 'Swap'}
+                fluid
+                style={{
+                  borderRadius: '12px',
+                  padding: '18px',
+                  fontSize: '20px',
+                }}
+              >
+                {buttonMessage}
+              </Button>
             </Container>
           </Box>
         </Box>
