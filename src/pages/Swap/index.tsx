@@ -73,6 +73,9 @@ const FromRow = ({
           style={{
             padding: 0,
             width: '180px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
           transparent
           size="massive"
@@ -163,6 +166,9 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
           style={{
             padding: 0,
             width: '180px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
           }}
           transparent
           size="massive"
