@@ -8315,7 +8315,7 @@ jest@24.9.0:
     import-local "^2.0.0"
     jest-cli "^24.9.0"
 
-jquery@^3.4.1, jquery@x.*:
+jquery@^3.4.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.5.1.tgz#d7b4d08e1bfdb86ad2f1a3d039ea17304717abb5"
   integrity sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==
@@ -11974,13 +11974,6 @@ selfsigned@^1.10.7:
   integrity sha512-2P4PtieJeEwVgTU9QEcwIRDQ/mXJLX8/+I3ur+Pg16nS8oNbrGxEso9NyYWy8NAmXiNl4dlAp5MwoNeCWzON4w==
   dependencies:
     node-forge "^0.10.0"
-
-semantic-ui-css@2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/semantic-ui-css/-/semantic-ui-css-2.4.1.tgz#f5aea39fafb787cbd905ec724272a3f9cba9004a"
-  integrity sha512-Pkp0p9oWOxlH0kODx7qFpIRYpK1T4WJOO4lNnpNPOoWKCrYsfHqYSKgk5fHfQtnWnsAKy7nLJMW02bgDWWFZFg==
-  dependencies:
-    jquery x.*
 
 semantic-ui-react@2.0.1:
   version "2.0.1"
