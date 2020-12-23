@@ -10,15 +10,15 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Checkbox, Icon, Select, Text } from 'components/Base';
+import { Button, Icon, Text } from 'components/Base';
 import { formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed, observable } from 'mobx';
-import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
+import { autorun, computed } from 'mobx';
+import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 
@@ -27,12 +27,13 @@ export interface ITokenInfo {
   maxAmount: string;
 }
 
-@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
+@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing', 'tokens')
 @observer
 export class Exchange extends React.Component<
   Pick<IStores, 'user'> &
     Pick<IStores, 'exchange'> &
     Pick<IStores, 'routing'> &
+    Pick<IStores, 'tokens'> &
     Pick<IStores, 'actionModals'> &
     Pick<IStores, 'userMetamask'>
 > {
@@ -314,6 +315,41 @@ export class Exchange extends React.Component<
                         Number(value) > Number(this.tokenInfo.maxAmount)
                       ) {
                         const defaultMsg = `Exceeded the maximum amount`;
+                        errors.push(defaultMsg);
+                      }
+
+                      callback(errors);
+                    },
+                    (_, value, callback) => {
+                      const errors = [];
+
+                      const tokens = this.props.tokens;
+                      let token: any;
+
+                      if (exchange.token === TOKEN.BUSD) {
+                        token = tokens.allData.find(t => t.symbol === 'BUSD');
+                      }
+
+                      if (exchange.token === TOKEN.LINK) {
+                        token = tokens.allData.find(t => t.symbol === 'LINK');
+                      }
+
+                      if (exchange.token === TOKEN.ERC20) {
+                        token = tokens.allData.find(
+                          t =>
+                            t.erc20Address ===
+                            exchange.transaction.erc20Address,
+                        );
+                      }
+
+                      if (
+                        exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+                        value &&
+                        token &&
+                        token.usdPrice &&
+                        Number(value * token.usdPrice) < 100
+                      ) {
+                        const defaultMsg = `Minimum amount must be more than 100$`;
                         errors.push(defaultMsg);
                       }
 

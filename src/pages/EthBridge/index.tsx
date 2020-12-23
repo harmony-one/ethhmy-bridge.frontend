@@ -56,7 +56,7 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing } = useStores();
+  const { tokens, exchange, routing } = useStores();
 
   useEffect(() => {
     if (props.match.params.token) {
@@ -71,6 +71,11 @@ export const EthBridge = observer((props: any) => {
       exchange.setOperationId(props.match.params.operationId);
       exchange.sendOperation(props.match.params.operationId);
     }
+  }, []);
+
+  useEffect(() => {
+    tokens.init();
+    tokens.fetch();
   }, []);
 
   return (
