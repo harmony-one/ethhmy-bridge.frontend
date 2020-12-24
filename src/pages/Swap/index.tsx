@@ -6,6 +6,7 @@ import { BaseContainer } from 'components/BaseContainer';
 import { Button, Container, Input, Dropdown, Icon } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import tokens from './tokens.json';
+import './input.css';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -73,9 +74,6 @@ const FromRow = ({
           style={{
             padding: 0,
             width: '180px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
           }}
           transparent
           size="massive"
@@ -166,9 +164,6 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
           style={{
             padding: 0,
             width: '180px',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
           }}
           transparent
           size="massive"
