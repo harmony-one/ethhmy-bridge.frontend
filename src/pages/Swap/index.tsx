@@ -334,9 +334,9 @@ export const SwapPage = () => {
                 fromAmount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
                 setFromAmount={(value: string) => {
-                  if (value === '') {
+                  if (value === '' || Number(value) === 0) {
                     setAmounts({
-                      from: '',
+                      from: value,
                       isFromEstimated: false,
                       to: '',
                       isToEstimated: false,
@@ -378,9 +378,9 @@ export const SwapPage = () => {
                 toAmount={amounts.to}
                 isEstimated={amounts.isToEstimated}
                 setToAmount={(value: string) => {
-                  if (value === '') {
+                  if (value === '' || Number(value) === 0) {
                     setAmounts({
-                      to: '',
+                      to: value,
                       isToEstimated: false,
                       from: '',
                       isFromEstimated: false,
