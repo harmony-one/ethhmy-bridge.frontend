@@ -88,11 +88,20 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
     align: 'center',
   },
   {
+    title: 'Minimum Withdraw',
+    key: 'display_props',
+    dataIndex: 'display_props',
+    width: 120,
+    className: styles.centerHeader,
+    align: 'center',
+    render: value => value.min_from_scrt,
+  },
+  {
     title: 'Total Locked',
     sortable: true,
     key: 'totalLocked',
     dataIndex: 'totalLocked',
-    width: 300,
+    width: 200,
     render: value => (
       <Box direction="column" justify="center">
         {value}

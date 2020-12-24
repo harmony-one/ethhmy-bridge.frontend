@@ -83,7 +83,7 @@ export class UserStoreEx extends StoreConstructor {
 
     const sessionObj = JSON.parse(session);
 
-    if (sessionObj && sessionObj.address) {
+    if (sessionObj) {
       this.address = sessionObj.address;
       this.isInfoReading = sessionObj.isInfoReading;
       keplrCheckPromise.then(() => this.signIn());
