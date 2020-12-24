@@ -3,10 +3,17 @@ import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
-import { Button, Container, Input, Dropdown, Icon } from 'semantic-ui-react';
+import {
+  Button,
+  Container,
+  Input,
+  Dropdown,
+  Icon,
+  Popup,
+} from 'semantic-ui-react';
 import { useStores } from 'stores';
 import tokens from './tokens.json';
-import './input.css';
+import './override.css';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -61,7 +68,7 @@ const FromRow = ({
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Balance: {balanceNumberFormat.format(balance)}
+          Secret Balance: {balanceNumberFormat.format(balance)}
         </span>
       </div>
       <div
@@ -151,7 +158,7 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Balance: {balanceNumberFormat.format(balance)}
+          Secret Balance: {balanceNumberFormat.format(balance)}
         </span>{' '}
       </div>
       <div
@@ -270,6 +277,146 @@ const PriceRow = ({ price, fromToken, toToken }) => {
   );
 };
 
+const AdditionalDetails = ({
+  minimumReceived,
+  liquidityProviderFee,
+  priceImpact,
+  token,
+}) => {
+  const [
+    minimumReceivedIconBackground,
+    setMinimumreceivedIconBackground,
+  ] = useState('whitesmoke');
+  const [
+    liquidityProviderFeeIconBackground,
+    setLiquidityProviderFeeIconBackground,
+  ] = useState('whitesmoke');
+  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState(
+    'whitesmoke',
+  );
+
+  return (
+    <div style={{ maxWidth: '400px', minWidth: '400px' }}>
+      <Container
+        style={{
+          marginTop: '-2rem',
+          borderBottomLeftRadius: '20px',
+          borderBottomRightRadius: '20px',
+          backgroundColor: 'rgba(255, 255, 255, 0.6)',
+          padding: 'calc(16px + 2rem) 2rem 2rem 2rem',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingTop: '0.2rem',
+          }}
+        >
+          <span>
+            Minimum received
+            <Popup
+              trigger={
+                <Icon
+                  name="help"
+                  circular
+                  size="tiny"
+                  style={{
+                    marginLeft: '0.5rem',
+                    background: minimumReceivedIconBackground,
+                  }}
+                  onMouseEnter={() =>
+                    setMinimumreceivedIconBackground('rgb(237, 238, 242)')
+                  }
+                  onMouseLeave={() =>
+                    setMinimumreceivedIconBackground('whitesmoke')
+                  }
+                />
+              }
+              content="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+              position="top center"
+            />
+          </span>
+          {flexRowSpace}
+          <strong>{minimumReceived}</strong>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingTop: '0.2rem',
+          }}
+        >
+          <span>
+            Price Impact
+            <Popup
+              trigger={
+                <Icon
+                  name="help"
+                  circular
+                  size="tiny"
+                  style={{
+                    marginLeft: '0.5rem',
+                    background: priceImpactIconBackground,
+                  }}
+                  onMouseEnter={() =>
+                    setPriceImpactIconBackground('rgb(237, 238, 242)')
+                  }
+                  onMouseLeave={() =>
+                    setPriceImpactIconBackground('whitesmoke')
+                  }
+                />
+              }
+              content="The difference between the market price and estimated price due to trade size."
+              position="top center"
+            />
+          </span>
+          {flexRowSpace}
+          <strong>{`${priceImpact * 100}%`}</strong>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingTop: '0.2rem',
+          }}
+        >
+          <span>
+            Liquidity Provider Fee
+            <Popup
+              trigger={
+                <Icon
+                  name="help"
+                  circular
+                  size="tiny"
+                  style={{
+                    marginLeft: '0.5rem',
+                    background: liquidityProviderFeeIconBackground,
+                  }}
+                  onMouseEnter={() =>
+                    setLiquidityProviderFeeIconBackground('rgb(237, 238, 242)')
+                  }
+                  onMouseLeave={() =>
+                    setLiquidityProviderFeeIconBackground('whitesmoke')
+                  }
+                />
+              }
+              content="A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive."
+              position="top center"
+            />
+          </span>
+          {flexRowSpace}
+          <strong>
+            {balanceNumberFormat.format(liquidityProviderFee)} {token}
+          </strong>
+        </div>
+      </Container>
+    </div>
+  );
+};
+
 export const SwapPage = () => {
   const { user } = useStores();
   const [tokens, setTokens] = useState({ from: 'ETH', to: 'SCRT' });
@@ -280,7 +427,12 @@ export const SwapPage = () => {
     isToEstimated: false,
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
-  const price = 123456; /* TODO */
+  const [price, SetPrice] = useState(123456); /* TODO */
+  const [minimumReceived, SetMinimumReceived] = useState(123456); /* TODO */
+  const [priceImpact, SetPriceImpact] = useState(0.02); /* TODO */
+  const [liquidityProviderFee, SetLiquidityProviderFee] = useState(
+    17.3,
+  ); /* TODO */
 
   useEffect(() => {
     // Setup Keplr
@@ -313,12 +465,17 @@ export const SwapPage = () => {
         >
           <Box
             style={{
-              maxWidth: 420,
+              maxWidth: '420px',
+              minWidth: '420px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
             }}
             pad={{ bottom: 'medium' }}
           >
             <Container
               style={{
+                zIndex: '10',
                 borderRadius: '30px',
                 backgroundColor: 'white',
                 padding: '2rem',
@@ -413,6 +570,12 @@ export const SwapPage = () => {
                 {buttonMessage}
               </Button>
             </Container>
+            <AdditionalDetails
+              token={tokens.from}
+              liquidityProviderFee={liquidityProviderFee}
+              priceImpact={priceImpact}
+              minimumReceived={minimumReceived}
+            />
           </Box>
         </Box>
       </PageContainer>
