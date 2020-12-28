@@ -48,20 +48,20 @@ class AssetRow extends Component {
               <Image src={'https://s2.coinmarketcap.com/static/img/coins/32x32/5604.png'} rounded size='mini' />
             </div>
             <div className={cn(styles.assetName)}>
-              <SoftTitleValue title={"curve.fi/Compound"} subTitle={"cDAI/cUSDC"} />
+              <SoftTitleValue title={"Secret Ethereum"} subTitle={"sETH"} />
             </div>
             <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={"0.00%"} subTitle={"yearly growth"} />
+              <SoftTitleValue title={"5,000,000 sSCRT"} subTitle={"Total Rewards"} />
             </div>
             <div className={cn(styles.availableDeposit)}>
-              <SoftTitleValue title={"0.00 cDAI"} subTitle={"Available to Deposit"} />
+              <SoftTitleValue title={"0.00 sETH"} subTitle={"Available to Deposit"} />
             </div>
             <Icon name='dropdown'/>
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
           <div className={cn(styles.content2)}>
-            <ChangeBalance action={EarnButton(this.props)}/>
-            <ChangeBalance action={ClaimButton(this.props)}/>
+            <ChangeBalance action={EarnButton(this.props)} balance={Balance("sETH")}/>
+            <ChangeBalance action={ClaimButton(this.props)} balance={Balance("sSCRT")}/>
           </div>
         </Accordion.Content>
       </Accordion>);
@@ -74,7 +74,7 @@ const ChangeBalance = props => {
       <div>
         <div className={cn(styles.balanceRow)}>
           <h3 className={cn(styles.h3)}> </h3>
-          <h4 className={cn(styles.h4)}>0.00 DAI</h4>
+          {props.balance}
         </div>
         <div>
           <Input placeholder='0.0' className={cn(styles.form)}>
@@ -93,6 +93,9 @@ const ChangeBalance = props => {
   )
 }
 
+const Balance = currency => {
+  return (<h4 className={cn(styles.h4)}>0.00 {currency}</h4>);
+}
 
 const earnButtonStyle = {
   borderRadius: '50px',
