@@ -10,11 +10,20 @@ import { Text } from 'components/Base';
 import { WalletBalances } from '../EthBridge/WalletBalances';
 import { Rewards } from '../EthBridge/Rewards';
 import { useEffect } from 'react';
-import { IColumn, Table } from '../../components/Table';
+// import { IColumn, Table } from '../../components/Table';
 import { ITokenInfo } from '../../stores/interfaces';
 import { getScrtAddress } from '../../blockchain-bridge/scrt';
 import { formatWithTwoDecimals } from '../../utils';
 // import { ERC20Select } from '../Exchange/ERC20Select';
+import { Header, Image, Table, Button } from 'semantic-ui-react'
+import ScrtTokenBalance from '../../components/ScrtTokenBalance';
+import AssetRow from '../../components/AssetRow';
+
+const styleLink = document.createElement("link");
+styleLink.rel = "stylesheet";
+styleLink.href =
+  "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
+document.head.appendChild(styleLink);
 
 const LargeButton = (props: {
   title: string;
@@ -61,7 +70,7 @@ const LargeButton = (props: {
 
 
 export const EarnRewards = observer((props: any) => {
-  const { user, exchange, routing } = useStores();
+  const { user, exchange, routing, tokens } = useStores();
 
   // useEffect(() => {
   //   if (props.match.params.token) {
@@ -93,16 +102,36 @@ export const EarnRewards = observer((props: any) => {
             justify="center"
             className={styles.base}
           >
-
-            <Table
-              data={[]}
-              columns={[]}
-              isPending={false}
-              hidePagination={true}
-              dataLayerConfig={[]}
-              onChangeDataFlow={() => {}}
-              onRowClicked={() => {}}
-            />
+          <AssetRow />
+            <Table celled>
+              <Table.Body>
+                {tokens.allData.map(value => {
+                  return (<Table.Row>
+                    <Table.Cell>
+                      <Image src={value.display_props.image} rounded size='mini' />
+                    </Table.Cell>
+                      <Table.Cell>
+                        <Header as='h4'>
+                          {value.name}
+                          <Header.Content>
+                            <Header.Subheader>{value.display_props.symbol}</Header.Subheader>
+                          </Header.Content>
+                        </Header>
+                    </Table.Cell>
+                    <Table.Cell>{100000000}</Table.Cell>
+                    <Table.Cell>{100000000}</Table.Cell>
+                    <Table.Cell>
+                      <ScrtTokenBalance value={user.balanceRewards["sscrt"]}/>
+                      </Table.Cell>
+                    <Table.Cell><ScrtTokenBalance value={user.balanceRewards["sscrt"]}/></Table.Cell>
+                    <Table.Cell><Button primary>Earn</Button></Table.Cell>
+                    <Table.Cell><Button primary>Withdraw</Button></Table.Cell>
+                    </Table.Row>
+                  );
+                })
+                }
+              </Table.Body>
+            </Table>
 
             <Rewards />
 
