@@ -18,6 +18,18 @@ import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../
 
 const defaults = {};
 
+export const rewardsDepositKey = key => `${key}RewardsDeposit`
+
+export const rewardsKey = key => `${key}Rewards`
+
+export const rewardsTokens = [{
+  symbol: "ETH",
+  rewardsContract: "secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m",
+  decimals: "6",
+  lockedAsset: "sETH",
+  totalLocked: "5,000,000"
+}]
+
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
   @observable public isAuthorized: boolean;
@@ -287,41 +299,41 @@ export class UserStoreEx extends StoreConstructor {
         }
       }
 
-      // todo: make this less hardcoded
-      try {
-        const balance = await this.getBridgeRewardsBalance("secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m", "6")
 
-        console.log(balance)
+      for (const token of rewardsTokens) {
+        try {
+          const balance = await this.getBridgeRewardsBalance(token.rewardsContract, token.decimals)
 
-        if (balance.includes('Unlock')) {
-          this.balanceRewards["ETH Rewards"] = balance;
-        } else {
-          this.balanceRewards["ETH Rewards"] = formatWithSixDecimals(balance);
+          console.log(`token ${token.rewardsContract} rewards balance: ${balance}`)
+
+          if (balance.includes('Unlock')) {
+            this.balanceRewards[rewardsKey(token.symbol)] = balance;
+          } else {
+            this.balanceRewards[rewardsKey(token.symbol)] = formatWithSixDecimals(balance);
+          }
+        } catch (err) {
+          this.balanceRewards[rewardsKey(token.symbol)] = 'Unlock';
         }
-      } catch (err) {
-        this.balanceRewards["ETH Rewards"] = 'Unlock';
+
+        try {
+          const balance = await this.getBridgeDepositBalance(token.rewardsContract, token.decimals)
+
+          console.log(`token ${token.rewardsContract} deposit balance: ${balance}`)
+
+          if (balance.includes('Unlock')) {
+            this.balanceRewards[rewardsDepositKey(token.symbol)] = balance;
+          } else {
+            this.balanceRewards[rewardsDepositKey(token.symbol)] = formatWithSixDecimals(balance);
+          }
+        } catch (err) {
+          this.balanceRewards[rewardsDepositKey(token.symbol)] = 'Unlock';
+        }
       }
 
-      // todo: make this less hardcoded
-      try {
-        const balance = await this.getBridgeDepositBalance("secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m", "6")
-
-        console.log(balance)
-
-        if (balance.includes('Unlock')) {
-          this.balanceRewards["ETH Deposit"] = balance;
-        } else {
-          this.balanceRewards["ETH Deposit"] = formatWithSixDecimals(balance);
-        }
-      } catch (err) {
-        this.balanceRewards["ETH Deposit"] = 'Unlock';
-      }
-
-      // todo: make this less hardcoded
       try {
         const balance = await this.getSnip20Balance("secret1s7c6xp9wltthk5r6mmavql4xld5me3g37guhsx", "6")
 
-        console.log(balance)
+        //console.log(balance)
 
         if (balance.includes('Unlock')) {
           this.balanceRewards["sscrt"] = balance;

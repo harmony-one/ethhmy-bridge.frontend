@@ -18,6 +18,7 @@ import { formatWithTwoDecimals } from '../../utils';
 import { Header, Image, Table, Button } from 'semantic-ui-react'
 import ScrtTokenBalance from '../../components/ScrtTokenBalance';
 import AssetRow from '../../components/AssetRow';
+import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
 
 const styleLink = document.createElement("link");
 styleLink.rel = "stylesheet";
@@ -102,55 +103,27 @@ export const EarnRewards = observer((props: any) => {
             justify="center"
             className={styles.base}
           >
-          <AssetRow />
-            <Table celled>
-              <Table.Body>
-                {tokens.allData.map(value => {
-                  return (<Table.Row>
-                    <Table.Cell>
-                      <Image src={value.display_props.image} rounded size='mini' />
-                    </Table.Cell>
-                      <Table.Cell>
-                        <Header as='h4'>
-                          {value.name}
-                          <Header.Content>
-                            <Header.Subheader>{value.display_props.symbol}</Header.Subheader>
-                          </Header.Content>
-                        </Header>
-                    </Table.Cell>
-                    <Table.Cell>{100000000}</Table.Cell>
-                    <Table.Cell>{100000000}</Table.Cell>
-                    <Table.Cell>
-                      <ScrtTokenBalance value={user.balanceRewards["sscrt"]}/>
-                      </Table.Cell>
-                    <Table.Cell><ScrtTokenBalance value={user.balanceRewards["sscrt"]}/></Table.Cell>
-                    <Table.Cell><Button primary>Earn</Button></Table.Cell>
-                    <Table.Cell><Button primary>Withdraw</Button></Table.Cell>
-                    </Table.Row>
-                  );
-                })
+            {
+              tokens.allData.map( (token) => {
+                const rewards = rewardsTokens.find(element => element.symbol === token.symbol);
+                const rewardstoken = {
+                  rewardsContract: rewards.rewardsContract,
+                  lockedAsset: rewards.lockedAsset,
+                  totalLockedRewards: rewards.totalLocked,
+                  rewards: user.balanceRewards[rewardsKey(token.symbol)],
+                  deposit: user.balanceRewards[rewardsDepositKey(token.symbol)],
+                  balance: user.balanceToken[token.symbol],
+                  decimals: token.decimals,
+                  name: token.name,
+                  display_props: token.display_props
                 }
-              </Table.Body>
-            </Table>
 
-            <Rewards />
+              return (<AssetRow
+                cosmJS={user.cosmJS}
+                token={rewardstoken}
+              />);
 
-
-            {/*<Box*/}
-            {/*  margin={{ bottom: 'medium' }}*/}
-            {/*>*/}
-            {/*  <ERC20Select />*/}
-            {/*</Box>*/}
-            {/*<Box*/}
-            {/*  className={styles.walletBalancesContainer}*/}
-            {/*>*/}
-            {/*  <DisableWrap disabled={!user.isAuthorized}>*/}
-            {/*    <WalletBalances />*/}
-            {/*  </DisableWrap>*/}
-            {/*</Box>*/}
-          </Box>
-          <Box>
-            <WalletBalances />
+            })}
 
           </Box>
         </Box>
