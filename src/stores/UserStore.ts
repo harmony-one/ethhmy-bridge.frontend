@@ -212,7 +212,7 @@ export class UserStoreEx extends StoreConstructor {
     });
 
     return await Snip20GetBalance({
-      cosmJS: this.secretjs,
+      secretjs: this.secretjs,
       token: snip20Address,
       address: this.address,
       key: viewingKey,

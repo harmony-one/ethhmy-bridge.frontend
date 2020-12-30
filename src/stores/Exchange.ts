@@ -468,7 +468,7 @@ export class Exchange extends StoreConstructor {
 
     try {
        tx_id = await Snip20SendToBridge({
-        cosmJS: this.stores.user.cosmJS,
+        secretjs: this.stores.user.secretjs,
         address: this.transaction.snip20Address,
         amount,
         msg: btoa(this.transaction.ethAddress)

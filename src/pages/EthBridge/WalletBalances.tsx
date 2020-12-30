@@ -8,42 +8,10 @@ import * as styles from './wallet-balances.styl';
 import { truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { EXCHANGE_MODE, ITokenInfo, TOKEN } from '../../stores/interfaces';
+import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-
-const rewardsToken: ITokenInfo = {
-  decimals: '8',
-  display_props: { image: '', label: '', symbol: '' },
-  dst_address: 'secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m',
-  dst_network: '',
-  name: 'SecretEthRewards',
-  src_address: '',
-  src_coin: '',
-  src_network: '',
-  symbol: 'SETHRE',
-  totalLocked: '',
-  totalLockedNormal: '',
-  totalLockedUSD: ''
-
-}
-
-const sscrtToken: ITokenInfo = {
-  decimals: '8',
-  display_props: { image: '', label: '', symbol: '' },
-  dst_address: 'secret1s7c6xp9wltthk5r6mmavql4xld5me3g37guhsx',
-  dst_network: '',
-  name: 'sscrt',
-  src_address: '',
-  src_coin: '',
-  src_network: '',
-  symbol: 'SETHRE',
-  totalLocked: '',
-  totalLockedNormal: '',
-  totalLockedUSD: ''
-
-}
 
 const AssetRow = observer<any>(props => {
   let value = (
@@ -300,24 +268,6 @@ export const WalletBalances = observer(() => {
                     exchange.token === TOKEN.ETH &&
                     exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
                   }
-                />
-                <AssetRow
-                  asset="Secret ETH Rewards"
-                  value={user.balanceRewards["ETH Rewards"]}
-                  token={rewardsToken}
-                  userStore={user}
-                />
-                <AssetRow
-                  asset="Locked Secret ETH"
-                  value={user.balanceRewards["ETH Deposit"]}
-                  token={rewardsToken}
-                  userStore={user}
-                />
-                <AssetRow
-                  asset="Secret Secret"
-                  value={user.balanceRewards["sscrt"]}
-                  token={sscrtToken}
-                  userStore={user}
                 />
                   </>
               ) : null}

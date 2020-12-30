@@ -37,7 +37,7 @@ const calculateAPY = (token: RewardsToken) => {
 }
 
 class EarnRow extends Component<{
-    cosmJS: SigningCosmWasmClient,
+    secretjs: SigningCosmWasmClient,
     token: RewardsToken
   }> {
   state = { activeIndex: -1, value: '0.0' }
@@ -92,7 +92,7 @@ class EarnRow extends Component<{
             />
             <ClaimBox
               available={this.props.token.balance}
-              cosmJS={this.props.cosmJS}
+              cosmJS={this.props.secretjs}
               contract={this.props.token.rewardsContract}
             />
           </div>

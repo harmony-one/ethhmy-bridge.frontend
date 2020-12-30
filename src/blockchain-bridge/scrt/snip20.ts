@@ -6,13 +6,13 @@ export const Snip20SwapHash = (params: { tx_id: string, address: string }): stri
 }
 
 
-export const Snip20GetBalance = async (params: { cosmJS: SigningCosmWasmClient, token: string, address: string, key: string, decimals: number }) => {
+export const Snip20GetBalance = async (params: { secretjs: SigningCosmWasmClient, token: string, address: string, key: string, decimals: number }) => {
 
-  const {cosmJS, address, token, key, decimals } = params;
+  const {secretjs, address, token, key, decimals } = params;
 
   let balanceResponse;
   try {
-    balanceResponse = await cosmJS.queryContractSmart(token, {
+    balanceResponse = await secretjs.queryContractSmart(token, {
       balance: {
         address: address,
         key,
@@ -36,7 +36,7 @@ export const Snip20GetBalance = async (params: { cosmJS: SigningCosmWasmClient, 
   );
 }
 
-export const Snip20SendToBridge = async (params: { cosmJS: SigningCosmWasmClient, address: string, amount: string, msg: string }): Promise<string> => {
+export const Snip20SendToBridge = async (params: { secretjs: SigningCosmWasmClient, address: string, amount: string, msg: string }): Promise<string> => {
   const tx = await Snip20Send({recipient: process.env.SCRT_SWAP_CONTRACT, ...params});
 
   const txIdKvp = tx.logs[0].events[1].attributes.find(
@@ -53,11 +53,11 @@ export const Snip20SendToBridge = async (params: { cosmJS: SigningCosmWasmClient
   return tx_id
 }
 
-export const Snip20Send = async (params: { cosmJS: SigningCosmWasmClient, address: string, amount: string, msg: string, recipient: string }): Promise<ExecuteResult> => {
+export const Snip20Send = async (params: { secretjs: SigningCosmWasmClient, address: string, amount: string, msg: string, recipient: string }): Promise<ExecuteResult> => {
 
-  const {cosmJS, address, amount, msg, recipient } = params;
+  const {secretjs, address, amount, msg, recipient } = params;
 
-  return await cosmJS.execute(
+  return await secretjs.execute(
     address,
     {
       send: {

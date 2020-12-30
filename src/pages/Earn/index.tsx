@@ -7,16 +7,8 @@ import * as styles from '../EthBridge/styles.styl';
 
 import cn from 'classnames';
 import { Text } from 'components/Base';
-import { WalletBalances } from '../EthBridge/WalletBalances';
-import { Rewards } from '../EthBridge/Rewards';
-import { useEffect } from 'react';
 // import { IColumn, Table } from '../../components/Table';
-import { ITokenInfo } from '../../stores/interfaces';
-import { getScrtAddress } from '../../blockchain-bridge/scrt';
-import { formatWithTwoDecimals } from '../../utils';
 // import { ERC20Select } from '../Exchange/ERC20Select';
-import { Header, Image, Table, Button } from 'semantic-ui-react'
-import ScrtTokenBalance from '../../components/Earn/ScrtTokenBalance';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
 
@@ -124,7 +116,7 @@ export const EarnRewards = observer((props: any) => {
                 }
 
                 return (<EarnRow
-                  cosmJS={user.cosmJS}
+                  secretjs={user.secretjs}
                   token={rewardstoken}
                 />);
             })}

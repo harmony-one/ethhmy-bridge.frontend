@@ -69,7 +69,7 @@ export const QueryRewardPoolBalance = async (params: { cosmJS: SigningCosmWasmCl
 
 }
 
-export const DepositRewards = async (params: { cosmJS: SigningCosmWasmClient, recipient: string, address: string, amount: string }): Promise<string> => {
+export const DepositRewards = async (params: { secretjs: SigningCosmWasmClient, recipient: string, address: string, amount: string }): Promise<string> => {
 
   const tx = await Snip20Send({
     msg: "eyJsb2NrX3Rva2VucyI6e319Cg==",  // '{"lock_tokens":{}}' -> base64
