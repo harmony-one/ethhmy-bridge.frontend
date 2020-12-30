@@ -19,8 +19,8 @@ const ClaimButton = props => {
       style={claimButtonStyle}
       onClick={() => {
         Redeem({
-          cosmJS: props.user.cosmJS,
-          address: "secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m",
+          cosmJS: props.cosmJS,
+          address: props.contract,
           amount: "1000000000000000"
         }).catch(reason =>
           console.log(`Failed to claim: ${reason}`)

@@ -19,7 +19,7 @@ const EarnButton = props => {
       style={earnButtonStyle}
       onClick={() => {
         DepositRewards({
-          cosmJS: props.user.cosmJS,
+          cosmJS: props.cosmJS,
           recipient: props.token.rewardsContract,
           address: props.token.lockedAsset,
           amount: props.value}).catch(reason =>

@@ -25,6 +25,8 @@ interface RewardsToken {
   totalLockedRewards: string;
 }
 
+//const calculateAPY = (rewards)
+
 class AssetRow extends Component<{
     cosmJS: SigningCosmWasmClient,
     token: RewardsToken
@@ -79,7 +81,11 @@ class AssetRow extends Component<{
               balance={this.props.token.balance}
               currency={this.props.token.lockedAsset}
             />
-            <ClaimBox />
+            <ClaimBox
+              available={this.props.token.balance}
+              cosmJS={this.props.cosmJS}
+              contract={this.props.token.rewardsContract}
+            />
           </div>
         </Accordion.Content>
       </Accordion>);

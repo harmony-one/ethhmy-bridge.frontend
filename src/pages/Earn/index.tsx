@@ -106,6 +106,9 @@ export const EarnRewards = observer((props: any) => {
             {
               tokens.allData.map( (token) => {
                 const rewards = rewardsTokens.find(element => element.symbol === token.symbol);
+                if (!rewards) {
+                  return (<></>);
+                }
                 const rewardstoken = {
                   rewardsContract: rewards.rewardsContract,
                   lockedAsset: rewards.lockedAsset,
@@ -118,11 +121,10 @@ export const EarnRewards = observer((props: any) => {
                   display_props: token.display_props
                 }
 
-              return (<AssetRow
-                cosmJS={user.cosmJS}
-                token={rewardstoken}
-              />);
-
+                return (<AssetRow
+                  cosmJS={user.cosmJS}
+                  token={rewardstoken}
+                />);
             })}
 
           </Box>
