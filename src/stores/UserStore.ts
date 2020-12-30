@@ -38,7 +38,7 @@ export class UserStoreEx extends StoreConstructor {
 
   private keplrWallet: any;
   private keplrOfflineSigner: any;
-  @observable public cosmJS: SigningCosmWasmClient;
+  @observable public secretjs: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
   @observable public error: string;
 
@@ -47,17 +47,16 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balanceSCRT: string;
 
   @observable public balanceToken: { [key: string]: string } = {};
+  @observable public balanceTokenMin: { [key: string]: string } = {};
 
   @observable public balanceRewards: { [key: string]: string } = {};
-
-  @observable public hmyBUSDBalanceManager: number = 0;
-  @observable public hmyLINKBalanceManager: number = 0;
 
   @observable public scrtRate = 0;
   @observable public ethRate = 0;
 
   @observable public snip20Address = '';
   @observable public snip20Balance = '';
+  @observable public snip20BalanceMin = '';
 
   @observable public isInfoReading = false;
   @observable public chainId: string;
@@ -70,7 +69,11 @@ export class UserStoreEx extends StoreConstructor {
 
     this.getRates();
 
-    const keplrCheckPromise = new Promise((accept, _reject) => {
+    // Load tokens from DB
+    this.stores.tokens.init();
+    this.stores.tokens.fetch();
+
+    const keplrCheckPromise = new Promise<void>((accept, _reject) => {
       // 1. Every one second, check if Keplr was injected to the page
       const keplrCheckInterval = setInterval(async () => {
         this.isKeplrWallet =
@@ -95,8 +98,9 @@ export class UserStoreEx extends StoreConstructor {
 
     const sessionObj = JSON.parse(session);
 
-    if (sessionObj && sessionObj.address) {
+    if (sessionObj) {
       this.address = sessionObj.address;
+      this.isInfoReading = sessionObj.isInfoReading;
       keplrCheckPromise.then(() => this.signIn());
     }
   }
@@ -166,7 +170,7 @@ export class UserStoreEx extends StoreConstructor {
       this.address = accounts[0].address;
       this.isAuthorized = true;
 
-      this.cosmJS = new SigningCosmWasmClient(
+      this.secretjs = new SigningCosmWasmClient(
         process.env.SECRET_LCD,
         this.address,
         this.keplrOfflineSigner,
@@ -184,10 +188,6 @@ export class UserStoreEx extends StoreConstructor {
         },
       );
 
-      // Load tokens from DB
-      this.stores.tokens.init();
-      await this.stores.tokens.fetch();
-
       this.syncLocalStorage();
     } catch (error) {
       this.error = error.message;
@@ -195,62 +195,8 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getBridgeRewardsBalance = async (snip20Address: string, decimals: string): Promise<string> => {
-    if (!this.cosmJS) {
-      return '0';
-    }
-
-    const height = await this.cosmJS.getHeight();
-
-    const decimalsNum = Number(decimals);
-    if (!decimalsNum) {
-      throw new Error("Token not found")
-    }
-
-    const viewingKey = await getViewingKey({
-      keplr: this.keplrWallet,
-      chainId: this.chainId,
-      address: snip20Address,
-    });
-
-    const result = await QueryRewards({
-      cosmJS: this.cosmJS,
-      contract: snip20Address,
-      address: this.address,
-      key: viewingKey,
-      height: String(height),
-    });
-
-    return result
-  };
-
-  @action public getBridgeDepositBalance = async (snip20Address: string, decimals: string): Promise<string> => {
-    if (!this.cosmJS) {
-      return '0';
-    }
-
-    const decimalsNum = Number(decimals);
-    if (!decimalsNum) {
-      throw new Error("Token not found")
-    }
-
-    const viewingKey = await getViewingKey({
-      keplr: this.keplrWallet,
-      chainId: this.chainId,
-      address: snip20Address,
-    });
-
-    return await QueryDeposit({
-      cosmJS: this.cosmJS,
-      contract: snip20Address,
-      address: this.address,
-      key: viewingKey,
-    });
-  };
-
-
   @action public getSnip20Balance = async (snip20Address: string, decimals: string): Promise<string> => {
-    if (!this.cosmJS) {
+    if (!this.secretjs) {
       return '0';
     }
 
@@ -266,7 +212,7 @@ export class UserStoreEx extends StoreConstructor {
     });
 
     return await Snip20GetBalance({
-      cosmJS: this.cosmJS,
+      cosmJS: this.secretjs,
       token: snip20Address,
       address: this.address,
       key: viewingKey,
@@ -274,9 +220,62 @@ export class UserStoreEx extends StoreConstructor {
     });
   };
 
+  @action public getBridgeRewardsBalance = async (snip20Address: string, decimals: string): Promise<string> => {
+    if (!this.secretjs) {
+      return '0';
+    }
+
+    const height = await this.secretjs.getHeight();
+
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error("Token not found")
+    }
+
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    const result = await QueryRewards({
+      cosmJS: this.secretjs,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+      height: String(height),
+    });
+
+    return result
+  };
+
+  @action public getBridgeDepositBalance = async (snip20Address: string, decimals: string): Promise<string> => {
+    if (!this.secretjs) {
+      return '0';
+    }
+
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error("Token not found")
+    }
+
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    return await QueryDeposit({
+      cosmJS: this.secretjs,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+    });
+  };
+
   @action public getBalances = async () => {
     if (this.address) {
-      this.cosmJS.getAccount(this.address).then(account => {
+      this.secretjs.getAccount(this.address).then(account => {
         try {
           this.balanceSCRT = formatWithSixDecimals(
             divDecimals(account.balance[0].amount, 6),
@@ -287,6 +286,13 @@ export class UserStoreEx extends StoreConstructor {
       });
 
       for (const token of this.stores.tokens.allData) {
+        if (
+          this.snip20Address !== token.dst_address &&
+          this.snip20Address !== '' &&
+          token.src_coin !== 'Ethereum'
+        ) {
+          continue;
+        }
         try {
           const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
           if (balance.includes('Unlock')) {
@@ -296,6 +302,13 @@ export class UserStoreEx extends StoreConstructor {
           }
         } catch (err) {
           this.balanceToken[token.src_coin] = 'Unlock';
+        }
+
+        try {
+          this.balanceTokenMin[token.src_coin] =
+            token.display_props.min_from_scrt;
+        } catch (e) {
+          // Ethereum?
         }
       }
 
@@ -358,6 +371,7 @@ export class UserStoreEx extends StoreConstructor {
       'keplr_session',
       JSON.stringify({
         address: this.address,
+        isInfoReading: this.isInfoReading,
       }),
     );
   }

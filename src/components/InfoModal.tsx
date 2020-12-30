@@ -3,29 +3,35 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from '../stores';
 import { useEffect } from 'react';
 import { Info } from './Info';
+import { useHistory } from 'react-router';
 
 export const InfoModal = observer(() => {
   const { user, actionModals } = useStores();
+  const history = useHistory();
 
-  // useEffect(() => {
-  //   if (!user.isInfoReading) {
-  //     actionModals.open(
-  //       () => <Info title="Welcome to Ethereum <> Secret Bridge" />,
-  //       {
-  //         title: '',
-  //         applyText: 'Got it',
-  //         closeText: '',
-  //         noValidation: true,
-  //         width: '1000px',
-  //         showOther: true,
-  //         onApply: () => {
-  //           user.setInfoReading();
-  //           return Promise.resolve();
-  //         },
-  //       },
-  //     );
-  //   }
-  // }, [user.isInfoReading]);
+  useEffect(() => {
+    if (history.location.pathname == '/swap') {
+      return;
+    }
+
+    if (!user.isInfoReading) {
+      actionModals.open(
+        () => <Info title="Welcome to Ethereum <> 𝕊ecret Bridge" />,
+        {
+          title: '',
+          applyText: 'Got it',
+          closeText: '',
+          noValidation: true,
+          width: '1000px',
+          showOther: true,
+          onApply: () => {
+            user.setInfoReading();
+            return Promise.resolve();
+          },
+        },
+      );
+    }
+  }, [user.isInfoReading]);
 
   return <></>;
 });

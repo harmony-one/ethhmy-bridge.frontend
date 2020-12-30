@@ -5,7 +5,7 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ISwap, TOKEN } from 'stores/interfaces';
+import { ISwap, ITokenInfo, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
@@ -28,12 +28,12 @@ const ethAddress = value => (
   </Box>
 );
 
-const oneAddress = value => (
+const secretAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/account/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
       target="_blank"
     >
       {truncateAddressString(value, 5)}
@@ -79,7 +79,9 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     dataIndex: 'dst_address',
     width: 200,
     render: (value, data) =>
-      data.src_network === 'Ethereum' ? oneAddress(value) : ethAddress(value),
+      data.src_network === 'Ethereum'
+        ? secretAddress(value)
+        : ethAddress(value),
   },
   // {
   //   title: 'To',
@@ -115,7 +117,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
   //   render: value => (
   //     <a
   //       className={styles.addressLink}
-  //       href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
+  //       href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
   //       target="_blank"
   //     >
   //       {truncateAddressString(value, 5)}
@@ -136,25 +138,34 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     title: 'From',
     key: 'src_coin',
     dataIndex: 'src_coin',
-    width: 200,
-    render: (value, data) =>
-      data.src_network === 'Ethereum' ? (
+    width: 180,
+    render: (value, data) => {
+      return data.src_network === 'Ethereum' ? (
         <ERC20Token value={TOKEN.ERC20} erc20Address={data.src_coin} />
       ) : (
         <SecretToken value={TOKEN.S20} secretAddress={data.src_coin} />
-      ),
+      );
+    },
   },
   {
     title: 'To',
     key: 'dst_coin',
     dataIndex: 'dst_coin',
-    width: 200,
-    render: (value, data) =>
-      data.dst_network === 'Ethereum' ? (
-        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />
-      ) : (
-        data.dst_coin
-      ),
+    width: 180,
+    render: (value, data) => {
+      if (data.dst_network === 'Ethereum') {
+        return <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />;
+      } else {
+        const token: ITokenInfo = user.stores.tokens.allData.find(
+          t => t.dst_coin === data.dst_coin,
+        );
+        if (token && token.display_props) {
+          return <Box>secret{token.display_props.symbol}</Box>;
+        } else {
+          return <Box>secretETH</Box>;
+        }
+      }
+    },
   },
   {
     title: 'Amount',
@@ -180,7 +191,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     title: 'Time',
     key: 'created_on',
     dataIndex: 'created_on',
-    width: 120,
+    width: 180,
     render: value => dateTimeFormat(value),
   },
   // {
@@ -224,40 +235,27 @@ export const Explorer = observer((props: any) => {
     operations.onChangeDataFlow(props);
   };
 
-  const setMyOperationsHandler = value => {
-    let ethAddress, oneAddress;
-
-    if (value) {
-      ethAddress = userMetamask.ethAddress || undefined;
-      oneAddress = user.address || undefined;
-    }
-
-    operations.onChangeDataFlow({
-      filters: { ['ethAddress']: ethAddress, ['oneAddress']: oneAddress },
-    });
-  };
-
-  const hasFilters =
-    operations.filters['ethAddress'] && operations.filters['oneAddress'];
-
-  const isAuthorized = userMetamask.ethAddress || user.address;
-
   // todo: make this a button.. it's too slow as a live search
-  const filteredData = operations.allData.filter(value => {
-    if (search) {
-      return (
-        Object.values(value).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-        ) ||
-        getScrtAddress(value.dst_address).toLowerCase() === search.toLowerCase()
-      );
-    }
+  const filteredData = operations.allData
+    .filter(value => {
+      if (search) {
+        return (
+          Object.values(value).some(
+            value =>
+              value &&
+              value
+                .toString()
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+          ) ||
+          getScrtAddress(value.dst_address).toLowerCase() ===
+            search.toLowerCase()
+        );
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .sort((op1, op2) => (op1.created_on > op2.created_on ? -1 : 1));
 
   return (
     <BaseContainer>
@@ -270,7 +268,7 @@ export const Explorer = observer((props: any) => {
           align="start"
           margin={{ top: 'xlarge' }}
         >
-          {isAuthorized ? (
+          {/*    {isAuthorized ? (
             <Box
               direction="row"
               pad={{ horizontal: 'large' }}
@@ -284,8 +282,14 @@ export const Explorer = observer((props: any) => {
                 onChange={setMyOperationsHandler}
               />
             </Box>
-          ) : null}
-          <Box className={styles.search} justify="end">
+          ) : null} */}
+          <Box
+            className={styles.search}
+            justify="end"
+            style={{ width: '85vw' }}
+            pad={{ horizontal: '9px' }}
+            margin={{ top: 'medium', bottom: 'medium' }}
+          >
             <SearchInput value={search} onChange={setSearch} />
           </Box>
 

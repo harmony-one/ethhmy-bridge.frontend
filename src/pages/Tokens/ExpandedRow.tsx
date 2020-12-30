@@ -87,9 +87,8 @@ const actionColumns: IColumn<IAction>[] = [
         className={styles.addressLink}
         href={
           (isEth(action.type)
-            ? process.env.ETH_EXPLORER_URL
-            : process.env.SCRT_EXPLORER_URL) +
-          '/tx/' +
+            ? process.env.ETH_EXPLORER_URL + '/tx/'
+            : process.env.SCRT_EXPLORER_URL + '/transactions/') +
           action.transactionHash
         }
         target="_blank"
@@ -215,9 +214,8 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 className={styles.addressLink}
                 href={
                   (isEth(action.type)
-                    ? process.env.ETH_EXPLORER_URL
-                    : process.env.SCRT_EXPLORER_URL) +
-                  '/tx/' +
+                    ? process.env.ETH_EXPLORER_URL + '/tx/'
+                    : process.env.SCRT_EXPLORER_URL + '/transactions/') +
                   action.transactionHash
                 }
                 target="_blank"

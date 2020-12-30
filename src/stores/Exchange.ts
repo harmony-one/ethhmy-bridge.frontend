@@ -5,9 +5,10 @@ import { ACTION_TYPE, EXCHANGE_MODE, IOperation, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import { mulDecimals, sleep, uuid } from '../utils';
+import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
+import { getStatus } from 'services';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -93,9 +94,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get swapFee() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH
-      ? this.ethSwapFee
-      : 0;
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? this.ethSwapFee : 0;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -114,7 +113,9 @@ export class Exchange extends StoreConstructor {
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
-                this.ethNetworkFee = await getNetworkFee(process.env.ETH_GAS_LIMIT);
+                this.ethNetworkFee = await getNetworkFee(
+                  process.env.ETH_GAS_LIMIT,
+                );
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.SCRT_TO_ETH:
@@ -168,13 +169,9 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setAddressByMode() {
     if (this.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-      // this.transaction.oneAddress = this.stores.user.address;
       this.transaction.scrtAddress = '';
       this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-    }
-
-    if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-      // this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+    } else if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
       this.transaction.ethAddress = '';
       this.transaction.scrtAddress = this.stores.user.address;
     }
@@ -182,15 +179,6 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
-    if (
-      this.operation &&
-      [SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(
-        this.operation.status,
-      )
-    ) {
-      return;
-    }
-
     this.clear();
     this.mode = mode;
     this.setAddressByMode();
@@ -244,14 +232,29 @@ export class Exchange extends StoreConstructor {
           : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
           ? TOKEN.ERC20
           : TOKEN.S20;
-      console.log(`op type: ${this.token}`);
+
+      this.operation.status = swap.swap.status;
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
+
+        console.log(`${JSON.stringify(swap.swap)}`)
+
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
-        this.transaction.amount = String(swap.swap.amount);
+
+        const decimals = this.stores.tokens.allData.find(
+           t => t.dst_address === swap.swap.dst_address,
+        ).decimals;
+
+        this.transaction.amount = divDecimals(swap.swap.amount, decimals);
         this.txHash = swap.swap.src_tx_hash;
       } else {
+        const decimals = this.stores.tokens.allData.find(
+          t => t.dst_address === swap.swap.src_coin,
+        ).decimals;
+
+        this.transaction.amount = divDecimals(swap.swap.amount, decimals);
+
         this.transaction.scrtAddress = swap.swap.src_address;
         this.transaction.ethAddress = swap.swap.dst_address;
         this.transaction.amount = String(swap.swap.amount);
@@ -319,6 +322,8 @@ export class Exchange extends StoreConstructor {
         await this.waitForResult();
         this.setStatus();
         return;
+      } else {
+        console.log('send op without id');
       }
 
       this.transaction.erc20Address = this.transaction.erc20Address.trim();

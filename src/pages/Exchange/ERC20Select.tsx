@@ -34,14 +34,16 @@ export const ERC20Select = observer(() => {
         <Box margin={{ top: 'small', bottom: 'medium' }}>
           <Select
             options={tokens.allData
-              .filter(token => token.display_props)
+              .filter(
+                token => token.display_props && token.src_coin !== 'Ethereum',
+              )
               .map(token => ({
                 ...token,
                 image: token.display_props.image,
                 text: `${
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'Secret'
                 } ${token.display_props.label} (${
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 's'
+                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'secret'
                 }${token.display_props.symbol})`,
                 value: token.src_address,
               }))}
@@ -74,7 +76,7 @@ export const ERC20Select = observer(() => {
                 href={
                   exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
                     ? `${process.env.ETH_EXPLORER_URL}/token/${token}`
-                    : `${process.env.SCRT_EXPLORER_URL}/account/${snip20}`
+                    : `${process.env.SCRT_EXPLORER_URL}/contracts/${snip20}`
                 }
                 target="_blank"
               >

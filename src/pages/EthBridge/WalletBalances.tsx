@@ -84,7 +84,7 @@ const AssetRow = observer<any>(props => {
             bold={true}
             style={{ cursor: 'pointer' }}
           >
-            Unlock Token
+            🔓 Unlock Token
           </Text>
         </span>
       </Box>
@@ -294,7 +294,7 @@ export const WalletBalances = observer(() => {
                     if (!eth) {
                       return undefined;
                     }
-                    return `${process.env.SCRT_EXPLORER_URL}/account/${eth.dst_address}`;
+                    return `${process.env.SCRT_EXPLORER_URL}/contracts/${eth.dst_address}`;
                   })()}
                   selected={
                     exchange.token === TOKEN.ETH &&
@@ -331,11 +331,11 @@ export const WalletBalances = observer(() => {
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
-                    asset={'s' + token.display_props.symbol}
+                    asset={'secret' + token.display_props.symbol}
                     value={user.balanceToken[token.src_coin]}
                     token={token}
                     userStore={user}
-                    link={`${process.env.SCRT_EXPLORER_URL}/account/${token.dst_address}`}
+                    link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
                     selected={
                       exchange.token === TOKEN.ERC20 &&
                       exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&

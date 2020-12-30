@@ -17,50 +17,40 @@ export const Info = ({ title }: { title: string }) => (
       <p>
         <b>You can use this bridge to</b>
         <ul>
+          <li>1) Swap ERC-20s, or Ethereum to Secret Tokens</li>
           <li>
-            1) Swap ERC-20s, or Ethereum to Secret Tokens
-          </li>
-          <li>
-            2) Currently supported tokens: TBD
+            2) Currently supported tokens: ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR,
+            DAI, BAND, LINK, AAVE, COMP, KNC, USDT and WBTC.
           </li>
         </ul>
       </p>
       <p>
-        <b>
-          Each Etheruem to Secret swap requires two actions - allowance, and a swap transaction.
-          These will be handled automagically by the bridge
-        </b>
-      </p>
-      <p>
-        The swap transaction should cost about TBD gas.
+        Because of volatility of gas prices on Ethereum, the swap transaction
+        fee will be shown before the transaction is approved by the user.
       </p>
 
       <p>
         You can also do the reverse transfer, i.e., redeem your tokens back to
-        your ethereum account. This will cost you SCRT gas, and a small fee to cover the multisig
-        transaction on the Ethereum side.
-      </p>
-      <p>
-        Please find more instructions{' '}
-        <a
-          href="https://docs.harmony.one/home/showcases/crosschain/horizon-bridge"
-          target="_blank"
-        >
-          <b>here</b>
-        </a>
+        your ethereum account. This will cost you SCRT gas, and a fee of about
+        500K gas, in the denomination that is being withdrawn to cover the
+        multisig transaction costs.
       </p>
       <p>
         <b>
-          Report any issues to <span>info@enigma.co</span> with one or more
-          of the following informations:
+          Report any issues in the <strong>#🌉bridge-support</strong> channel on
+          the{' '}
+          <a href="https://chat.scrt.network/" target="_blank">
+            Secret Network Discord server
+          </a>{' '}
+          with one or more of the following information:
         </b>
         <ul>
           <li>
             1) Transaction id, e.g.,{' '}
-            <span>7fa14f19-219f8220-1f209e61-8911e539</span> in{' '}
-            . Every bridge operation is associated with a unique transaction id,
-            which is available in your webpage URL. If you didn't store the
-            transaction id, it is okay, follow 2) or 3)
+            <span>7fa14f19-219f8220-1f209e61-8911e539</span>. Every bridge
+            operation is associated with a unique transaction id, which is
+            available in your webpage URL. If you didn't store the transaction
+            id, it is okay, follow 2) or 3)
           </li>
           <li>2) your transaction hashes on Ethereum or Secret Network</li>
           <li>
@@ -69,10 +59,12 @@ export const Info = ({ title }: { title: string }) => (
         </ul>
       </p>
       <p>
-        Please allow 24-48 hours for your issue resolution. Happy Bridging!!!
+        <b>Disclaimer</b>
+        <br />
+        Use at your own risk. We take no responsibilities or any liability for
+        any claim, damages or other liabilities that may arise from use of this
+        software.
       </p>
     </div>
   </Box>
 );
-
-// Also add a Contact Us button that mailsTo: bridge@harmony.one

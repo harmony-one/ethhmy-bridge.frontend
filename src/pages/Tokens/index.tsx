@@ -17,7 +17,7 @@ import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getScrtAddress } from '../../blockchain-bridge';
 
-const ethAddress = value => (
+const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
     <a
@@ -25,26 +25,26 @@ const ethAddress = value => (
       href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
       target="_blank"
     >
-      {truncateAddressString(value, 10)}
+      {truncateAddressString(value, num)}
     </a>
   </Box>
 );
 
-const scrtAddress = value => (
+const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/address/${value}`}
+      href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
       target="_blank"
     >
-      {truncateAddressString(value, 10)}
+      {truncateAddressString(value, num)}
     </a>
   </Box>
 );
 
 // todo: handle multiple networks
-const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
+const getColumns = (): IColumn<ITokenInfo>[] => [
   {
     title: 'Symbol',
     key: 'symbol',
@@ -52,17 +52,9 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 140,
     className: styles.leftHeader,
     render: value => {
-      const { tokens } = useStores();
-
-      let symbol =
-        tokens.allData.find(t => t.name === value)?.display_props?.symbol ||
-        '--';
-      if (value === 'Ethereum') {
-        symbol = 'ETH';
-      }
       return (
         <Box direction="column" justify="center" pad={{ left: 'medium' }}>
-          {symbol}
+          {value}
         </Box>
       );
     },
@@ -77,15 +69,15 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     title: 'Ethereum Address',
     key: 'src_address',
     dataIndex: 'src_address',
-    width: 280,
-    render: value => (value === 'native' ? 'native' : ethAddress(value)),
+    width: 220,
+    render: value => (value === 'native' ? 'native' : ethAddress(value, 8)),
   },
   {
     title: 'Secret Network Address',
     key: 'dst_address',
     dataIndex: 'dst_address',
-    width: 300,
-    render: value => scrtAddress(getScrtAddress(value)),
+    width: 220,
+    render: value => secretContractAddress(getScrtAddress(value), 8),
   },
   {
     title: 'Decimals',
@@ -96,73 +88,91 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     align: 'center',
   },
   {
+    title: 'Minimum Withdraw',
+    key: 'display_props',
+    dataIndex: 'display_props',
+    width: 120,
+    className: styles.centerHeader,
+    align: 'center',
+    render: value => value.min_from_scrt,
+  },
+  {
     title: 'Total Locked',
     sortable: true,
-    key: 'totalLockedNormal',
-    dataIndex: 'totalLockedNormal',
-    width: 140,
+    key: 'totalLocked',
+    dataIndex: 'totalLocked',
+    width: 200,
     render: value => (
       <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value)}
+        {value}
       </Box>
     ),
     className: styles.centerHeader,
     align: 'center',
   },
-  {
-    title: 'Total Locked USD',
-    sortable: true,
-    key: 'totalLockedUSD',
-    defaultSort: 'asc',
-    dataIndex: 'totalLockedUSD',
-    width: 210,
-    className: styles.rightHeaderSort,
-    align: 'right',
-    render: value => (
-      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(value)}
-      </Box>
-    ),
-  },
 ];
 
 export const Tokens = observer((props: any) => {
-  const { tokens, user } = useStores();
+  const { tokens } = useStores();
   const [search, setSearch] = useState('');
 
-  const [columns, setColumns] = useState(getColumns(user));
+  const [columns, setColumns] = useState(getColumns());
 
   useEffect(() => {
     tokens.init({ sorters: {}, sorter: 'none' });
     tokens.fetch();
   }, []);
-  /*
-  useEffect(() => {
-    setColumns(getColumns(user));
-  }, [user.hmyLINKBalanceManager]);
- */
+
   const onChangeDataFlow = (props: any) => {
     tokens.onChangeDataFlow(props);
   };
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data.filter(token => {
-    if (search) {
-      // todo: check dst_network
-      return (
-        Object.values(token).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
-        ) ||
-        getScrtAddress(token.dst_address).toLowerCase() === search.toLowerCase()
-      );
-    }
+  const filteredData = tokens.data
+    .filter(token => {
+      if (search) {
+        // todo: check dst_network
+        return (
+          Object.values(token).some(
+            value =>
+              value &&
+              value
+                .toString()
+                .toLowerCase()
+                .includes(search.toLowerCase()),
+          ) ||
+          getScrtAddress(token.dst_address).toLowerCase() ===
+            search.toLowerCase()
+        );
+      }
 
-    return true;
-  });
+      return true;
+    })
+    .map(token => {
+      try {
+        token.symbol = token.display_props.symbol;
+      } catch (error) {
+        if (token.src_coin === 'Ethereum') {
+          token.symbol = 'ETH';
+        } else {
+          token.symbol = '--';
+        }
+      }
+      return token;
+    })
+    .sort((t1, t2) =>
+      Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1,
+    )
+    .map(token => {
+      try {
+        token.totalLocked = `${formatWithTwoDecimals(
+          token.totalLockedNormal,
+        )} ($${formatWithTwoDecimals(token.totalLockedUSD)})`;
+      } catch (error) {}
+
+      return token;
+    });
 
   return (
     <BaseContainer>
@@ -200,9 +210,10 @@ export const Tokens = observer((props: any) => {
         </Box>
 
         <Box
+          className={styles.search}
           pad={{ horizontal: '9px' }}
           margin={{ top: 'medium', bottom: 'medium' }}
-          // style={{ maxWidth: 500 }}
+          style={{ width: '85vw' }}
         >
           <SearchInput value={search} onChange={setSearch} />
         </Box>
