@@ -1,5 +1,5 @@
 import { Button } from 'semantic-ui-react';
-import { DepositRewards } from '../../blockchain-bridge/scrt';
+import { DepositRewards } from '../../../blockchain-bridge/scrt';
 import React from 'react';
 
 const earnButtonStyle = {
@@ -13,7 +13,7 @@ const earnButtonStyle = {
 };
 
 
-const EarnButton = props => {
+const EarnButton = (props, value) => {
   return (
     <Button
       style={earnButtonStyle}
@@ -22,7 +22,7 @@ const EarnButton = props => {
           cosmJS: props.cosmJS,
           recipient: props.token.rewardsContract,
           address: props.token.lockedAsset,
-          amount: props.value}).catch(reason =>
+          amount: value}).catch(reason =>
           console.log(`Failed to deposit: ${reason}`)
         )
       }}

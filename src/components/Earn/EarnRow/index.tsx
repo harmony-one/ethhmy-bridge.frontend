@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { Accordion, Icon, Image, Input } from 'semantic-ui-react';
 import SoftTitleValue from '../SoftTitleValue';
 import EarnButton from './EarnButton';
-import ChangeBalance from './ChangeBalance';
+import DepositContainer from './DepositContainer';
 import ClaimBox from './ClaimBox';
 import { SigningCosmWasmClient } from 'secretjs';
 
@@ -23,11 +23,20 @@ interface RewardsToken {
   rewardsContract: string;
   lockedAsset: string;
   totalLockedRewards: string;
+  remainingLockedRewards: string;
+  deadline: number;
 }
 
-//const calculateAPY = (rewards)
+const calculateAPY = (token: RewardsToken) => {
 
-class AssetRow extends Component<{
+  // deadline - current time, 6 seconds per block
+  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000) );
+
+  return (Number(token.remainingLockedRewards) / timeRemaining) * 100;
+
+}
+
+class EarnRow extends Component<{
     cosmJS: SigningCosmWasmClient,
     token: RewardsToken
   }> {
@@ -65,7 +74,7 @@ class AssetRow extends Component<{
               <SoftTitleValue title={`${this.props.token.totalLockedRewards} sSCRT`} subTitle={"Total Rewards"} />
             </div>
           <div className={cn(styles.totalRewards)}>
-            <SoftTitleValue title={"20,000% APY"} subTitle={"Annual Percentage Yield"} />
+            <SoftTitleValue title={`${calculateAPY(this.props.token)}%`} subTitle={"Annual Percentage Yield"} />
           </div>
             <div className={cn(styles.availableDeposit)}>
               <SoftTitleValue title={`${this.props.token.balance} ${this.props.token.lockedAsset}`} subTitle={"Available to Deposit"} />
@@ -74,10 +83,10 @@ class AssetRow extends Component<{
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
           <div className={cn(styles.content2)}>
-            <ChangeBalance
+            <DepositContainer
               value={this.state.value}
               onChange={this.handleChange}
-              action={EarnButton(this.props)}
+              action={EarnButton(this.props, this.state.value)}
               balance={this.props.token.balance}
               currency={this.props.token.lockedAsset}
             />
@@ -93,4 +102,4 @@ class AssetRow extends Component<{
 }
 
 
-export default AssetRow;
+export default EarnRow;

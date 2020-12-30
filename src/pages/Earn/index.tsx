@@ -16,8 +16,8 @@ import { getScrtAddress } from '../../blockchain-bridge/scrt';
 import { formatWithTwoDecimals } from '../../utils';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import { Header, Image, Table, Button } from 'semantic-ui-react'
-import ScrtTokenBalance from '../../components/ScrtTokenBalance';
-import AssetRow from '../../components/AssetRow';
+import ScrtTokenBalance from '../../components/Earn/ScrtTokenBalance';
+import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
 
 const styleLink = document.createElement("link");
@@ -118,10 +118,12 @@ export const EarnRewards = observer((props: any) => {
                   balance: user.balanceToken[token.symbol],
                   decimals: token.decimals,
                   name: token.name,
-                  display_props: token.display_props
+                  display_props: token.display_props,
+                  remainingLockedRewards: "10000000",
+                  deadline: 1610024346,
                 }
 
-                return (<AssetRow
+                return (<EarnRow
                   cosmJS={user.cosmJS}
                   token={rewardstoken}
                 />);

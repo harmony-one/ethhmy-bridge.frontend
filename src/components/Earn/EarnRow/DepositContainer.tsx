@@ -16,7 +16,7 @@ const buttonStyle = {
   backgroundColor: "rgba(28,144,254,0.1)",
 };
 
-const ChangeBalance = props => {
+const DepositContainer = props => {
 
   const changeInput = percentage => {
     const event = {
@@ -85,4 +85,4 @@ const ChangeBalance = props => {
   )
 }
 
-export default ChangeBalance;
+export default DepositContainer;
