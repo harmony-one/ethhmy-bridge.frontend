@@ -12,57 +12,14 @@ import { Text } from 'components/Base';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
 
-const styleLink = document.createElement("link");
-styleLink.rel = "stylesheet";
-styleLink.href =
-  "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
-document.head.appendChild(styleLink);
-
-const LargeButton = (props: {
-  title: string;
-  onClick: () => void;
-  description: string;
-  isActive: boolean;
-  reverse?: boolean;
-}) => {
-  return (
-    <Box
-      direction="column"
-      align="center"
-      justify="center"
-      className={cn(
-        styles.largeButtonContainer,
-        props.isActive ? styles.active : '',
-      )}
-      onClick={props.onClick}
-      gap="10px"
-    >
-      <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
-        <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/eth.svg" />
-          <Text size="large" className={styles.title}>
-            ETH
-          </Text>
-        </Box>
-        <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
-          <img src="/right.svg" />
-        </Box>
-        <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/scrt.svg" />
-          <Text size="large" className={styles.title}>
-            Secret
-          </Text>
-        </Box>
-      </Box>
-      <Text size="xsmall" color="#748695" className={styles.description}>
-        {props.description}
-      </Text>
-    </Box>
-  );
-};
+// const styleLink = document.createElement("link");
+// styleLink.rel = "stylesheet";
+// styleLink.href =
+//   "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
+// document.head.appendChild(styleLink);
 
 
-export const EarnRewards = observer((props: any) => {
+const EarnRewards = observer((props: any) => {
   const { user, exchange, routing, tokens } = useStores();
 
   // useEffect(() => {
@@ -107,7 +64,7 @@ export const EarnRewards = observer((props: any) => {
                   totalLockedRewards: rewards.totalLocked,
                   rewards: user.balanceRewards[rewardsKey(token.symbol)],
                   deposit: user.balanceRewards[rewardsDepositKey(token.symbol)],
-                  balance: user.balanceToken[token.symbol],
+                  balance: user.balanceToken[token.symbol] ? user.balanceToken[token.symbol] : "unlock",
                   decimals: token.decimals,
                   name: token.name,
                   display_props: token.display_props,
@@ -128,3 +85,5 @@ export const EarnRewards = observer((props: any) => {
     </BaseContainer>
   );
 });
+
+export default EarnRewards;

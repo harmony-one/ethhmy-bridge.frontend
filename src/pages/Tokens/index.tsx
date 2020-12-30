@@ -112,7 +112,7 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
   },
 ];
 
-export const Tokens = observer((props: any) => {
+const Tokens = observer((props: any) => {
   const { tokens } = useStores();
   const [search, setSearch] = useState('');
 
@@ -239,3 +239,5 @@ export const Tokens = observer((props: any) => {
     </BaseContainer>
   );
 });
+
+export default Tokens;

@@ -55,7 +55,7 @@ const LargeButton = (props: {
   );
 };
 
-export const EthBridge = observer((props: any) => {
+const EthBridge = observer((props: any) => {
   const { user, exchange, routing } = useStores();
 
   useEffect(() => {
@@ -147,3 +147,5 @@ export const EthBridge = observer((props: any) => {
     </BaseContainer>
   );
 });
+
+export default EthBridge;

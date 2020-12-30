@@ -1,22 +1,29 @@
-import * as React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { baseTheme } from 'themes';
 import { GlobalStyle } from './GlobalStyle';
 import { Providers } from './Providers';
 import { Redirect, Route, Switch } from 'react-router';
 import { ActionModals } from './components/ActionModals';
-import { EthBridge } from './pages/EthBridge';
-import { Explorer } from './pages/Explorer';
-import { Tokens } from './pages/Tokens';
-import { SwapPage } from './pages/Swap';
+//import { EthBridge } from './pages/EthBridge';
+//import { Explorer } from './pages/Explorer';
+//import { Tokens } from './pages/Tokens';
+//import { SwapPage } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
-import { EarnRewards } from './pages/Earn';
-import { FAQPage } from './pages/FAQ';
+// import { EarnRewards } from './pages/Earn';
+// import { FAQPage } from './pages/FAQ';
 
 // import { InfoPage } from './pages/Info';
 
+const EthBridge = lazy(() => import('./pages/EthBridge'));
+const SwapPage = lazy(() => import('./pages/Swap'));
+const Tokens = lazy(() => import('./pages/Tokens'));
+const Explorer = lazy(() => import('./pages/Explorer'));
+const EarnRewards = lazy(() => import('./pages/Earn'));
+const FAQPage = lazy(() => import('./pages/FAQ'));
+
 export const App: React.FC = () => (
   <Providers>
-    <React.Suspense fallback={<div />}>
+    <Suspense fallback={<div />}>
       <Switch>
         <Route exact path="/swap" component={SwapPage} />
         <Route exact path="/tokens" component={Tokens} />
@@ -32,7 +39,7 @@ export const App: React.FC = () => (
         />
         <Redirect to="/eth" />
       </Switch>
-    </React.Suspense>
+    </Suspense>
     <ActionModals />
     <InfoModal />
     <GlobalStyle theme={...baseTheme as any} />

@@ -32,7 +32,7 @@ const calculateAPY = (token: RewardsToken) => {
   // deadline - current time, 6 seconds per block
   const timeRemaining = (token.deadline - Math.round(Date.now() / 1000) );
 
-  return (Number(token.remainingLockedRewards) / timeRemaining) * 100;
+  return ((Number(token.remainingLockedRewards) / timeRemaining) * 100).toFixed(0);
 
 }
 
@@ -77,7 +77,7 @@ class EarnRow extends Component<{
             <SoftTitleValue title={`${calculateAPY(this.props.token)}%`} subTitle={"Annual Percentage Yield"} />
           </div>
             <div className={cn(styles.availableDeposit)}>
-              <SoftTitleValue title={`${this.props.token.balance} ${this.props.token.lockedAsset}`} subTitle={"Available to Deposit"} />
+              <SoftTitleValue title={`${this.props.token.balance}`} subTitle={`${this.props.token.lockedAsset} Available to Deposit`} />
             </div>
             <Icon name='dropdown'/>
         </Accordion.Title>

@@ -24,10 +24,11 @@ export const rewardsKey = key => `${key}Rewards`
 
 export const rewardsTokens = [{
   symbol: "ETH",
-  rewardsContract: "secret1phq7va80a83z2sqpyqsuxhl045ruf2ld6xa89m",
+  rewardsContract: "secret1q4se3qljqs52677r3ap76k25pawgcz262gw8ja",
   decimals: "6",
   lockedAsset: "sETH",
-  totalLocked: "5,000,000"
+  totalLocked: "5,000,000",
+
 }]
 
 export class UserStoreEx extends StoreConstructor {

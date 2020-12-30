@@ -322,7 +322,7 @@ const faqConfig = [
   },
 ];
 
-export const FAQPage = () => {
+const FAQPage = () => {
   const [expandedIdxs, setExpandedIdxs] = useState([]);
 
   const addExpanded = idx => setExpandedIdxs(expandedIdxs.concat([idx]));
@@ -397,3 +397,5 @@ export const FAQPage = () => {
     </BaseContainer>
   );
 };
+
+export default FAQPage;

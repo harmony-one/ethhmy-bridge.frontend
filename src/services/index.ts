@@ -2,27 +2,8 @@ import { IOperation, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
-const servers = require('../../appengine-servers.json');
-
 const backendUrl = url => {
   return `${process.env.BACKEND_URL}${url}`;
-};
-
-const callAvailableServer = async (
-  func: (url: string) => Promise<any>,
-  server = 0,
-) => {
-  let error;
-
-  for (let i = server; i < servers.length; i++) {
-    try {
-      return await func(servers[i]);
-    } catch (e) {
-      error = e;
-    }
-  }
-
-  throw error;
 };
 
 export const createOperation = async params => {
