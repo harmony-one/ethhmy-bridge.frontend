@@ -2,6 +2,7 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button, Input } from 'semantic-ui-react';
 import React from 'react';
+import { unlockToken } from '../../../utils';
 
 const buttonStyle = {
   borderRadius: '15px',
@@ -16,16 +17,28 @@ const buttonStyle = {
   backgroundColor: "rgba(28,144,254,0.1)",
 };
 
-const DepositContainer = props => {
+const AmountButton = (props: {balance: string, multiplier: string, onChange: CallableFunction}) => {
+  return (<Button
+    style={buttonStyle}
+    disabled={!props.balance || props.balance === unlockToken}
+    onClick={() => {
+      changeInput(props.balance, props.multiplier, props.onChange)
+    }}
+  >
+    {`${Number(props.multiplier) * 100}%`}
+  </Button>);
+}
 
-  const changeInput = percentage => {
-    const event = {
-      target: {
-        value: String(parseFloat(percentage) * parseFloat(props.balance))
-      }
+const changeInput = (balance, percentage, onChange) => {
+  const event = {
+    target: {
+      value: String(parseFloat(percentage) * parseFloat(balance))
     }
-    props.onChange(event)
   }
+  onChange(event)
+}
+
+const DepositContainer = props => {
 
   return (
     <div className={cn(styles.changeBalance)}>
@@ -46,38 +59,26 @@ const DepositContainer = props => {
           </Input>
         </div>
         <div className={styles.amountRow}>
-          <Button
-            style={buttonStyle}
-            onClick={() => {
-              changeInput('0.25')
-            }}
-          >
-            25%
-          </Button>
-          <Button
-            style={buttonStyle}
-            onClick={() => {
-              changeInput('0.50')
-            }}
-          >
-            50%
-          </Button>
-          <Button
-            style={buttonStyle}
-            onClick={() => {
-              changeInput('0.75')
-            }}
-          >
-            75%
-          </Button>
-          <Button
-            style={buttonStyle}
-            onClick={() => {
-              changeInput('1')
-            }}
-          >
-            100%
-          </Button>
+          <AmountButton
+            balance={props.balance}
+            onChange={props.onChange}
+            multiplier={'0.25'}
+          />
+          <AmountButton
+            balance={props.balance}
+            onChange={props.onChange}
+            multiplier={'0.5'}
+          />
+          <AmountButton
+            balance={props.balance}
+            onChange={props.onChange}
+            multiplier={'0.75'}
+          />
+          <AmountButton
+            balance={props.balance}
+            onChange={props.onChange}
+            multiplier={'1'}
+          />
         </div>
         {props.action}
       </div>

@@ -50,11 +50,16 @@ class EarnRow extends Component<{
     userStore: UserStoreEx,
     token: RewardsToken
   }> {
-  state = { activeIndex: -1, value: '0.0' }
+  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0' }
 
-  handleChange = (event) => {
-    this.setState({value: event.target.value});
+  handleChangeDeposit = (event) => {
+    this.setState({depositValue: event.target.value});
   }
+
+  handleChangeWithdraw = (event) => {
+    this.setState({withdrawValue: event.target.value});
+  }
+
 
   handleClick = (e, titleProps) => {
     const { index } = titleProps
@@ -97,16 +102,16 @@ class EarnRow extends Component<{
         <Accordion.Content active={activeIndex === 0}>
           <div className={cn(styles.content2)}>
             <DepositContainer
-              value={this.state.value}
-              onChange={this.handleChange}
-              action={EarnButton(this.props, this.state.value)}
+              value={this.state.depositValue}
+              onChange={this.handleChangeDeposit}
+              action={EarnButton(this.props, this.state.depositValue)}
               balance={this.props.token.balance}
               currency={this.props.token.lockedAsset}
             />
             <DepositContainer
-              value={this.state.value}
-              onChange={this.handleChange}
-              action={WithdrawButton(this.props, this.state.value)}
+              value={this.state.withdrawValue}
+              onChange={this.handleChangeWithdraw}
+              action={WithdrawButton(this.props, this.state.withdrawValue)}
               balance={this.props.token.deposit}
               currency={this.props.token.lockedAsset}
             />

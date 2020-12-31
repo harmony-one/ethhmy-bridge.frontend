@@ -13,7 +13,7 @@ const ScrtTokenBalance = (props: {value: string, decimals: string | number, curr
   //     <h5 className={cn(styles.subMenu)}>{props.subTitle}</h5>
   //   </div>
   const text = props.subtitle ? props.subtitle : "Available Balance"
-  console.log(props.value)
+
   if (!props.value) {
     return (<SoftTitleValue
         title={<Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />}

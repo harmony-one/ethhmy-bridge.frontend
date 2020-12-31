@@ -23,7 +23,7 @@ import { unlockToken } from '../../utils';
 const EarnRewards = observer((props: any) => {
   const { user, tokens } = useStores();
   // Load tokens from DB
-
+  //tokens.fetch();
   // useEffect(() => {
   //   if (props.match.params.token) {
   //     if (
@@ -56,7 +56,7 @@ const EarnRewards = observer((props: any) => {
           >
             {
               tokens.allData.map( (token) => {
-                const rewards = rewardsTokens.find(element => element.symbol === token.symbol);
+                const rewards = rewardsTokens.find(element => element.symbol === token.display_props.symbol);
                 if (!rewards) {
                   return (<></>);
                 }
@@ -66,8 +66,8 @@ const EarnRewards = observer((props: any) => {
                   lockedAssetAddress: token.dst_address,
                   totalLockedRewards: rewards.totalLocked,
                   rewardsDecimals: rewards.decimals,
-                  rewards: user.balanceRewards[rewardsKey(token.symbol)],
-                  deposit: user.balanceRewards[rewardsDepositKey(token.symbol)],
+                  rewards: user.balanceRewards[rewardsKey(token.display_props.symbol)],
+                  deposit: user.balanceRewards[rewardsDepositKey(token.display_props.symbol)],
                   balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
                   decimals: token.decimals,
                   name: token.name,
