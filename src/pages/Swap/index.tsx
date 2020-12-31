@@ -281,7 +281,8 @@ const AdditionalDetails = ({
   minimumReceived,
   liquidityProviderFee,
   priceImpact,
-  token,
+  fromToken,
+  toToken,
 }) => {
   const [
     minimumReceivedIconBackground,
@@ -340,7 +341,9 @@ const AdditionalDetails = ({
             />
           </span>
           {flexRowSpace}
-          <strong>{minimumReceived}</strong>
+          <strong>
+            {minimumReceived} {toToken}
+          </strong>
         </div>
         <div
           style={{
@@ -409,7 +412,7 @@ const AdditionalDetails = ({
           </span>
           {flexRowSpace}
           <strong>
-            {balanceNumberFormat.format(liquidityProviderFee)} {token}
+            {balanceNumberFormat.format(liquidityProviderFee)} {fromToken}
           </strong>
         </div>
       </Container>
@@ -440,7 +443,24 @@ export const SwapPage = () => {
   }, []);
 
   useEffect(() => {
+    if (!user.secretjs) {
+      return;
+    }
+
     // Keplr is ready
+    (async () => {
+      try {
+        const response = await user.secretjs.queryContractSmart(
+          process.env.AMM_FACTORY_CONTRACT,
+          {
+            pairs: {},
+          },
+        );
+        console.log(response);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
   }, [user.secretjs]);
 
   useEffect(() => {
@@ -571,7 +591,8 @@ export const SwapPage = () => {
               </Button>
             </Container>
             <AdditionalDetails
-              token={tokens.from}
+              fromToken={tokens.from}
+              toToken={tokens.to}
               liquidityProviderFee={liquidityProviderFee}
               priceImpact={priceImpact}
               minimumReceived={minimumReceived}
