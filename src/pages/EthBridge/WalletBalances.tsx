@@ -5,7 +5,7 @@ import { Button, Icon, Text, Title } from 'components/Base';
 import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
-import { truncateAddressString } from 'utils';
+import { truncateAddressString, unlockToken } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
@@ -36,7 +36,7 @@ const AssetRow = observer<any>(props => {
     value = (
       <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
     );
-  } else if (props.value === 'Unlock') {
+  } else if (props.value === unlockToken) {
     value = (
       <Box direction="row">
         <span

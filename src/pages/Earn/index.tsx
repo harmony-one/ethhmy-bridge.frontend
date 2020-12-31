@@ -11,6 +11,7 @@ import { Text } from 'components/Base';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
+import { unlockToken } from '../../utils';
 
 // const styleLink = document.createElement("link");
 // styleLink.rel = "stylesheet";
@@ -20,7 +21,8 @@ import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserS
 
 
 const EarnRewards = observer((props: any) => {
-  const { user, exchange, routing, tokens } = useStores();
+  const { user, tokens } = useStores();
+  // Load tokens from DB
 
   // useEffect(() => {
   //   if (props.match.params.token) {
@@ -61,19 +63,21 @@ const EarnRewards = observer((props: any) => {
                 const rewardstoken = {
                   rewardsContract: rewards.rewardsContract,
                   lockedAsset: rewards.lockedAsset,
+                  lockedAssetAddress: token.dst_address,
                   totalLockedRewards: rewards.totalLocked,
-                  rewards: user.balanceRewards[rewardsKey(token.src_coin)],
-                  deposit: user.balanceRewards[rewardsDepositKey(token.src_coin)],
-                  balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : "unlock",
+                  rewardsDecimals: rewards.decimals,
+                  rewards: user.balanceRewards[rewardsKey(token.symbol)],
+                  deposit: user.balanceRewards[rewardsDepositKey(token.symbol)],
+                  balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
                   decimals: token.decimals,
                   name: token.name,
                   display_props: token.display_props,
-                  remainingLockedRewards: "10000000",
-                  deadline: 1610024346,
+                  remainingLockedRewards: rewards.remainingLockedRewards,
+                  deadline: rewards.deadline,
                 }
 
                 return (<EarnRow
-                  secretjs={user.secretjs}
+                  userStore={user}
                   token={rewardstoken}
                 />);
             })}

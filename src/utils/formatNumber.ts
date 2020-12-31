@@ -1,6 +1,11 @@
 import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
+
+export const valueToDecimals = (value: string, decimals: string): string => {
+  return BigInt(parseFloat(value) * Math.pow(10, parseInt(decimals))).toString()
+}
+
 const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
@@ -54,6 +59,7 @@ export const mulDecimals = (amount: string | number, decimals: string | number) 
 };
 
 export const divDecimals = (amount: string | number, decimals: string | number) => {
+  console.log(amount)
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).dividedBy(decimalsMul);
 

@@ -3,19 +3,19 @@ import { JsonObject } from 'secretjs/types/types';
 import { Snip20Send } from './snip20';
 
 interface IQueryRewards {
-  query_rewards: {
+  rewards: {
     rewards: string
 }
 }
 
 interface IQueryDeposit {
-  query_deposit: {
+  deposit: {
     deposit: string
   }
 }
 
 interface IQueryRewardPoolBalance  {
-  query_reward_pool_balance: {
+  reward_pool_balance: {
     balance: string
   }
 }
@@ -27,15 +27,15 @@ export const QueryRewards = async (params: { cosmJS: SigningCosmWasmClient, cont
   const result: IQueryRewards = await cosmJS.queryContractSmart(
     contract,
     {
-      query_rewards: {
+      rewards: {
         address,
-        height,
+        height: Number(height),
         key,
       },
     },
   );
 
-  return result.query_rewards.rewards;
+  return result.rewards.rewards;
 }
 
 
@@ -46,14 +46,14 @@ export const QueryDeposit = async (params: { cosmJS: SigningCosmWasmClient, cont
   let result: IQueryDeposit = await cosmJS.queryContractSmart(
     contract,
     {
-      query_deposit: {
+      deposit: {
         address,
         key,
       },
     },
   );
 
-  return result.query_deposit.deposit;
+  return result.deposit.deposit;
 }
 
 export const QueryRewardPoolBalance = async (params: { cosmJS: SigningCosmWasmClient, contract: string }): Promise<JsonObject> => {
@@ -63,7 +63,7 @@ export const QueryRewardPoolBalance = async (params: { cosmJS: SigningCosmWasmCl
   return await cosmJS.queryContractSmart(
     contract,
     {
-      query_deposit: {},
+      deposit: {},
     },
   );
 
@@ -72,18 +72,18 @@ export const QueryRewardPoolBalance = async (params: { cosmJS: SigningCosmWasmCl
 export const DepositRewards = async (params: { secretjs: SigningCosmWasmClient, recipient: string, address: string, amount: string }): Promise<string> => {
 
   const tx = await Snip20Send({
-    msg: "eyJsb2NrX3Rva2VucyI6e319Cg==",  // '{"lock_tokens":{}}' -> base64
+    msg: "eyJkZXBvc2l0Ijp7fX0K",  // '{"lock_tokens":{}}' -> base64
     ...params
   });
 
   return "yooyoo";
 }
 
-export const Redeem = async (params: { cosmJS: SigningCosmWasmClient, address: string, amount: string }): Promise<ExecuteResult> => {
+export const Redeem = async (params: { secretjs: SigningCosmWasmClient, address: string, amount: string }): Promise<ExecuteResult> => {
 
-  const {cosmJS, address, amount } = params;
+  const {secretjs, address, amount } = params;
 
-  let result = await cosmJS.execute(
+  let result = await secretjs.execute(
     address,
     {
       redeem: {
@@ -93,6 +93,20 @@ export const Redeem = async (params: { cosmJS: SigningCosmWasmClient, address: s
   );
   console.log('heyo');
   console.log(result);
+
+  return result;
+}
+
+export const Claim = async (params: { secretjs: SigningCosmWasmClient, address: string }): Promise<ExecuteResult> => {
+
+  const {secretjs, address } = params;
+
+  let result = await secretjs.execute(
+    address,
+    {
+      claim_reward_pool: {},
+    },
+  );
 
   return result;
 }

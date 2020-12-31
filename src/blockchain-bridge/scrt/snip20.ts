@@ -1,5 +1,5 @@
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
-import { divDecimals } from '../../utils';
+import { divDecimals, unlockToken } from '../../utils';
 
 export const Snip20SwapHash = (params: { tx_id: string, address: string }): string => {
   return `${params.tx_id}|${params.address}`;
@@ -20,7 +20,7 @@ export const Snip20GetBalance = async (params: { secretjs: SigningCosmWasmClient
     });
   } catch (e) {
     console.log(e)
-    return 'Unlock';
+    return unlockToken;
   }
 
   if (balanceResponse.viewing_key_error) {

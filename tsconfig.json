@@ -23,7 +23,8 @@
     "suppressImplicitAnyIndexErrors": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": true
   },
   "exclude": [
     "node_modules",

@@ -1,6 +1,7 @@
 import { Button } from 'semantic-ui-react';
-import { Redeem } from '../../../blockchain-bridge/scrt';
+import { Claim, Redeem } from '../../../blockchain-bridge/scrt';
 import React from 'react';
+import { SigningCosmWasmClient } from 'secretjs';
 
 const claimButtonStyle = {
   borderRadius: '50px',
@@ -13,15 +14,15 @@ const claimButtonStyle = {
 };
 
 
-const ClaimButton = props => {
+const ClaimButton = (props: {secretjs: SigningCosmWasmClient, contract: string}) => {
   return (
     <Button
       style={claimButtonStyle}
       onClick={() => {
         Redeem({
-          cosmJS: props.cosmJS,
+          secretjs: props.secretjs,
           address: props.contract,
-          amount: "1000000000000000"
+          amount: "0"
         }).catch(reason =>
           console.log(`Failed to claim: ${reason}`)
         )

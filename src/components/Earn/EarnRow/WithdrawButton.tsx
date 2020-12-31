@@ -1,5 +1,5 @@
 import { Button } from 'semantic-ui-react';
-import { DepositRewards } from '../../../blockchain-bridge/scrt';
+import { Redeem } from '../../../blockchain-bridge/scrt';
 import React from 'react';
 import { valueToDecimals } from '../../../utils';
 
@@ -14,24 +14,22 @@ const earnButtonStyle = {
 };
 
 
-// todo: add failed toast or something
-const EarnButton = (props, value) => {
+const WithdrawButton = (props, value) => {
   return (
     <Button
       style={earnButtonStyle}
       onClick={() => {
-        DepositRewards({
+        Redeem({
           secretjs: props.userStore.secretjs,
-          recipient: props.token.rewardsContract,
-          address: props.token.lockedAssetAddress,
+          address: props.token.rewardsContract,
           amount: valueToDecimals(value, props.token.decimals)}).catch(reason =>
-            console.log(`Failed to deposit: ${reason}`)
+            console.log(`Failed to withdraw: ${reason}`)
         )
       }}
     >
-      Earn
+      Withdraw
     </Button>
   );
 }
 
-export default EarnButton;
+export default WithdrawButton;

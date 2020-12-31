@@ -1,13 +1,16 @@
-import React, { Component, Requireable } from 'react';
+import React, { Component } from 'react';
 
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { Accordion, Icon, Image, Input } from 'semantic-ui-react';
+import { Accordion, Icon, Image } from 'semantic-ui-react';
 import SoftTitleValue from '../SoftTitleValue';
 import EarnButton from './EarnButton';
 import DepositContainer from './DepositContainer';
 import ClaimBox from './ClaimBox';
-import { SigningCosmWasmClient } from 'secretjs';
+import { UserStoreEx } from '../../../stores/UserStore';
+import { observer } from 'mobx-react';
+import WithdrawButton from './WithdrawButton';
+
 
 interface RewardsToken {
   name: string;
@@ -21,7 +24,9 @@ interface RewardsToken {
   deposit: string;
   rewards: string;
   rewardsContract: string;
+  rewardsDecimals: string;
   lockedAsset: string;
+  lockedAssetAddress: string;
   totalLockedRewards: string;
   remainingLockedRewards: string;
   deadline: number;
@@ -36,8 +41,13 @@ const calculateAPY = (token: RewardsToken) => {
 
 }
 
+// const balanceDisplay = (value) => {
+//   return value ? value : <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+// }
+
+@observer
 class EarnRow extends Component<{
-    secretjs: SigningCosmWasmClient,
+    userStore: UserStoreEx,
     token: RewardsToken
   }> {
   state = { activeIndex: -1, value: '0.0' }
@@ -54,7 +64,10 @@ class EarnRow extends Component<{
     this.setState({ activeIndex: newIndex })
   };
 
+
+
   render() {
+    //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
     const { activeIndex } = this.state
     return (
       <Accordion className={cn(styles.accordion)}>
@@ -90,10 +103,20 @@ class EarnRow extends Component<{
               balance={this.props.token.balance}
               currency={this.props.token.lockedAsset}
             />
+            <DepositContainer
+              value={this.state.value}
+              onChange={this.handleChange}
+              action={WithdrawButton(this.props, this.state.value)}
+              balance={this.props.token.deposit}
+              currency={this.props.token.lockedAsset}
+            />
+          </div>
+          <div>
             <ClaimBox
-              available={this.props.token.balance}
-              cosmJS={this.props.secretjs}
-              contract={this.props.token.rewardsContract}
+              available={this.props.token.rewards}
+              decimals={6} // this.props.token.rewardsDecimals
+              userStore={this.props.userStore}
+              rewardsContract={this.props.token.rewardsContract}
             />
           </div>
         </Accordion.Content>

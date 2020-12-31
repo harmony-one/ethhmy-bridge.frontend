@@ -6,3 +6,4 @@ export * from './misc';
 export * from './decode';
 export * from './validators';
 export * from './uuid';
+export * from './scrt';

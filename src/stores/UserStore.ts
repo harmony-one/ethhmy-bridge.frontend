@@ -12,7 +12,7 @@ import {
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, formatWithSixDecimals } from '../utils';
+import { divDecimals, formatWithSixDecimals, unlockToken, valueToDecimals } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
 
@@ -24,20 +24,22 @@ export const rewardsKey = key => `${key}Rewards`
 
 export const rewardsTokens = [{
   symbol: "ETH",
-  rewardsContract: "secret1q4se3qljqs52677r3ap76k25pawgcz262gw8ja",
-  decimals: "6",
+  rewardsContract: "secret1g6c4vq5me8ymctuvalxsqn38glxrvzadflleck",
+  decimals: "1",
+  underlyingDecimals: "18",
   lockedAsset: "sETH",
   totalLocked: "5,000,000",
-
+  remainingLockedRewards: "10000000",
+  deadline: 1610024346,
 }]
 
 export class UserStoreEx extends StoreConstructor {
-  public stores: IStores;
+  declare public stores: IStores;
   @observable public isAuthorized: boolean;
   public status: statusFetching;
   redirectUrl: string;
 
-  private keplrWallet: any;
+  public keplrWallet: any;
   private keplrOfflineSigner: any;
   @observable public secretjs: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
@@ -296,13 +298,13 @@ export class UserStoreEx extends StoreConstructor {
         }
         try {
           const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
-          if (balance.includes('Unlock')) {
+          if (balance.includes(unlockToken)) {
             this.balanceToken[token.src_coin] = balance;
           } else {
             this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
           }
         } catch (err) {
-          this.balanceToken[token.src_coin] = 'Unlock';
+          this.balanceToken[token.src_coin] = unlockToken;
         }
 
         try {
@@ -316,17 +318,17 @@ export class UserStoreEx extends StoreConstructor {
 
       for (const token of rewardsTokens) {
         try {
+
           const balance = await this.getBridgeRewardsBalance(token.rewardsContract, token.decimals)
 
-          console.log(`token ${token.rewardsContract} rewards balance: ${balance}`)
-
-          if (balance.includes('Unlock')) {
+          if (balance.includes(unlockToken)) {
             this.balanceRewards[rewardsKey(token.symbol)] = balance;
           } else {
-            this.balanceRewards[rewardsKey(token.symbol)] = formatWithSixDecimals(balance);
+            this.balanceRewards[rewardsKey(token.symbol)] = divDecimals(balance, token.decimals);
           }
         } catch (err) {
-          this.balanceRewards[rewardsKey(token.symbol)] = 'Unlock';
+          this.balanceRewards[rewardsKey(token.symbol)] = unlockToken;
+          console.log(`failed to get rewards for token: ${err}`)
         }
 
         try {
@@ -334,13 +336,14 @@ export class UserStoreEx extends StoreConstructor {
 
           console.log(`token ${token.rewardsContract} deposit balance: ${balance}`)
 
-          if (balance.includes('Unlock')) {
+          if (balance.includes(unlockToken)) {
             this.balanceRewards[rewardsDepositKey(token.symbol)] = balance;
           } else {
-            this.balanceRewards[rewardsDepositKey(token.symbol)] = formatWithSixDecimals(balance);
+            this.balanceRewards[rewardsDepositKey(token.symbol)] = divDecimals(balance, token.underlyingDecimals);
           }
         } catch (err) {
-          this.balanceRewards[rewardsDepositKey(token.symbol)] = 'Unlock';
+          this.balanceRewards[rewardsDepositKey(token.symbol)] = unlockToken;
+          console.log(`failed to get rewards for token ${token.symbol}: ${err}`)
         }
       }
 
@@ -349,13 +352,13 @@ export class UserStoreEx extends StoreConstructor {
 
         //console.log(balance)
 
-        if (balance.includes('Unlock')) {
+        if (balance.includes(unlockToken)) {
           this.balanceRewards["sscrt"] = balance;
         } else {
           this.balanceRewards["sscrt"] = formatWithSixDecimals(balance);
         }
       } catch (err) {
-        this.balanceRewards["sscrt"] = 'Unlock';
+        this.balanceRewards["sscrt"] = unlockToken;
       }
 
       }
