@@ -12,7 +12,6 @@ const buttonStyle = {
   marginRight: '12px',
   marginLeft: '12px',
   padding: '0.5rem 1rem 1rem 1rem',
-  transition: 'background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
   color: "#2F80ED",
   backgroundColor: "rgba(28,144,254,0.1)",
 };

@@ -2,11 +2,26 @@ import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
 
+export const priceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 10,
+  useGrouping: true,
+});
+
+export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 6,
+  useGrouping: true,
+});
+
+export const inputNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 20,
+  useGrouping: false,
+});
+
 export const valueToDecimals = (value: string, decimals: string): string => {
   return BigInt(parseFloat(value) * Math.pow(10, parseInt(decimals))).toString()
 }
 
-const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
+export const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });

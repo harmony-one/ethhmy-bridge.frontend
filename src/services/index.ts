@@ -1,4 +1,4 @@
-import { IOperation, ISwap, ITokenInfo } from '../stores/interfaces';
+import { IOperation, IRewardPool, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
@@ -75,6 +75,18 @@ export const getTokensInfo = async (
   const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
 
   const content = res.body.tokens;
+
+  return { ...res.body, content };
+};
+
+export const getRewardsInfo = async (
+  params: any,
+): Promise<{ content: IRewardPool[] }> => {
+  const url = backendUrl('/rewards/');
+
+  const res = await agent.get<{ body: { tokens: IRewardPool[] } }>(url, params);
+
+  const content = res.body.pools;
 
   return { ...res.body, content };
 };

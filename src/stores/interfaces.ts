@@ -95,3 +95,20 @@ export interface ITokenInfo {
     min_from_scrt: string;
   };
 }
+
+export interface IRewardPool {
+  pool_address: string;
+  inc_token: {
+    symbol: string;
+    address: string;
+    decimals: number;
+  };
+  rewards_token: {
+    symbol: string;
+    address: string;
+    decimals: number;
+  }
+  total_locked: string;
+  pending_rewards: string;
+  deadline: string;
+}

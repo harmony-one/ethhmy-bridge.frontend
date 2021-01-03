@@ -6,7 +6,7 @@ import React from 'react';
 import ScrtTokenBalance from '../ScrtTokenBalance';
 import { UserStoreEx } from '../../../stores/UserStore';
 
-const ClaimBox = (props: {rewardsContract: string, decimals: string | number, userStore: UserStoreEx, available: string}) => {
+const ClaimBox = (props: {rewardsContract: string, decimals?: string | number, userStore: UserStoreEx, available: string}) => {
   return (
     <div className={cn(styles.claimBox)}>
       <div>
@@ -14,7 +14,7 @@ const ClaimBox = (props: {rewardsContract: string, decimals: string | number, us
           <ScrtTokenBalance
            subtitle={"Available Rewards"}
            tokenAddress={props.rewardsContract}
-           decimals={props.decimals}
+           decimals={props.decimals || 1}
            userStore={props.userStore}
            currency={"sSCRT"} selected={false} value={props.available}/>
           {/*<SoftTitleValue title={`${} sSCRT`} subTitle={} />*/}

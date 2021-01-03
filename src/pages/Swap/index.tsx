@@ -14,6 +14,7 @@ import {
 import { useStores } from 'stores';
 import tokens from './tokens.json';
 import './override.css';
+import { balanceNumberFormat, inputNumberFormat, priceNumberFormat } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -209,18 +210,7 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
   );
 };
 
-const priceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 10,
-  useGrouping: true,
-});
-const balanceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
-  useGrouping: true,
-});
-const inputNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 20,
-  useGrouping: false,
-});
+
 
 const PriceRow = ({ price, fromToken, toToken }) => {
   const [tokens, setTokens] = useState({

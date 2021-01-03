@@ -1,23 +1,14 @@
-import { Button } from 'semantic-ui-react';
-import { Claim, Redeem } from '../../../blockchain-bridge/scrt';
+import { Redeem } from '../../../blockchain-bridge/scrt';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-
-const claimButtonStyle = {
-  borderRadius: '50px',
-  height: '47px',
-  fontWeight: 500,
-  width: "100%",
-  color: "#2F80ED",
-  backgroundColor: "transparent",
-  border: "1px solid rgba(47, 128, 237, 0.5)",
-};
+import cn from 'classnames';
+import * as styles from './styles.styl';
 
 
 const ClaimButton = (props: {secretjs: SigningCosmWasmClient, contract: string}) => {
   return (
-    <Button
-      style={claimButtonStyle}
+    <button
+      className={cn(styles.button, styles.ripple)}
       onClick={() => {
         Redeem({
           secretjs: props.secretjs,
@@ -29,7 +20,7 @@ const ClaimButton = (props: {secretjs: SigningCosmWasmClient, contract: string})
       }}
     >
       Claim
-    </Button>
+    </button>
   );
 }
 

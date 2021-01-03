@@ -24,7 +24,9 @@ const UnlockToken = (props: {userStore: UserStoreEx, tokenAddress: string, selec
             padding: '0rem 0.3rem',
           }}
         >
-          🔓
+          <span role="img" aria-label={"lock"}>
+            🔓
+          </span>
         </Button>
   </Box>
   );

@@ -22,16 +22,16 @@ export const rewardsDepositKey = key => `${key}RewardsDeposit`
 
 export const rewardsKey = key => `${key}Rewards`
 
-export const rewardsTokens = [{
-  symbol: "ETH",
-  rewardsContract: "secret1g6c4vq5me8ymctuvalxsqn38glxrvzadflleck",
-  decimals: "1",
-  underlyingDecimals: "18",
-  lockedAsset: "sETH",
-  totalLocked: "5,000,000",
-  remainingLockedRewards: "10000000",
-  deadline: 1610024346,
-}]
+// export const rewardsTokens = [{
+//   symbol: "ETH",
+//   rewardsContract: "secret1g6c4vq5me8ymctuvalxsqn38glxrvzadflleck",
+//   decimals: "1",
+//   underlyingDecimals: "18",
+//   lockedAsset: "sETH",
+//   totalLocked: "5,000,000",
+//   remainingLockedRewards: "10000000",
+//   deadline: 1610024346,
+// }]
 
 export class UserStoreEx extends StoreConstructor {
   declare public stores: IStores;
@@ -198,7 +198,7 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getSnip20Balance = async (snip20Address: string, decimals: string): Promise<string> => {
+  @action public getSnip20Balance = async (snip20Address: string, decimals: string | number): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -223,17 +223,12 @@ export class UserStoreEx extends StoreConstructor {
     });
   };
 
-  @action public getBridgeRewardsBalance = async (snip20Address: string, decimals: string): Promise<string> => {
+  @action public getBridgeRewardsBalance = async (snip20Address: string): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
 
     const height = await this.secretjs.getHeight();
-
-    const decimalsNum = Number(decimals);
-    if (!decimalsNum) {
-      throw new Error("Token not found")
-    }
 
     const viewingKey = await getViewingKey({
       keplr: this.keplrWallet,
@@ -252,14 +247,9 @@ export class UserStoreEx extends StoreConstructor {
     return result
   };
 
-  @action public getBridgeDepositBalance = async (snip20Address: string, decimals: string): Promise<string> => {
+  @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
     if (!this.secretjs) {
       return '0';
-    }
-
-    const decimalsNum = Number(decimals);
-    if (!decimalsNum) {
-      throw new Error("Token not found")
     }
 
     const viewingKey = await getViewingKey({
@@ -316,51 +306,49 @@ export class UserStoreEx extends StoreConstructor {
       }
 
 
-      for (const token of rewardsTokens) {
+      for (const token of this.stores.rewards.allData) {
         try {
 
-          const balance = await this.getBridgeRewardsBalance(token.rewardsContract, token.decimals)
+          const balance = await this.getBridgeRewardsBalance(token.pool_address)
 
           if (balance.includes(unlockToken)) {
-            this.balanceRewards[rewardsKey(token.symbol)] = balance;
+            this.balanceRewards[rewardsKey(token.inc_token.symbol)] = balance;
           } else {
-            this.balanceRewards[rewardsKey(token.symbol)] = divDecimals(balance, token.decimals);
+            // rewards are in the rewards_token decimals
+            this.balanceRewards[rewardsKey(token.inc_token.symbol)] = divDecimals(balance, token.rewards_token.decimals);//divDecimals(balance, token.inc_token.decimals);
           }
         } catch (err) {
-          this.balanceRewards[rewardsKey(token.symbol)] = unlockToken;
+          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
           console.log(`failed to get rewards for token: ${err}`)
         }
 
         try {
-          const balance = await this.getBridgeDepositBalance(token.rewardsContract, token.decimals)
+          const balance = await this.getBridgeDepositBalance(token.pool_address)
 
-          console.log(`token ${token.rewardsContract} deposit balance: ${balance}`)
+          console.log(`token ${token.pool_address} deposit balance: ${balance}`)
 
           if (balance.includes(unlockToken)) {
-            this.balanceRewards[rewardsDepositKey(token.symbol)] = balance;
+            this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = balance;
           } else {
-            this.balanceRewards[rewardsDepositKey(token.symbol)] = divDecimals(balance, token.underlyingDecimals);
+            this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = divDecimals(balance, token.inc_token.decimals);
           }
         } catch (err) {
-          this.balanceRewards[rewardsDepositKey(token.symbol)] = unlockToken;
-          console.log(`failed to get rewards for token ${token.symbol}: ${err}`)
+          this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = unlockToken;
+          console.log(`failed to get rewards for token ${token.inc_token.symbol}: ${err}`)
+        }
+
+        try {
+          const balance = await this.getSnip20Balance(token.rewards_token.address, token.rewards_token.decimals)
+
+          if (balance.includes(unlockToken)) {
+            this.balanceRewards[token.rewards_token.symbol] = balance;
+          } else {
+            this.balanceRewards[token.rewards_token.symbol] = divDecimals(balance, token.rewards_token.decimals);
+          }
+        } catch (err) {
+          this.balanceRewards[token.rewards_token.symbol] = unlockToken;
         }
       }
-
-      try {
-        const balance = await this.getSnip20Balance("secret1s7c6xp9wltthk5r6mmavql4xld5me3g37guhsx", "6")
-
-        //console.log(balance)
-
-        if (balance.includes(unlockToken)) {
-          this.balanceRewards["sscrt"] = balance;
-        } else {
-          this.balanceRewards["sscrt"] = formatWithSixDecimals(balance);
-        }
-      } catch (err) {
-        this.balanceRewards["sscrt"] = unlockToken;
-      }
-
       }
   };
 

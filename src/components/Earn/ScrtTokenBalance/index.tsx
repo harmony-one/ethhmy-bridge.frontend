@@ -3,7 +3,8 @@ import Loader from 'react-loader-spinner';
 import SoftTitleValue from '../SoftTitleValue';
 import UnlockToken from '../EarnRow/UnlockToken';
 import { UserStoreEx } from '../../../stores/UserStore';
-import { divDecimals, unlockToken } from '../../../utils';
+import { balanceNumberFormat, divDecimals, priceNumberFormat, unlockToken } from '../../../utils';
+
 
 const ScrtTokenBalance = (props: {value: string, decimals: string | number, currency: string, subtitle?: string,
   userStore: UserStoreEx, tokenAddress: string, selected: boolean}) => {
@@ -36,7 +37,7 @@ const ScrtTokenBalance = (props: {value: string, decimals: string | number, curr
       );
   } else {
     return (<SoftTitleValue
-      title={`${divDecimals(props.value.replace(/,/g, ''), props.decimals)} ${props.currency}`}
+      title={`${balanceNumberFormat.format(Number(divDecimals(props.value.replace(/,/g, ''), props.decimals)))} ${props.currency}`}
       subTitle={text}
     />);
   }

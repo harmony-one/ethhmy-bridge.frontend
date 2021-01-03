@@ -4,14 +4,12 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import * as styles from '../EthBridge/styles.styl';
-
-import cn from 'classnames';
-import { Text } from 'components/Base';
 // import { IColumn, Table } from '../../components/Table';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import EarnRow from '../../components/Earn/EarnRow';
-import { rewardsDepositKey, rewardsKey, rewardsTokens } from '../../stores/UserStore';
-import { unlockToken } from '../../utils';
+import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
+import { divDecimals, unlockToken } from '../../utils';
+import { useEffect } from 'react';
 
 // const styleLink = document.createElement("link");
 // styleLink.rel = "stylesheet";
@@ -21,7 +19,19 @@ import { unlockToken } from '../../utils';
 
 
 const EarnRewards = observer((props: any) => {
-  const { user, tokens } = useStores();
+
+  const { user, tokens, rewards } = useStores();
+
+  useEffect(() => {
+    rewards.init({
+      isLocal: true,
+      sorter: 'none',
+      pollingInterval: 20000,
+    });
+    rewards.fetch();
+  }, []);
+
+
   // Load tokens from DB
   //tokens.fetch();
   // useEffect(() => {
@@ -55,31 +65,59 @@ const EarnRewards = observer((props: any) => {
             className={styles.base}
           >
             {
-              tokens.allData.map( (token) => {
-                const rewards = rewardsTokens.find(element => element.symbol === token.display_props.symbol);
-                if (!rewards) {
-                  return (<></>);
-                }
-                const rewardstoken = {
-                  rewardsContract: rewards.rewardsContract,
-                  lockedAsset: rewards.lockedAsset,
-                  lockedAssetAddress: token.dst_address,
-                  totalLockedRewards: rewards.totalLocked,
-                  rewardsDecimals: rewards.decimals,
-                  rewards: user.balanceRewards[rewardsKey(token.display_props.symbol)],
-                  deposit: user.balanceRewards[rewardsDepositKey(token.display_props.symbol)],
-                  balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
-                  decimals: token.decimals,
-                  name: token.name,
-                  display_props: token.display_props,
-                  remainingLockedRewards: rewards.remainingLockedRewards,
-                  deadline: rewards.deadline,
-                }
+             rewards.allData.map( (rewardToken) => {
+               console.log(rewardToken.inc_token.address)
+               const token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
+                 if (!token) {
+                   return (<></>);
+                 }
+                 const rewardsToken = {
+                   rewardsContract: rewardToken.pool_address,
+                   lockedAsset: rewardToken.inc_token.symbol,
+                   lockedAssetAddress: token.dst_address,
+                   totalLockedRewards: divDecimals(rewardToken.pending_rewards, rewardToken.rewards_token.decimals),
+                   rewardsDecimals: String(rewardToken.inc_token.decimals),
+                   rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
+                   deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
+                   balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
+                   decimals: token.decimals,
+                   name: token.name,
+                   display_props: token.display_props,
+                   remainingLockedRewards: rewardToken.pending_rewards,
+                   deadline: Number(rewardToken.deadline),
+                 }
 
-                return (<EarnRow
-                  userStore={user}
-                  token={rewardstoken}
-                />);
+                 return (<EarnRow
+                   userStore={user}
+                   token={rewardsToken}
+                 />);
+
+              // tokens.allData.map( (token) => {
+              //   const rewardInfo = rewards.allData.find(element =>
+              //     element.pools.find(e => e.inc_token.address === token.dst_address));
+              //   if (!rewardInfo) {
+              //     return (<></>);
+              //   }
+              //   const rewardstoken = {
+              //     rewardsContract: rewardInfo.pools[0].pool_address,
+              //     lockedAsset: rewardInfo.pools[0].inc_token,
+              //     lockedAssetAddress: token.dst_address,
+              //     totalLockedRewards: rewardInfo.total_locked,
+              //     rewardsDecimals: rewardInfo.pools[0].inc_token.decimals,
+              //     rewards: user.balanceRewards[rewardsKey(token.display_props.symbol)],
+              //     deposit: user.balanceRewards[rewardsDepositKey(token.display_props.symbol)],
+              //     balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
+              //     decimals: token.decimals,
+              //     name: token.name,
+              //     display_props: token.display_props,
+              //     remainingLockedRewards: rewardInfo.pending_rewards,
+              //     deadline: rewardInfo.deadline,
+              //   }
+              //
+              //   return (<EarnRow
+              //     userStore={user}
+              //     token={rewardstoken}
+              //   />);
             })}
 
           </Box>

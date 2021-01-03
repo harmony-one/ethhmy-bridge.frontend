@@ -10,6 +10,7 @@ import ClaimBox from './ClaimBox';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { observer } from 'mobx-react';
 import WithdrawButton from './WithdrawButton';
+import { zeroDecimalsFormatter } from '../../../utils';
 
 
 interface RewardsToken {
@@ -33,11 +34,11 @@ interface RewardsToken {
 }
 
 const calculateAPY = (token: RewardsToken) => {
-
+  console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
-  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000) );
+  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
 
-  return ((Number(token.remainingLockedRewards) / timeRemaining) * 100).toFixed(0);
+  return ((Number(token.remainingLockedRewards) / (timeRemaining * 100)) * 100).toFixed(0);
 
 }
 
@@ -89,7 +90,7 @@ class EarnRow extends Component<{
               <SoftTitleValue title={this.props.token.display_props.label} subTitle={this.props.token.display_props.symbol} />
             </div>
             <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${this.props.token.totalLockedRewards} sSCRT`} subTitle={"Total Rewards"} />
+              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(this.props.token.totalLockedRewards))} sSCRT`} subTitle={"Total Rewards"} />
             </div>
           <div className={cn(styles.totalRewards)}>
             <SoftTitleValue title={`${calculateAPY(this.props.token)}%`} subTitle={"Annual Percentage Yield"} />
@@ -119,7 +120,6 @@ class EarnRow extends Component<{
           <div>
             <ClaimBox
               available={this.props.token.rewards}
-              decimals={6} // this.props.token.rewardsDecimals
               userStore={this.props.userStore}
               rewardsContract={this.props.token.rewardsContract}
             />
