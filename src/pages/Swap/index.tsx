@@ -436,21 +436,31 @@ export const SwapPage = () => {
   const [liquidityProviderFee, SetLiquidityProviderFee] = useState(
     17.3,
   ); /* TODO */
+  const [secretjs, setSecretjs] = useState(null);
 
   useEffect(() => {
     // Setup Keplr
-    user.signIn();
+
+    (async () => {
+      await user.signIn();
+
+      const sleep = ms => new Promise(accept => setTimeout(accept, ms));
+      while (!user.secretjs) {
+        await sleep(50);
+      }
+      setSecretjs(user.secretjs);
+    })();
   }, []);
 
   useEffect(() => {
-    if (!user.secretjs) {
+    if (!secretjs) {
       return;
     }
 
     // Keplr is ready
     (async () => {
       try {
-        const response = await user.secretjs.queryContractSmart(
+        const response = await secretjs.queryContractSmart(
           process.env.AMM_FACTORY_CONTRACT,
           {
             pairs: {},
@@ -461,7 +471,7 @@ export const SwapPage = () => {
         console.error(error);
       }
     })();
-  }, [user.secretjs]);
+  }, [secretjs]);
 
   useEffect(() => {
     // Update buttonMessage
