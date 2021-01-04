@@ -112,7 +112,7 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
   },
 ];
 
-const Tokens = observer((props: any) => {
+export const Tokens = observer((props: any) => {
   const { tokens } = useStores();
   const [search, setSearch] = useState('');
 
@@ -120,7 +120,7 @@ const Tokens = observer((props: any) => {
 
   useEffect(() => {
     tokens.init({ sorters: {}, sorter: 'none' });
-    tokens.fetch();
+    //tokens.fetch();
   }, []);
 
   const onChangeDataFlow = (props: any) => {
@@ -239,5 +239,3 @@ const Tokens = observer((props: any) => {
     </BaseContainer>
   );
 });
-
-export default Tokens;

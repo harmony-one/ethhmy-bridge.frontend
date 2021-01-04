@@ -8,7 +8,7 @@
       "es6",
       "dom"
     ],
-    "sourceMap": false,
+    "sourceMap": true,
     "allowJs": false,
     "jsx": "react",
     "moduleResolution": "node",
@@ -23,8 +23,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "useDefineForClassFields": true
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "node_modules",

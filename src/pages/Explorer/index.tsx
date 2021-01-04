@@ -209,7 +209,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
   // },
 ];
 
-const Explorer = observer((props: any) => {
+export const Explorer = observer((props: any) => {
   const { operations, user, tokens, userMetamask } = useStores();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
@@ -315,5 +315,3 @@ const Explorer = observer((props: any) => {
     </BaseContainer>
   );
 });
-
-export default Explorer;
