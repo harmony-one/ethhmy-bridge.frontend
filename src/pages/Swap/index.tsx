@@ -12,10 +12,8 @@ import {
   Popup,
 } from 'semantic-ui-react';
 import { useStores } from 'stores';
-import allTokens from './tokens.json';
+import preloadedTokens from './tokens.json';
 import './override.css';
-
-let allTokensFromPairs = allTokens;
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -43,6 +41,7 @@ const FromRow = ({
   fromAmount,
   setFromAmount,
   isEstimated,
+  tokens,
 }) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
@@ -116,15 +115,17 @@ const FromRow = ({
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(allTokensFromPairs).map(t => ({
-            key: t.symbol,
-            text: t.symbol,
-            value: t.symbol,
-            image: {
-              src: t.logo,
-              style: { boxShadow: tokenShadow, borderRadius: '24px' },
-            },
-          }))}
+          options={Object.values(tokens).map(
+            (t: { symbol: string; logo: string }) => ({
+              key: t.symbol,
+              text: t.symbol,
+              value: t.symbol,
+              image: {
+                src: t.logo,
+                style: { boxShadow: tokenShadow, borderRadius: '24px' },
+              },
+            }),
+          )}
           value={fromToken}
           onChange={(_, { value }) => setFromToken(value)}
         />
@@ -133,7 +134,14 @@ const FromRow = ({
   );
 };
 
-const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
+const ToRow = ({
+  toToken,
+  setToToken,
+  toAmount,
+  setToAmount,
+  isEstimated,
+  tokens,
+}) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
 
@@ -194,15 +202,17 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(allTokensFromPairs).map(t => ({
-            key: t.symbol,
-            text: t.symbol,
-            value: t.symbol,
-            image: {
-              src: t.logo,
-              style: { boxShadow: tokenShadow, borderRadius: '24px' },
-            },
-          }))}
+          options={Object.values(tokens).map(
+            (t: { symbol: string; logo: string }) => ({
+              key: t.symbol,
+              text: t.symbol,
+              value: t.symbol,
+              image: {
+                src: t.logo,
+                style: { boxShadow: tokenShadow, borderRadius: '24px' },
+              },
+            }),
+          )}
           value={toToken}
           onChange={(_, { value }) => setToToken(value)}
         />
@@ -424,7 +434,11 @@ const AdditionalDetails = ({
 
 export const SwapPage = () => {
   const { user } = useStores();
-  const [tokens, setTokens] = useState({ from: 'ETH', to: 'SCRT' });
+  const [selectedTokens, setSelectedTokens] = useState({
+    from: 'ETH',
+    to: 'SCRT',
+  });
+  const [tokens, setTokens] = useState(preloadedTokens);
   const [amounts, setAmounts] = useState({
     from: '',
     to: '',
@@ -468,13 +482,13 @@ export const SwapPage = () => {
             pairs: {},
           },
         );
-        allTokensFromPairs = await pairsResponse.pairs.reduce(
+        const allTokensFromPairs = await pairsResponse.pairs.reduce(
           async (tokensFromPairs, b) => {
             tokensFromPairs = await tokensFromPairs;
 
             for (const t of b.asset_infos) {
               if (t.native_token) {
-                tokensFromPairs['SCRT'] = allTokens['SCRT'];
+                tokensFromPairs['SCRT'] = tokens['SCRT'];
                 continue;
               }
 
@@ -485,9 +499,9 @@ export const SwapPage = () => {
                 },
               );
 
-              if (allTokens[tokenInfoResponse.token_info.symbol]) {
+              if (tokens[tokenInfoResponse.token_info.symbol]) {
                 tokensFromPairs[tokenInfoResponse.token_info.symbol] =
-                  allTokens[tokenInfoResponse.token_info.symbol];
+                  tokens[tokenInfoResponse.token_info.symbol];
               } else {
                 tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
                   symbol: tokenInfoResponse.token_info.symbol,
@@ -502,11 +516,19 @@ export const SwapPage = () => {
           },
           Promise.resolve({}),
         );
+        setTokens(allTokensFromPairs);
       } catch (error) {
         console.error(error);
       }
     })();
   }, [secretjs]);
+
+  useEffect(() => {
+    setSelectedTokens({
+      from: Object.keys(tokens)[1],
+      to: Object.keys(tokens)[0],
+    });
+  }, [tokens]);
 
   useEffect(() => {
     // Update buttonMessage
@@ -549,9 +571,10 @@ export const SwapPage = () => {
               }}
             >
               <FromRow
-                fromToken={tokens.from}
+                tokens={tokens}
+                fromToken={selectedTokens.from}
                 setFromToken={(value: string) =>
-                  setTokens({ from: value, to: tokens.to })
+                  setSelectedTokens({ from: value, to: selectedTokens.to })
                 }
                 fromAmount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
@@ -585,7 +608,10 @@ export const SwapPage = () => {
                 <span
                   style={{ cursor: 'pointer' }}
                   onClick={() =>
-                    setTokens({ to: tokens.from, from: tokens.to })
+                    setSelectedTokens({
+                      to: selectedTokens.from,
+                      from: selectedTokens.to,
+                    })
                   }
                 >
                   {downArrow}
@@ -593,9 +619,10 @@ export const SwapPage = () => {
                 {flexRowSpace}
               </div>
               <ToRow
-                toToken={tokens.to}
+                tokens={tokens}
+                toToken={selectedTokens.to}
                 setToToken={(value: string) =>
-                  setTokens({ to: value, from: tokens.from })
+                  setSelectedTokens({ to: value, from: selectedTokens.from })
                 }
                 toAmount={amounts.to}
                 isEstimated={amounts.isToEstimated}
@@ -618,8 +645,8 @@ export const SwapPage = () => {
                 }}
               />
               <PriceRow
-                toToken={tokens.to}
-                fromToken={tokens.from}
+                toToken={selectedTokens.to}
+                fromToken={selectedTokens.from}
                 price={price}
               />
               <Button
@@ -636,8 +663,8 @@ export const SwapPage = () => {
               </Button>
             </Container>
             <AdditionalDetails
-              fromToken={tokens.from}
-              toToken={tokens.to}
+              fromToken={selectedTokens.from}
+              toToken={selectedTokens.to}
               liquidityProviderFee={liquidityProviderFee}
               priceImpact={priceImpact}
               minimumReceived={minimumReceived}
