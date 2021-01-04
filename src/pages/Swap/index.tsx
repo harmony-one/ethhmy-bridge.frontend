@@ -12,8 +12,10 @@ import {
   Popup,
 } from 'semantic-ui-react';
 import { useStores } from 'stores';
-import tokens from './tokens.json';
+import allTokens from './tokens.json';
 import './override.css';
+
+let allTokensFromPairs = allTokens;
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -114,7 +116,7 @@ const FromRow = ({
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(t => ({
+          options={Object.values(allTokensFromPairs).map(t => ({
             key: t.symbol,
             text: t.symbol,
             value: t.symbol,
@@ -192,7 +194,7 @@ const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(t => ({
+          options={Object.values(allTokensFromPairs).map(t => ({
             key: t.symbol,
             text: t.symbol,
             value: t.symbol,
@@ -440,7 +442,6 @@ export const SwapPage = () => {
 
   useEffect(() => {
     // Setup Keplr
-
     (async () => {
       await user.signIn();
 
@@ -458,15 +459,49 @@ export const SwapPage = () => {
     }
 
     // Keplr is ready
+    // Load pairs and tokens
     (async () => {
       try {
-        const response = await secretjs.queryContractSmart(
+        const pairsResponse = await secretjs.queryContractSmart(
           process.env.AMM_FACTORY_CONTRACT,
           {
             pairs: {},
           },
         );
-        console.log(response);
+        allTokensFromPairs = await pairsResponse.pairs.reduce(
+          async (tokensFromPairs, b) => {
+            tokensFromPairs = await tokensFromPairs;
+
+            for (const t of b.asset_infos) {
+              if (t.native_token) {
+                tokensFromPairs['SCRT'] = allTokens['SCRT'];
+                continue;
+              }
+
+              const tokenInfoResponse = await secretjs.queryContractSmart(
+                t.token.contract_addr,
+                {
+                  token_info: {},
+                },
+              );
+
+              if (allTokens[tokenInfoResponse.token_info.symbol]) {
+                tokensFromPairs[tokenInfoResponse.token_info.symbol] =
+                  allTokens[tokenInfoResponse.token_info.symbol];
+              } else {
+                tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
+                  symbol: tokenInfoResponse.token_info.symbol,
+                  logo: '/unknown.png',
+                  address: t.token.contract_addr,
+                  token_code_hash: t.token.token_code_hash,
+                };
+              }
+            }
+
+            return tokensFromPairs;
+          },
+          Promise.resolve({}),
+        );
       } catch (error) {
         console.error(error);
       }
