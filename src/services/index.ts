@@ -125,7 +125,10 @@ export const getTokensInfo = async (
     params,
   );
 
-  const content = _.uniqWith(res.body.content, _.isEqual);
+  const content = _.uniqWith(
+    res.body.content,
+    (a: any, b: any) => a.erc20Address === b.erc20Address,
+  );
 
   return { ...res.body, content };
 };
