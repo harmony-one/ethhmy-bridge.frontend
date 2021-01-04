@@ -439,6 +439,7 @@ export const SwapPage = () => {
     to: 'SCRT',
   });
   const [tokens, setTokens] = useState(preloadedTokens);
+  const [pairs, setPairs] = useState([]);
   const [amounts, setAmounts] = useState({
     from: '',
     to: '',
@@ -473,7 +474,7 @@ export const SwapPage = () => {
     }
 
     // Keplr is ready
-    // Load pairs and tokens
+    // Get pair list from AMM
     (async () => {
       try {
         const pairsResponse = await secretjs.queryContractSmart(
@@ -482,41 +483,7 @@ export const SwapPage = () => {
             pairs: {},
           },
         );
-        const allTokensFromPairs = await pairsResponse.pairs.reduce(
-          async (tokensFromPairs, b) => {
-            tokensFromPairs = await tokensFromPairs;
-
-            for (const t of b.asset_infos) {
-              if (t.native_token) {
-                tokensFromPairs['SCRT'] = tokens['SCRT'];
-                continue;
-              }
-
-              const tokenInfoResponse = await secretjs.queryContractSmart(
-                t.token.contract_addr,
-                {
-                  token_info: {},
-                },
-              );
-
-              if (tokens[tokenInfoResponse.token_info.symbol]) {
-                tokensFromPairs[tokenInfoResponse.token_info.symbol] =
-                  tokens[tokenInfoResponse.token_info.symbol];
-              } else {
-                tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
-                  symbol: tokenInfoResponse.token_info.symbol,
-                  logo: '/unknown.png',
-                  address: t.token.contract_addr,
-                  token_code_hash: t.token.token_code_hash,
-                };
-              }
-            }
-
-            return tokensFromPairs;
-          },
-          Promise.resolve({}),
-        );
-        setTokens(allTokensFromPairs);
+        setPairs(pairsResponse.pairs);
       } catch (error) {
         console.error(error);
       }
@@ -524,6 +491,50 @@ export const SwapPage = () => {
   }, [secretjs]);
 
   useEffect(() => {
+    // The pairs list has changed
+    // Get tokens from pairs
+    (async () => {
+      try {
+        const result = await pairs.reduce(async (result, b) => {
+          result = await result;
+
+          for (const t of b.asset_infos) {
+            if (t.native_token) {
+              result['SCRT'] = preloadedTokens['SCRT'];
+              continue;
+            }
+
+            const tokenInfoResponse = await secretjs.queryContractSmart(
+              t.token.contract_addr,
+              {
+                token_info: {},
+              },
+            );
+
+            if (result[tokenInfoResponse.token_info.symbol]) {
+              result[tokenInfoResponse.token_info.symbol] =
+                result[tokenInfoResponse.token_info.symbol];
+            } else {
+              result[tokenInfoResponse.token_info.symbol] = {
+                symbol: tokenInfoResponse.token_info.symbol,
+                logo: '/unknown.png',
+                address: t.token.contract_addr,
+                token_code_hash: t.token.token_code_hash,
+              };
+            }
+          }
+
+          return result;
+        }, Promise.resolve({}));
+        setTokens(result);
+      } catch (error) {
+        console.error(error);
+      }
+    })();
+  }, [pairs]);
+
+  useEffect(() => {
+    // The token list has changed
     setSelectedTokens({
       from: Object.keys(tokens)[1],
       to: Object.keys(tokens)[0],
