@@ -440,6 +440,7 @@ export const SwapPage = () => {
   });
   const [tokens, setTokens] = useState(preloadedTokens);
   const [pairs, setPairs] = useState([]);
+  const [symbolsToPairs, setSymbolsToPairs] = useState({});
   const [amounts, setAmounts] = useState({
     from: '',
     to: '',
@@ -486,6 +487,7 @@ export const SwapPage = () => {
         setPairs(pairsResponse.pairs);
       } catch (error) {
         console.error(error);
+        alert(error);
       }
     })();
   }, [secretjs]);
@@ -495,40 +497,52 @@ export const SwapPage = () => {
     // Get tokens from pairs
     (async () => {
       try {
-        const result = await pairs.reduce(async (result, b) => {
-          result = await result;
+        const newSymbolsToPairs = {};
 
-          for (const t of b.asset_infos) {
-            if (t.native_token) {
-              result['SCRT'] = preloadedTokens['SCRT'];
-              continue;
+        const tokensFromPairs = await pairs.reduce(
+          async (tokensFromPairs, pair) => {
+            tokensFromPairs = await tokensFromPairs; // reduce with async/await
+
+            const symbols = [];
+            for (const t of pair.asset_infos) {
+              if (t.native_token) {
+                tokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
+                symbols.push('SCRT');
+                continue;
+              }
+
+              const tokenInfoResponse = await secretjs.queryContractSmart(
+                t.token.contract_addr,
+                {
+                  token_info: {},
+                },
+              );
+
+              if (tokensFromPairs[tokenInfoResponse.token_info.symbol]) {
+                tokensFromPairs[tokenInfoResponse.token_info.symbol] =
+                  tokensFromPairs[tokenInfoResponse.token_info.symbol];
+              } else {
+                tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
+                  symbol: tokenInfoResponse.token_info.symbol,
+                  logo: '/unknown.png',
+                  address: t.token.contract_addr,
+                  token_code_hash: t.token.token_code_hash,
+                };
+              }
+              symbols.push(tokenInfoResponse.token_info.symbol);
             }
+            newSymbolsToPairs[`${symbols[0]}/${symbols[1]}`] = pair;
+            newSymbolsToPairs[`${symbols[1]}/${symbols[0]}`] = pair;
 
-            const tokenInfoResponse = await secretjs.queryContractSmart(
-              t.token.contract_addr,
-              {
-                token_info: {},
-              },
-            );
-
-            if (result[tokenInfoResponse.token_info.symbol]) {
-              result[tokenInfoResponse.token_info.symbol] =
-                result[tokenInfoResponse.token_info.symbol];
-            } else {
-              result[tokenInfoResponse.token_info.symbol] = {
-                symbol: tokenInfoResponse.token_info.symbol,
-                logo: '/unknown.png',
-                address: t.token.contract_addr,
-                token_code_hash: t.token.token_code_hash,
-              };
-            }
-          }
-
-          return result;
-        }, Promise.resolve({}));
-        setTokens(result);
+            return tokensFromPairs;
+          },
+          Promise.resolve({}) /* reduce with async/await */,
+        );
+        setTokens(tokensFromPairs);
+        setSymbolsToPairs(newSymbolsToPairs);
       } catch (error) {
         console.error(error);
+        alert(error);
       }
     })();
   }, [pairs]);
@@ -542,6 +556,7 @@ export const SwapPage = () => {
   }, [tokens]);
 
   useEffect(() => {
+    // From or To amounts have changed
     // Update buttonMessage
     // TODO: Insufficient liquidity for this trade
     // TODO: Insufficient XXX balance
