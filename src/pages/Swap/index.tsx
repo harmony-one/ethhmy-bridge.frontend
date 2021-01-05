@@ -70,7 +70,8 @@ const FromRow = ({
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Secret Balance: {balanceNumberFormat.format(balance)}
+          {fromToken === 'SCRT' ? '' : 'Secret'} Balance:{' '}
+          {balanceNumberFormat.format(balance)}
         </span>
       </div>
       <div
@@ -169,7 +170,8 @@ const ToRow = ({
           style={Object.assign({ cursor: 'pointer' }, font)}
           onClick={() => {}}
         >
-          Secret Balance: {balanceNumberFormat.format(balance)}
+          {toToken === 'SCRT' ? '' : 'Secret'} Balance:{' '}
+          {balanceNumberFormat.format(balance)}
         </span>{' '}
       </div>
       <div
@@ -294,7 +296,7 @@ const PriceRow = ({ price, fromToken, toToken }) => {
   );
 };
 
-const AdditionalDetails = ({
+const AdditionalInfo = ({
   minimumReceived,
   liquidityProviderFee,
   priceImpact,
@@ -568,12 +570,17 @@ export const SwapPage = () => {
     // TODO: Insufficient liquidity for this trade
     // TODO: Insufficient XXX balance
 
+    if (price === null) {
+      setButtonMessage('Trading pair does not exist');
+      return;
+    }
+
     if (amounts.from === '' && amounts.to === '') {
       setButtonMessage('Enter an amount');
     } else {
       setButtonMessage('Swap');
     }
-  }, [amounts.from, amounts.to]);
+  }, [amounts.from, amounts.to, price]);
 
   useEffect(() => {
     // selectedTokens have changed
@@ -584,13 +591,15 @@ export const SwapPage = () => {
 
     function getBalance(symbol, pairAddress, tokens) {
       if (symbol === 'SCRT') {
-        return secretjs
-          .getAccount(pairAddress)
-          .then(account =>
-            Number(
+        return secretjs.getAccount(pairAddress).then(account => {
+          try {
+            return Number(
               divDecimals(account.balance[0].amount, tokens[symbol].decimals),
-            ),
-          );
+            );
+          } catch (error) {
+            return 0;
+          }
+        });
       } else {
         return secretjs
           .queryContractSmart(tokens[symbol].address, {
@@ -611,7 +620,6 @@ export const SwapPage = () => {
           symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
 
         if (!pair) {
-          setButtonMessage('Trading pair does not exist');
           setPrice(null);
           return;
         }
@@ -621,7 +629,12 @@ export const SwapPage = () => {
           getBalance(selectedTokens.to, pair.contract_addr, tokens),
         ]);
 
-        setPrice(balances[1] / balances[0]);
+        const newPrice = Number(balances[1]) / Number(balances[0]);
+        if (isNaN(newPrice)) {
+          setPrice(null);
+        } else {
+          setPrice(newPrice);
+        }
       } catch (error) {
         console.error(error);
         setPrice(null);
@@ -760,13 +773,15 @@ export const SwapPage = () => {
                 {buttonMessage}
               </Button>
             </Container>
-            <AdditionalDetails
-              fromToken={selectedTokens.from}
-              toToken={selectedTokens.to}
-              liquidityProviderFee={liquidityProviderFee}
-              priceImpact={priceImpact}
-              minimumReceived={minimumReceived}
-            />
+            {Number(price) > 0 && (
+              <AdditionalInfo
+                fromToken={selectedTokens.from}
+                toToken={selectedTokens.to}
+                liquidityProviderFee={liquidityProviderFee}
+                priceImpact={priceImpact}
+                minimumReceived={minimumReceived}
+              />
+            )}
           </Box>
         </Box>
       </PageContainer>
