@@ -14,6 +14,7 @@ import {
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
+import { divDecimals } from 'utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -36,12 +37,12 @@ const downArrow = (
 const tokenShadow = 'rgba(0, 0, 0, 0.075) 0px 6px 10px';
 
 const FromRow = ({
+  tokens,
   fromToken,
   setFromToken,
   fromAmount,
   setFromAmount,
   isEstimated,
-  tokens,
 }) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
@@ -135,12 +136,12 @@ const FromRow = ({
 };
 
 const ToRow = ({
+  tokens,
   toToken,
   setToToken,
   toAmount,
   setToAmount,
   isEstimated,
-  tokens,
 }) => {
   const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
@@ -261,30 +262,34 @@ const PriceRow = ({ price, fromToken, toToken }) => {
         alignContent: 'center',
       }}
     >
-      {' '}
-      Price
-      {flexRowSpace}
-      {`${tokens.price} ${tokens.from} per ${tokens.to}`}
-      <Icon
-        circular
-        size="small"
-        name="exchange"
-        style={{
-          margin: '0 0 0 0.3em',
-          background: iconBackground,
-          cursor: 'pointer',
-        }}
-        onMouseEnter={() => setIconBackground('rgb(237, 238, 242)')}
-        onMouseLeave={() => setIconBackground('whitesmoke')}
-        onClick={() => {
-          setTokens({
-            from: tokens.to,
-            to: tokens.from,
-            price: tokens.priceInvert,
-            priceInvert: tokens.price, // prevents price distortion by multiple clicks
-          });
-        }}
-      />
+      {!tokens.price || Number(tokens.price) === 0 ? null : (
+        <>
+          {' '}
+          Price
+          {flexRowSpace}
+          {`${tokens.price} ${tokens.from} per ${tokens.to}`}
+          <Icon
+            circular
+            size="small"
+            name="exchange"
+            style={{
+              margin: '0 0 0 0.3em',
+              background: iconBackground,
+              cursor: 'pointer',
+            }}
+            onMouseEnter={() => setIconBackground('rgb(237, 238, 242)')}
+            onMouseLeave={() => setIconBackground('whitesmoke')}
+            onClick={() => {
+              setTokens({
+                from: tokens.to,
+                to: tokens.from,
+                price: tokens.priceInvert,
+                priceInvert: tokens.price, // prevents price distortion by multiple clicks
+              });
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };
@@ -448,7 +453,7 @@ export const SwapPage = () => {
     isToEstimated: false,
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
-  const [price, SetPrice] = useState(123456); /* TODO */
+  const [price, setPrice] = useState(null); /* TODO */
   const [minimumReceived, SetMinimumReceived] = useState(123456); /* TODO */
   const [priceImpact, SetPriceImpact] = useState(0.02); /* TODO */
   const [liquidityProviderFee, SetLiquidityProviderFee] = useState(
@@ -524,7 +529,9 @@ export const SwapPage = () => {
               } else {
                 tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
                   symbol: tokenInfoResponse.token_info.symbol,
+                  decimals: tokenInfoResponse.token_info.decimals,
                   logo: '/unknown.png',
+                  disabled: true,
                   address: t.token.contract_addr,
                   token_code_hash: t.token.token_code_hash,
                 };
@@ -568,6 +575,60 @@ export const SwapPage = () => {
     }
   }, [amounts.from, amounts.to]);
 
+  useEffect(() => {
+    // selectedTokens have changed
+    // update price
+    if (!secretjs) {
+      return;
+    }
+
+    function getBalance(symbol, pairAddress, tokens) {
+      if (symbol === 'SCRT') {
+        return secretjs
+          .getAccount(pairAddress)
+          .then(account =>
+            Number(
+              divDecimals(account.balance[0].amount, tokens[symbol].decimals),
+            ),
+          );
+      } else {
+        return secretjs
+          .queryContractSmart(tokens[symbol].address, {
+            balance: {
+              address: pairAddress,
+              key: 'SecretSwap',
+            },
+          })
+          .then(({ balance }) =>
+            Number(divDecimals(balance.amount, tokens[symbol].decimals)),
+          );
+      }
+    }
+
+    (async () => {
+      try {
+        const pair =
+          symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
+
+        if (!pair) {
+          setButtonMessage('Trading pair does not exist');
+          setPrice(null);
+          return;
+        }
+
+        const balances = await Promise.all([
+          getBalance(selectedTokens.from, pair.contract_addr, tokens),
+          getBalance(selectedTokens.to, pair.contract_addr, tokens),
+        ]);
+
+        setPrice(balances[1] / balances[0]);
+      } catch (error) {
+        console.error(error);
+        setPrice(null);
+      }
+    })();
+  }, [selectedTokens.from, selectedTokens.to]);
+
   return (
     <BaseContainer>
       <PageContainer>
@@ -599,9 +660,14 @@ export const SwapPage = () => {
               <FromRow
                 tokens={tokens}
                 fromToken={selectedTokens.from}
-                setFromToken={(value: string) =>
-                  setSelectedTokens({ from: value, to: selectedTokens.to })
-                }
+                setFromToken={(value: string) => {
+                  if (value === selectedTokens.to) {
+                    setSelectedTokens({ from: value, to: selectedTokens.from });
+                  } else {
+                    setSelectedTokens({ from: value, to: selectedTokens.to });
+                  }
+                  setPrice(null);
+                }}
                 fromAmount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
                 setFromAmount={(value: string) => {
@@ -633,12 +699,13 @@ export const SwapPage = () => {
                 {flexRowSpace}
                 <span
                   style={{ cursor: 'pointer' }}
-                  onClick={() =>
+                  onClick={() => {
                     setSelectedTokens({
                       to: selectedTokens.from,
                       from: selectedTokens.to,
-                    })
-                  }
+                    });
+                    setPrice(null);
+                  }}
                 >
                   {downArrow}
                 </span>
@@ -647,9 +714,14 @@ export const SwapPage = () => {
               <ToRow
                 tokens={tokens}
                 toToken={selectedTokens.to}
-                setToToken={(value: string) =>
-                  setSelectedTokens({ to: value, from: selectedTokens.from })
-                }
+                setToToken={(value: string) => {
+                  if (value === selectedTokens.from) {
+                    setSelectedTokens({ to: value, from: selectedTokens.to });
+                  } else {
+                    setSelectedTokens({ to: value, from: selectedTokens.from });
+                  }
+                  setPrice(null);
+                }}
                 toAmount={amounts.to}
                 isEstimated={amounts.isToEstimated}
                 setToAmount={(value: string) => {
