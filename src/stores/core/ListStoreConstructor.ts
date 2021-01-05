@@ -210,7 +210,6 @@ export class ListStoreConstructor<T> extends StoreConstructor {
 
   @computed
   get queryParams() {
-    console.log(`hello - ${JSON.stringify(this.paginationData)}`)
     const { currentPage, pageSize } = this.paginationData;
     return {
       size: pageSize,

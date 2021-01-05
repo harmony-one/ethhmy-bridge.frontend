@@ -39,11 +39,8 @@ const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: numbe
   // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
   // const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
-  console.log(token)
   const pending = Number(divDecimals(token.remainingLockedRewards, token.decimals)) * priceUnderlying;
-  console.log(`pending ${pending}`)
   const locked = Number(divDecimals(token.totalLockedRewards, token.rewardsDecimals)) * price;
-  console.log(`locked ${locked}`)
   return ((pending * 100) / locked).toFixed(0);
 
 }

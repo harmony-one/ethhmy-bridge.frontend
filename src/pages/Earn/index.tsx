@@ -66,7 +66,6 @@ export const EarnRewards = observer((props: any) => {
           >
             {
              rewards.allData.map( (rewardToken) => {
-               console.log(rewardToken.inc_token.address)
                const token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
                  if (!token) {
                    return (<></>);

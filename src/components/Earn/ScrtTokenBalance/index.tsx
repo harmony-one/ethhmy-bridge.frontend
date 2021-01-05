@@ -41,7 +41,6 @@ const ScrtTokenBalance = (props: {value: string, decimals: string | number, curr
       </div>
       );
   } else {
-    console.log(`yo yo yo - ${minimumFactions} ${props.minimumFactions}`)
     return (
       <SoftTitleValue
         title={

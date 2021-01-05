@@ -237,8 +237,6 @@ export class Exchange extends StoreConstructor {
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
 
-        console.log(`${JSON.stringify(swap.swap)}`)
-
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
 
@@ -370,7 +368,6 @@ export class Exchange extends StoreConstructor {
     ) {
       await sleep(2000);
       lolStatus = await this.getStatus(this.operation.id);
-      console.log(lolStatus);
       if (
         lolStatus === SwapStatus.SWAP_CONFIRMED ||
         lolStatus === SwapStatus.SWAP_FAILED
