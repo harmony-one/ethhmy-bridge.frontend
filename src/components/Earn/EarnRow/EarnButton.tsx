@@ -10,6 +10,7 @@ const EarnButton = (props, value) => {
   return (
     <button
       className={cn(styles.button, styles.ripple)}
+      disabled={Number(value) === 0 || isNaN(value)}
       onClick={() => {
         DepositRewards({
           secretjs: props.userStore.secretjs,

@@ -40,6 +40,7 @@ const sixDecimalsFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
 });
 
+
 export function formatWithTwoDecimals(value: number | string) {
   return twoDecimalsFormatter.format(Number(value));
 }
@@ -74,7 +75,11 @@ export const mulDecimals = (amount: string | number, decimals: string | number) 
 };
 
 export const divDecimals = (amount: string | number, decimals: string | number) => {
-  console.log(amount)
+
+  if (decimals === 0) {
+    return String(amount);
+  }
+
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).dividedBy(decimalsMul);
 

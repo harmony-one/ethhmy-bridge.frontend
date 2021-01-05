@@ -103,11 +103,12 @@ class EarnRow extends Component<{
             </div>
             <div className={cn(styles.availableDeposit)}>
               <ScrtTokenBalance value={this.props.token.balance}
-                                decimals={1}
+                                decimals={0}
                                 currency={this.props.token.lockedAsset}
                                 userStore={this.props.userStore}
                                 tokenAddress={this.props.token.lockedAssetAddress}
                                 selected={this.state.activeIndex === 0}
+                                minimumFactions={0}
                                 subtitle={`Available to Deposit`} />
 
               {/*/<SoftTitleValue title={`${} ${} `}  />*/}
