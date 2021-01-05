@@ -2,7 +2,9 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button, Input } from 'semantic-ui-react';
 import React from 'react';
-import { unlockToken } from '../../../utils';
+import { formatWithSixDecimals, unlockToken } from '../../../utils';
+import ScrtTokenBalance from '../ScrtTokenBalance';
+import ScrtTokenBalanceSingleLine from './ScrtTokenBalanceSingleLine';
 
 const buttonStyle = {
   borderRadius: '15px',
@@ -49,7 +51,9 @@ const DepositContainer = props => {
         <div className={cn(styles.balanceRow)}>
           <h3 className={cn(styles.h3)}> </h3>
 
-          <h4 className={cn(styles.h4)}>{props.balance} {props.currency}</h4>
+          <h4 className={cn(styles.h4)}>
+            <ScrtTokenBalanceSingleLine value={props.balance} currency={props.currency} selected={false} />
+          </h4>
         </div>
         <div>
           <Input

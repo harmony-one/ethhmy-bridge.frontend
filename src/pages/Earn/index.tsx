@@ -79,7 +79,7 @@ export const EarnRewards = observer((props: any) => {
                    rewardsDecimals: String(rewardToken.rewards_token.decimals),
                    rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
                    deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
-                   balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
+                   balance: user.balanceToken[token.src_coin],
                    decimals: token.decimals,
                    name: token.name,
                    display_props: token.display_props,
@@ -88,36 +88,10 @@ export const EarnRewards = observer((props: any) => {
                  }
 
                  return (<EarnRow
+                   key={rewardToken.inc_token.symbol}
                    userStore={user}
                    token={rewardsToken}
                  />);
-
-              // tokens.allData.map( (token) => {
-              //   const rewardInfo = rewards.allData.find(element =>
-              //     element.pools.find(e => e.inc_token.address === token.dst_address));
-              //   if (!rewardInfo) {
-              //     return (<></>);
-              //   }
-              //   const rewardstoken = {
-              //     rewardsContract: rewardInfo.pools[0].pool_address,
-              //     lockedAsset: rewardInfo.pools[0].inc_token,
-              //     lockedAssetAddress: token.dst_address,
-              //     totalLockedRewards: rewardInfo.total_locked,
-              //     rewardsDecimals: rewardInfo.pools[0].inc_token.decimals,
-              //     rewards: user.balanceRewards[rewardsKey(token.display_props.symbol)],
-              //     deposit: user.balanceRewards[rewardsDepositKey(token.display_props.symbol)],
-              //     balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
-              //     decimals: token.decimals,
-              //     name: token.name,
-              //     display_props: token.display_props,
-              //     remainingLockedRewards: rewardInfo.pending_rewards,
-              //     deadline: rewardInfo.deadline,
-              //   }
-              //
-              //   return (<EarnRow
-              //     userStore={user}
-              //     token={rewardstoken}
-              //   />);
             })}
 
           </Box>

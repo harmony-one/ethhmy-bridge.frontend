@@ -14,7 +14,7 @@ const WithdrawButton = (props, value) => {
         Redeem({
           secretjs: props.userStore.secretjs,
           address: props.token.rewardsContract,
-          amount: valueToDecimals(value, props.token.decimals)}).catch(reason =>
+          amount: valueToDecimals(Number(value).toFixed(6), props.token.decimals)}).catch(reason =>
             console.log(`Failed to withdraw: ${reason}`)
         )
       }}

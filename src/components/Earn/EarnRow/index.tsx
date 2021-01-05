@@ -12,6 +12,7 @@ import { observer } from 'mobx-react';
 import WithdrawButton from './WithdrawButton';
 import { divDecimals, formatWithSixDecimals, zeroDecimalsFormatter } from '../../../utils';
 import { Text } from '../../Base/components/Text';
+import ScrtTokenBalance from '../ScrtTokenBalance';
 
 
 interface RewardsToken {
@@ -101,7 +102,15 @@ class EarnRow extends Component<{
               <SoftTitleValue title={`${formatWithSixDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />
             </div>
             <div className={cn(styles.availableDeposit)}>
-              <SoftTitleValue title={`${this.props.token.balance} ${this.props.token.lockedAsset} `} subTitle={`Available to Deposit`} />
+              <ScrtTokenBalance value={this.props.token.balance}
+                                decimals={1}
+                                currency={this.props.token.lockedAsset}
+                                userStore={this.props.userStore}
+                                tokenAddress={this.props.token.lockedAssetAddress}
+                                selected={this.state.activeIndex === 0}
+                                subtitle={`Available to Deposit`} />
+
+              {/*/<SoftTitleValue title={`${} ${} `}  />*/}
             </div>
             <Icon name='dropdown'/>
         </Accordion.Title>

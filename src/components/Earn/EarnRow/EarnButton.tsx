@@ -1,4 +1,3 @@
-import { Button } from 'semantic-ui-react';
 import { DepositRewards } from '../../../blockchain-bridge/scrt';
 import React from 'react';
 import { valueToDecimals } from '../../../utils';
@@ -16,7 +15,8 @@ const EarnButton = (props, value) => {
           secretjs: props.userStore.secretjs,
           recipient: props.token.rewardsContract,
           address: props.token.lockedAssetAddress,
-          amount: valueToDecimals(value, props.token.decimals)}).catch(reason =>
+          // maximum precision for the contract is 6 decimals
+          amount: valueToDecimals(Number(value).toFixed(6), props.token.decimals)}).catch(reason =>
             console.log(`Failed to deposit: ${reason}`)
         )
       }}
