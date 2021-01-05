@@ -1,4 +1,3 @@
-import { Button } from 'semantic-ui-react';
 import { Redeem } from '../../../blockchain-bridge/scrt';
 import React from 'react';
 import { valueToDecimals } from '../../../utils';

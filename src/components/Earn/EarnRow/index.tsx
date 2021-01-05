@@ -23,6 +23,7 @@ interface RewardsToken {
     label: string;
     symbol: string;
   };
+  price: string;
   balance: string;
   deposit: string;
   rewards: string;
@@ -45,9 +46,6 @@ const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: numbe
 
 }
 
-// const balanceDisplay = (value) => {
-//   return value ? value : <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-// }
 
 @observer
 class EarnRow extends Component<{
@@ -64,7 +62,6 @@ class EarnRow extends Component<{
     this.setState({withdrawValue: event.target.value});
   }
 
-
   handleClick = (e, titleProps) => {
     const { index } = titleProps
     const { activeIndex } = this.state
@@ -72,7 +69,6 @@ class EarnRow extends Component<{
 
     this.setState({ activeIndex: newIndex })
   };
-
 
 
   render() {
@@ -93,7 +89,7 @@ class EarnRow extends Component<{
               <SoftTitleValue title={this.props.token.display_props.label} subTitle={this.props.token.display_props.symbol} />
             </div>
             <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(calculateAPY(this.props.token, 0.6, 1000)))}%`} subTitle={"Annual Percentage Yield"} />
+              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(calculateAPY(this.props.token, 0.6, Number(this.props.token.price))))}%`} subTitle={"Annual Percentage Yield"} />
             </div>
             <div className={cn(styles.totalRewards)}>
               <SoftTitleValue title={`${formatWithSixDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />

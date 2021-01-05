@@ -81,6 +81,7 @@ export const EarnRewards = observer((props: any) => {
                    balance: user.balanceToken[token.src_coin],
                    decimals: token.decimals,
                    name: token.name,
+                   price: token.price,
                    display_props: token.display_props,
                    remainingLockedRewards: rewardToken.pending_rewards,
                    deadline: Number(rewardToken.deadline),
