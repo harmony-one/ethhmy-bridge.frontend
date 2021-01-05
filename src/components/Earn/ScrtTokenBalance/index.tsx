@@ -2,7 +2,10 @@ import React from 'react';
 import Loader from 'react-loader-spinner';
 import SoftTitleValue from '../SoftTitleValue';
 import UnlockToken from '../EarnRow/UnlockToken';
+import NumberOdometer from '../NumberOdometer'
 import { UserStoreEx } from '../../../stores/UserStore';
+import * as styles from '../EarnRow/styles.styl';
+import cn from 'classnames';
 import { balanceNumberFormat, divDecimals, priceNumberFormat, unlockToken } from '../../../utils';
 
 
@@ -36,10 +39,20 @@ const ScrtTokenBalance = (props: {value: string, decimals: string | number, curr
       </div>
       );
   } else {
-    return (<SoftTitleValue
-      title={`${balanceNumberFormat.format(Number(divDecimals(props.value.replace(/,/g, ''), props.decimals)))} ${props.currency}`}
-      subTitle={text}
-    />);
+    return (
+      <SoftTitleValue
+        title={
+          <div className={cn(styles.assetRow)}>
+            <NumberOdometer
+              number={`${new Intl.NumberFormat('en', { maximumFractionDigits: 3, minimumFractionDigits: 3 })
+              .format(Number(balanceNumberFormat.format(Number(divDecimals(props.value.replace(/,/g, ''), props.decimals)))))}`}
+            />
+            <div style={{ marginLeft: "5px", paddingTop: "4px" }}>sSCRT</div>
+          </div>
+        }
+        subTitle={text}
+      />
+    );
   }
 
 
