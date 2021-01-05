@@ -1,16 +1,16 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { baseTheme } from 'themes';
 import { GlobalStyle } from './GlobalStyle';
 import { Providers } from './Providers';
 import { Redirect, Route, Switch } from 'react-router';
 import { ActionModals } from './components/ActionModals';
-import EthBridge from './pages/EthBridge';
-import Explorer from './pages/Explorer';
-import Tokens from './pages/Tokens';
-import SwapPage from './pages/Swap';
+import { EthBridge } from './pages/EthBridge';
+import { Explorer } from './pages/Explorer';
+import { Tokens } from './pages/Tokens';
+import { SwapPage } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
-import EarnRewards from './pages/Earn';
-import FAQPage from './pages/FAQ';
+import { EarnRewards } from './pages/Earn';
+import { FAQPage } from './pages/FAQ';
 
 // import { InfoPage } from './pages/Info';
 

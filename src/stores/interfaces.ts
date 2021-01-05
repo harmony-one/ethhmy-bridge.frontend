@@ -76,6 +76,7 @@ export interface ISwap {
 }
 
 export interface ITokenInfo {
+  price: string;
   name: string;
   symbol: string;
   decimals: string;

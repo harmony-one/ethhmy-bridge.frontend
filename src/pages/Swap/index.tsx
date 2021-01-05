@@ -407,7 +407,7 @@ const AdditionalDetails = ({
   );
 };
 
-const SwapPage = () => {
+export const SwapPage = () => {
   const { user } = useStores();
   const [tokens, setTokens] = useState({ from: 'ETH', to: 'SCRT' });
   const [amounts, setAmounts] = useState({
@@ -572,5 +572,3 @@ const SwapPage = () => {
     </BaseContainer>
   );
 };
-
-export default SwapPage;

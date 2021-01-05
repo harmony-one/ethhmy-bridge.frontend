@@ -18,7 +18,7 @@ import { useEffect } from 'react';
 // document.head.appendChild(styleLink);
 
 
-const EarnRewards = observer((props: any) => {
+export const EarnRewards = observer((props: any) => {
 
   const { user, tokens, rewards } = useStores();
 
@@ -75,8 +75,8 @@ const EarnRewards = observer((props: any) => {
                    rewardsContract: rewardToken.pool_address,
                    lockedAsset: rewardToken.inc_token.symbol,
                    lockedAssetAddress: token.dst_address,
-                   totalLockedRewards: divDecimals(rewardToken.pending_rewards, rewardToken.rewards_token.decimals),
-                   rewardsDecimals: String(rewardToken.inc_token.decimals),
+                   totalLockedRewards: divDecimals(Number(rewardToken.total_locked) * Number(token.price), rewardToken.inc_token.decimals) ,
+                   rewardsDecimals: String(rewardToken.rewards_token.decimals),
                    rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
                    deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
                    balance: user.balanceToken[token.src_coin] ? user.balanceToken[token.src_coin] : unlockToken,
@@ -127,5 +127,3 @@ const EarnRewards = observer((props: any) => {
     </BaseContainer>
   );
 });
-
-export default EarnRewards;

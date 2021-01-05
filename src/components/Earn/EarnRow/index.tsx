@@ -10,7 +10,8 @@ import ClaimBox from './ClaimBox';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { observer } from 'mobx-react';
 import WithdrawButton from './WithdrawButton';
-import { zeroDecimalsFormatter } from '../../../utils';
+import { divDecimals, formatWithSixDecimals, zeroDecimalsFormatter } from '../../../utils';
+import { Text } from '../../Base/components/Text';
 
 
 interface RewardsToken {
@@ -33,12 +34,16 @@ interface RewardsToken {
   deadline: number;
 }
 
-const calculateAPY = (token: RewardsToken) => {
-  console.log(Math.round(Date.now() / 1000000))
+const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: number) => {
+  // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
-  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
-
-  return ((Number(token.remainingLockedRewards) / (timeRemaining * 100)) * 100).toFixed(0);
+  // const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
+  console.log(token)
+  const pending = Number(divDecimals(token.remainingLockedRewards, token.decimals)) * priceUnderlying;
+  console.log(`pending ${pending}`)
+  const locked = Number(divDecimals(token.totalLockedRewards, token.rewardsDecimals)) * price;
+  console.log(`locked ${locked}`)
+  return ((pending * 100) / locked).toFixed(0);
 
 }
 
@@ -90,13 +95,13 @@ class EarnRow extends Component<{
               <SoftTitleValue title={this.props.token.display_props.label} subTitle={this.props.token.display_props.symbol} />
             </div>
             <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(this.props.token.totalLockedRewards))} sSCRT`} subTitle={"Total Rewards"} />
+              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(calculateAPY(this.props.token, 0.6, 1000)))}%`} subTitle={"Annual Percentage Yield"} />
             </div>
-          <div className={cn(styles.totalRewards)}>
-            <SoftTitleValue title={`${calculateAPY(this.props.token)}%`} subTitle={"Annual Percentage Yield"} />
-          </div>
+            <div className={cn(styles.totalRewards)}>
+              <SoftTitleValue title={`${formatWithSixDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />
+            </div>
             <div className={cn(styles.availableDeposit)}>
-              <SoftTitleValue title={`${this.props.token.balance}`} subTitle={`${this.props.token.lockedAsset} Available to Deposit`} />
+              <SoftTitleValue title={`${this.props.token.balance} ${this.props.token.lockedAsset} `} subTitle={`Available to Deposit`} />
             </div>
             <Icon name='dropdown'/>
         </Accordion.Title>
@@ -124,6 +129,12 @@ class EarnRow extends Component<{
               rewardsContract={this.props.token.rewardsContract}
             />
           </div>
+          <Text
+            size="medium"
+            style={{ padding: '20 20 0 20', cursor: 'auto', textAlign: 'center' }}
+          >
+            * Every time you deposit, withdraw or claim the contract will automagically claim your rewards for you!
+          </Text>
         </Accordion.Content>
       </Accordion>);
   }

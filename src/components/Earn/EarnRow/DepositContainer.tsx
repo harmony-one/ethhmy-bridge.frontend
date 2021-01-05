@@ -13,19 +13,23 @@ const buttonStyle = {
   marginLeft: '12px',
   padding: '0.5rem 1rem 1rem 1rem',
   color: "#2F80ED",
-  backgroundColor: "rgba(28,144,254,0.1)",
+  backgroundColor: "transparent",
 };
 
 const AmountButton = (props: {balance: string, multiplier: string, onChange: CallableFunction}) => {
-  return (<Button
-    style={buttonStyle}
-    disabled={!props.balance || props.balance === unlockToken}
-    onClick={() => {
-      changeInput(props.balance, props.multiplier, props.onChange)
-    }}
-  >
-    {`${Number(props.multiplier) * 100}%`}
-  </Button>);
+  return (
+    <Button.Group className={cn(styles.amountButton)}>
+        <Button
+        style={buttonStyle}
+        disabled={!props.balance || props.balance === unlockToken}
+        onClick={() => {
+          changeInput(props.balance, props.multiplier, props.onChange)
+        }}
+      >
+        {`${Number(props.multiplier) * 100}%`}
+      </Button>
+    </Button.Group>
+  );
 }
 
 const changeInput = (balance, percentage, onChange) => {
