@@ -225,7 +225,7 @@ export const baseTheme: any = {
   },
 
   container: {
-    minWidth: '300px',
+    minWidth: '550px',
     maxWidth: '1200px',
   },
 
