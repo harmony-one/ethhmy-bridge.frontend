@@ -10,7 +10,7 @@ import ClaimBox from './ClaimBox';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { observer } from 'mobx-react';
 import WithdrawButton from './WithdrawButton';
-import { divDecimals, formatWithSixDecimals, zeroDecimalsFormatter } from '../../../utils';
+import { divDecimals, formatWithSixDecimals, formatWithTwoDecimals, zeroDecimalsFormatter } from '../../../utils';
 import { Text } from '../../Base/components/Text';
 import ScrtTokenBalance from '../ScrtTokenBalance';
 
@@ -39,13 +39,23 @@ interface RewardsToken {
 const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: number) => {
   // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
-  // const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
+  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
   const pending = Number(divDecimals(token.remainingLockedRewards, token.decimals)) * priceUnderlying;
   const locked = Number(divDecimals(token.totalLockedRewards, token.rewardsDecimals)) * price;
-  return ((pending * 100) / locked).toFixed(0);
+  return ((pending * 100) / locked * (3.154e+7 / timeRemaining)).toFixed(0);
 
 }
 
+const apyString = (token: RewardsToken) => {
+
+  const apyStr = zeroDecimalsFormatter.format(Number(calculateAPY(token, 0.6, Number(token.price))));
+
+  if (token.balance && Number(token.balance) > 0) {
+    return `${apyStr}% on ${token.balance} ${token.lockedAsset}`;
+  } else {
+    return `${apyStr}%`;
+  }
+}
 
 @observer
 class EarnRow extends Component<{
@@ -70,12 +80,12 @@ class EarnRow extends Component<{
     this.setState({ activeIndex: newIndex })
   };
 
-
   render() {
+    const style = this.props.token.balance ? styles.accordionBalance : styles.accordion;
     //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
     const { activeIndex } = this.state
     return (
-      <Accordion className={cn(styles.accordion)}>
+      <Accordion className={cn(style)}>
         <Accordion.Title
           active={activeIndex === 0}
           index={0}
@@ -88,11 +98,11 @@ class EarnRow extends Component<{
             <div className={cn(styles.assetName)}>
               <SoftTitleValue title={this.props.token.display_props.label} subTitle={this.props.token.display_props.symbol} />
             </div>
-            <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${zeroDecimalsFormatter.format(Number(calculateAPY(this.props.token, 0.6, Number(this.props.token.price))))}%`} subTitle={"Annual Percentage Yield"} />
+            <div className={cn(styles.apy)}>
+              <SoftTitleValue title={apyString(this.props.token)} subTitle={"Annual Percentage Yield"} />
             </div>
             <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${formatWithSixDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />
+              <SoftTitleValue title={`${formatWithTwoDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />
             </div>
             <div className={cn(styles.availableDeposit)}>
               <ScrtTokenBalance value={this.props.token.balance}
