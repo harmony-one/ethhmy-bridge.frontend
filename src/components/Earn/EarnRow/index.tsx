@@ -50,8 +50,8 @@ const apyString = (token: RewardsToken) => {
 
   const apyStr = zeroDecimalsFormatter.format(Number(calculateAPY(token, 0.6, Number(token.price))));
 
-  if (token.balance && Number(token.balance) > 0) {
-    return `${apyStr}% on ${token.balance} ${token.lockedAsset}`;
+  if (token.deposit && Number(token.deposit) > 0) {
+    return `${apyStr}% on ${token.deposit} ${token.lockedAsset}`;
   } else {
     return `${apyStr}%`;
   }

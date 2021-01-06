@@ -21,5 +21,4 @@ export const GlobalStyle = createGlobalStyle<any>`
       props.theme.palette.Basic700
     )} 100%)`};
   }
-
 `;
