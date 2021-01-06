@@ -43,11 +43,16 @@ const FromRow = ({
   fromAmount,
   setFromAmount,
   isEstimated,
+  balance,
 }) => {
-  const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
+  const [myBalance, setMyBalance] = useState(balance);
 
   const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
+
+  useEffect(() => {
+    setMyBalance(balance);
+  }, [balance]);
 
   return (
     <Container
@@ -66,13 +71,22 @@ const FromRow = ({
       >
         <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
         {flexRowSpace}
-        <span
-          style={Object.assign({ cursor: 'pointer' }, font)}
-          onClick={() => {}}
-        >
-          {fromToken === 'SCRT' ? '' : 'Secret'} Balance:{' '}
-          {balanceNumberFormat.format(balance)}
-        </span>
+        {(() => {
+          if (myBalance == undefined) {
+            return '-';
+          }
+
+          const label = `${fromToken === 'SCRT' ? '' : 'Secret '}Balance: `;
+
+          return (
+            <>
+              {label}
+              {isNaN(Number(myBalance))
+                ? myBalance
+                : balanceNumberFormat.format(myBalance)}
+            </>
+          );
+        })()}
       </div>
       <div
         style={{
@@ -143,11 +157,16 @@ const ToRow = ({
   toAmount,
   setToAmount,
   isEstimated,
+  balance,
 }) => {
-  const [balance, setBalance] = useState(0);
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
+  const [myBalance, setMyBalance] = useState(balance);
 
   const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
+
+  useEffect(() => {
+    setMyBalance(balance);
+  }, [balance]);
 
   return (
     <Container
@@ -166,13 +185,22 @@ const ToRow = ({
       >
         <span style={font}>To{isEstimated ? ` (estimated)` : null}</span>
         {flexRowSpace}
-        <span
-          style={Object.assign({ cursor: 'pointer' }, font)}
-          onClick={() => {}}
-        >
-          {toToken === 'SCRT' ? '' : 'Secret'} Balance:{' '}
-          {balanceNumberFormat.format(balance)}
-        </span>{' '}
+        {(() => {
+          if (myBalance == undefined) {
+            return '-';
+          }
+
+          const label = `${toToken === 'SCRT' ? '' : 'Secret '}Balance: `;
+
+          return (
+            <>
+              {label}
+              {isNaN(Number(myBalance))
+                ? myBalance
+                : balanceNumberFormat.format(myBalance)}
+            </>
+          );
+        })()}
       </div>
       <div
         style={{
@@ -446,6 +474,7 @@ export const SwapPage = () => {
     to: 'SCRT',
   });
   const [tokens, setTokens] = useState(preloadedTokens);
+  const [myBalances, setMyBalances] = useState({});
   const [pairs, setPairs] = useState([]);
   const [symbolsToPairs, setSymbolsToPairs] = useState({});
   const [amounts, setAmounts] = useState({
@@ -533,7 +562,6 @@ export const SwapPage = () => {
                   symbol: tokenInfoResponse.token_info.symbol,
                   decimals: tokenInfoResponse.token_info.decimals,
                   logo: '/unknown.png',
-                  disabled: true,
                   address: t.token.contract_addr,
                   token_code_hash: t.token.token_code_hash,
                 };
@@ -584,36 +612,133 @@ export const SwapPage = () => {
 
   useEffect(() => {
     // selectedTokens have changed
-    // update price
+    // update price and myBalances
     if (!secretjs) {
       return;
     }
 
-    function getBalance(symbol, pairAddress, tokens) {
-      if (symbol === 'SCRT') {
-        return secretjs.getAccount(pairAddress).then(account => {
+    function getBalance(
+      tokenSymbol: string,
+      address: string,
+      tokens: any,
+      viewingKey: string,
+    ): Promise<number> {
+      if (tokenSymbol === 'SCRT') {
+        return secretjs.getAccount(address).then(account => {
           try {
             return Number(
-              divDecimals(account.balance[0].amount, tokens[symbol].decimals),
+              divDecimals(
+                account.balance[0].amount,
+                tokens[tokenSymbol].decimals,
+              ),
             );
           } catch (error) {
             return 0;
           }
         });
-      } else {
-        return secretjs
-          .queryContractSmart(tokens[symbol].address, {
-            balance: {
-              address: pairAddress,
-              key: 'SecretSwap',
-            },
-          })
-          .then(({ balance }) =>
-            Number(divDecimals(balance.amount, tokens[symbol].decimals)),
-          );
       }
+
+      return secretjs
+        .queryContractSmart(tokens[tokenSymbol].address, {
+          balance: {
+            address: address,
+            key: viewingKey,
+          },
+        })
+        .then(({ balance }) =>
+          Number(divDecimals(balance.amount, tokens[tokenSymbol].decimals)),
+        );
     }
 
+    // update myBalances
+    (async () => {
+      let fromViewingKey, toViewingKey;
+      try {
+        fromViewingKey = await user.keplrWallet.getSecret20ViewingKey(
+          user.chainId,
+          tokens[selectedTokens.from].address,
+        );
+      } catch (error) {
+        console.error(
+          `Tried to get viewing key for ${selectedTokens.from}`,
+          error,
+        );
+      }
+      try {
+        toViewingKey = await user.keplrWallet.getSecret20ViewingKey(
+          user.chainId,
+          tokens[selectedTokens.to].address,
+        );
+      } catch (error) {
+        console.error(
+          `Tried to get viewing key for ${selectedTokens.to}`,
+          error,
+        );
+      }
+
+      const fromBalancePromise = getBalance(
+        selectedTokens.from,
+        user.address,
+        tokens,
+        fromViewingKey,
+      ).catch(error => {
+        console.error(
+          `Tried to get my balance for ${selectedTokens.from}`,
+          error,
+        );
+        return (
+          <span
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              user.keplrWallet.suggestToken(
+                user.chainId,
+                tokens[selectedTokens.from].address,
+              );
+            }}
+          >
+            🔓 Unlock
+          </span>
+        );
+      });
+      const toBalancePromise = getBalance(
+        selectedTokens.to,
+        user.address,
+        tokens,
+        toViewingKey,
+      ).catch(error => {
+        console.error(
+          `Tried to get my balance for ${selectedTokens.to}`,
+          error,
+        );
+        return (
+          <span
+            style={{ cursor: 'pointer' }}
+            onClick={() => {
+              user.keplrWallet.suggestToken(
+                user.chainId,
+                tokens[selectedTokens.to].address,
+              );
+            }}
+          >
+            🔓 Unlock
+          </span>
+        );
+      });
+
+      const [fromBalance, toBalance] = await Promise.all([
+        fromBalancePromise,
+        toBalancePromise,
+      ]);
+
+      setMyBalances(
+        Object.assign({}, myBalances, {
+          [selectedTokens.from]: fromBalance,
+          [selectedTokens.to]: toBalance,
+        }),
+      );
+    })();
+
+    // update price
     (async () => {
       try {
         const pair =
@@ -625,8 +750,18 @@ export const SwapPage = () => {
         }
 
         const balances = await Promise.all([
-          getBalance(selectedTokens.from, pair.contract_addr, tokens),
-          getBalance(selectedTokens.to, pair.contract_addr, tokens),
+          getBalance(
+            selectedTokens.from,
+            pair.contract_addr,
+            tokens,
+            'SecretSwap',
+          ),
+          getBalance(
+            selectedTokens.to,
+            pair.contract_addr,
+            tokens,
+            'SecretSwap',
+          ),
         ]);
 
         const newPrice = Number(balances[1]) / Number(balances[0]);
@@ -640,7 +775,11 @@ export const SwapPage = () => {
         setPrice(null);
       }
     })();
-  }, [selectedTokens.from, selectedTokens.to]);
+  }, [secretjs, selectedTokens.from, selectedTokens.to]);
+
+  useEffect(() => {
+    console.log(myBalances);
+  }, [myBalances]);
 
   return (
     <BaseContainer>
@@ -671,10 +810,12 @@ export const SwapPage = () => {
               }}
             >
               <FromRow
+                balance={myBalances[selectedTokens.from]}
                 tokens={tokens}
                 fromToken={selectedTokens.from}
                 setFromToken={(value: string) => {
                   if (value === selectedTokens.to) {
+                    // switch
                     setSelectedTokens({ from: value, to: selectedTokens.from });
                   } else {
                     setSelectedTokens({ from: value, to: selectedTokens.to });
@@ -725,10 +866,12 @@ export const SwapPage = () => {
                 {flexRowSpace}
               </div>
               <ToRow
+                balance={myBalances[selectedTokens.to]}
                 tokens={tokens}
                 toToken={selectedTokens.to}
                 setToToken={(value: string) => {
                   if (value === selectedTokens.from) {
+                    // switch
                     setSelectedTokens({ to: value, from: selectedTokens.to });
                   } else {
                     setSelectedTokens({ to: value, from: selectedTokens.from });

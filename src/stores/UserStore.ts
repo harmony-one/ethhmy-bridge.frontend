@@ -23,8 +23,8 @@ export class UserStoreEx extends StoreConstructor {
   public status: statusFetching;
   redirectUrl: string;
 
-  private keplrWallet: any;
-  private keplrOfflineSigner: any;
+  @observable public keplrWallet: any;
+  @observable public keplrOfflineSigner: any;
   @observable public secretjs: SigningCosmWasmClient;
   @observable public isKeplrWallet = false;
   @observable public error: string;
