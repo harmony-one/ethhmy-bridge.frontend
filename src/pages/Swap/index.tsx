@@ -3,18 +3,14 @@ import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
-import {
-  Button,
-  Container,
-  Input,
-  Dropdown,
-  Icon,
-  Popup,
-} from 'semantic-ui-react';
+import { Button, Container, Icon, Popup } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
 import { divDecimals } from 'utils';
+import { AssetRow } from './AssetRow';
+import { AdditionalInfo } from './AdditionalInfo';
+import { PriceRow } from './PriceRow';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -34,438 +30,10 @@ const downArrow = (
   </svg>
 );
 
-const tokenShadow = 'rgba(0, 0, 0, 0.075) 0px 6px 10px';
-
-const FromRow = ({
-  tokens,
-  fromToken,
-  setFromToken,
-  fromAmount,
-  setFromAmount,
-  isEstimated,
-  balance,
-}) => {
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-  const [myBalance, setMyBalance] = useState(balance);
-
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
-
-  useEffect(() => {
-    setMyBalance(balance);
-  }, [balance]);
-
-  return (
-    <Container
-      style={{
-        padding: '1rem',
-        borderRadius: '20px',
-        border: '1px solid rgb(247, 248, 250)',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
-        {flexRowSpace}
-        {(() => {
-          if (myBalance == undefined) {
-            return '-';
-          }
-
-          const label = `${fromToken === 'SCRT' ? '' : 'Secret '}Balance: `;
-
-          return (
-            <>
-              {label}
-              {isNaN(Number(myBalance))
-                ? myBalance
-                : balanceNumberFormat.format(myBalance)}
-            </>
-          );
-        })()}
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Input
-          style={{
-            padding: 0,
-            width: '180px',
-          }}
-          transparent
-          size="massive"
-          placeholder="0.0"
-          value={fromAmount}
-          onChange={(_, { value }) => {
-            if (isNaN(Number(value))) {
-              return;
-            }
-            setFromAmount(value);
-          }}
-        />
-        {flexRowSpace}
-        <Button
-          primary
-          style={{
-            borderRadius: '15px',
-            fontSize: '1rem',
-            fontWeight: 500,
-            height: '30px',
-            padding: '0rem 0.3rem',
-          }}
-        >
-          MAX
-        </Button>
-        <Dropdown
-          style={{
-            border: 'none',
-            borderRadius: '15px',
-            background: dropdownBackground,
-          }}
-          onMouseEnter={() => setDropdownBackground('whitesmoke')}
-          onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(
-            (t: { symbol: string; logo: string }) => ({
-              key: t.symbol,
-              text: t.symbol,
-              value: t.symbol,
-              image: {
-                src: t.logo,
-                style: { boxShadow: tokenShadow, borderRadius: '24px' },
-              },
-            }),
-          )}
-          value={fromToken}
-          onChange={(_, { value }) => setFromToken(value)}
-        />
-      </div>
-    </Container>
-  );
-};
-
-const ToRow = ({
-  tokens,
-  toToken,
-  setToToken,
-  toAmount,
-  setToAmount,
-  isEstimated,
-  balance,
-}) => {
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-  const [myBalance, setMyBalance] = useState(balance);
-
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
-
-  useEffect(() => {
-    setMyBalance(balance);
-  }, [balance]);
-
-  return (
-    <Container
-      style={{
-        padding: '1rem',
-        borderRadius: '20px',
-        border: '1px solid rgb(247, 248, 250)',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <span style={font}>To{isEstimated ? ` (estimated)` : null}</span>
-        {flexRowSpace}
-        {(() => {
-          if (myBalance == undefined) {
-            return '-';
-          }
-
-          const label = `${toToken === 'SCRT' ? '' : 'Secret '}Balance: `;
-
-          return (
-            <>
-              {label}
-              {isNaN(Number(myBalance))
-                ? myBalance
-                : balanceNumberFormat.format(myBalance)}
-            </>
-          );
-        })()}
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Input
-          style={{
-            padding: 0,
-            width: '180px',
-          }}
-          transparent
-          size="massive"
-          placeholder="0.0"
-          value={toAmount}
-          onChange={(_, { value }) => {
-            if (isNaN(Number(value))) {
-              return;
-            }
-            setToAmount(value);
-          }}
-        />
-        {flexRowSpace}
-        <Dropdown
-          style={{
-            border: 'none',
-            borderRadius: '15px',
-            background: dropdownBackground,
-          }}
-          onMouseEnter={() => setDropdownBackground('whitesmoke')}
-          onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(
-            (t: { symbol: string; logo: string }) => ({
-              key: t.symbol,
-              text: t.symbol,
-              value: t.symbol,
-              image: {
-                src: t.logo,
-                style: { boxShadow: tokenShadow, borderRadius: '24px' },
-              },
-            }),
-          )}
-          value={toToken}
-          onChange={(_, { value }) => setToToken(value)}
-        />
-      </div>
-    </Container>
-  );
-};
-
-const priceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 10,
-  useGrouping: true,
-});
-const balanceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
-  useGrouping: true,
-});
 const inputNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 20,
   useGrouping: false,
 });
-
-const PriceRow = ({ price, fromToken, toToken }) => {
-  const [tokens, setTokens] = useState({
-    from: fromToken,
-    to: toToken,
-    price: priceNumberFormat.format(price),
-    priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
-  });
-  const [iconBackground, setIconBackground] = useState('whitesmoke');
-
-  useEffect(() => {
-    setTokens({
-      from: fromToken,
-      to: toToken,
-      price: priceNumberFormat.format(price),
-      priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
-    });
-  }, [fromToken, toToken, price]);
-
-  return (
-    <div
-      style={{
-        padding: '1rem',
-        display: 'flex',
-        flexDirection: 'row',
-        alignContent: 'center',
-      }}
-    >
-      {!tokens.price || Number(tokens.price) === 0 ? null : (
-        <>
-          {' '}
-          Price
-          {flexRowSpace}
-          {`${tokens.price} ${tokens.from} per ${tokens.to}`}
-          <Icon
-            circular
-            size="small"
-            name="exchange"
-            style={{
-              margin: '0 0 0 0.3em',
-              background: iconBackground,
-              cursor: 'pointer',
-            }}
-            onMouseEnter={() => setIconBackground('rgb(237, 238, 242)')}
-            onMouseLeave={() => setIconBackground('whitesmoke')}
-            onClick={() => {
-              setTokens({
-                from: tokens.to,
-                to: tokens.from,
-                price: tokens.priceInvert,
-                priceInvert: tokens.price, // prevents price distortion by multiple clicks
-              });
-            }}
-          />
-        </>
-      )}
-    </div>
-  );
-};
-
-const AdditionalInfo = ({
-  minimumReceived,
-  liquidityProviderFee,
-  priceImpact,
-  fromToken,
-  toToken,
-}) => {
-  const [
-    minimumReceivedIconBackground,
-    setMinimumreceivedIconBackground,
-  ] = useState('whitesmoke');
-  const [
-    liquidityProviderFeeIconBackground,
-    setLiquidityProviderFeeIconBackground,
-  ] = useState('whitesmoke');
-  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState(
-    'whitesmoke',
-  );
-
-  return (
-    <div style={{ maxWidth: '400px', minWidth: '400px' }}>
-      <Container
-        style={{
-          marginTop: '-2rem',
-          borderBottomLeftRadius: '20px',
-          borderBottomRightRadius: '20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.6)',
-          padding: 'calc(16px + 2rem) 2rem 2rem 2rem',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Minimum received
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: minimumReceivedIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setMinimumreceivedIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setMinimumreceivedIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>
-            {minimumReceived} {toToken}
-          </strong>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Price Impact
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: priceImpactIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setPriceImpactIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setPriceImpactIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="The difference between the market price and estimated price due to trade size."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>{`${priceImpact * 100}%`}</strong>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Liquidity Provider Fee
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: liquidityProviderFeeIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setLiquidityProviderFeeIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setLiquidityProviderFeeIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>
-            {balanceNumberFormat.format(liquidityProviderFee)} {fromToken}
-          </strong>
-        </div>
-      </Container>
-    </div>
-  );
-};
 
 export const SwapPage = () => {
   const { user } = useStores();
@@ -809,11 +377,12 @@ export const SwapPage = () => {
                   'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
               }}
             >
-              <FromRow
+              <AssetRow
+                isMaxButton={true}
                 balance={myBalances[selectedTokens.from]}
                 tokens={tokens}
-                fromToken={selectedTokens.from}
-                setFromToken={(value: string) => {
+                token={selectedTokens.from}
+                setToken={(value: string) => {
                   if (value === selectedTokens.to) {
                     // switch
                     setSelectedTokens({ from: value, to: selectedTokens.from });
@@ -822,9 +391,9 @@ export const SwapPage = () => {
                   }
                   setPrice(null);
                 }}
-                fromAmount={amounts.from}
+                amount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
-                setFromAmount={(value: string) => {
+                setAmount={(value: string) => {
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       from: value,
@@ -865,11 +434,12 @@ export const SwapPage = () => {
                 </span>
                 {flexRowSpace}
               </div>
-              <ToRow
+              <AssetRow
+                isMaxButton={false}
                 balance={myBalances[selectedTokens.to]}
                 tokens={tokens}
-                toToken={selectedTokens.to}
-                setToToken={(value: string) => {
+                token={selectedTokens.to}
+                setToken={(value: string) => {
                   if (value === selectedTokens.from) {
                     // switch
                     setSelectedTokens({ to: value, from: selectedTokens.to });
@@ -878,9 +448,9 @@ export const SwapPage = () => {
                   }
                   setPrice(null);
                 }}
-                toAmount={amounts.to}
+                amount={amounts.to}
                 isEstimated={amounts.isToEstimated}
-                setToAmount={(value: string) => {
+                setAmount={(value: string) => {
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       to: value,
@@ -911,6 +481,14 @@ export const SwapPage = () => {
                   borderRadius: '12px',
                   padding: '18px',
                   fontSize: '20px',
+                }}
+                onClick={async () => {
+                  const pair =
+                    symbolsToPairs[
+                      `${selectedTokens.from}/${selectedTokens.to}`
+                    ];
+
+                  // secretjs.
                 }}
               >
                 {buttonMessage}
