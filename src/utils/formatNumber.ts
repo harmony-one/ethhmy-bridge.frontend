@@ -1,6 +1,11 @@
 import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
+export const inputNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 20,
+  useGrouping: false,
+});
+
 const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,

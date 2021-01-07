@@ -107,7 +107,7 @@ export const AdditionalInfo = ({
             />
           </span>
           {flexRowSpace}
-          <strong>{`${priceImpact * 100}%`}</strong>
+          <strong>{`${(priceImpact * 100).toFixed(2)}%`}</strong>
         </div>
         <div
           style={{
