@@ -18,11 +18,11 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
         {/*<div className={styles.blur} />*/}
         <div
           style={{
-            // minHeight: '100%',
-            // zIndex: -1,
-            // // position: 'absolute',
-            // // top: 0,
-            // // width: '100vw',
+            minHeight: '100%',
+            zIndex: 5,
+            position: 'absolute',
+            top: 0,
+            width: '100vw',
             // backgroundColor: '#000000', // palette.Basic100,
             // // backgroundImage: "url('logo_background.svg')",
             // // backgroundImage: "url('/harmony_logo_background.svg')",
