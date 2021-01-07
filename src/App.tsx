@@ -34,7 +34,7 @@ export const App: React.FC = () => (
       </Switch>
     </Suspense>
     <ActionModals />
-    <InfoModal />
+    <InfoModal/>
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>
 );

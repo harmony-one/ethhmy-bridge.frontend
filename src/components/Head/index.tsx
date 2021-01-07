@@ -60,6 +60,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           top: 0,
           width: '100%',
           zIndex: 100,
+          minWidth,
           // boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)',
         }}
       >

@@ -10,7 +10,7 @@ export const InfoModal = observer(() => {
   const history = useHistory();
 
   useEffect(() => {
-    if (history.location.pathname == '/swap') {
+    if (history.location.pathname === '/swap') {
       return;
     }
 
@@ -22,7 +22,6 @@ export const InfoModal = observer(() => {
           applyText: 'Got it',
           closeText: '',
           noValidation: true,
-          width: '1000px',
           showOther: true,
           onApply: () => {
             user.setInfoReading();
