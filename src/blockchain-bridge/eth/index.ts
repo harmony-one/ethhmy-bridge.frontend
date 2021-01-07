@@ -1,5 +1,6 @@
 import { EthMethods } from './EthMethods';
 import { EthMethodsERC20 } from './EthMethodsERC20';
+import { EthMethodsHRC20 } from './EthMethodsHRC20';
 
 const Web3 = require('web3');
 
@@ -53,6 +54,12 @@ const ethManagerContract = new web3.eth.Contract(
   process.env.ETH_ERC20_MANAGER_CONTRACT,
 );
 
+const ethManagerJsonHrc20 = require('../out/EthManagerHRC20.json');
+const ethManagerContractHrc20 = new web3.eth.Contract(
+  ethManagerJsonHrc20.abi,
+  process.env.ETH_HRC20_MANAGER_CONTRACT,
+);
+
 const ethManagerERC721Json = require('../out/ERC721EthManager.json');
 const ethManagerContractERC721 = new web3.eth.Contract(
   ethManagerERC721Json.abi,
@@ -63,6 +70,12 @@ export const ethMethodsERC20 = new EthMethodsERC20({
   web3: web3,
   ethManagerContract: ethManagerContract,
   ethManagerAddress: process.env.ETH_ERC20_MANAGER_CONTRACT,
+});
+
+export const ethMethodsHRC20 = new EthMethodsHRC20({
+  web3: web3,
+  ethManagerContract: ethManagerContractHrc20,
+  ethManagerAddress: process.env.ETH_HRC20_MANAGER_CONTRACT,
 });
 
 export const ethMethodsERС721 = new EthMethodsERC20({

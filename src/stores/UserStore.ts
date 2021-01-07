@@ -6,6 +6,9 @@ import {
   hmyMethodsERC20,
   hmyMethodsBUSD,
   hmyMethodsLINK,
+  ethMethodsHRC20,
+  hmyMethodsHRC20,
+  ethMethodsERC20,
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
@@ -214,4 +217,26 @@ export class UserStoreEx extends StoreConstructor {
     this.hrc20Address = token;
     this.hrc20Balance = '0';
   }
+
+  @action.bound public setHRC20Mapping = async (hrc20Address: string) => {
+    this.hrc20Balance = '0';
+    this.hrc20Address = '';
+    this.stores.userMetamask.erc20Address = '';
+
+    this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.tokenDetails(
+      hrc20Address,
+    );
+    this.hrc20Address = hrc20Address;
+
+    const address = await ethMethodsHRC20.getMappingFor(hrc20Address);
+
+    console.log(address);
+
+    if (!!Number(address)) {
+      this.stores.userMetamask.erc20Address = address;
+      this.syncLocalStorage();
+    } else {
+      this.stores.userMetamask.erc20Address = '';
+    }
+  };
 }

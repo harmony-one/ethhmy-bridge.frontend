@@ -118,6 +118,7 @@ export class Exchange extends React.Component<
 
       case TOKEN.ERC721:
       case TOKEN.ERC20:
+      case TOKEN.HRC20:
         if (!userMetamask.erc20TokenDetails) {
           return { label: '', maxAmount: '0' };
         }
@@ -267,6 +268,20 @@ export class Exchange extends React.Component<
             </Box>
 
             <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.HRC20 ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.HRC20);
+                routing.push(`/${exchange.token}`);
+              }}
+            >
+              <img className={styles.imgToken} src="/one.svg" />
+              <Text>HRC20</Text>
+            </Box>
+
+            <Box
               style={{ width: 140 }}
               className={cn(
                 styles.itemToken,
@@ -332,6 +347,10 @@ export class Exchange extends React.Component<
 
               {exchange.token === TOKEN.ERC20 ? (
                 <ERC20Select type={exchange.token} options={true} />
+              ) : null}
+
+              {exchange.token === TOKEN.HRC20 ? (
+                <ERC20Select type={exchange.token} options={false} />
               ) : null}
 
               {exchange.token === TOKEN.ERC721 ? (

@@ -101,6 +101,13 @@ const isEth = type =>
     'unlockToken',
     'unlockTokenRollback',
     'waitingBlockNumber',
+
+    // HRC20
+    'approveHRC20EthManger',
+    'getERC20Address',
+    'burnHRC20Token',
+    'mintHRC20Token',
+    'mintHRC20TokenRollback',
   ].includes(type);
 
 const statuses: Record<STATUS, string> = {

@@ -1,8 +1,10 @@
 import * as React from 'react';
 import * as s from './Spinner.styl';
 
-export const Spinner: React.FC<React.SVGAttributes<SVGElement>> = props => {
-  const boxSize = 16;
+export const Spinner: React.FC<React.SVGAttributes<SVGElement> & {
+  boxSize?: number;
+}> = props => {
+  const boxSize = props.boxSize || 16;
   const radius = boxSize / 2 - 1;
   const middle = boxSize / 2;
   return (

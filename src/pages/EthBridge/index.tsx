@@ -66,9 +66,14 @@ export const EthBridge = observer((props: any) => {
   useEffect(() => {
     if (props.match.params.token) {
       if (
-        [TOKEN.LINK, TOKEN.BUSD, TOKEN.ERC20, TOKEN.ETH, TOKEN.ERC721].includes(
-          props.match.params.token,
-        )
+        [
+          TOKEN.LINK,
+          TOKEN.BUSD,
+          TOKEN.ERC20,
+          TOKEN.ETH,
+          TOKEN.ERC721,
+          TOKEN.HRC20,
+        ].includes(props.match.params.token)
       ) {
         exchange.setToken(props.match.params.token);
 

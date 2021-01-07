@@ -8,13 +8,35 @@ import { tokensMainnet } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { TOKEN } from '../../stores/interfaces';
+import { Spinner } from '../../ui/Spinner';
+
+const labels: Record<string, string> = {
+  [TOKEN.ERC20]: 'ERC20 token address',
+  [TOKEN.ERC721]: 'ERC721 token address',
+  [TOKEN.HRC20]: 'HRC20 token address',
+};
+
+const placeholder: Record<string, string> = {
+  [TOKEN.ERC20]: 'Select your ERC20 token',
+  [TOKEN.ERC721]: 'Select your ERC721 token',
+  [TOKEN.HRC20]: 'Select your HRC20 token',
+};
+
+const inputPlaceholder: Record<string, string> = {
+  [TOKEN.ERC20]: 'Input ERC20 token address',
+  [TOKEN.ERC721]: 'Input ERC721 token address',
+  [TOKEN.HRC20]: 'Input HRC20 token address',
+};
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { userMetamask, tokens } = useStores();
-    const [erc20, setERC20] = useState(userMetamask.erc20Address);
+    const { userMetamask, tokens, user } = useStores();
+    const [erc20, setERC20] = useState(
+      type === TOKEN.HRC20 ? user.hrc20Address : userMetamask.erc20Address,
+    );
     const [error, setError] = useState('');
     const [token, setToken] = useState('');
+    const [isLoading, setLoading] = useState(false);
     const [custom, setCustom] = useState(false);
 
     const getTokens = () => {
@@ -40,20 +62,28 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
     }, [tokens.data]);
 
     useEffect(() => {
-      setERC20(userMetamask.erc20Address);
-      setToken(userMetamask.erc20Address);
-    }, [userMetamask.erc20Address]);
+      if (type === TOKEN.HRC20) {
+        setERC20(user.hrc20Address);
+        setToken(user.hrc20Address);
+      } else {
+        setERC20(userMetamask.erc20Address);
+        setToken(userMetamask.erc20Address);
+      }
+    }, [userMetamask.erc20Address, user.hrc20Address]);
+
+    // if(isLoading) {
+    //   return <Spinner />
+    // }
 
     return (
       <Box direction="column" margin={{ top: 'xlarge' }}>
         <Box direction="row" align="center" justify="between">
           <Text size="large" bold>
-            {type === TOKEN.ERC721
-              ? 'ERC721 token address'
-              : 'ERC20 token address'}
+            {labels[type]}
           </Text>
 
           <Checkbox
+            disabled={isLoading}
             label="use custom address"
             value={!options || custom}
             onChange={setCustom}
@@ -63,6 +93,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         {options && !custom ? (
           <Box margin={{ top: 'small', bottom: 'medium' }}>
             <Select
+              disabled={isLoading}
               options={tokensList.map(t => ({
                 ...t,
                 text: t.label,
@@ -79,11 +110,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                   setError(e.message);
                 }
               }}
-              placeholder={
-                type === TOKEN.ERC721
-                  ? 'Select your ERC721 token'
-                  : 'Select your ERC20 token'
-              }
+              placeholder={placeholder[type]}
             />
             {token ? (
               <Box
@@ -95,7 +122,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Text>Address:</Text>
                 <a
                   className={styles.addressLink}
-                  href={`https://etherscan.io/token/${token}`}
+                  href={`${process.env.ETH_EXPLORER_URL}/token/${token}`}
                   target="_blank"
                 >
                   {truncateAddressString(token, 16)}
@@ -107,32 +134,44 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
           <>
             <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
               <TextInput
-                placeholder={
-                  type === TOKEN.ERC721
-                    ? 'Input ERC721 token address'
-                    : 'Input ERC20 token address'
-                }
+                disabled={isLoading}
+                placeholder={inputPlaceholder[type]}
                 value={erc20}
                 onChange={setERC20}
               />
             </Box>
             <Box direction="row" justify="end">
-              <Button
-                onClick={async () => {
-                  setError('');
-                  try {
-                    if (type === TOKEN.ERC721) {
-                      await userMetamask.setERC721Token(erc20);
-                    } else {
-                      await userMetamask.setToken(erc20);
+              {isLoading ? (
+                <Spinner boxSize={12} />
+              ) : (
+                <Button
+                  disabled={isLoading}
+                  onClick={async () => {
+                    setError('');
+                    setLoading(true);
+                    try {
+                      switch (type) {
+                        case TOKEN.ERC721:
+                          await userMetamask.setERC721Token(erc20);
+                          break;
+
+                        case TOKEN.ERC20:
+                          await userMetamask.setToken(erc20);
+                          break;
+
+                        case TOKEN.HRC20:
+                          await user.setHRC20Mapping(erc20);
+                          break;
+                      }
+                    } catch (e) {
+                      setError(e.message);
                     }
-                  } catch (e) {
-                    setError(e.message);
-                  }
-                }}
-              >
-                {erc20 ? 'Change token' : 'Select token'}
-              </Button>
+                    setLoading(false);
+                  }}
+                >
+                  {erc20 ? 'Change token' : 'Select token'}
+                </Button>
+              )}
             </Box>
           </>
         )}

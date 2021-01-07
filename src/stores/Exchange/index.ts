@@ -1,18 +1,20 @@
-import { StoreConstructor } from './core/StoreConstructor';
+import { StoreConstructor } from '../core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
-import { statusFetching } from '../constants';
+import { statusFetching } from '../../constants';
 import {
   ACTION_TYPE,
   EXCHANGE_MODE,
   IOperation,
   STATUS,
   TOKEN,
-} from './interfaces';
+} from '../interfaces';
 import * as operationService from 'services';
 
-import * as contract from '../blockchain-bridge';
-import { sleep, uuid } from '../utils';
-import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import * as contract from '../../blockchain-bridge';
+import { sleep, uuid } from '../../utils';
+import { getNetworkFee } from '../../blockchain-bridge/eth/helpers';
+import { sendHrc20Token } from './hrc20';
+import { getAddress } from '@harmony-js/crypto';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -33,6 +35,14 @@ export interface IStepConfig {
   title?: string;
 }
 
+export interface ITransaction {
+  oneAddress: string;
+  ethAddress: string;
+  amount: string;
+  erc20Address?: string;
+  hrc20Address?: string;
+}
+
 export class Exchange extends StoreConstructor {
   @observable error = '';
   @observable txHash = '';
@@ -45,6 +55,7 @@ export class Exchange extends StoreConstructor {
     ethAddress: '',
     amount: '0',
     erc20Address: '',
+    hrc20Address: '',
   };
 
   @observable transaction = this.defaultTransaction;
@@ -91,7 +102,14 @@ export class Exchange extends StoreConstructor {
           onClick: async () => {
             this.stepNumber = this.stepNumber + 1;
             // this.transaction.oneAddress = this.stores.user.address;
-            this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+
+            if (this.token === TOKEN.HRC20) {
+              this.transaction.hrc20Address = getAddress(
+                this.stores.user.hrc20Address,
+              ).checksum;
+            } else {
+              this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+            }
 
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
@@ -333,6 +351,16 @@ export class Exchange extends StoreConstructor {
           ethMethods = contract.ethMethodsERС721;
           hmyMethods = contract.hmyMethodsERC20;
           break;
+
+        case TOKEN.HRC20:
+          await sendHrc20Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
       }
 
       if (this.token === TOKEN.ETH) {

@@ -1,5 +1,6 @@
 import { HmyMethods } from './HmyMethods';
 import { HmyMethodsERC20 } from './HmyMethodsERC20';
+import { HmyMethodsHRC20 } from './HmyMethodsHRC20';
 const { Harmony } = require('@harmony-js/core');
 const { ChainType } = require('@harmony-js/utils');
 
@@ -54,9 +55,20 @@ const hmyManagerContract = this.hmy.contracts.createContract(
   process.env.HMY_ERC20_MANAGER_CONTRACT,
 );
 
+const hmyManagerJsonHrc20 = require('../out/HmyManagerHRC20.json');
+const hmyManagerContractHrc20 = this.hmy.contracts.createContract(
+  hmyManagerJsonHrc20.abi,
+  process.env.HMY_HRC20_MANAGER_CONTRACT,
+);
+
 export const hmyMethodsERC20 = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContract,
+});
+
+export const hmyMethodsHRC20 = new HmyMethodsHRC20({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContractHrc20,
 });
 
 const hmyManagerJson721 = require('../out/ERC721HmyManager.json');

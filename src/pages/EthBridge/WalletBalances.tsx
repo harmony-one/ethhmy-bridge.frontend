@@ -103,11 +103,13 @@ export const WalletBalances = observer(() => {
                 selected={exchange.token === TOKEN.ETH}
               />
 
-              {userMetamask.erc20TokenDetails ? (
+              {userMetamask.erc20TokenDetails && userMetamask.erc20Address ? (
                 <AssetRow
                   asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(userMetamask.erc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
+                  selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                    exchange.token,
+                  )}
                   link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
                 />
               ) : null}
@@ -179,11 +181,15 @@ export const WalletBalances = observer(() => {
               />
 
               {user.hrc20Address &&
-              [TOKEN.ERC20, TOKEN.ERC721].includes(exchange.token) ? (
+              [TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                exchange.token,
+              ) ? (
                 <AssetRow
                   asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(user.hrc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
+                  selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                    exchange.token,
+                  )}
                   link={`${
                     process.env.HMY_EXPLORER_URL
                   }/address/${getBech32Address(
