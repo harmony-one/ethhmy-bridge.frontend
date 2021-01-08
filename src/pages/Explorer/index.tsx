@@ -119,7 +119,11 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'token',
     width: 100,
     render: (value, data) => (
-      <ERC20Token value={value} erc20Address={data.erc20Address} />
+      <ERC20Token
+        value={value}
+        erc20Address={data.erc20Address}
+        hrc20Address={data.hrc20Address}
+      />
     ),
   },
   {

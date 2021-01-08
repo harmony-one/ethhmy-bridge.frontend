@@ -70,15 +70,18 @@ export const Price = observer(
 interface IERC20TokenProps {
   value: TOKEN;
   erc20Address?: string;
+  hrc20Address?: string;
 }
 
 export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { tokens } = useStores();
-  const { value, erc20Address } = props;
+  const { value, erc20Address = '', hrc20Address = '' } = props;
 
-  if (value === TOKEN.ERC20) {
+  if ([TOKEN.ERC20, TOKEN.ERC721, TOKEN.HRC20].includes(value)) {
     const token = tokens.data.find(
-      t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+      t =>
+        t.erc20Address.toLowerCase() === erc20Address.toLowerCase() ||
+        t.hrc20Address.toLowerCase() === hrc20Address.toLowerCase(),
     );
 
     if (token) {

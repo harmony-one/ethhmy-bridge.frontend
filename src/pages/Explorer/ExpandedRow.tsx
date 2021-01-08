@@ -177,9 +177,12 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
   const { tokens } = useStores();
 
   const erc20Address = props.data.erc20Address || '';
+  const hrc20Address = props.data.hrc20Address || '';
 
   const token = tokens.data.find(
-    t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+    t =>
+      t.erc20Address.toLowerCase() === erc20Address.toLowerCase() ||
+      t.hrc20Address.toLowerCase() === hrc20Address.toLowerCase(),
   );
 
   return (
@@ -227,7 +230,10 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               {action.status}
             </Box>
 
-            {action.type === ACTION_TYPE.getHRC20Address && !!token ? (
+            {[
+              ACTION_TYPE.getHRC20Address,
+              ACTION_TYPE.getERC20Address,
+            ].includes(action.type) && !!token ? (
               <Box
                 className={styles.actionCell}
                 style={{ width: 220, paddingLeft: 16 }}

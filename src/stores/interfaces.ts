@@ -70,6 +70,7 @@ export interface IOperation {
   actions: Array<IAction>;
   timestamp: number;
   erc20Address?: string;
+  hrc20Address?: string;
 }
 
 export interface ITokenInfo {
