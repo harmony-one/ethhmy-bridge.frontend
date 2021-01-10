@@ -7,10 +7,16 @@ import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { divDecimals, mulDecimals } from 'utils';
+import { inputNumberFormat, divDecimals, mulDecimals } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
+import {
+  SimulateResult,
+  SimulationReponse,
+} from '../../blockchain-bridge/scrt/swap';
+import { Currency, Trade, Asset } from './trade';
+import { SigningCosmWasmClient } from 'secretjs';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -29,11 +35,6 @@ const downArrow = (
     <polyline points="19 12 12 19 5 12"></polyline>
   </svg>
 );
-
-const inputNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 20,
-  useGrouping: false,
-});
 
 export const SwapPage = () => {
   const { user } = useStores();
@@ -69,10 +70,60 @@ export const SwapPage = () => {
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
   const [price, setPrice] = useState(null); /* TODO */
-  const [minimumReceived] = useState(123456); /* TODO */
-  const [priceImpact] = useState(0.02); /* TODO */
-  const [liquidityProviderFee] = useState(17.3); /* TODO */
-  const [secretjs, setSecretjs] = useState(null);
+  const [minimumReceived, setMinimumReceived] = useState<number>(
+    123456,
+  ); /* TODO */
+  const [priceImpact, setPriceImpact] = useState<number>(0);
+
+  const [liquidityProviderFee, setLiquidityProviderFee] = useState<number>(0);
+
+  const [secretjs, setSecretjs] = useState<SigningCosmWasmClient>(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!secretjs) {
+        return () => setPriceImpact(0);
+      }
+
+      const fromCurrency: Asset = Asset.fromTokenInfo(
+        tokens[selectedTokens.from],
+      );
+      const toCurrency: Asset = Asset.fromTokenInfo(tokens[selectedTokens.to]);
+
+      const trade = new Trade(
+        new Currency(fromCurrency, amounts.from),
+        new Currency(toCurrency, amounts.to),
+        price,
+      );
+
+      const pair =
+        symbolsToPairs[`${selectedTokens.from}/${selectedTokens.to}`]
+          .contract_addr;
+
+      const result: SimulationReponse = await SimulateResult({
+        secretjs,
+        trade,
+        pair,
+      }).catch(err => {
+        throw new Error(`Failed to run simulation: ${err}`);
+      });
+
+      setPriceImpact(
+        Number(result.spread_amount) / Number(result.return_amount),
+      );
+      setLiquidityProviderFee(Number(result.commission_amount));
+      return () => setPriceImpact(0);
+    })();
+  }, [
+    secretjs,
+    selectedTokens.to,
+    selectedTokens.from,
+    amounts.from,
+    amounts.to,
+    price,
+    tokens,
+    symbolsToPairs,
+  ]);
 
   useEffect(() => {
     // Setup Keplr
@@ -83,9 +134,10 @@ export const SwapPage = () => {
       while (!user.secretjs) {
         await sleep(50);
       }
+      console.log('set secretjs');
       setSecretjs(user.secretjs);
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!secretjs) {
@@ -164,7 +216,7 @@ export const SwapPage = () => {
         alert(error);
       }
     })();
-  }, [pairs]);
+  }, [secretjs, pairs]);
 
   useEffect(() => {
     // The token list has changed
