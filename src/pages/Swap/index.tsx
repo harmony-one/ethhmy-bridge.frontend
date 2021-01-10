@@ -11,13 +11,9 @@ import { divDecimals, inputNumberFormat } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
-import { GetPairLiquidity, PoolResponse, SimulateResult, SimulationReponse } from '../../blockchain-bridge/scrt/swap';
+import { SimulateResult, SimulationReponse } from '../../blockchain-bridge/scrt/swap';
 import { Currency, Trade, Asset } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
-
-const priceFromLiquidity = (liquidity: PoolResponse, identifierInput: string) => {
-
-}
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -90,13 +86,6 @@ export const SwapPage = () => {
           throw new Error(`Failed to run simulation: ${err}`)
         }
       );
-
-      // const liquidity: PoolResponse = await GetPairLiquidity({secretjs, pair}).catch(
-      //   err => {
-      //     throw new Error(`Failed to run liquidity query: ${err}`)
-      //   });
-      // console.log(JSON.stringify(liquidity));
-      // console.log(JSON.stringify(result));
 
       SetPriceImpact(Number(result.spread_amount) / Number(result.return_amount));
       SetLiquidityProviderFee(Number(result.commission_amount));

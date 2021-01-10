@@ -47,8 +47,6 @@ export class Currency {
   }
 }
 
-
-
 export class Asset {
   public info: Token | NativeToken
   public symbol: string;
@@ -86,12 +84,6 @@ export class Asset {
 
 }
 
-function calculatePriceImpact(midPrice: number, input: Currency, output: Currency) {
-  const exactQuote = midPrice * Number(input.amount);
-  const slippage = (exactQuote - Number(output.amount)) / exactQuote;
-  return slippage;
-}
-
 export class Trade {
   /**
    * The route of the trade, i.e. which pairs the trade goes through.
@@ -100,7 +92,7 @@ export class Trade {
   /**
    * The type of the trade, either exact in or exact out.
    */
-  public readonly tradeType: TradeType
+  //public readonly tradeType: TradeType
   /**
    * The input amount for the trade assuming no slippage.
    */
@@ -112,23 +104,23 @@ export class Trade {
   /**
    * The price expressed in terms of output amount/input amount.
    */
-  public readonly executionPrice: number
+  //public readonly executionPrice: number
   /**
    * The mid price after the trade executes assuming no slippage.
    */
-  public readonly midPrice: number
+  public readonly price: number
   /**
    * The percent difference between the mid price before the trade and the trade execution price.
    */
-  public readonly priceImpact: number
+  //public readonly priceImpact: number
 
-  public readonly pair: string
+  //public readonly pair: string
 
-  constructor(inputAmount: Currency, outputAmount: Currency, midPrice: number ) {
+  constructor(inputAmount: Currency, outputAmount: Currency, price: number ) {
     this.inputAmount = inputAmount;
     this.outputAmount = outputAmount;
-    this.midPrice = midPrice;
-    this.executionPrice = Number(outputAmount.amount) / Number(inputAmount.amount);
-    this.priceImpact = calculatePriceImpact(this.midPrice, this.inputAmount, this.outputAmount)
+    this.price = price;
+    //this.executionPrice = Number(outputAmount.amount) / Number(inputAmount.amount);
+    //this.priceImpact = calculatePriceImpact(this.midPrice, this.inputAmount, this.outputAmount)
   }
 }

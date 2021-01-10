@@ -33,10 +33,9 @@ export interface PoolResponse {
 
 
 export const SimulateResult = async (params: { secretjs: SigningCosmWasmClient, trade: Trade, pair: string }): Promise<SimulationReponse> => {
-  console.log('heydgfdsf')
   const {secretjs, trade, pair } = params;
 
-  console.log(`trade: ${pair}: ${JSON.stringify(buildAssetInfo(trade.inputAmount))}`)
+  //console.log(`trade: ${pair}: ${JSON.stringify(buildAssetInfo(trade.inputAmount))}`)
 
   return await secretjs.queryContractSmart(pair, {
     simulation: {
