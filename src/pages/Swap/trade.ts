@@ -92,7 +92,7 @@ export class Trade {
   /**
    * The type of the trade, either exact in or exact out.
    */
-  //public readonly tradeType: TradeType
+  public readonly tradeType: TradeType
   /**
    * The input amount for the trade assuming no slippage.
    */
@@ -116,10 +116,19 @@ export class Trade {
 
   //public readonly pair: string
 
-  constructor(inputAmount: Currency, outputAmount: Currency, price: number ) {
+  getExactAmount(): string {
+    return this.tradeType === TradeType.EXACT_OUTPUT ? this.outputAmount.amount : this.inputAmount.amount ;
+  }
+
+  getEstimatedAmount(): string {
+    return this.tradeType === TradeType.EXACT_OUTPUT ? this.inputAmount.amount : this.outputAmount.amount ;
+  }
+
+  constructor(inputAmount: Currency, outputAmount: Currency, price: number, tradeType: TradeType ) {
     this.inputAmount = inputAmount;
     this.outputAmount = outputAmount;
     this.price = price;
+    this.tradeType = tradeType;
     //this.executionPrice = Number(outputAmount.amount) / Number(inputAmount.amount);
     //this.priceImpact = calculatePriceImpact(this.midPrice, this.inputAmount, this.outputAmount)
   }

@@ -7,15 +7,18 @@ import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { inputNumberFormat, divDecimals, mulDecimals } from 'utils';
+import { divDecimals, inputNumberFormat, mulDecimals } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
 import {
+  handleSimulation,
+  ReverseSimulateResult,
+  ReverseSimulationResponse,
   SimulateResult,
   SimulationReponse,
 } from '../../blockchain-bridge/scrt/swap';
-import { Currency, Trade, Asset, NativeToken, Token } from './trade';
+import { Currency, Trade, Asset, NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
 
 type Pair = {
@@ -65,6 +68,9 @@ export const SwapPage = () => {
   }>(preloadedTokens);
   const [myBalances, setMyBalances] = useState<{ [key: string]: string }>({});
   const [pairs, setPairs] = useState<Array<Pair>>([]);
+  const [swapDirection, setSwapDirection] = useState<TradeType>(
+    TradeType.EXACT_INPUT,
+  );
   const [symbolsToPairs, setSymbolsToPairs] = useState({});
   const [amounts, setAmounts] = useState<{
     from: string;
@@ -79,9 +85,7 @@ export const SwapPage = () => {
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
   const [price, setPrice] = useState(null); /* TODO */
-  const [minimumReceived, setMinimumReceived] = useState<number>(
-    123456,
-  ); /* TODO */
+  const [minimumReceived, setMinimumReceived] = useState<number>(0);
   const [priceImpact, setPriceImpact] = useState<number>(0);
 
   const [liquidityProviderFee, setLiquidityProviderFee] = useState<number>(0);
@@ -103,24 +107,29 @@ export const SwapPage = () => {
         new Currency(fromCurrency, amounts.from),
         new Currency(toCurrency, amounts.to),
         price,
+        swapDirection,
       );
 
       const pair =
         symbolsToPairs[`${selectedTokens.from}/${selectedTokens.to}`]
           .contract_addr;
 
-      const result: SimulationReponse = await SimulateResult({
-        secretjs,
+      const result = await handleSimulation(
         trade,
+        secretjs,
         pair,
-      }).catch(err => {
-        throw new Error(`Failed to run simulation: ${err}`);
-      });
+        swapDirection,
+      ).catch(err => console.log(err));
 
-      setPriceImpact(
-        Number(result.spread_amount) / Number(result.return_amount),
-      );
-      setLiquidityProviderFee(Number(result.commission_amount));
+      if (result && Number(result.returned_asset) !== 0) {
+        setPriceImpact(
+          Number(result.spread_amount) / Number(result.returned_asset),
+        );
+
+        setMinimumReceived(Number(trade.getEstimatedAmount()) * 0.995);
+        setLiquidityProviderFee(Number(result.commission_amount));
+      }
+
       return () => setPriceImpact(0);
     })();
   }, [
@@ -132,6 +141,7 @@ export const SwapPage = () => {
     price,
     tokens,
     symbolsToPairs,
+    swapDirection,
   ]);
 
   useEffect(() => {
@@ -475,6 +485,7 @@ export const SwapPage = () => {
                 amount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
                 setAmount={(value: string) => {
+                  setSwapDirection(TradeType.EXACT_INPUT);
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       from: value,
@@ -532,6 +543,7 @@ export const SwapPage = () => {
                 amount={amounts.to}
                 isEstimated={amounts.isToEstimated}
                 setAmount={(value: string) => {
+                  setSwapDirection(TradeType.EXACT_OUTPUT);
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       to: value,
