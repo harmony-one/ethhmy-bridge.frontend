@@ -3,11 +3,11 @@ import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
-import { Button, Container, Icon, Popup } from 'semantic-ui-react';
+import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { divDecimals } from 'utils';
+import { divDecimals, mulDecimals } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
@@ -37,15 +37,31 @@ const inputNumberFormat = new Intl.NumberFormat('en-US', {
 
 export const SwapPage = () => {
   const { user } = useStores();
-  const [selectedTokens, setSelectedTokens] = useState({
+  const [selectedTokens, setSelectedTokens] = useState<{
+    from: string;
+    to: string;
+  }>({
     from: 'ETH',
     to: 'SCRT',
   });
-  const [tokens, setTokens] = useState(preloadedTokens);
-  const [myBalances, setMyBalances] = useState({});
+  const [tokens, setTokens] = useState<{
+    [key: string]: {
+      symbol: string;
+      logo: string;
+      decimals: number;
+      address?: string;
+      token_code_hash?: string;
+    };
+  }>(preloadedTokens);
+  const [myBalances, setMyBalances] = useState<{ [key: string]: string }>({});
   const [pairs, setPairs] = useState([]);
   const [symbolsToPairs, setSymbolsToPairs] = useState({});
-  const [amounts, setAmounts] = useState({
+  const [amounts, setAmounts] = useState<{
+    from: string;
+    to: string;
+    isFromEstimated: boolean;
+    isToEstimated: boolean;
+  }>({
     from: '',
     to: '',
     isFromEstimated: false,
@@ -53,11 +69,9 @@ export const SwapPage = () => {
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
   const [price, setPrice] = useState(null); /* TODO */
-  const [minimumReceived, SetMinimumReceived] = useState(123456); /* TODO */
-  const [priceImpact, SetPriceImpact] = useState(0.02); /* TODO */
-  const [liquidityProviderFee, SetLiquidityProviderFee] = useState(
-    17.3,
-  ); /* TODO */
+  const [minimumReceived] = useState(123456); /* TODO */
+  const [priceImpact] = useState(0.02); /* TODO */
+  const [liquidityProviderFee] = useState(17.3); /* TODO */
   const [secretjs, setSecretjs] = useState(null);
 
   useEffect(() => {
@@ -345,10 +359,6 @@ export const SwapPage = () => {
     })();
   }, [secretjs, selectedTokens.from, selectedTokens.to]);
 
-  useEffect(() => {
-    console.log(myBalances);
-  }, [myBalances]);
-
   return (
     <BaseContainer>
       <PageContainer>
@@ -483,12 +493,48 @@ export const SwapPage = () => {
                   fontSize: '20px',
                 }}
                 onClick={async () => {
-                  const pair =
-                    symbolsToPairs[
-                      `${selectedTokens.from}/${selectedTokens.to}`
-                    ];
+                  const [from, to] = [selectedTokens.from, selectedTokens.to];
 
-                  // secretjs.
+                  const pair = symbolsToPairs[`${from}/${to}`];
+
+                  if (from === 'SCRT') {
+                    await secretjs.execute(pair.contract_addr, {
+                      swap: {
+                        offer_asset: {
+                          info: { native_token: { denom: 'uscrt' } },
+                          amount: mulDecimals(
+                            amounts.from,
+                            tokens[selectedTokens.from].decimals,
+                          ),
+                        },
+                        /*
+                        offer_asset: Asset,
+                        belief_price: Option<Decimal>, // TODO
+                        max_spread: Option<Decimal>, // TODO
+                        to: Option<HumanAddr>, // TODO
+                        */
+                      },
+                    });
+                  } else {
+                    await secretjs.execute(tokens[from].address, {
+                      send: {
+                        recipient: pair.contract_addr,
+                        amount: mulDecimals(
+                          amounts.from,
+                          tokens[selectedTokens.from].decimals,
+                        ),
+                        // msg: atob(
+                        //   JSON.stringify({
+                        //     /*
+                        //     belief_price: Option<Decimal>, // TODO
+                        //     max_spread: Option<Decimal>, // TODO
+                        //     to: Option<HumanAddr>, // TODO
+                        //     */
+                        //   }),
+                        // ),
+                      },
+                    });
+                  }
                 }}
               >
                 {buttonMessage}
