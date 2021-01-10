@@ -70,9 +70,7 @@ export const SwapPage = () => {
   });
   const [buttonMessage, setButtonMessage] = useState('Enter an amount');
   const [price, setPrice] = useState(null); /* TODO */
-  const [minimumReceived, setMinimumReceived] = useState<number>(
-    123456,
-  ); /* TODO */
+  const [minimumReceived, setMinimumReceived] = useState<number>(0);
   const [priceImpact, setPriceImpact] = useState<number>(0);
 
   const [liquidityProviderFee, setLiquidityProviderFee] = useState<number>(0);
@@ -111,6 +109,7 @@ export const SwapPage = () => {
       setPriceImpact(
         Number(result.spread_amount) / Number(result.return_amount),
       );
+      setMinimumReceived(Number(trade.outputAmount.amount) * 0.995)
       setLiquidityProviderFee(Number(result.commission_amount));
       return () => setPriceImpact(0);
     })();

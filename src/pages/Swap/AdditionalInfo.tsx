@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
+import { formatWithSixDecimals } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const additionaInfoNumberFormat = new Intl.NumberFormat('en-US', {
@@ -72,7 +73,7 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {minimumReceived} {toToken}
+            {formatWithSixDecimals(minimumReceived)} {toToken}
           </strong>
         </div>
         <div
