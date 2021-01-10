@@ -15,8 +15,15 @@ import {
   SimulateResult,
   SimulationReponse,
 } from '../../blockchain-bridge/scrt/swap';
-import { Currency, Trade, Asset } from './trade';
+import { Currency, Trade, Asset, NativeToken, Token } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
+
+type Pair = {
+  asset_infos: Array<NativeToken | Token>;
+  contract_addr: string;
+  liquidity_token: string;
+  token_code_hash: string;
+};
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -36,6 +43,14 @@ const downArrow = (
   </svg>
 );
 
+type TokenDisplay = {
+  symbol: string;
+  logo: string;
+  decimals: number;
+  address?: string;
+  token_code_hash?: string;
+};
+
 export const SwapPage = () => {
   const { user } = useStores();
   const [selectedTokens, setSelectedTokens] = useState<{
@@ -46,16 +61,10 @@ export const SwapPage = () => {
     to: 'SCRT',
   });
   const [tokens, setTokens] = useState<{
-    [key: string]: {
-      symbol: string;
-      logo: string;
-      decimals: number;
-      address?: string;
-      token_code_hash?: string;
-    };
+    [symbol: string]: TokenDisplay;
   }>(preloadedTokens);
   const [myBalances, setMyBalances] = useState<{ [key: string]: string }>({});
-  const [pairs, setPairs] = useState([]);
+  const [pairs, setPairs] = useState<Array<Pair>>([]);
   const [symbolsToPairs, setSymbolsToPairs] = useState({});
   const [amounts, setAmounts] = useState<{
     from: string;
@@ -134,7 +143,6 @@ export const SwapPage = () => {
       while (!user.secretjs) {
         await sleep(50);
       }
-      console.log('set secretjs');
       setSecretjs(user.secretjs);
     })();
   }, [user]);
@@ -148,7 +156,9 @@ export const SwapPage = () => {
     // Get pair list from AMM
     (async () => {
       try {
-        const pairsResponse = await secretjs.queryContractSmart(
+        const pairsResponse: {
+          pairs: Array<Pair>;
+        } = await secretjs.queryContractSmart(
           process.env.AMM_FACTORY_CONTRACT,
           {
             pairs: {},
@@ -170,13 +180,20 @@ export const SwapPage = () => {
         const newSymbolsToPairs = {};
 
         const tokensFromPairs = await pairs.reduce(
-          async (tokensFromPairs, pair) => {
-            tokensFromPairs = await tokensFromPairs; // reduce with async/await
+          async (
+            tokensFromPairs: Promise<{
+              [symbol: string]: TokenDisplay;
+            }>,
+            pair,
+          ) => {
+            let unwrapedTokensFromPairs: {
+              [symbol: string]: TokenDisplay;
+            } = await tokensFromPairs; // reduce with async/await
 
             const symbols = [];
             for (const t of pair.asset_infos) {
-              if (t.native_token) {
-                tokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
+              if ('native_token' in t) {
+                unwrapedTokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
                 symbols.push('SCRT');
                 continue;
               }
@@ -188,11 +205,13 @@ export const SwapPage = () => {
                 },
               );
 
-              if (tokensFromPairs[tokenInfoResponse.token_info.symbol]) {
-                tokensFromPairs[tokenInfoResponse.token_info.symbol] =
-                  tokensFromPairs[tokenInfoResponse.token_info.symbol];
+              if (
+                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol]
+              ) {
+                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol] =
+                  unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol];
               } else {
-                tokensFromPairs[tokenInfoResponse.token_info.symbol] = {
+                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol] = {
                   symbol: tokenInfoResponse.token_info.symbol,
                   decimals: tokenInfoResponse.token_info.decimals,
                   logo: '/unknown.png',
@@ -205,7 +224,7 @@ export const SwapPage = () => {
             newSymbolsToPairs[`${symbols[0]}/${symbols[1]}`] = pair;
             newSymbolsToPairs[`${symbols[1]}/${symbols[0]}`] = pair;
 
-            return tokensFromPairs;
+            return unwrapedTokensFromPairs;
           },
           Promise.resolve({}) /* reduce with async/await */,
         );
