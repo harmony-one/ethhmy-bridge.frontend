@@ -66,7 +66,7 @@ export const SwapPage = () => {
   const [tokens, setTokens] = useState<{
     [symbol: string]: TokenDisplay;
   }>(preloadedTokens);
-  const [myBalances, setMyBalances] = useState<{ [key: string]: string }>({});
+  const [myBalances, setMyBalances] = useState({});
   const [pairs, setPairs] = useState<Array<Pair>>([]);
   const [swapDirection, setSwapDirection] = useState<TradeType>(
     TradeType.EXACT_INPUT,
@@ -276,18 +276,18 @@ export const SwapPage = () => {
   useEffect(() => {
     // selectedTokens have changed
     // update price and myBalances
-    if (!secretjs) {
+    if (!secretjs || !selectedTokens.from || !selectedTokens.to) {
       return;
     }
 
     function getBalance(
       tokenSymbol: string,
-      address: string,
+      walletAddress: string,
       tokens: any,
       viewingKey: string,
-    ): Promise<number> {
+    ): Promise<number | JSX.Element> {
       if (tokenSymbol === 'SCRT') {
-        return secretjs.getAccount(address).then(account => {
+        return secretjs.getAccount(walletAddress).then(account => {
           try {
             return Number(
               divDecimals(
@@ -301,16 +301,45 @@ export const SwapPage = () => {
         });
       }
 
+      const unlockJsx = (
+        <span
+          style={{ cursor: 'pointer' }}
+          onClick={async () => {
+            await user.keplrWallet.suggestToken(
+              user.chainId,
+              tokens[tokenSymbol].address,
+            );
+          }}
+        >
+          🔓 Unlock
+        </span>
+      );
+
+      if (!viewingKey) {
+        return Promise.resolve(unlockJsx);
+      }
+
       return secretjs
         .queryContractSmart(tokens[tokenSymbol].address, {
           balance: {
-            address: address,
+            address: walletAddress,
             key: viewingKey,
           },
         })
-        .then(({ balance }) =>
-          Number(divDecimals(balance.amount, tokens[tokenSymbol].decimals)),
-        );
+        .then(result => {
+          try {
+            return Number(
+              divDecimals(result.balance.amount, tokens[tokenSymbol].decimals),
+            );
+          } catch (error) {
+            console.log(
+              `Got an error while trying to query ${tokenSymbol} token balance for address ${walletAddress}:`,
+              result,
+              error,
+            );
+            return unlockJsx;
+          }
+        });
     }
 
     // update myBalances
@@ -322,7 +351,7 @@ export const SwapPage = () => {
           tokens[selectedTokens.from].address,
         );
       } catch (error) {
-        console.error(
+        console.log(
           `Tried to get viewing key for ${selectedTokens.from}`,
           error,
         );
@@ -333,64 +362,12 @@ export const SwapPage = () => {
           tokens[selectedTokens.to].address,
         );
       } catch (error) {
-        console.error(
-          `Tried to get viewing key for ${selectedTokens.to}`,
-          error,
-        );
+        console.log(`Tried to get viewing key for ${selectedTokens.to}`, error);
       }
 
-      const fromBalancePromise = getBalance(
-        selectedTokens.from,
-        user.address,
-        tokens,
-        fromViewingKey,
-      ).catch(error => {
-        console.error(
-          `Tried to get my balance for ${selectedTokens.from}`,
-          error,
-        );
-        return (
-          <span
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              user.keplrWallet.suggestToken(
-                user.chainId,
-                tokens[selectedTokens.from].address,
-              );
-            }}
-          >
-            🔓 Unlock
-          </span>
-        );
-      });
-      const toBalancePromise = getBalance(
-        selectedTokens.to,
-        user.address,
-        tokens,
-        toViewingKey,
-      ).catch(error => {
-        console.error(
-          `Tried to get my balance for ${selectedTokens.to}`,
-          error,
-        );
-        return (
-          <span
-            style={{ cursor: 'pointer' }}
-            onClick={() => {
-              user.keplrWallet.suggestToken(
-                user.chainId,
-                tokens[selectedTokens.to].address,
-              );
-            }}
-          >
-            🔓 Unlock
-          </span>
-        );
-      });
-
       const [fromBalance, toBalance] = await Promise.all([
-        fromBalancePromise,
-        toBalancePromise,
+        getBalance(selectedTokens.from, user.address, tokens, fromViewingKey),
+        getBalance(selectedTokens.to, user.address, tokens, toViewingKey),
       ]);
 
       setMyBalances(
@@ -469,7 +446,7 @@ export const SwapPage = () => {
               }}
             >
               <AssetRow
-                isMaxButton={true}
+                isFrom={true}
                 balance={myBalances[selectedTokens.from]}
                 tokens={tokens}
                 token={selectedTokens.from}
@@ -527,7 +504,7 @@ export const SwapPage = () => {
                 {flexRowSpace}
               </div>
               <AssetRow
-                isMaxButton={false}
+                isFrom={false}
                 balance={myBalances[selectedTokens.to]}
                 tokens={tokens}
                 token={selectedTokens.to}
@@ -581,40 +558,55 @@ export const SwapPage = () => {
                   const pair = symbolsToPairs[`${from}/${to}`];
 
                   if (from === 'SCRT') {
-                    await secretjs.execute(pair.contract_addr, {
-                      swap: {
-                        offer_asset: {
-                          info: { native_token: { denom: 'uscrt' } },
-                          amount: mulDecimals(
-                            amounts.from,
-                            tokens[selectedTokens.from].decimals,
-                          ),
+                    const amountUscrt = mulDecimals(
+                      amounts.from,
+                      tokens[selectedTokens.from].decimals,
+                    ).toString();
+                    await secretjs.execute(
+                      pair.contract_addr,
+                      {
+                        swap: {
+                          offer_asset: {
+                            info: { native_token: { denom: 'uscrt' } },
+                            amount: amountUscrt,
+                          },
+                          /*
+                          offer_asset: Asset, // Done
+                          belief_price: Option<Decimal>, // TODO
+                          max_spread: Option<Decimal>, // TODO
+                          to: Option<HumanAddr>, // TODO
+                          */
                         },
-                        /*
-                        offer_asset: Asset,
-                        belief_price: Option<Decimal>, // TODO
-                        max_spread: Option<Decimal>, // TODO
-                        to: Option<HumanAddr>, // TODO
-                        */
                       },
-                    });
+                      '',
+                      [
+                        {
+                          amount: amountUscrt,
+                          denom: 'uscrt',
+                        },
+                      ],
+                    );
                   } else {
+                    const amountInTokenDenom = mulDecimals(
+                      amounts.from,
+                      tokens[selectedTokens.from].decimals,
+                    ).toString();
+
                     await secretjs.execute(tokens[from].address, {
                       send: {
                         recipient: pair.contract_addr,
-                        amount: mulDecimals(
-                          amounts.from,
-                          tokens[selectedTokens.from].decimals,
+                        amount: amountInTokenDenom,
+                        msg: btoa(
+                          JSON.stringify({
+                            swap: {
+                              /*
+                              belief_price: Option<Decimal>, // TODO
+                              max_spread: Option<Decimal>, // TODO
+                              to: Option<HumanAddr>, // TODO
+                              */
+                            },
+                          }),
                         ),
-                        // msg: atob(
-                        //   JSON.stringify({
-                        //     /*
-                        //     belief_price: Option<Decimal>, // TODO
-                        //     max_spread: Option<Decimal>, // TODO
-                        //     to: Option<HumanAddr>, // TODO
-                        //     */
-                        //   }),
-                        // ),
                       },
                     });
                   }

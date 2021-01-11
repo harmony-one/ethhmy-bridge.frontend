@@ -9,7 +9,6 @@ const balanceNumberFormat = new Intl.NumberFormat('en-US', {
 });
 
 export const AssetRow = ({
-  isMaxButton,
   tokens,
   token,
   setToken,
@@ -17,6 +16,7 @@ export const AssetRow = ({
   setAmount,
   isEstimated,
   balance,
+  isFrom,
 }) => {
   const [dropdownBackground, setDropdownBackground] = useState(undefined);
   const [myBalance, setMyBalance] = useState(balance);
@@ -42,7 +42,10 @@ export const AssetRow = ({
           flexDirection: 'row',
         }}
       >
-        <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
+        <span style={font}>
+          {isFrom ? 'From' : 'To'}
+          {isEstimated ? ` (estimated)` : null}
+        </span>
         {flexRowSpace}
         {(() => {
           if (myBalance == undefined) {
@@ -84,7 +87,7 @@ export const AssetRow = ({
           }}
         />
         {flexRowSpace}
-        {isMaxButton && (
+        {isFrom && (
           <Button
             primary
             style={{
