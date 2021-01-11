@@ -6,12 +6,13 @@ import {
   EXCHANGE_MODE,
   IAction,
   IOperation,
+  TOKEN,
 } from 'stores/interfaces';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, truncateAddressString } from 'utils';
 import { STEPS_TITLE } from './steps-constants';
-import { IColumn, Table } from '../../components/Table';
+import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 import { useStores } from '../../stores';
@@ -261,7 +262,9 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   }
                   target="_blank"
                 >
-                  1{token.symbol}
+                  {props.data.token === TOKEN.HRC20
+                    ? token.symbol.slice(1)
+                    : `1${token.symbol}`}
                 </a>
               </Box>
             ) : (
