@@ -12,6 +12,7 @@ import {
   hmyMethodsERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
+import { TOKEN } from './interfaces';
 
 const defaults = {};
 
@@ -53,8 +54,24 @@ export class UserStoreMetamask extends StoreConstructor {
       this.signIn();
     }
 
-    if (sessionObj && sessionObj.erc20Address) {
-      // this.setToken(sessionObj.erc20Address);
+    if (sessionObj && sessionObj.erc20Address && sessionObj.token) {
+      const path = this.stores.routing.location.pathname.split('/');
+
+      if (path.length && sessionObj.token === path[1]) {
+        switch (sessionObj.token) {
+          case TOKEN.ERC20:
+            this.setToken(sessionObj.erc20Address);
+            break;
+          case TOKEN.HRC20:
+            setTimeout(() => {
+              this.stores.user.setHRC20Mapping(sessionObj.hrc20Address);
+            }, 1000);
+            break;
+          case TOKEN.ERC721:
+            this.setERC721Token(sessionObj.erc20Address);
+            break;
+        }
+      }
     }
   }
 
@@ -152,12 +169,14 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
-  private syncLocalStorage() {
+  public syncLocalStorage() {
     localStorage.setItem(
       'harmony_metamask_session',
       JSON.stringify({
         ethAddress: this.ethAddress,
         erc20Address: this.erc20Address,
+        hrc20Address: this.stores.user.hrc20Address,
+        token: this.stores.exchange.token,
       }),
     );
   }

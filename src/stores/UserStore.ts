@@ -265,7 +265,7 @@ export class UserStoreEx extends StoreConstructor {
 
     if (!!Number(address)) {
       this.stores.userMetamask.erc20Address = address;
-      this.syncLocalStorage();
+      this.stores.userMetamask.syncLocalStorage();
     } else {
       this.stores.userMetamask.erc20Address = '';
     }
