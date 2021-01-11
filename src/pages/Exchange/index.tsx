@@ -259,6 +259,8 @@ export class Exchange extends React.Component<
                 exchange.token === TOKEN.ERC20 ? styles.selected : '',
               )}
               onClick={() => {
+                user.resetTokens();
+
                 exchange.setToken(TOKEN.ERC20);
                 routing.push(`/${exchange.token}`);
               }}
@@ -273,6 +275,8 @@ export class Exchange extends React.Component<
                 exchange.token === TOKEN.HRC20 ? styles.selected : '',
               )}
               onClick={() => {
+                user.resetTokens();
+
                 exchange.setToken(TOKEN.HRC20);
                 routing.push(`/${exchange.token}`);
               }}
@@ -288,6 +292,8 @@ export class Exchange extends React.Component<
                 exchange.token === TOKEN.ERC721 ? styles.selected : '',
               )}
               onClick={() => {
+                user.resetTokens();
+
                 exchange.setToken(TOKEN.ERC721);
                 routing.push(`/${exchange.token}`);
               }}

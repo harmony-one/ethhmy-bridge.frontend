@@ -54,7 +54,7 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (sessionObj && sessionObj.erc20Address) {
-      this.setToken(sessionObj.erc20Address);
+      // this.setToken(sessionObj.erc20Address);
     }
   }
 
@@ -199,6 +199,26 @@ export class UserStoreMetamask extends StoreConstructor {
     this.stores.user.hrc20Address = '';
     this.stores.user.hrc20Balance = '0';
 
+    if (!erc20Address) {
+      throw new Error('Address field is empty');
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.type === 'hrc20')
+        .find(t => t.erc20Address === erc20Address)
+    ) {
+      throw new Error('This address already using for HRC20 token wrapper');
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.type === 'erc721')
+        .find(t => t.erc20Address === erc20Address)
+    ) {
+      throw new Error('This address already using for ERC721 token');
+    }
+
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
 
@@ -218,6 +238,26 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20Balance = '0';
     this.stores.user.hrc20Address = '';
     this.stores.user.hrc20Balance = '0';
+
+    if (!erc20Address) {
+      throw new Error('Address field is empty');
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.type === 'hrc20')
+        .find(t => t.erc20Address === erc20Address)
+    ) {
+      throw new Error('This address already using for HRC20 token wrapper');
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.type === 'erc20')
+        .find(t => t.erc20Address === erc20Address)
+    ) {
+      throw new Error('This address already using for ERC20 token');
+    }
 
     const details = await ethMethodsERС721.tokenDetailsERC721(erc20Address);
     this.erc20Address = erc20Address;

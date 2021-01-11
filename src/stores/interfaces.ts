@@ -82,4 +82,5 @@ export interface ITokenInfo {
   totalLocked: string;
   totalLockedNormal: string;
   totalLockedUSD: string;
+  type: 'erc20' | 'erc721' | 'hrc20';
 }
