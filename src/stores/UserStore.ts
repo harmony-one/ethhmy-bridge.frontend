@@ -12,15 +12,26 @@ import {
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, formatWithSixDecimals, unlockToken, valueToDecimals } from '../utils';
+import {
+  divDecimals,
+  formatWithSixDecimals,
+  sleep,
+  unlockToken,
+  valueToDecimals,
+} from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
-import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
+import {
+  getViewingKey,
+  QueryDeposit,
+  QueryRewards,
+  Snip20GetBalance,
+} from '../blockchain-bridge/scrt';
 
 const defaults = {};
 
-export const rewardsDepositKey = key => `${key}RewardsDeposit`
+export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
-export const rewardsKey = key => `${key}Rewards`
+export const rewardsKey = key => `${key}Rewards`;
 
 // export const rewardsTokens = [{
 //   symbol: "ETH",
@@ -34,7 +45,7 @@ export const rewardsKey = key => `${key}Rewards`
 // }]
 
 export class UserStoreEx extends StoreConstructor {
-  declare public stores: IStores;
+  public declare stores: IStores;
   @observable public isAuthorized: boolean;
   public status: statusFetching;
   redirectUrl: string;
@@ -67,8 +78,7 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    this.getBalances();
-    setInterval(() => this.getBalances(), 15000);
+    // setInterval(() => this.getBalances(), 15000);
 
     this.getRates();
 
@@ -104,7 +114,81 @@ export class UserStoreEx extends StoreConstructor {
     if (sessionObj) {
       this.address = sessionObj.address;
       this.isInfoReading = sessionObj.isInfoReading;
-      keplrCheckPromise.then(() => this.signIn());
+      keplrCheckPromise.then(async () => {
+        await this.signIn();
+
+        this.getBalances();
+
+        const ws = new WebSocket(process.env.SECRET_WS);
+
+        ws.onmessage = async event => {
+          try {
+            const data = JSON.parse(event.data);
+
+            if (data.id === 'tx.sender' || data.id === 'scrt.recipient') {
+              await this.updateBalanceForSymbol('SCRT');
+            } else {
+              await this.updateBalanceForSymbol(data.id);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        ws.onopen = async () => {
+          while (this.stores.tokens.allData.length < 1) {
+            await sleep(100);
+          }
+
+          while (!this.address.startsWith('secret')) {
+            await sleep(100);
+          }
+
+          for (const token of this.stores.tokens.allData) {
+            // For any tx on this token => update my balance
+            const query = [
+              `message.module='compute'`,
+              `message.contract_address='${token.dst_address}'`,
+              `message.action='execute'`,
+            ].join(' AND ');
+
+            ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: token.display_props.symbol, // jsonrpc id
+                method: 'subscribe',
+                params: {
+                  query: query,
+                },
+              }),
+            );
+          }
+
+          // If I sent any tx, I paid for gas => update SCRT balance
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'tx.sender', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `message.sender='${this.address}'`,
+              },
+            }),
+          );
+
+          // If I received SCRT => update SCRT balance
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'scrt.recipient', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `transfer.recipient='${this.address}'`,
+              },
+            }),
+          );
+        };
+      });
     }
   }
 
@@ -198,14 +282,17 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getSnip20Balance = async (snip20Address: string, decimals: string | number): Promise<string> => {
+  @action public getSnip20Balance = async (
+    snip20Address: string,
+    decimals: string | number,
+  ): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
 
     const decimalsNum = Number(decimals);
     if (!decimalsNum) {
-      throw new Error("Token not found")
+      throw new Error('Token not found');
     }
 
     const viewingKey = await getViewingKey({
@@ -223,7 +310,9 @@ export class UserStoreEx extends StoreConstructor {
     });
   };
 
-  @action public getBridgeRewardsBalance = async (snip20Address: string): Promise<string> => {
+  @action public getBridgeRewardsBalance = async (
+    snip20Address: string,
+  ): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -244,10 +333,12 @@ export class UserStoreEx extends StoreConstructor {
       height: String(height),
     });
 
-    return result
+    return result;
   };
 
-  @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
+  @action public getBridgeDepositBalance = async (
+    snip20Address: string,
+  ): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -267,7 +358,7 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    if (this.address) {
+    if (this.address && this.secretjs) {
       this.secretjs.getAccount(this.address).then(account => {
         try {
           this.balanceSCRT = formatWithSixDecimals(
@@ -287,7 +378,10 @@ export class UserStoreEx extends StoreConstructor {
           continue;
         }
         try {
-          const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
+          const balance = await this.getSnip20Balance(
+            token.dst_address,
+            token.decimals,
+          );
           if (balance.includes(unlockToken)) {
             this.balanceToken[token.src_coin] = balance;
           } else {
@@ -305,47 +399,114 @@ export class UserStoreEx extends StoreConstructor {
         }
       }
 
-
       for (const token of this.stores.rewards.allData) {
         try {
-
-          const balance = await this.getBridgeRewardsBalance(token.pool_address)
+          const balance = await this.getBridgeRewardsBalance(
+            token.pool_address,
+          );
 
           if (balance.includes(unlockToken)) {
             this.balanceRewards[rewardsKey(token.inc_token.symbol)] = balance;
           } else {
             // rewards are in the rewards_token decimals
-            this.balanceRewards[rewardsKey(token.inc_token.symbol)] = divDecimals(balance, token.rewards_token.decimals);//divDecimals(balance, token.inc_token.decimals);
+            this.balanceRewards[
+              rewardsKey(token.inc_token.symbol)
+            ] = divDecimals(balance, token.rewards_token.decimals); //divDecimals(balance, token.inc_token.decimals);
           }
         } catch (err) {
           this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
         }
 
         try {
-          const balance = await this.getBridgeDepositBalance(token.pool_address)
+          const balance = await this.getBridgeDepositBalance(
+            token.pool_address,
+          );
 
           if (balance.includes(unlockToken)) {
-            this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = balance;
+            this.balanceRewards[
+              rewardsDepositKey(token.inc_token.symbol)
+            ] = balance;
           } else {
-            this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = divDecimals(balance, token.inc_token.decimals);
+            this.balanceRewards[
+              rewardsDepositKey(token.inc_token.symbol)
+            ] = divDecimals(balance, token.inc_token.decimals);
           }
         } catch (err) {
-          this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = unlockToken;
+          this.balanceRewards[
+            rewardsDepositKey(token.inc_token.symbol)
+          ] = unlockToken;
         }
 
         try {
-          const balance = await this.getSnip20Balance(token.rewards_token.address, token.rewards_token.decimals)
+          const balance = await this.getSnip20Balance(
+            token.rewards_token.address,
+            token.rewards_token.decimals,
+          );
 
           if (balance.includes(unlockToken)) {
             this.balanceRewards[token.rewards_token.symbol] = balance;
           } else {
-            this.balanceRewards[token.rewards_token.symbol] = divDecimals(balance, token.rewards_token.decimals);
+            this.balanceRewards[token.rewards_token.symbol] = divDecimals(
+              balance,
+              token.rewards_token.decimals,
+            );
           }
         } catch (err) {
           this.balanceRewards[token.rewards_token.symbol] = unlockToken;
         }
       }
+    }
+  };
+
+  @action public updateBalanceForSymbol = async (symbol: string) => {
+    if (!symbol) {
+      return;
+    }
+    if (!this.address) {
+      return;
+    }
+    if (!this.secretjs) {
+      return;
+    }
+
+    console.log('update', symbol);
+
+    if (symbol === 'SCRT') {
+      this.secretjs.getAccount(this.address).then(account => {
+        try {
+          this.balanceSCRT = formatWithSixDecimals(
+            divDecimals(account.balance[0].amount, 6),
+          );
+        } catch (e) {
+          this.balanceSCRT = '0';
+        }
+      });
+      return;
+    }
+
+    const token = this.stores.tokens.allData.find(
+      t => t.display_props.symbol === symbol,
+    );
+
+    try {
+      const balance = await this.getSnip20Balance(
+        token.dst_address,
+        token.decimals,
+      );
+      if (balance.includes(unlockToken)) {
+        this.balanceToken[token.src_coin] = balance;
+      } else {
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
       }
+    } catch (err) {
+      this.balanceToken[token.src_coin] = unlockToken;
+    }
+
+    try {
+      this.balanceTokenMin[token.src_coin] = token.display_props.min_from_scrt;
+    } catch (e) {
+      // Ethereum?
+    }
   };
 
   @action public signOut() {
