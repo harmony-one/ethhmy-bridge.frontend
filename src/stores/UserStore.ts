@@ -458,14 +458,31 @@ export class UserStoreEx extends StoreConstructor {
     }
   };
 
-  @action public updateBalanceForSymbol = async (symbol: string) => {
-    if (!symbol) {
-      return;
-    }
+  @action public updateBalanceForSymbol = async (
+    symbol: string,
+    tokenAddress?: string,
+  ) => {
     if (!this.address) {
       return;
     }
     if (!this.secretjs) {
+      return;
+    }
+
+    if (!symbol && tokenAddress) {
+      try {
+        symbol = this.stores.tokens.allData.find(
+          t => t.dst_address === tokenAddress,
+        ).display_props.symbol;
+      } catch (error) {
+        console.error(
+          'Error finding symbol for SNIP20 address',
+          tokenAddress,
+          error,
+        );
+      }
+    }
+    if (!symbol) {
       return;
     }
 
