@@ -135,7 +135,7 @@ export const Tokens = observer((props: any) => {
 
   useEffect(() => {
     tokens.init({ sorters: {}, sorter: 'none' });
-    tokens.fetch();
+    //tokens.fetch();
   }, []);
 
   const onChangeDataFlow = (props: any) => {

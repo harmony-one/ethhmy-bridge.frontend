@@ -8,6 +8,7 @@ export type ActionModalBody = (data: {
 }) => React.ComponentElement<{ onClose?: () => any; actionData?: any }, any>;
 
 export interface ActionModalOptions {
+  zIndex?: number;
   width?: string;
   position?: 'flex-start' | 'center';
   title: string;

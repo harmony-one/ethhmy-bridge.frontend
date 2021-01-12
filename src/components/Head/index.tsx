@@ -27,10 +27,18 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const { minWidth, maxWidth } = container;
 
     const isExplorer = history.location.pathname === '/explorer';
+    const isSwap = history.location.pathname === '/swap';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
+    const isEarn = history.location.pathname === '/earn';
+
+    if (isSwap) {
+      document.title = '𝕊ecret Swap';
+    } else {
+      document.title = '𝕊ecret Bridge';
+    }
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
@@ -52,6 +60,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           top: 0,
           width: '100%',
           zIndex: 100,
+          minWidth,
           // boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)',
         }}
       >
@@ -80,7 +89,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <a href="/" style={{ textDecoration: 'none' }}>
               <Box>
                 <Title size="medium" color="BlackTxt" bold>
-                  𝕊ecret Bridge
+                  𝕊ecret Finance
                 </Title>
               </Box>
             </a>
@@ -90,7 +99,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                !isInfo &&
+                  !isFaq &&
+                  !isExplorer &&
+                  !isGetTokens &&
+                  !isTokens &&
+                  !isSwap &&
+                  !isEarn
                   ? styles.selected
                   : '',
               )}
@@ -98,6 +113,15 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Bridge</Text>
             </Box>
+
+            {/*<Box*/}
+            {/*  className={cn(styles.itemToken, isSwap ? styles.selected : '')}*/}
+            {/*  onClick={() => {*/}
+            {/*    routing.push(`/swap`);*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>Swap</Text>*/}
+            {/*</Box>*/}
 
             <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
@@ -119,13 +143,20 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Transactions</Text>
             </Box>
-            {/* 
+            {/*
             <Box
               className={cn(styles.itemToken, isInfo ? styles.selected : '')}
               onClick={() => routing.push('/info')}
             >
               <Text>Info</Text>
             </Box> */}
+
+            <Box
+              className={cn(styles.itemToken, isEarn ? styles.selected : '')}
+              onClick={() => routing.push('/earn')}
+            >
+              <Text>Earn</Text>
+            </Box>
 
             <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}

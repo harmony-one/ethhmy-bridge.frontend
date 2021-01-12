@@ -2,10 +2,9 @@ import { Contract } from 'web3-eth-contract';
 import Web3 from 'web3';
 import { mulDecimals } from '../../utils';
 import { getGasPrice } from './helpers';
-import * as ethers from 'ethers';
-const MAX_UINT = ethers.BigNumber.from(ethers.constants.MaxUint256);
 
 const BN = require('bn.js');
+const MAX_UINT = Web3.utils.toBN(2).pow(Web3.utils.toBN(256)).sub(Web3.utils.toBN(1));
 
 export interface IEthMethodsInitParams {
   web3: Web3;
@@ -14,7 +13,7 @@ export interface IEthMethodsInitParams {
 }
 
 export class EthMethodsERC20 {
-  private web3: Web3;
+  private readonly web3: Web3;
   private ethManagerContract: Contract;
   private ethManagerAddress: string;
 

@@ -1,0 +1,9 @@
+input {
+  text-overflow: ellipsis;
+}
+
+html {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: rgb(242, 243, 248);
+}

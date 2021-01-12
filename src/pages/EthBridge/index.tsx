@@ -104,7 +104,7 @@ export const EthBridge = observer((props: any) => {
             <Box
               direction="row"
               justify="between"
-              width="560px"
+              className={styles.swapDirectionChoice}
               margin={{ vertical: 'large' }}
             >
               <LargeButton
@@ -138,8 +138,11 @@ export const EthBridge = observer((props: any) => {
             {/*  </DisableWrap>*/}
             {/*</Box>*/}
           </Box>
-          <WalletBalances />
+          <Box>
+            <WalletBalances />
+          </Box>
         </Box>
+
       </PageContainer>
     </BaseContainer>
   );

@@ -5,7 +5,6 @@ import RcTable from 'rc-table';
 import { Spinner } from './Spinner';
 import 'rc-table/assets/index.css';
 import { CustomPagination } from './CustomPagination';
-import { CustomHeader } from './CustomHeader';
 import styled from 'styled-components';
 import { isFilterApplied } from './utils/filters';
 

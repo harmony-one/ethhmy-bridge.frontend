@@ -103,7 +103,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
       this.provider = provider;
 
+      this.provider.autoRefreshOnNetworkChange = false;
+
       this.provider.on('accountsChanged', this.handleAccountsChanged);
+
+      this.provider.on('chainChanged', () => {
+        //document.location.reload()
+      })
 
       this.provider.on('disconnect', () => {
         this.isAuthorized = false;
