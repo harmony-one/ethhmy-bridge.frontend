@@ -200,9 +200,17 @@ export const Tokens = observer((props: any) => {
           margin={{ top: 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
-          <Box direction="column" style={{ textAlign: 'center' }}>
-            <Title size="small">
-              Total Value Locked (USD) {isMobile && <br />}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: '100%',
+            }}
+          >
+            <span style={{ fontSize: '1.5em', fontWeight: 'bolder' }}>
+              {isMobile ? 'TVL' : 'Total Value Locked'} (USD)
               <span
                 style={{
                   marginLeft: 5,
@@ -213,8 +221,8 @@ export const Tokens = observer((props: any) => {
               >
                 ${formatWithTwoDecimals(tokens.totalLockedUSD)}
               </span>
-            </Title>
-          </Box>
+            </span>
+          </div>
           {lastUpdateAgo ? (
             <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
           ) : (
