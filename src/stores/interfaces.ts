@@ -108,6 +108,7 @@ export interface IRewardPool {
     symbol: string;
     address: string;
     decimals: number;
+    price: number;
   }
   total_locked: string;
   pending_rewards: string;

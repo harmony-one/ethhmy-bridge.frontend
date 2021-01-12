@@ -91,8 +91,6 @@ export const Redeem = async (params: { secretjs: SigningCosmWasmClient, address:
       },
     },
   );
-  console.log('heyo');
-  console.log(result);
 
   return result;
 }

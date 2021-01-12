@@ -319,13 +319,10 @@ export class UserStoreEx extends StoreConstructor {
           }
         } catch (err) {
           this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
-          console.log(`failed to get rewards for token: ${err}`)
         }
 
         try {
           const balance = await this.getBridgeDepositBalance(token.pool_address)
-
-          console.log(`token ${token.pool_address} deposit balance: ${balance}`)
 
           if (balance.includes(unlockToken)) {
             this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = balance;
@@ -334,7 +331,6 @@ export class UserStoreEx extends StoreConstructor {
           }
         } catch (err) {
           this.balanceRewards[rewardsDepositKey(token.inc_token.symbol)] = unlockToken;
-          console.log(`failed to get rewards for token ${token.inc_token.symbol}: ${err}`)
         }
 
         try {

@@ -24,6 +24,7 @@ interface RewardsToken {
     symbol: string;
   };
   price: string;
+  rewardsPrice: string;
   balance: string;
   deposit: string;
   rewards: string;
@@ -35,20 +36,31 @@ interface RewardsToken {
   remainingLockedRewards: string;
   deadline: number;
 }
+// 1610446108 <-> 1722275
 
 const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: number) => {
   // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
-  const timeRemaining = (token.deadline - Math.round(Date.now() / 1000000) );
-  const pending = Number(divDecimals(token.remainingLockedRewards, token.decimals)) * priceUnderlying;
-  const locked = Number(divDecimals(token.totalLockedRewards, token.rewardsDecimals)) * price;
+  const timeRemaining = (token.deadline - 1722275) * 6 + 1610446108 - Math.round(Date.now() / 1000)
+
+  // (token.deadline - Math.round(Date.now() / 1000000) );
+  const pending = Number(divDecimals(token.remainingLockedRewards, token.rewardsDecimals)) * price;
+
+  // this is already normalized
+  const locked = Number(token.totalLockedRewards);
+
+  //console.log(`pending - ${pending}; locked: ${locked}, time remaining: ${timeRemaining}`)
   return ((pending * 100) / locked * (3.154e+7 / timeRemaining)).toFixed(0);
 
 }
 
 const apyString = (token: RewardsToken) => {
 
-  const apyStr = zeroDecimalsFormatter.format(Number(calculateAPY(token, 0.6, Number(token.price))));
+  const apyStr = zeroDecimalsFormatter.format(Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price))));
+
+  if (isNaN(Number(apyStr))) {
+    return `0%`;
+  }
 
   if (token.deposit && Number(token.deposit) > 0) {
     return `${apyStr}% on ${token.deposit} ${token.lockedAsset}`;
@@ -62,7 +74,7 @@ class EarnRow extends Component<{
     userStore: UserStoreEx,
     token: RewardsToken
   }> {
-  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0' }
+  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0',  }
 
   handleChangeDeposit = (event) => {
     this.setState({depositValue: event.target.value});
@@ -81,7 +93,7 @@ class EarnRow extends Component<{
   };
 
   render() {
-    const style = this.props.token.balance ? styles.accordionBalance : styles.accordion;
+    const style = (Number(this.props.token.balance) > 0) ? styles.accordionHaveDeposit : styles.accordion;
     //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
     const { activeIndex } = this.state
     return (

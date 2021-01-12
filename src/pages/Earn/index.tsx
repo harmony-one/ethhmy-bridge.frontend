@@ -66,6 +66,7 @@ export const EarnRewards = observer((props: any) => {
           >
             {
              rewards.allData.map( (rewardToken) => {
+
                const token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
                  if (!token) {
                    return (<></>);
@@ -82,6 +83,7 @@ export const EarnRewards = observer((props: any) => {
                    decimals: token.decimals,
                    name: token.name,
                    price: token.price,
+                   rewardsPrice: String(rewardToken.rewards_token.price),
                    display_props: token.display_props,
                    remainingLockedRewards: rewardToken.pending_rewards,
                    deadline: Number(rewardToken.deadline),

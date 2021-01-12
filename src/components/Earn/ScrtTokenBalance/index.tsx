@@ -9,7 +9,7 @@ import cn from 'classnames';
 import { divDecimals, unlockToken } from '../../../utils';
 
 const formatNumber = (amount: string, minimumFactions: number) => {
-  return new Intl.NumberFormat('en', { maximumFractionDigits: 3, minimumFractionDigits: minimumFactions })
+  return new Intl.NumberFormat('en', { maximumFractionDigits: 6, minimumFractionDigits: minimumFactions })
     .format(Number(amount))
 }
 
