@@ -50,6 +50,30 @@ export class HmyMethodsERC20 {
     });
   };
 
+  setApprovalForAll = (hrc20Address, sendTxCallback?) => {
+    const tokenJson = require('../out/MyERC721.json');
+    const hmyTokenContract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      hrc20Address,
+    );
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        // TODO
+        await connectToOneWallet(hmyTokenContract.wallet, null, reject);
+
+        const res = await hmyTokenContract.methods
+          .setApprovalForAll(this.hmyManagerContract.address, true)
+          .send(this.options)
+          .on('transactionHash', sendTxCallback);
+
+        resolve(res);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
+
   burnToken = async (
     hrc20Address,
     userAddr,
@@ -62,11 +86,29 @@ export class HmyMethodsERC20 {
         await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
 
         let response = await this.hmyManagerContract.methods
-          .burnToken(
-            hrc20Address,
-            mulDecimals(amount, decimals),
-            userAddr,
-          )
+          .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
+          .send(this.options)
+          .on('transactionHash', sendTxCallback);
+
+        resolve(response.transaction.id);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
+
+  burnTokens = async (
+    hrc20Address,
+    userAddr,
+    amount,
+    sendTxCallback?,
+  ) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
+
+        let response = await this.hmyManagerContract.methods
+          .burnTokens(hrc20Address, amount, userAddr)
           .send(this.options)
           .on('transactionHash', sendTxCallback);
 

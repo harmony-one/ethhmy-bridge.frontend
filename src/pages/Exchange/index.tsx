@@ -10,17 +10,18 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Checkbox, Icon, Select, Text } from 'components/Base';
+import { Button, Icon, Text } from 'components/Base';
 import { formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed, observable } from 'mobx';
-import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
+import { autorun, computed } from 'mobx';
+import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
+import { TokensField } from './AmountField';
 
 export interface ITokenInfo {
   label: string;
@@ -48,6 +49,12 @@ export class Exchange extends React.Component<
         if (this.formRef) {
           this.formRef.resetTouched();
           this.formRef.resetErrors();
+        }
+
+        if (exchange.token === TOKEN.ERC721) {
+          exchange.transaction.amount = ['0'];
+        } else {
+          exchange.transaction.amount = '0';
         }
       }
     });
@@ -373,37 +380,39 @@ export class Exchange extends React.Component<
                 fill={true}
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
-                <NumberInput
-                  label={
-                    exchange.token === TOKEN.ERC721
-                      ? `${this.tokenInfo.label} Token ID`
-                      : `${this.tokenInfo.label} Amount`
-                  }
-                  name="amount"
-                  type="decimal"
-                  precision="6"
-                  delimiter="."
-                  placeholder="0"
-                  style={{ width: '100%' }}
-                  rules={[
-                    isRequired,
-                    moreThanZero,
-                    (_, value, callback) => {
-                      const errors = [];
+                {exchange.token === TOKEN.ERC721 ? (
+                  <TokensField
+                    label={this.tokenInfo.label}
+                    maxTokens={this.tokenInfo.maxAmount}
+                  />
+                ) : (
+                  <NumberInput
+                    label={`${this.tokenInfo.label} Amount`}
+                    name="amount"
+                    type="decimal"
+                    precision="6"
+                    delimiter="."
+                    placeholder="0"
+                    style={{ width: '100%' }}
+                    rules={[
+                      isRequired,
+                      moreThanZero,
+                      (_, value, callback) => {
+                        const errors = [];
 
-                      if (
-                        exchange.token !== TOKEN.ERC721 &&
-                        value &&
-                        Number(value) > Number(this.tokenInfo.maxAmount)
-                      ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
-                      }
+                        if (
+                          value &&
+                          Number(value) > Number(this.tokenInfo.maxAmount)
+                        ) {
+                          const defaultMsg = `Exceeded the maximum amount`;
+                          errors.push(defaultMsg);
+                        }
 
-                      callback(errors);
-                    },
-                  ]}
-                />
+                        callback(errors);
+                      },
+                    ]}
+                  />
+                )}
                 {exchange.token !== TOKEN.ERC721 ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}

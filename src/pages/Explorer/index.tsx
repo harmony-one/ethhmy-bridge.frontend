@@ -132,7 +132,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'amount',
     width: 120,
     render: (value, data) =>
-      data.token === TOKEN.ERC721 ? 1 : formatWithSixDecimals(value),
+      data.token === TOKEN.ERC721 ? value.length : formatWithSixDecimals(value),
   },
   {
     title: 'Age',

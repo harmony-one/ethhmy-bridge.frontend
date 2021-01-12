@@ -117,26 +117,37 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 userMetamask.erc20TokenDetails &&
                   userMetamask.erc20TokenDetails.symbol,
               ).toUpperCase()} amount`}
-              value={formatWithSixDecimals(exchange.transaction.amount)}
+              value={formatWithSixDecimals(
+                exchange.transaction.amount.toString(),
+              )}
             />
           );
 
         case TOKEN.ERC721:
           return (
-            <AssetRow
-              label={`${String(
-                userMetamask.erc20TokenDetails &&
-                  userMetamask.erc20TokenDetails.symbol,
-              ).toUpperCase()} token ID`}
-              value={exchange.transaction.amount}
-            />
+            <>
+              {Array.isArray(exchange.transaction.amount)
+                ? exchange.transaction.amount.map((amount, idx) => (
+                    <AssetRow
+                      key={idx}
+                      label={`${String(
+                        userMetamask.erc20TokenDetails &&
+                          userMetamask.erc20TokenDetails.symbol,
+                      ).toUpperCase()} token ID`}
+                      value={amount}
+                    />
+                  ))
+                : null}
+            </>
           );
 
         default:
           return (
             <AssetRow
               label={`${String(exchange.token).toUpperCase()} amount`}
-              value={formatWithSixDecimals(exchange.transaction.amount)}
+              value={formatWithSixDecimals(
+                exchange.transaction.amount.toString(),
+              )}
             />
           );
       }

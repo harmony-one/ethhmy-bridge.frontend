@@ -47,6 +47,63 @@ export class EthMethodsERC20 {
       .on('transactionHash', hash => sendTxCallback(hash));
   };
 
+  setApprovalForAllEthManger = async (
+    erc20Address,
+    sendTxCallback?,
+  ) => {
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+
+    const MyERC20Json = require('../out/MyERC721.json');
+    const erc20Contract = new this.web3.eth.Contract(
+      MyERC20Json.abi,
+      erc20Address,
+    );
+
+    debugger;
+
+    await erc20Contract.methods
+      .setApprovalForAll(this.ethManagerAddress, true)
+      .send({
+        from: accounts[0],
+        gas: process.env.ETH_GAS_LIMIT,
+        gasPrice: await getGasPrice(this.web3),
+      })
+      .on('transactionHash', hash => sendTxCallback(hash));
+  };
+
+  lockTokens = async (
+    erc20Address,
+    userAddr,
+    amount,
+    sendTxCallback?,
+  ) => {
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+
+    const hmyAddrHex = getAddress(userAddr).checksum;
+
+    const estimateGas = await this.ethManagerContract.methods
+      .lockTokens(erc20Address, amount, hmyAddrHex)
+      .estimateGas({ from: accounts[0] });
+
+    const gasLimit = Math.max(
+      estimateGas + estimateGas * 0.3,
+      Number(process.env.ETH_GAS_LIMIT),
+    );
+
+    let transaction = await this.ethManagerContract.methods
+      .lockTokens(erc20Address, amount, hmyAddrHex)
+      .send({
+        from: accounts[0],
+        gas: new BN(gasLimit),
+        gasPrice: await getGasPrice(this.web3),
+      })
+      .on('transactionHash', hash => sendTxCallback(hash));
+
+    return transaction.events.Locked;
+  };
+
   lockToken = async (
     erc20Address,
     userAddr,

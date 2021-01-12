@@ -14,6 +14,7 @@ import * as contract from '../../blockchain-bridge';
 import { sleep, uuid } from '../../utils';
 import { getNetworkFee } from '../../blockchain-bridge/eth/helpers';
 import { sendHrc20Token } from './hrc20';
+import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
 
 export enum EXCHANGE_STEPS {
@@ -38,7 +39,7 @@ export interface IStepConfig {
 export interface ITransaction {
   oneAddress: string;
   ethAddress: string;
-  amount: string;
+  amount: string | string[];
   erc20Address?: string;
   hrc20Address?: string;
 }
@@ -50,7 +51,7 @@ export class Exchange extends StoreConstructor {
   @observable stepNumber = 0;
   @observable isFeeLoading = false;
 
-  defaultTransaction = {
+  defaultTransaction: ITransaction = {
     oneAddress: '',
     ethAddress: '',
     amount: '0',
@@ -229,7 +230,9 @@ export class Exchange extends StoreConstructor {
 
     this.mode = this.operation.type;
     this.token = this.operation.token;
-    this.transaction.amount = String(this.operation.amount);
+    this.transaction.amount = Array.isArray(this.operation.amount)
+      ? this.operation.amount
+      : String(this.operation.amount);
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
@@ -348,9 +351,14 @@ export class Exchange extends StoreConstructor {
           break;
 
         case TOKEN.ERC721:
-          ethMethods = contract.ethMethodsERС721;
-          hmyMethods = contract.hmyMethodsERC20;
-          break;
+          await sendErc721Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
 
         case TOKEN.HRC20:
           await sendHrc20Token({
@@ -432,7 +440,7 @@ export class Exchange extends StoreConstructor {
         }
       }
 
-      if (this.token === TOKEN.ERC20 || this.token === TOKEN.ERC721) {
+      if (this.token === TOKEN.ERC20) {
         let getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
 
         while (
