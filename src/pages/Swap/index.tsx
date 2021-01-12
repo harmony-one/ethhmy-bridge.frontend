@@ -95,7 +95,8 @@ export const SwapPage = () => {
   useEffect(() => {
     (async () => {
       if (!secretjs) {
-        return () => setPriceImpact(0);
+        setPriceImpact(0);
+        return;
       }
 
       const fromCurrency: Asset = Asset.fromTokenInfo(
@@ -129,8 +130,6 @@ export const SwapPage = () => {
         setMinimumReceived(Number(trade.getEstimatedAmount()) * 0.995);
         setLiquidityProviderFee(Number(result.commission_amount));
       }
-
-      return () => setPriceImpact(0);
     })();
   }, [
     secretjs,
