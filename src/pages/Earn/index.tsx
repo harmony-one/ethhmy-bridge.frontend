@@ -70,10 +70,15 @@ export const EarnRewards = observer((props: any) => {
                  return (<></>);
                }
 
-               const token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
+               let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
                  if (!token) {
                    return (<></>);
                  }
+
+                 if (token.display_props.symbol === "BAC") {
+                   token.price = "0.76";
+                 }
+
                  const rewardsToken = {
                    rewardsContract: rewardToken.pool_address,
                    lockedAsset: rewardToken.inc_token.symbol,
@@ -91,6 +96,8 @@ export const EarnRewards = observer((props: any) => {
                    remainingLockedRewards: rewardToken.pending_rewards,
                    deadline: Number(rewardToken.deadline),
                  }
+
+
 
                  return (<EarnRow
                    key={rewardToken.inc_token.symbol}
