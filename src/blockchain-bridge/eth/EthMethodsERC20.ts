@@ -110,8 +110,16 @@ export class EthMethodsERC20 {
       erc20Address,
     );
 
-    const name = await erc20Contract.methods.name().call();
-    const symbol = await erc20Contract.methods.symbol().call();
+    let name = "";
+    let symbol = "";
+    // maker has some weird encoding for these.. so whatever
+    if (erc20Address === '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2') {
+      name = "Maker";
+      symbol = "MKR";
+    } else {
+      name = await erc20Contract.methods.name().call();
+      symbol = await erc20Contract.methods.symbol().call();
+    }
     // todo: check if all the erc20s we care about have the decimals method (it's not required by the standard)
     const decimals = await erc20Contract.methods.decimals().call();
 

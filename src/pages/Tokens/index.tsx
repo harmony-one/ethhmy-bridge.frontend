@@ -16,6 +16,7 @@ import * as styles from './styles.styl';
 import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getScrtAddress } from '../../blockchain-bridge';
+import { isMobile } from 'react-device-detect';
 
 const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -114,9 +115,23 @@ const getColumns = (): IColumn<ITokenInfo>[] => [
 
 export const Tokens = observer((props: any) => {
   const { tokens } = useStores();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState<string>('');
 
-  const [columns, setColumns] = useState(getColumns());
+  const [allColumns, setColumns] = useState<Array<any>>(getColumns());
+
+  let columns = allColumns;
+  if (isMobile) {
+    columns = allColumns
+      .filter(c => /Symbol|Locked|TVL/i.test(c.title))
+      .map(c => {
+        if (c.title == 'Total Locked') {
+          c.title = 'TVL';
+        }
+        delete c.width;
+
+        return c;
+      });
+  }
 
   useEffect(() => {
     tokens.init({ sorters: {}, sorter: 'none' });
@@ -159,6 +174,7 @@ export const Tokens = observer((props: any) => {
           token.symbol = '--';
         }
       }
+      (token as any).key = token.symbol; // make react not sad
       return token;
     })
     .sort((t1, t2) =>
@@ -184,11 +200,9 @@ export const Tokens = observer((props: any) => {
           margin={{ top: 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
-          <Title>Bridged Assets</Title>
-
-          <Box direction="column">
+          <Box direction="column" style={{ textAlign: 'center' }}>
             <Title size="small">
-              Total Value Locked (USD){' '}
+              Total Value Locked (USD) {isMobile && <br />}
               <span
                 style={{
                   marginLeft: 5,
@@ -209,14 +223,16 @@ export const Tokens = observer((props: any) => {
           }
         </Box>
 
-        <Box
-          className={styles.search}
-          pad={{ horizontal: '9px' }}
-          margin={{ top: 'medium', bottom: 'medium' }}
-          style={{ width: '85vw' }}
-        >
-          <SearchInput value={search} onChange={setSearch} />
-        </Box>
+        {!isMobile && (
+          <Box
+            className={styles.search}
+            pad={{ horizontal: '9px' }}
+            margin={{ top: 'medium', bottom: 'medium' }}
+            style={{ width: '85vw' }}
+          >
+            <SearchInput value={search} onChange={setSearch} />
+          </Box>
+        )}
 
         <Box
           direction="row"
