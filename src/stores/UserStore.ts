@@ -12,7 +12,7 @@ import {
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, formatWithSixDecimals } from '../utils';
+import { divDecimals, formatWithSixDecimals, sleep } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 
 const defaults = {};
@@ -52,8 +52,7 @@ export class UserStoreEx extends StoreConstructor {
   constructor(stores) {
     super(stores);
 
-    this.getBalances();
-    setInterval(() => this.getBalances(), 15000);
+    // setInterval(() => this.getBalances(), 15000);
 
     this.getRates();
 
@@ -89,7 +88,81 @@ export class UserStoreEx extends StoreConstructor {
     if (sessionObj) {
       this.address = sessionObj.address;
       this.isInfoReading = sessionObj.isInfoReading;
-      keplrCheckPromise.then(() => this.signIn());
+      keplrCheckPromise.then(async () => {
+        await this.signIn();
+
+        this.getBalances();
+
+        const ws = new WebSocket(process.env.SECRET_WS);
+
+        ws.onmessage = async event => {
+          try {
+            const data = JSON.parse(event.data);
+
+            if (data.id === 'tx.sender' || data.id === 'scrt.recipient') {
+              await this.updateBalanceForSymbol('SCRT');
+            } else {
+              await this.updateBalanceForSymbol(data.id);
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
+        ws.onopen = async () => {
+          while (this.stores.tokens.allData.length < 1) {
+            await sleep(100);
+          }
+
+          while (!this.address.startsWith('secret')) {
+            await sleep(100);
+          }
+
+          for (const token of this.stores.tokens.allData) {
+            // For any tx on this token => update my balance
+            const query = [
+              `message.module='compute'`,
+              `message.contract_address='${token.dst_address}'`,
+              `message.action='execute'`,
+            ].join(' AND ');
+
+            ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: token.display_props.symbol, // jsonrpc id
+                method: 'subscribe',
+                params: {
+                  query: query,
+                },
+              }),
+            );
+          }
+
+          // If I sent any tx, I paid for gas => update SCRT balance
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'tx.sender', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `message.sender='${this.address}'`,
+              },
+            }),
+          );
+
+          // If I received SCRT => update SCRT balance
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'scrt.recipient', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `transfer.recipient='${this.address}'`,
+              },
+            }),
+          );
+        };
+      });
     }
   }
 
@@ -227,7 +300,7 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    if (this.address) {
+    if (this.address && this.cosmJS) {
       this.cosmJS.getAccount(this.address).then(account => {
         try {
           this.balanceSCRT = formatWithSixDecimals(
@@ -264,6 +337,54 @@ export class UserStoreEx extends StoreConstructor {
           // Ethereum?
         }
       }
+    }
+  };
+
+  @action public updateBalanceForSymbol = async (symbol: string) => {
+    if (!symbol) {
+      return;
+    }
+    if (!this.address) {
+      return;
+    }
+    if (!this.cosmJS) {
+      return;
+    }
+
+    console.log('update', symbol);
+
+    if (symbol === 'SCRT') {
+      this.cosmJS.getAccount(this.address).then(account => {
+        try {
+          this.balanceSCRT = formatWithSixDecimals(
+            divDecimals(account.balance[0].amount, 6),
+          );
+        } catch (e) {
+          this.balanceSCRT = '0';
+        }
+      });
+      return;
+    }
+
+    const token = this.stores.tokens.allData.find(
+      t => t.display_props.symbol === symbol,
+    );
+
+    try {
+      const balance = await this.getSnip20Balance(token.dst_address);
+      if (balance.includes('Unlock')) {
+        this.balanceToken[token.src_coin] = balance;
+      } else {
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+      }
+    } catch (err) {
+      this.balanceToken[token.src_coin] = 'Unlock';
+    }
+
+    try {
+      this.balanceTokenMin[token.src_coin] = token.display_props.min_from_scrt;
+    } catch (e) {
+      // Ethereum?
     }
   };
 

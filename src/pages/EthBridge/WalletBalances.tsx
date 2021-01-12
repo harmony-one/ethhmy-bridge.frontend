@@ -40,10 +40,13 @@ const AssetRow = observer<any>(props => {
     value = (
       <Box direction="row">
         <span
-          onClick={() => {
-            props.userStore.keplrWallet.suggestToken(
+          onClick={async () => {
+            await props.userStore.keplrWallet.suggestToken(
               props.userStore.chainId,
               props.token.dst_address,
+            );
+            await props.userStore.updateBalanceForSymbol(
+              props.token.display_props.symbol,
             );
           }}
         >
