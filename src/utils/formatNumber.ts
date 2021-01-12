@@ -1,7 +1,27 @@
 import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
-const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
+
+export const priceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 10,
+  useGrouping: true,
+});
+
+export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 6,
+  useGrouping: true,
+});
+
+export const inputNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 20,
+  useGrouping: false,
+});
+
+export const valueToDecimals = (value: string, decimals: string): string => {
+  return BigInt(parseFloat(value) * Math.pow(10, parseInt(decimals))).toString()
+}
+
+export const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 0,
 });
@@ -19,6 +39,7 @@ const sixDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 6,
 });
+
 
 export function formatWithTwoDecimals(value: number | string) {
   return twoDecimalsFormatter.format(Number(value));
@@ -54,6 +75,11 @@ export const mulDecimals = (amount: string | number, decimals: string | number) 
 };
 
 export const divDecimals = (amount: string | number, decimals: string | number) => {
+
+  if (decimals === 0) {
+    return String(amount);
+  }
+
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).dividedBy(decimalsMul);
 

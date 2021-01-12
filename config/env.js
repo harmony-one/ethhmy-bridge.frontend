@@ -74,8 +74,6 @@ function getClientEnvironment(publicUrl) {
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
 
-        ETH_GAS_API_KEY: process.env.ETH_GAS_API_KEY,
-
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
