@@ -56,11 +56,12 @@ const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: numbe
 
 const apyString = (token: RewardsToken) => {
 
-  const apyStr = zeroDecimalsFormatter.format(Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price))));
-
-  if (isNaN(Number(apyStr))) {
+  const apy = Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price)));
+  if (isNaN(apy)) {
     return `0%`;
   }
+
+  const apyStr = zeroDecimalsFormatter.format(Number(apy));
 
   if (token.deposit && Number(token.deposit) > 0) {
     return `${apyStr}% on ${token.deposit} ${token.lockedAsset}`;

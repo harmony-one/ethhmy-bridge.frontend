@@ -246,6 +246,7 @@ export const WalletBalances = observer(() => {
                 address={true}
               />
               <AssetRow asset="SCRT" value={user.balanceSCRT} />
+              <AssetRow asset="secret-SCRT" value={user.balanceRewards["sSCRT"]} />
               {exchange.token === TOKEN.ETH ? (
                 <>
                 <AssetRow
