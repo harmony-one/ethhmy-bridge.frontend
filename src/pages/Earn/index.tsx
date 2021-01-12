@@ -66,6 +66,9 @@ export const EarnRewards = observer((props: any) => {
           >
             {
              rewards.allData.map( (rewardToken) => {
+               if (rewardToken.pending_rewards === "0") {
+                 return (<></>);
+               }
 
                const token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address)
                  if (!token) {
