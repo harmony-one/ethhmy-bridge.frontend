@@ -97,9 +97,34 @@ export class HmyMethodsHRC20 {
     });
   };
 
+  lockOne = async (userAddr, amount, sendTxCallback?) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // TODO
+        // const hmyAddrHex = getAddress(userAddr).checksum;
+
+        await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
+
+        const res = await this.hmyManagerContract.methods
+          .lockOne(mulDecimals(amount, 18), userAddr)
+          .send({ ...this.options, value: mulDecimals(amount, 18) })
+          .on('transactionHash', sendTxCallback);
+
+        // return transaction.events.Locked;
+
+        resolve(res);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
+
   tokenDetails = async erc20Address => {
     const tokenJson = require('../out/MyERC20.json');
-    const erc20Contract = this.hmy.contracts.createContract(tokenJson.abi, erc20Address);
+    const erc20Contract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      erc20Address,
+    );
 
     const name = await erc20Contract.methods.name().call(this.options);
     const symbol = await erc20Contract.methods.symbol().call(this.options);

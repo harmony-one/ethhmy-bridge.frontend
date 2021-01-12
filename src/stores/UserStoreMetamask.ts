@@ -62,6 +62,7 @@ export class UserStoreMetamask extends StoreConstructor {
           case TOKEN.ERC20:
             this.setToken(sessionObj.erc20Address);
             break;
+          case TOKEN.ONE:
           case TOKEN.HRC20:
             setTimeout(() => {
               this.stores.user.setHRC20Mapping(sessionObj.hrc20Address);

@@ -2,17 +2,16 @@ import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
 import {
-  getHmyBalance,
-  hmyMethodsERC20,
-  hmyMethodsBUSD,
-  hmyMethodsLINK,
   ethMethodsHRC20,
+  getHmyBalance,
+  hmyMethodsBUSD,
+  hmyMethodsERC20,
   hmyMethodsHRC20,
-  ethMethodsERC20,
+  hmyMethodsLINK,
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
-import { IOperation } from './interfaces';
+import { IOperation, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
 
 const defaults = {};
@@ -223,7 +222,7 @@ export class UserStoreEx extends StoreConstructor {
     this.hrc20Address = '';
     this.stores.userMetamask.erc20Address = '';
     this.stores.userMetamask.erc20TokenDetails = null;
-  }
+  };
 
   @action.bound public setHRC20Mapping = async (hrc20Address: string) => {
     this.hrc20Balance = '0';
@@ -254,12 +253,31 @@ export class UserStoreEx extends StoreConstructor {
       throw new Error('This address already using for Harmony Eth token');
     }
 
-    this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.tokenDetails(
-      hrc20Address,
-    );
-    this.hrc20Address = hrc20Address;
+    try {
+      if (this.stores.exchange.token === TOKEN.ONE) {
+        this.stores.userMetamask.erc20TokenDetails = {
+          name: 'Ethereum One',
+          symbol: 'ONE',
+          decimals: '18',
+          erc20Address: '',
+        };
+      } else {
+        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.tokenDetails(
+          hrc20Address,
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    }
 
-    const address = await ethMethodsHRC20.getMappingFor(hrc20Address);
+    this.hrc20Address = hrc20Address;
+    let address;
+
+    try {
+      address = await ethMethodsHRC20.getMappingFor(hrc20Address);
+    } catch (e) {
+      console.error(e);
+    }
 
     console.log(address);
 

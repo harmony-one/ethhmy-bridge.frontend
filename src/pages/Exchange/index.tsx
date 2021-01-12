@@ -11,7 +11,7 @@ import {
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
-import { formatWithSixDecimals, moreThanZero } from 'utils';
+import { divDecimals, formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
@@ -145,6 +145,15 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.ethBalance,
+        };
+
+      case TOKEN.ONE:
+        return {
+          label: 'ONE',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? divDecimals(user.balance, 18)
+              : userMetamask.erc20Balance,
         };
 
       default:
@@ -328,6 +337,30 @@ export class Exchange extends React.Component<
             >
               <img className={styles.imgToken} src="/eth.svg" />
               <Text>ETH</Text>
+            </Box>
+
+            <Box
+              className={cn(
+                styles.itemToken,
+                exchange.token === TOKEN.ONE ? styles.selected : '',
+              )}
+              onClick={() => {
+                exchange.setToken(TOKEN.ONE);
+                routing.push(`/${exchange.token}`);
+
+                user.setHRC20Mapping(process.env.ONE_HRC20);
+
+                // user.setHRC20Token(process.env.ONE_HRC20);
+                // userMetamask.setTokenDetails({
+                //   name: 'Ethereum ONE',
+                //   decimals: '18',
+                //   erc20Address: '',
+                //   symbol: 'ONE',
+                // });
+              }}
+            >
+              <img className={styles.imgToken} src="/one.svg" />
+              <Text>ONE</Text>
             </Box>
           </Box>
         ) : null}

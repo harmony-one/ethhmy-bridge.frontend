@@ -107,9 +107,12 @@ export const WalletBalances = observer(() => {
                 <AssetRow
                   asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
                   value={formatWithSixDecimals(userMetamask.erc20Balance)}
-                  selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
-                    exchange.token,
-                  )}
+                  selected={[
+                    TOKEN.ERC20,
+                    TOKEN.HRC20,
+                    TOKEN.ERC721,
+                    TOKEN.ONE,
+                  ].includes(exchange.token)}
                   link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
                 />
               ) : null}
@@ -178,6 +181,7 @@ export const WalletBalances = observer(() => {
               <AssetRow
                 asset="Harmony ONE"
                 value={formatWithSixDecimals(ones(user.balance))}
+                selected={[TOKEN.ONE].includes(exchange.token)}
               />
 
               {user.hrc20Address &&

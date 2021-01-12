@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Box } from 'grommet';
 import { NumberInput } from 'components/Form/Fields';
 import { isRequired } from 'components/Form/validations';
-import { moreThanZero } from 'utils';
 import { Button, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { observer } from 'mobx-react-lite';
@@ -38,7 +37,7 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
                       delimiter="."
                       placeholder="0"
                       style={{ width: '100%' }}
-                      rules={[isRequired, moreThanZero]}
+                      rules={[isRequired]}
                     />
                   </div>
                   {!!idx ? (

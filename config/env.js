@@ -108,6 +108,7 @@ function getClientEnvironment(publicUrl) {
         HMY_HRC20_MANAGER_CONTRACT: process.env.HMY_HRC20_MANAGER_CONTRACT,
         ETH_HRC20_MANAGER_CONTRACT: process.env.ETH_HRC20_MANAGER_CONTRACT,
         ETH_TOKEN_MANAGER_CONTRACT: process.env.ETH_TOKEN_MANAGER_CONTRACT,
+        ONE_HRC20: process.env.ONE_HRC20,
 
         BACKEND_URL: process.env.BACKEND_URL,
         THRESHOLD: process.env.THRESHOLD,

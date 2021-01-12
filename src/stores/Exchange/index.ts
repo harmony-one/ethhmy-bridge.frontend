@@ -16,6 +16,8 @@ import { getNetworkFee } from '../../blockchain-bridge/eth/helpers';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
+import { send1ETHToken } from './1ETH';
+import { send1ONEToken } from './1ONE';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -345,10 +347,25 @@ export class Exchange extends StoreConstructor {
           hmyMethods = contract.hmyMethodsERC20;
           break;
 
+        case TOKEN.ONE:
+          await send1ONEToken({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
         case TOKEN.ETH:
-          ethMethods = contract.ethMethodsBUSD;
-          hmyMethods = contract.hmyMethodsERC20;
-          break;
+          await send1ETHToken({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
 
         case TOKEN.ERC721:
           await sendErc721Token({
@@ -369,75 +386,6 @@ export class Exchange extends StoreConstructor {
             confirmCallback: confirmCallback,
           });
           return;
-      }
-
-      if (this.token === TOKEN.ETH) {
-        // if (!this.stores.user.hrc20Address) {
-        //   await this.stores.userMetamask.setToken(
-        //     this.transaction.erc20Address,
-        //   );
-        // }
-
-        if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-          const lockToken = this.getActionByType(ACTION_TYPE.lockToken);
-
-          if (lockToken.status === STATUS.WAITING) {
-            await ethMethods.lockEth(
-              this.transaction.oneAddress,
-              this.transaction.amount,
-              hash => confirmCallback(hash, lockToken.type),
-            );
-          }
-
-          return;
-        }
-
-        if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-          const hrc20Address = this.stores.user.hrc20Address;
-
-          let approveHmyManger = this.getActionByType(
-            ACTION_TYPE.approveHmyManger,
-          );
-
-          if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
-            await hmyMethods.approveHmyManger(
-              hrc20Address,
-              this.transaction.amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, approveHmyManger.type),
-            );
-          }
-
-          while (
-            [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
-              approveHmyManger.status,
-            )
-          ) {
-            approveHmyManger = this.getActionByType(
-              ACTION_TYPE.approveHmyManger,
-            );
-
-            await sleep(500);
-          }
-
-          if (approveHmyManger.status !== STATUS.SUCCESS) {
-            return;
-          }
-
-          const burnToken = this.getActionByType(ACTION_TYPE.burnToken);
-
-          if (burnToken && burnToken.status === STATUS.WAITING) {
-            await hmyMethods.burnToken(
-              hrc20Address,
-              this.transaction.ethAddress,
-              this.transaction.amount,
-              this.stores.userMetamask.erc20TokenDetails.decimals,
-              hash => confirmCallback(hash, burnToken.type),
-            );
-          }
-
-          return;
-        }
       }
 
       if (this.token === TOKEN.ERC20) {

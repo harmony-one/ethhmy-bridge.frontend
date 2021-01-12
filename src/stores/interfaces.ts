@@ -9,6 +9,7 @@ export enum TOKEN {
   ERC20 = 'erc20',
   HRC20 = 'hrc20',
   ETH = 'eth',
+  ONE = 'one',
   ERC721 = 'erc721',
 }
 

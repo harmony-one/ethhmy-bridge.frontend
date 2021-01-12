@@ -12,6 +12,7 @@ const icons: Record<TOKEN, string> = {
   [TOKEN.ETH]: '/eth.svg',
   [TOKEN.ERC721]: '/eth.svg',
   [TOKEN.HRC20]: '/one.svg',
+  [TOKEN.ONE]: '/one.svg',
 };
 
 export const ItemToken = ({ selected, onClick, tokenType }) => {
