@@ -83,8 +83,8 @@ export const SwapPage = () => {
     isFromEstimated: false,
     isToEstimated: false,
   });
-  const [buttonMessage, setButtonMessage] = useState('Enter an amount');
-  const [price, setPrice] = useState(null); /* TODO */
+  const [buttonMessage, setButtonMessage] = useState<string>('Enter an amount');
+  const [price, setPrice] = useState<number>(null);
   const [minimumReceived, setMinimumReceived] = useState<number>(0);
   const [priceImpact, setPriceImpact] = useState<number>(0);
 
