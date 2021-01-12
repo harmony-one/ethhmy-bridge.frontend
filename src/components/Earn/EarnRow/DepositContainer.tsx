@@ -37,7 +37,7 @@ const AmountButton = (props: {balance: string, multiplier: string, onChange: Cal
 const changeInput = (balance, percentage, onChange) => {
   const event = {
     target: {
-      value: String(parseFloat(percentage) * parseFloat(balance))
+      value: String(parseFloat(percentage) * parseFloat(balance.replace(/,/g, '')))
     }
   }
   onChange(event)
