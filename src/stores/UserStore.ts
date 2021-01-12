@@ -136,7 +136,7 @@ export class UserStoreEx extends StoreConstructor {
         };
 
         ws.onopen = async () => {
-          while (this.stores.tokens.allData.length < 1) {
+          while (this.stores.tokens.allData.length === 0) {
             await sleep(100);
           }
 
@@ -462,11 +462,12 @@ export class UserStoreEx extends StoreConstructor {
     symbol: string,
     tokenAddress?: string,
   ) => {
-    if (!this.address) {
-      return;
-    }
-    if (!this.secretjs) {
-      return;
+    while (
+      !this.address &&
+      !this.secretjs &&
+      this.stores.tokens.allData.length === 0
+    ) {
+      await sleep(100);
     }
 
     if (!symbol && tokenAddress) {
