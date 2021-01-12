@@ -11,15 +11,10 @@ import { divDecimals, inputNumberFormat, mulDecimals } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
-import {
-  handleSimulation,
-  ReverseSimulateResult,
-  ReverseSimulationResponse,
-  SimulateResult,
-  SimulationReponse,
-} from '../../blockchain-bridge/scrt/swap';
-import { Currency, Trade, Asset, NativeToken, Token, TradeType } from './trade';
+import { handleSimulation } from '../../blockchain-bridge/scrt/swap';
+import { Asset, Currency, NativeToken, Token, Trade, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
+import SwapHeader from '../../components/Swap/Header';
 
 type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -448,6 +443,7 @@ export const SwapPage = () => {
           pad={{ horizontal: 'large', top: 'large' }}
           style={{ alignItems: 'center' }}
         >
+          <SwapHeader />
           <Box
             style={{
               maxWidth: '420px',
