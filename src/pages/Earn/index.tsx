@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -8,14 +9,7 @@ import * as styles from '../EthBridge/styles.styl';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
-import { divDecimals, unlockToken } from '../../utils';
-import { useEffect } from 'react';
-
-// const styleLink = document.createElement("link");
-// styleLink.rel = "stylesheet";
-// styleLink.href =
-//   "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css";
-// document.head.appendChild(styleLink);
+import { divDecimals } from '../../utils';
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
@@ -27,23 +21,7 @@ export const EarnRewards = observer((props: any) => {
       pollingInterval: 20000,
     });
     rewards.fetch();
-  }, []);
-
-  // Load tokens from DB
-  //tokens.fetch();
-  // useEffect(() => {
-  //   if (props.match.params.token) {
-  //     if (
-  //       [TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)
-  //     ) {
-  //       exchange.setToken(props.match.params.token);
-  //     } else {
-  //       routing.push(TOKEN.ETH);
-  //     }
-  //   }
-  //
-  //
-  // }, []);
+  }, [rewards]);
 
   return (
     <BaseContainer>

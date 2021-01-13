@@ -56,9 +56,16 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing } = useStores();
+  const { user, exchange, routing, rewards } = useStores();
 
   useEffect(() => {
+    rewards.init({
+      isLocal: true,
+      sorter: 'none',
+      pollingInterval: 20000,
+    });
+    rewards.fetch();
+
     if (props.match.params.token) {
       if (
         [TOKEN.LINK, TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)
@@ -142,7 +149,6 @@ export const EthBridge = observer((props: any) => {
             <WalletBalances />
           </Box>
         </Box>
-
       </PageContainer>
     </BaseContainer>
   );
