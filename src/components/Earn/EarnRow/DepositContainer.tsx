@@ -54,15 +54,15 @@ const DepositContainer = props => {
     <div className={cn(styles.changeBalance)}>
       <div>
         <div className={cn(styles.balanceRow)}>
-          <h3 className={cn(styles.h3)}> </h3>
-
-          <h4 className={cn(styles.h4)}>
+          <div className={cn(styles.h4)}>
             <ScrtTokenBalanceSingleLine
               value={props.balance}
               currency={props.currency}
               selected={false}
+              balanceText={props.balanceText}
             />
-          </h4>
+          </div>
+          <div className={cn(styles.subtitle)}>{props.balanceText}</div>
         </div>
         <div>
           <Input

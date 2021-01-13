@@ -6,6 +6,7 @@ const ScrtTokenBalanceSingleLine = (props: {
   value: string;
   currency: string;
   selected: boolean;
+  balanceText: string;
 }) => {
   if (!props.value) {
     return <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />;

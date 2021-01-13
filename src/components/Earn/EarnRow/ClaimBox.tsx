@@ -15,7 +15,6 @@ const ClaimBox = (props: {
   useEffect(() => {
     setAvailable(props.available);
   }, [props.available]);
-
   return (
     <div className={cn(styles.claimBox)}>
       <div>
@@ -35,6 +34,7 @@ const ClaimBox = (props: {
           <ClaimButton
             secretjs={props.userStore.secretjs}
             contract={props.rewardsContract}
+            available={props.available}
           />
         }
       </div>
