@@ -1,8 +1,6 @@
 import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
-import cn from 'classnames';
-import * as styles from './styles.styl';
 
 const ScrtTokenBalanceSingleLine = (props: {
   value: string;
