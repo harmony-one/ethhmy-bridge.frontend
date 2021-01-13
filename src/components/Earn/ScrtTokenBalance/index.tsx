@@ -53,7 +53,7 @@ const ScrtTokenBalance = (props: {
           selected={props.selected}
         />
         <SoftTitleValue
-          title={'Unlock Token'}
+          title={'View Balance'}
           subTitle={'Rewards unavailable'}
         />
       </div>

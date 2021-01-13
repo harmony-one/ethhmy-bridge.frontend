@@ -32,7 +32,7 @@ const UnlockToken = (props: {
         }}
       >
         <span role="img" aria-label={'lock'}>
-          🔓
+        🔍
         </span>
       </Button>
     </Box>
