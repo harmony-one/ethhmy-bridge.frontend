@@ -1,14 +1,6 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-/*
-import {
-  getHmyBalance,
-  hmyMethodsERC20,
-  hmyMethodsBUSD,
-  hmyMethodsLINK,
-} from '../blockchain-bridge';
-*/
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -18,7 +10,6 @@ import {
   sleep,
   toFixedTrunc,
   unlockToken,
-  valueToDecimals,
 } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 import {
@@ -28,22 +19,9 @@ import {
   Snip20GetBalance,
 } from '../blockchain-bridge/scrt';
 
-const defaults = {};
-
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
 export const rewardsKey = key => `${key}Rewards`;
-
-// export const rewardsTokens = [{
-//   symbol: "ETH",
-//   rewardsContract: "secret1g6c4vq5me8ymctuvalxsqn38glxrvzadflleck",
-//   decimals: "1",
-//   underlyingDecimals: "18",
-//   lockedAsset: "sETH",
-//   totalLocked: "5,000,000",
-//   remainingLockedRewards: "10000000",
-//   deadline: 1610024346,
-// }]
 
 export class UserStoreEx extends StoreConstructor {
   public declare stores: IStores;
