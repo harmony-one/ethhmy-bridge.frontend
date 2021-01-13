@@ -1,14 +1,6 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-/*
-import {
-  getHmyBalance,
-  hmyMethodsERC20,
-  hmyMethodsBUSD,
-  hmyMethodsLINK,
-} from '../blockchain-bridge';
-*/
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
@@ -16,8 +8,8 @@ import {
   divDecimals,
   formatWithSixDecimals,
   sleep,
+  toFixedTrunc,
   unlockToken,
-  valueToDecimals,
 } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 import {
@@ -27,22 +19,9 @@ import {
   Snip20GetBalance,
 } from '../blockchain-bridge/scrt';
 
-const defaults = {};
-
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
 export const rewardsKey = key => `${key}Rewards`;
-
-// export const rewardsTokens = [{
-//   symbol: "ETH",
-//   rewardsContract: "secret1g6c4vq5me8ymctuvalxsqn38glxrvzadflleck",
-//   decimals: "1",
-//   underlyingDecimals: "18",
-//   lockedAsset: "sETH",
-//   totalLocked: "5,000,000",
-//   remainingLockedRewards: "10000000",
-//   deadline: 1610024346,
-// }]
 
 export class UserStoreEx extends StoreConstructor {
   public declare stores: IStores;
@@ -121,15 +100,37 @@ export class UserStoreEx extends StoreConstructor {
 
         const ws = new WebSocket(process.env.SECRET_WS);
 
+        const symbolUpdateHeightCache: { [symbol: string]: number } = {};
+
         ws.onmessage = async event => {
           try {
             const data = JSON.parse(event.data);
 
-            if (data.id === 'tx.sender' || data.id === 'scrt.recipient') {
-              await this.updateBalanceForSymbol('SCRT');
-            } else {
-              await this.updateBalanceForSymbol(data.id);
+            const symbol = data.id;
+
+            if (!(symbol in symbolUpdateHeightCache)) {
+              console.error(
+                symbol,
+                'not in symbolUpdateHeightCache:',
+                symbolUpdateHeightCache,
+              );
             }
+
+            let height = 0;
+            try {
+              height = Number(data.result.data.value.TxResult.height);
+            } catch (error) {
+              // Not a tx
+              // Probably just the /subscribe ok event
+              return;
+            }
+
+            if (height <= symbolUpdateHeightCache[symbol]) {
+              console.log('Already updated', symbol, 'for height', height);
+              return;
+            }
+            symbolUpdateHeightCache[symbol] = height;
+            await this.updateBalanceForSymbol(symbol);
           } catch (error) {
             console.log(error);
           }
@@ -144,31 +145,42 @@ export class UserStoreEx extends StoreConstructor {
             await sleep(100);
           }
 
-          for (const token of this.stores.tokens.allData) {
-            // For any tx on this token => update my balance
-            const query = [
-              `message.module='compute'`,
-              `message.contract_address='${token.dst_address}'`,
-              `message.action='execute'`,
-            ].join(' AND ');
+          for (const token of this.stores.rewards.allData) {
+            // For any tx on this token's address or rewards pool => update my balance
+            const symbol = token.inc_token.symbol.replace('s', '');
+
+            symbolUpdateHeightCache[symbol] = 0;
 
             ws.send(
               JSON.stringify({
                 jsonrpc: '2.0',
-                id: token.display_props.symbol, // jsonrpc id
+                id: symbol, // jsonrpc id
                 method: 'subscribe',
                 params: {
-                  query: query,
+                  query: `message.module='compute' AND message.contract_address='${token.inc_token.address}' AND message.action='execute'`,
+                },
+              }),
+            );
+
+            ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: symbol, // jsonrpc id
+                method: 'subscribe',
+                params: {
+                  query: `message.module='compute' AND message.contract_address='${token.pool_address}' AND message.action='execute'`,
                 },
               }),
             );
           }
 
-          // If I sent any tx, I paid for gas => update SCRT balance
+          symbolUpdateHeightCache['SCRT'] = 0;
+
+          // If I sent a tx, I paid for gas => update SCRT balance
           ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
-              id: 'tx.sender', // jsonrpc id
+              id: 'SCRT', // jsonrpc id
               method: 'subscribe',
               params: {
                 query: `message.sender='${this.address}'`,
@@ -180,7 +192,7 @@ export class UserStoreEx extends StoreConstructor {
           ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
-              id: 'scrt.recipient', // jsonrpc id
+              id: 'SCRT', // jsonrpc id
               method: 'subscribe',
               params: {
                 query: `transfer.recipient='${this.address}'`,
@@ -378,6 +390,8 @@ export class UserStoreEx extends StoreConstructor {
           continue;
         }
         try {
+          console.log('update', token.display_props.symbol);
+
           const balance = await this.getSnip20Balance(
             token.dst_address,
             token.decimals,
@@ -385,7 +399,9 @@ export class UserStoreEx extends StoreConstructor {
           if (balance.includes(unlockToken)) {
             this.balanceToken[token.src_coin] = balance;
           } else {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+            this.balanceToken[token.src_coin] = formatWithSixDecimals(
+              toFixedTrunc(balance, 6),
+            );
           }
         } catch (err) {
           this.balanceToken[token.src_coin] = unlockToken;
@@ -514,7 +530,9 @@ export class UserStoreEx extends StoreConstructor {
       if (balance.includes(unlockToken)) {
         this.balanceToken[token.src_coin] = balance;
       } else {
-        this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(
+          toFixedTrunc(balance, 6),
+        );
       }
     } catch (err) {
       this.balanceToken[token.src_coin] = unlockToken;
@@ -524,6 +542,69 @@ export class UserStoreEx extends StoreConstructor {
       this.balanceTokenMin[token.src_coin] = token.display_props.min_from_scrt;
     } catch (e) {
       // Ethereum?
+    }
+
+    const rewradsToken = this.stores.rewards.allData.find(
+      t => t.inc_token.symbol === `s${symbol}`,
+    );
+
+    try {
+      const balance = await this.getBridgeRewardsBalance(
+        rewradsToken.pool_address,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[
+          rewardsKey(rewradsToken.inc_token.symbol)
+        ] = balance;
+      } else {
+        // rewards are in the rewards_token decimals
+        this.balanceRewards[
+          rewardsKey(rewradsToken.inc_token.symbol)
+        ] = divDecimals(balance, rewradsToken.rewards_token.decimals); //divDecimals(balance, token.inc_token.decimals);
+      }
+    } catch (err) {
+      this.balanceRewards[
+        rewardsKey(rewradsToken.inc_token.symbol)
+      ] = unlockToken;
+    }
+
+    try {
+      const balance = await this.getBridgeDepositBalance(
+        rewradsToken.pool_address,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[
+          rewardsDepositKey(rewradsToken.inc_token.symbol)
+        ] = balance;
+      } else {
+        this.balanceRewards[
+          rewardsDepositKey(rewradsToken.inc_token.symbol)
+        ] = divDecimals(balance, rewradsToken.inc_token.decimals);
+      }
+    } catch (err) {
+      this.balanceRewards[
+        rewardsDepositKey(rewradsToken.inc_token.symbol)
+      ] = unlockToken;
+    }
+
+    try {
+      const balance = await this.getSnip20Balance(
+        rewradsToken.rewards_token.address,
+        rewradsToken.rewards_token.decimals,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[rewradsToken.rewards_token.symbol] = balance;
+      } else {
+        this.balanceRewards[rewradsToken.rewards_token.symbol] = divDecimals(
+          balance,
+          rewradsToken.rewards_token.decimals,
+        );
+      }
+    } catch (err) {
+      this.balanceRewards[rewradsToken.rewards_token.symbol] = unlockToken;
     }
   };
 

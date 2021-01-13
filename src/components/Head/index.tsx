@@ -34,12 +34,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isInfo = history.location.pathname === '/info';
     const isEarn = history.location.pathname === '/earn';
 
-    if (isSwap) {
-      document.title = '𝕊ecret Swap';
-    } else {
-      document.title = '𝕊ecret Bridge';
-    }
-
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
         routing.push(

@@ -1,4 +1,4 @@
-import { balanceNumberFormat, unlockToken } from '../../../utils';
+import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
 import cn from 'classnames';
@@ -17,7 +17,9 @@ const ScrtTokenBalanceSingleLine = (props: {
   } else {
     return (
       <>
-        {balanceNumberFormat.format(Number(props.value.replace(/,/g, '')))}{' '}
+        {balanceNumberFormat.format(
+          toFixedTrunc(Number(props.value.replace(/,/g, '')), 6),
+        )}{' '}
         {props.currency}
       </>
     );
