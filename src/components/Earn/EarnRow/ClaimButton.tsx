@@ -11,7 +11,6 @@ const ClaimButton = (props: {
   available: string;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  console.log('HI TOM THIS IS LOG: ' + props.available);
   return (
     <Button
       loading={loading}
