@@ -14,55 +14,64 @@ const buttonStyle = {
   marginRight: '12px',
   marginLeft: '12px',
   padding: '0.5rem 1rem 1rem 1rem',
-  color: "#2F80ED",
-  backgroundColor: "transparent",
+  color: '#2F80ED',
+  backgroundColor: 'transparent',
 };
 
-const AmountButton = (props: {balance: string, multiplier: string, onChange: CallableFunction}) => {
+const AmountButton = (props: {
+  balance: string;
+  multiplier: string;
+  onChange: CallableFunction;
+}) => {
   return (
     <Button.Group className={cn(styles.amountButton)}>
-        <Button
+      <Button
         style={buttonStyle}
         disabled={!props.balance || props.balance === unlockToken}
         onClick={() => {
-          changeInput(props.balance, props.multiplier, props.onChange)
+          changeInput(props.balance, props.multiplier, props.onChange);
         }}
       >
         {`${Number(props.multiplier) * 100}%`}
       </Button>
     </Button.Group>
   );
-}
+};
 
 const changeInput = (balance, percentage, onChange) => {
   const event = {
     target: {
-      value: String(parseFloat(percentage) * parseFloat(balance.replace(/,/g, '')))
-    }
-  }
-  onChange(event)
-}
+      value: String(
+        parseFloat(percentage) * parseFloat(balance.replace(/,/g, '')),
+      ),
+    },
+  };
+  onChange(event);
+};
 
 const DepositContainer = props => {
-
   return (
     <div className={cn(styles.changeBalance)}>
       <div>
         <div className={cn(styles.balanceRow)}>
-          <h3 className={cn(styles.h3)}> </h3>
-
-          <h4 className={cn(styles.h4)}>
-            <ScrtTokenBalanceSingleLine value={props.balance} currency={props.currency} selected={false} balanceText={props.balanceText} />
-          </h4>
+          <div className={cn(styles.h4)}>
+            <ScrtTokenBalanceSingleLine
+              value={props.balance}
+              currency={props.currency}
+              selected={false}
+              balanceText={props.balanceText}
+            />
+          </div>
+          <div className={cn(styles.subtitle)}>{props.balanceText}</div>
         </div>
         <div>
           <Input
-            placeholder='0.0'
+            placeholder="0.0"
             className={cn(styles.form)}
             value={props.value}
             onChange={props.onChange}
           >
-            <input style={{borderRadius: '100px', height: '47px'}} />
+            <input style={{ borderRadius: '100px', height: '47px' }} />
           </Input>
         </div>
         <div className={styles.amountRow}>
@@ -90,7 +99,7 @@ const DepositContainer = props => {
         {props.action}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default DepositContainer;
