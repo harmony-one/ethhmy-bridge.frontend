@@ -2,7 +2,14 @@ import React, { Component } from 'react';
 
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { Accordion, Icon, Image } from 'semantic-ui-react';
+import {
+  Accordion,
+  Divider,
+  Grid,
+  Icon,
+  Image,
+  Segment,
+} from 'semantic-ui-react';
 import SoftTitleValue from '../SoftTitleValue';
 import EarnButton from './EarnButton';
 import DepositContainer from './DepositContainer';
@@ -163,21 +170,47 @@ class EarnRow extends Component<{
           <Icon name="dropdown" />
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
-          <div className={cn(styles.content2)}>
-            <DepositContainer
-              value={this.state.depositValue}
-              onChange={this.handleChangeDeposit}
-              action={EarnButton(this.props, this.state.depositValue)}
-              balance={this.props.token.balance}
-              currency={this.props.token.lockedAsset}
-            />
-            <DepositContainer
-              value={this.state.withdrawValue}
-              onChange={this.handleChangeWithdraw}
-              action={WithdrawButton(this.props, this.state.withdrawValue)}
-              balance={this.props.token.deposit}
-              currency={this.props.token.lockedAsset}
-            />
+          <div>
+            <Segment basic>
+              <Grid
+                className={cn(styles.content2)}
+                columns={2}
+                relaxed="very"
+                stackable
+              >
+                <Grid.Column>
+                  <DepositContainer
+                    value={this.state.depositValue}
+                    onChange={this.handleChangeDeposit}
+                    action={
+                      <EarnButton
+                        props={this.props}
+                        value={this.state.depositValue}
+                      />
+                    }
+                    balance={this.props.token.balance}
+                    currency={this.props.token.lockedAsset}
+                    balanceText="Available"
+                  />
+                </Grid.Column>
+                <Grid.Column>
+                  <DepositContainer
+                    value={this.state.withdrawValue}
+                    onChange={this.handleChangeWithdraw}
+                    action={
+                      <WithdrawButton
+                        props={this.props}
+                        value={this.state.withdrawValue}
+                      />
+                    } //({props: this.props, value: this.state.withdrawValue})}
+                    balance={this.props.token.deposit}
+                    currency={this.props.token.lockedAsset}
+                    balanceText="Locked"
+                  />
+                </Grid.Column>
+              </Grid>
+              <Divider vertical>Or</Divider>
+            </Segment>
           </div>
           <div>
             <ClaimBox

@@ -85,6 +85,7 @@
   cursor: pointer;
   text-align: right;
   padding-right: 20px;
+  overflow: hidden;
 }
 
 .balanceInput {
@@ -111,6 +112,7 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  float: right;
 }
 
 .h3 {
@@ -131,7 +133,7 @@
   background-color transparent
   -webkit-font-smoothing antialiased
   -webkit-tap-highlight-color transparent
-  border 1px solid rgba(47, 128, 237, 0.5)
+  // border 1px solid rgba(47, 128, 237, 0.5)
   box-shadow 0 0 0.5rem rgba(0, 0, 0, 0.3)
   cursor pointer;
   transition all 0.8s ease;
@@ -142,7 +144,7 @@
 
   &:disabled {
     color #848484;
-    border 1px solid #848484
+    // border 1px solid #848484
     background-color transparent
     cursor default
   }
@@ -182,4 +184,18 @@
   &:hover {
     background-color rgba(47, 128, 237, 0.2)
   }
+}
+
+.subtitle {
+  font-size: 16px;
+  font-family: "Work Sans Thin",BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-weight: 500;
+  line-height: 1.2;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  float: left 
+  color: rgba(43,57,84,0.5);
+  margin-left: 5%;
 }
