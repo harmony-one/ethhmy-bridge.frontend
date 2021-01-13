@@ -1,6 +1,14 @@
 import { BigNumber } from 'bignumber.js';
 const BN = require('bn.js');
 
+export const toFixedTrunc = (x, n) => {
+  const v = (typeof x === 'string' ? x : x.toString()).split('.');
+  if (n <= 0) return v[0];
+  let f = v[1] || '';
+  if (f.length > n) return `${v[0]}.${f.substr(0, n)}`;
+  while (f.length < n) f += '0';
+  return `${v[0]}.${f}`;
+};
 
 export const priceNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 10,
@@ -18,8 +26,10 @@ export const inputNumberFormat = new Intl.NumberFormat('en-US', {
 });
 
 export const valueToDecimals = (value: string, decimals: string): string => {
-  return BigInt(parseFloat(value) * Math.pow(10, parseInt(decimals))).toString()
-}
+  return BigInt(
+    parseFloat(value) * Math.pow(10, parseInt(decimals)),
+  ).toString();
+};
 
 export const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
@@ -39,7 +49,6 @@ const sixDecimalsFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 0,
   maximumFractionDigits: 6,
 });
-
 
 export function formatWithTwoDecimals(value: number | string) {
   return twoDecimalsFormatter.format(Number(value));
@@ -63,19 +72,24 @@ export function truncateAddressString(address: string, num = 12) {
   }
 
   const first = address.slice(0, num);
-  const last = address.slice(-(num));
+  const last = address.slice(-num);
   return `${first}...${last}`;
 }
 
-export const mulDecimals = (amount: string | number, decimals: string | number) => {
+export const mulDecimals = (
+  amount: string | number,
+  decimals: string | number,
+) => {
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).multipliedBy(decimalsMul);
 
   return new BN(amountStr.toFixed());
 };
 
-export const divDecimals = (amount: string | number, decimals: string | number) => {
-
+export const divDecimals = (
+  amount: string | number,
+  decimals: string | number,
+) => {
   if (decimals === 0) {
     return String(amount);
   }

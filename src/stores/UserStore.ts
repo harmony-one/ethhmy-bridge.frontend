@@ -16,6 +16,7 @@ import {
   divDecimals,
   formatWithSixDecimals,
   sleep,
+  toFixedTrunc,
   unlockToken,
   valueToDecimals,
 } from '../utils';
@@ -385,7 +386,9 @@ export class UserStoreEx extends StoreConstructor {
           if (balance.includes(unlockToken)) {
             this.balanceToken[token.src_coin] = balance;
           } else {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+            this.balanceToken[token.src_coin] = formatWithSixDecimals(
+              toFixedTrunc(balance, 6),
+            );
           }
         } catch (err) {
           this.balanceToken[token.src_coin] = unlockToken;
@@ -514,7 +517,9 @@ export class UserStoreEx extends StoreConstructor {
       if (balance.includes(unlockToken)) {
         this.balanceToken[token.src_coin] = balance;
       } else {
-        this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(
+          toFixedTrunc(balance, 6),
+        );
       }
     } catch (err) {
       this.balanceToken[token.src_coin] = unlockToken;
