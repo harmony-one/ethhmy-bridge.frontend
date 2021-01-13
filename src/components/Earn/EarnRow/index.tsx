@@ -10,10 +10,14 @@ import ClaimBox from './ClaimBox';
 import { UserStoreEx } from '../../../stores/UserStore';
 import { observer } from 'mobx-react';
 import WithdrawButton from './WithdrawButton';
-import { divDecimals, formatWithSixDecimals, formatWithTwoDecimals, zeroDecimalsFormatter } from '../../../utils';
+import {
+  divDecimals,
+  formatWithSixDecimals,
+  formatWithTwoDecimals,
+  zeroDecimalsFormatter,
+} from '../../../utils';
 import { Text } from '../../Base/components/Text';
 import ScrtTokenBalance from '../ScrtTokenBalance';
-
 
 interface RewardsToken {
   name: string;
@@ -38,25 +42,32 @@ interface RewardsToken {
 }
 // 1610446108 <-> 1722275
 
-const calculateAPY = (token: RewardsToken, price: number, priceUnderlying: number) => {
+const calculateAPY = (
+  token: RewardsToken,
+  price: number,
+  priceUnderlying: number,
+) => {
   // console.log(Math.round(Date.now() / 1000000))
   // deadline - current time, 6 seconds per block
-  const timeRemaining = (token.deadline - 1722275) * 6 + 1610446108 - Math.round(Date.now() / 1000)
+  const timeRemaining =
+    (token.deadline - 1722275) * 6 + 1610446108 - Math.round(Date.now() / 1000);
 
   // (token.deadline - Math.round(Date.now() / 1000000) );
-  const pending = Number(divDecimals(token.remainingLockedRewards, token.rewardsDecimals)) * price;
+  const pending =
+    Number(divDecimals(token.remainingLockedRewards, token.rewardsDecimals)) *
+    price;
 
   // this is already normalized
   const locked = Number(token.totalLockedRewards);
 
   //console.log(`pending - ${pending}; locked: ${locked}, time remaining: ${timeRemaining}`)
-  return ((pending * 100) / locked * (3.154e+7 / timeRemaining)).toFixed(0);
-
-}
+  return (((pending * 100) / locked) * (3.154e7 / timeRemaining)).toFixed(0);
+};
 
 const apyString = (token: RewardsToken) => {
-
-  const apy = Number(calculateAPY(token, Number(token.rewardsPrice), Number(token.price)));
+  const apy = Number(
+    calculateAPY(token, Number(token.rewardsPrice), Number(token.price)),
+  );
   if (isNaN(apy)) {
     return `0%`;
   }
@@ -68,35 +79,38 @@ const apyString = (token: RewardsToken) => {
   } else {
     return `${apyStr}%`;
   }
-}
+};
 
 @observer
 class EarnRow extends Component<{
-    userStore: UserStoreEx,
-    token: RewardsToken
-  }> {
-  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0',  }
+  userStore: UserStoreEx;
+  token: RewardsToken;
+}> {
+  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0' };
 
-  handleChangeDeposit = (event) => {
-    this.setState({depositValue: event.target.value});
-  }
+  handleChangeDeposit = event => {
+    this.setState({ depositValue: event.target.value });
+  };
 
-  handleChangeWithdraw = (event) => {
-    this.setState({withdrawValue: event.target.value});
-  }
+  handleChangeWithdraw = event => {
+    this.setState({ withdrawValue: event.target.value });
+  };
 
   handleClick = (e, titleProps) => {
-    const { index } = titleProps
-    const { activeIndex } = this.state
-    const newIndex = activeIndex === index ? -1 : index
+    const { index } = titleProps;
+    const { activeIndex } = this.state;
+    const newIndex = activeIndex === index ? -1 : index;
 
-    this.setState({ activeIndex: newIndex })
+    this.setState({ activeIndex: newIndex });
   };
 
   render() {
-    const style = (Number(this.props.token.balance) > 0) ? styles.accordionHaveDeposit : styles.accordion;
+    const style =
+      Number(this.props.token.balance) > 0
+        ? styles.accordionHaveDeposit
+        : styles.accordion;
     //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
-    const { activeIndex } = this.state
+    const { activeIndex } = this.state;
     return (
       <Accordion className={cn(style)}>
         <Accordion.Title
@@ -105,47 +119,76 @@ class EarnRow extends Component<{
           onClick={this.handleClick}
           className={cn(styles.assetRow)}
         >
-            <div className={cn(styles.assetIcon)}>
-              <Image src={this.props.token.display_props.image} rounded size='mini' />
-            </div>
-            <div className={cn(styles.assetName)}>
-              <SoftTitleValue title={this.props.token.display_props.label} subTitle={this.props.token.display_props.symbol} />
-            </div>
-            <div className={cn(styles.apy)}>
-              <SoftTitleValue title={apyString(this.props.token)} subTitle={"Annual Percentage Yield"} />
-            </div>
-            <div className={cn(styles.totalRewards)}>
-              <SoftTitleValue title={`${formatWithTwoDecimals(Number(this.props.token.totalLockedRewards))}$`} subTitle={"Total Value Locked"} />
-            </div>
-            <div className={cn(styles.availableDeposit)}>
-              <ScrtTokenBalance value={this.props.token.balance}
-                                decimals={0}
-                                currency={this.props.token.lockedAsset}
-                                userStore={this.props.userStore}
-                                tokenAddress={this.props.token.lockedAssetAddress}
-                                selected={this.state.activeIndex === 0}
-                                minimumFactions={0}
-                                subtitle={`Available to Deposit`} />
+          <div className={cn(styles.assetIcon)}>
+            <Image
+              src={this.props.token.display_props.image}
+              rounded
+              size="mini"
+            />
+          </div>
+          <div className={cn(styles.assetName)}>
+            <SoftTitleValue
+              title={this.props.token.display_props.label}
+              subTitle={this.props.token.display_props.symbol}
+            />
+          </div>
+          <div className={cn(styles.apy)}>
+            <SoftTitleValue
+              title={apyString(this.props.token)}
+              subTitle={'Annual Percentage Yield'}
+            />
+          </div>
+          <div className={cn(styles.totalRewards)}>
+            <SoftTitleValue
+              title={`${formatWithTwoDecimals(
+                Number(this.props.token.totalLockedRewards),
+              )}$`}
+              subTitle={'Total Value Locked'}
+            />
+          </div>
+          <div className={cn(styles.availableDeposit)}>
+            <ScrtTokenBalance
+              value={this.props.token.balance}
+              decimals={0}
+              currency={this.props.token.lockedAsset}
+              userStore={this.props.userStore}
+              tokenAddress={this.props.token.lockedAssetAddress}
+              selected={this.state.activeIndex === 0}
+              minimumFactions={0}
+              subtitle={`Available to Deposit`}
+            />
 
-              {/*/<SoftTitleValue title={`${} ${} `}  />*/}
-            </div>
-            <Icon name='dropdown'/>
+            {/*/<SoftTitleValue title={`${} ${} `}  />*/}
+          </div>
+          <Icon name="dropdown" />
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 0}>
           <div className={cn(styles.content2)}>
             <DepositContainer
               value={this.state.depositValue}
               onChange={this.handleChangeDeposit}
-              action={EarnButton(this.props, this.state.depositValue)}
+              action={
+                <EarnButton
+                  props={this.props}
+                  value={this.state.depositValue}
+                />
+              }
               balance={this.props.token.balance}
               currency={this.props.token.lockedAsset}
+              balanceText="Available to deposit: "
             />
             <DepositContainer
               value={this.state.withdrawValue}
               onChange={this.handleChangeWithdraw}
-              action={WithdrawButton(this.props, this.state.withdrawValue)}
+              action={
+                <WithdrawButton
+                  props={this.props}
+                  value={this.state.withdrawValue}
+                />
+              } //({props: this.props, value: this.state.withdrawValue})}
               balance={this.props.token.deposit}
               currency={this.props.token.lockedAsset}
+              balanceText="Your stake in the pool: "
             />
           </div>
           <div>
@@ -157,14 +200,19 @@ class EarnRow extends Component<{
           </div>
           <Text
             size="medium"
-            style={{ padding: '20 20 0 20', cursor: 'auto', textAlign: 'center' }}
+            style={{
+              padding: '20 20 0 20',
+              cursor: 'auto',
+              textAlign: 'center',
+            }}
           >
-            * Every time you deposit, withdraw or claim the contract will automagically claim your rewards for you!
+            * Every time you deposit, withdraw or claim the contract will
+            automagically claim your rewards for you!
           </Text>
         </Accordion.Content>
-      </Accordion>);
+      </Accordion>
+    );
   }
 }
-
 
 export default EarnRow;

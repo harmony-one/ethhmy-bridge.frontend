@@ -52,7 +52,7 @@ const DepositContainer = props => {
           <h3 className={cn(styles.h3)}> </h3>
 
           <h4 className={cn(styles.h4)}>
-            <ScrtTokenBalanceSingleLine value={props.balance} currency={props.currency} selected={false} />
+            <ScrtTokenBalanceSingleLine value={props.balance} currency={props.currency} selected={false} balanceText={props.balanceText} />
           </h4>
         </div>
         <div>

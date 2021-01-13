@@ -2,7 +2,7 @@ import { balanceNumberFormat, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
 
-const ScrtTokenBalanceSingleLine = (props: {value: string, currency: string, selected: boolean}) => {
+const ScrtTokenBalanceSingleLine = (props: {value: string, currency: string, selected: boolean, balanceText: string}) => {
 
   if (!props.value) {
     return (
@@ -17,7 +17,7 @@ const ScrtTokenBalanceSingleLine = (props: {value: string, currency: string, sel
   } else {
     return (
       <>
-        {balanceNumberFormat.format(Number(props.value.replace(/,/g, '')))} {props.currency}
+        {props.balanceText} {balanceNumberFormat.format(Number(props.value.replace(/,/g, '')))} {props.currency}
       </>
     );
   }
