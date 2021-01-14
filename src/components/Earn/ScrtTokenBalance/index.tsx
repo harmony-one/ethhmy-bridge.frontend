@@ -55,7 +55,7 @@ const ScrtTokenBalance = (props: {
           userStore={props.userStore}
           tokenAddress={props.tokenAddress}
           selected={props.selected}
-          subTitle={true}
+          subTitle={props.currency}
         />
       </div>
     );

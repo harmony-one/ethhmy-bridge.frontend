@@ -44,7 +44,7 @@ const AssetRow = observer<any>(props => {
           userStore={props.userStore}
           tokenAddress={props.token.dst_address}
           selected={props.selected}
-          subTitle={false}
+          subTitle={null}
         />
       </div>
     );

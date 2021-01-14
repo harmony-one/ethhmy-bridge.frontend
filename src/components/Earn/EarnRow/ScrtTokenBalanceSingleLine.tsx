@@ -1,6 +1,8 @@
 import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
+import UnlockToken from './UnlockToken';
+import { useStores } from 'stores';
 
 const ScrtTokenBalanceSingleLine = (props: {
   value: string;
@@ -11,7 +13,7 @@ const ScrtTokenBalanceSingleLine = (props: {
   if (!props.value) {
     return <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />;
   } else if (props.value === unlockToken) {
-    return <>Unlock</>;
+    return null;
   } else {
     return (
       <>
