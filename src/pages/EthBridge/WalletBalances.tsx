@@ -44,8 +44,10 @@ const AssetRow = observer<any>(props => {
           userStore={props.userStore}
           tokenAddress={props.token.dst_address}
           selected={props.selected}
-          subTitle={false}
+          showSubTitle={false}
           pulseInterval={props.pulseInterval}
+          title="View Balance"
+          subtitle=""
         />
       </div>
     );

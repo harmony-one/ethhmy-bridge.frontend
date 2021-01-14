@@ -11,8 +11,10 @@ const UnlockToken = (props: {
   userStore: UserStoreEx;
   tokenAddress: string;
   selected: boolean;
-  subTitle: boolean;
+  showSubTitle: boolean;
   pulseInterval: number;
+  title: string;
+  subtitle: string;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -58,8 +60,8 @@ const UnlockToken = (props: {
           🔍
         </span>
         <SoftTitleValue
-          title={'View Balance'}
-          subTitle={props.subTitle ? 'Earn Rewards' : null}
+          title={props.title}
+          subTitle={props.showSubTitle ? props.subtitle : null}
         />
       </Button>
     </Box>
