@@ -24,10 +24,11 @@ export const EarnRewards = observer((props: any) => {
     rewards.fetch();
   }, [rewards]);
 
-  useEffect(
-    () => setRefresh(refresh + 1),
-    Object.values(user.balanceToken).concat(Object.keys(user.balanceToken)),
-  );
+  useEffect(() => setRefresh(refresh + 1), [
+    tokens.allData
+      .map(t => `${t.src_coin} ${user.balanceToken[t.src_coin]}`)
+      .join(','),
+  ]);
 
   return (
     <BaseContainer>
