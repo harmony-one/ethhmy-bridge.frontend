@@ -10,6 +10,8 @@ const ClaimBox = (props: {
   decimals?: string | number;
   userStore: UserStoreEx;
   available: string;
+  pulse: boolean;
+  pulseInterval: number;
 }) => {
   const [available, setAvailable] = useState<string>(props.available);
   useEffect(() => {
@@ -27,6 +29,8 @@ const ClaimBox = (props: {
             currency={'sSCRT'}
             selected={false}
             value={available}
+            pulse={props.pulse}
+            pulseInterval={props.pulseInterval}
           />
           {/*<SoftTitleValue title={`${} sSCRT`} subTitle={} />*/}
         </div>

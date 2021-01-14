@@ -89,11 +89,26 @@ const apyString = (token: RewardsToken) => {
 };
 
 @observer
-class EarnRow extends Component<{
-  userStore: UserStoreEx;
-  token: RewardsToken;
-}> {
-  state = { activeIndex: -1, depositValue: '0.0', withdrawValue: '0.0' };
+class EarnRow extends Component<
+  {
+    userStore: UserStoreEx;
+    token: RewardsToken;
+  },
+  {
+    activeIndex: Number;
+    depositValue: string;
+    withdrawValue: string;
+    claimButtonPulse: boolean;
+    pulseInterval: number;
+  }
+> {
+  state = {
+    activeIndex: -1,
+    depositValue: '0.0',
+    withdrawValue: '0.0',
+    claimButtonPulse: true,
+    pulseInterval: -1,
+  };
 
   handleChangeDeposit = event => {
     this.setState({ depositValue: event.target.value });
@@ -110,6 +125,15 @@ class EarnRow extends Component<{
 
     this.setState({ activeIndex: newIndex });
   };
+
+  togglePulse = () =>
+    this.setState(prevState => ({
+      claimButtonPulse: !prevState.claimButtonPulse,
+    }));
+
+  clearPulseInterval = () => clearInterval(this.state.pulseInterval);
+
+  setPulseInterval = interval => this.setState({ pulseInterval: interval });
 
   render() {
     const style =
@@ -163,6 +187,8 @@ class EarnRow extends Component<{
               selected={this.state.activeIndex === 0}
               minimumFactions={0}
               subtitle={`Available to Deposit`}
+              pulse={this.state.claimButtonPulse}
+              pulseInterval={this.state.pulseInterval}
             />
 
             {/*/<SoftTitleValue title={`${} ${} `}  />*/}
@@ -187,6 +213,8 @@ class EarnRow extends Component<{
                         props={this.props}
                         value={this.state.depositValue}
                         changeValue={this.handleChangeDeposit}
+                        togglePulse={this.togglePulse}
+                        setPulseInterval={this.setPulseInterval}
                       />
                     }
                     balance={this.props.token.balance}
@@ -219,6 +247,8 @@ class EarnRow extends Component<{
               available={this.props.token.rewards}
               userStore={this.props.userStore}
               rewardsContract={this.props.token.rewardsContract}
+              pulse={this.state.claimButtonPulse}
+              pulseInterval={this.state.pulseInterval}
             />
           </div>
           <Text
