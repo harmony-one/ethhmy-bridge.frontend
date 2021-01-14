@@ -13,7 +13,6 @@ import { divDecimals } from '../../utils';
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
-  const [refresh, setRefresh] = useState<number>(0);
 
   useEffect(() => {
     rewards.init({
@@ -23,12 +22,6 @@ export const EarnRewards = observer((props: any) => {
     });
     rewards.fetch();
   }, [rewards]);
-
-  useEffect(() => setRefresh(refresh + 1), [
-    tokens.allData
-      .map(t => `${t.src_coin} ${user.balanceToken[t.src_coin]}`)
-      .join(','),
-  ]);
 
   return (
     <BaseContainer>
@@ -90,7 +83,7 @@ export const EarnRewards = observer((props: any) => {
 
               return (
                 <EarnRow
-                  key={rewardToken.inc_token.symbol + refresh}
+                  key={rewardToken.inc_token.symbol}
                   userStore={user}
                   token={rewardsToken}
                 />
