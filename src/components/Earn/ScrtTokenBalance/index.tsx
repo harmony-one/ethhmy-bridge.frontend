@@ -28,6 +28,8 @@ const ScrtTokenBalance = (props: {
   minimumFactions?: number;
   pulse: boolean;
   pulseInterval: number;
+  unlockTitle: string;
+  unlockSubtitle: string;
 }) => {
   const { user } = useStores();
   const [value, setValue] = useState<string>(props.value);
@@ -59,12 +61,14 @@ const ScrtTokenBalance = (props: {
             userStore={props.userStore}
             tokenAddress={props.tokenAddress}
             selected={props.selected}
-            subTitle={
+            subtitle={
               props.subtitle.includes('Rewards')
                 ? props.subtitle
                 : props.currency
             }
+            showSubTitle={true}
             pulseInterval={props.pulseInterval}
+            title={props.unlockTitle}
           />
         </div>
       </Transition>
