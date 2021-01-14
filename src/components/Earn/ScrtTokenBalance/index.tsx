@@ -7,6 +7,7 @@ import { UserStoreEx } from '../../../stores/UserStore';
 import * as styles from '../EarnRow/styles.styl';
 import cn from 'classnames';
 import { divDecimals, unlockToken } from '../../../utils';
+import { useStores } from 'stores';
 
 const formatNumber = (amount: string, minimumFactions: number) => {
   return new Intl.NumberFormat('en', {
@@ -25,6 +26,7 @@ const ScrtTokenBalance = (props: {
   selected: boolean;
   minimumFactions?: number;
 }) => {
+  const { user } = useStores();
   const [value, setValue] = useState<string>(props.value);
   useEffect(() => {
     setValue(props.value);
@@ -41,7 +43,9 @@ const ScrtTokenBalance = (props: {
         title={
           <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
         }
-        subTitle={text}
+        subTitle={
+          user.secretjs ? 'Fetching Balance...' : 'Connecting to Keplr...'
+        }
       />
     );
   } else if (value === unlockToken) {
