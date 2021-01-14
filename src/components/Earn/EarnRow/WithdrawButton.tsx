@@ -5,7 +5,7 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button } from 'semantic-ui-react';
 
-const WithdrawButton = ({ props, value }) => {
+const WithdrawButton = ({ props, value, changeValue }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
@@ -22,7 +22,15 @@ const WithdrawButton = ({ props, value }) => {
             Number(value).toFixed(6),
             props.token.decimals,
           ),
-        }).catch(reason => console.log(`Failed to withdraw: ${reason}`));
+        })
+          .then(_ =>
+            changeValue({
+              target: {
+                value: '0.0',
+              },
+            }),
+          )
+          .catch(reason => console.log(`Failed to withdraw: ${reason}`));
         setLoading(false);
       }}
     >

@@ -8,6 +8,7 @@ import * as styles from '../EarnRow/styles.styl';
 import cn from 'classnames';
 import { divDecimals, unlockToken } from '../../../utils';
 import { useStores } from 'stores';
+import { Transition } from 'semantic-ui-react';
 
 const formatNumber = (amount: string, minimumFactions: number) => {
   return new Intl.NumberFormat('en', {
@@ -25,6 +26,8 @@ const ScrtTokenBalance = (props: {
   tokenAddress: string;
   selected: boolean;
   minimumFactions?: number;
+  pulse: boolean;
+  pulseInterval: number;
 }) => {
   const { user } = useStores();
   const [value, setValue] = useState<string>(props.value);
@@ -50,14 +53,17 @@ const ScrtTokenBalance = (props: {
     );
   } else if (value === unlockToken) {
     return (
-      <div style={{ margin: 0, display: 'flex', flex: 1 }}>
-        <UnlockToken
-          userStore={props.userStore}
-          tokenAddress={props.tokenAddress}
-          selected={props.selected}
-          subTitle={true}
-        />
-      </div>
+      <Transition animation="pulse" duration={500} visible={props.pulse}>
+        <div style={{ margin: 0, display: 'flex', flex: 1 }}>
+          <UnlockToken
+            userStore={props.userStore}
+            tokenAddress={props.tokenAddress}
+            selected={props.selected}
+            subTitle={true}
+            pulseInterval={props.pulseInterval}
+          />
+        </div>
+      </Transition>
     );
   } else {
     return (

@@ -60,6 +60,7 @@ const DepositContainer = props => {
               currency={props.currency}
               selected={false}
               balanceText={props.balanceText}
+              popupText={props.unlockPopupText}
             />
           </div>
           <div className={cn(styles.subtitle)}>{props.balanceText}</div>
