@@ -34,7 +34,7 @@ export const sendErc721Token = async (params: {
   }
 
   if (!stores.user.hrc20Address) {
-    await stores.userMetamask.setToken(transaction.erc20Address);
+    await stores.userMetamask.setERC721Token(transaction.erc20Address);
   }
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {
