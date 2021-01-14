@@ -61,10 +61,14 @@ const ScrtTokenBalance = (props: {
             userStore={props.userStore}
             tokenAddress={props.tokenAddress}
             selected={props.selected}
+            subtitle={
+              props.subtitle.includes('Rewards')
+                ? props.subtitle
+                : props.currency
+            }
             showSubTitle={true}
             pulseInterval={props.pulseInterval}
             title={props.unlockTitle}
-            subtitle={props.unlockSubtitle}
           />
         </div>
       </Transition>

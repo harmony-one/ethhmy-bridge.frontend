@@ -1,7 +1,7 @@
 import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
-import { Button, Icon, Popup } from 'semantic-ui-react';
+import { Icon, Popup } from 'semantic-ui-react';
 
 const ScrtTokenBalanceSingleLine = (props: {
   value: string;
