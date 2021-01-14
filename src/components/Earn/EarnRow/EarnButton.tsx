@@ -6,7 +6,7 @@ import * as styles from './styles.styl';
 import { Button } from 'semantic-ui-react';
 
 // todo: add failed toast or something
-const EarnButton = ({ props, value }) => {
+const EarnButton = ({ props, value, changeValue }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
@@ -25,7 +25,15 @@ const EarnButton = ({ props, value }) => {
             Number(value).toFixed(6),
             props.token.decimals,
           ),
-        }).catch(reason => console.log(`Failed to deposit: ${reason}`));
+        })
+          .then(_ =>
+            changeValue({
+              target: {
+                value: '0.0',
+              },
+            }),
+          )
+          .catch(reason => console.log(`Failed to deposit: ${reason}`));
         setLoading(false);
       }}
     >

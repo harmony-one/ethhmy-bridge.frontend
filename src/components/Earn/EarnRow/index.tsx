@@ -186,6 +186,7 @@ class EarnRow extends Component<{
                       <EarnButton
                         props={this.props}
                         value={this.state.depositValue}
+                        changeValue={this.handleChangeDeposit}
                       />
                     }
                     balance={this.props.token.balance}
@@ -201,6 +202,7 @@ class EarnRow extends Component<{
                       <WithdrawButton
                         props={this.props}
                         value={this.state.withdrawValue}
+                        changeValue={this.handleChangeWithdraw}
                       />
                     } //({props: this.props, value: this.state.withdrawValue})}
                     balance={this.props.token.deposit}
