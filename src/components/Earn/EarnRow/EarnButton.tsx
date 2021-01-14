@@ -15,7 +15,6 @@ const EarnButton = ({
   setPulseInterval,
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
-  console.log('HI TOM THIS IS LOG: ' + props.token.deposit);
 
   return (
     <Button
