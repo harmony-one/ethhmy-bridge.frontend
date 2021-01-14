@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -13,6 +13,7 @@ import { divDecimals } from '../../utils';
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
+  const [refresh, setRefresh] = useState<number>(0);
 
   useEffect(() => {
     rewards.init({
@@ -22,6 +23,11 @@ export const EarnRewards = observer((props: any) => {
     });
     rewards.fetch();
   }, [rewards]);
+
+  useEffect(
+    () => setRefresh(refresh + 1),
+    Object.values(user.balanceToken).concat(Object.keys(user.balanceToken)),
+  );
 
   return (
     <BaseContainer>
@@ -83,7 +89,7 @@ export const EarnRewards = observer((props: any) => {
 
               return (
                 <EarnRow
-                  key={rewardToken.inc_token.symbol}
+                  key={rewardToken.inc_token.symbol + refresh}
                   userStore={user}
                   token={rewardsToken}
                 />

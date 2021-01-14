@@ -370,106 +370,105 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    if (this.address && this.secretjs) {
-      this.secretjs.getAccount(this.address).then(account => {
-        try {
-          this.balanceSCRT = formatWithSixDecimals(
-            divDecimals(account.balance[0].amount, 6),
+    while (!this.address || !this.secretjs) {
+      await sleep(100);
+    }
+
+    this.secretjs.getAccount(this.address).then(account => {
+      try {
+        this.balanceSCRT = formatWithSixDecimals(
+          divDecimals(account.balance[0].amount, 6),
+        );
+      } catch (e) {
+        this.balanceSCRT = '0';
+      }
+    });
+
+    for (const token of this.stores.tokens.allData) {
+      if (
+        this.snip20Address !== token.dst_address &&
+        this.snip20Address !== '' &&
+        token.src_coin !== 'Ethereum'
+      ) {
+        continue;
+      }
+      try {
+        console.log('update', token.display_props.symbol);
+
+        const balance = await this.getSnip20Balance(
+          token.dst_address,
+          token.decimals,
+        );
+        if (balance.includes(unlockToken)) {
+          this.balanceToken[token.src_coin] = balance;
+        } else {
+          this.balanceToken[token.src_coin] = formatWithSixDecimals(
+            toFixedTrunc(balance, 6),
           );
-        } catch (e) {
-          this.balanceSCRT = '0';
         }
-      });
-
-      for (const token of this.stores.tokens.allData) {
-        if (
-          this.snip20Address !== token.dst_address &&
-          this.snip20Address !== '' &&
-          token.src_coin !== 'Ethereum'
-        ) {
-          continue;
-        }
-        try {
-          console.log('update', token.display_props.symbol);
-
-          const balance = await this.getSnip20Balance(
-            token.dst_address,
-            token.decimals,
-          );
-          if (balance.includes(unlockToken)) {
-            this.balanceToken[token.src_coin] = balance;
-          } else {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(
-              toFixedTrunc(balance, 6),
-            );
-          }
-        } catch (err) {
-          this.balanceToken[token.src_coin] = unlockToken;
-        }
-
-        try {
-          this.balanceTokenMin[token.src_coin] =
-            token.display_props.min_from_scrt;
-        } catch (e) {
-          // Ethereum?
-        }
+      } catch (err) {
+        this.balanceToken[token.src_coin] = unlockToken;
       }
 
-      for (const token of this.stores.rewards.allData) {
-        try {
-          const balance = await this.getBridgeRewardsBalance(
-            token.pool_address,
-          );
+      try {
+        this.balanceTokenMin[token.src_coin] =
+          token.display_props.min_from_scrt;
+      } catch (e) {
+        // Ethereum?
+      }
+    }
 
-          if (balance.includes(unlockToken)) {
-            this.balanceRewards[rewardsKey(token.inc_token.symbol)] = balance;
-          } else {
-            // rewards are in the rewards_token decimals
-            this.balanceRewards[
-              rewardsKey(token.inc_token.symbol)
-            ] = divDecimals(balance, token.rewards_token.decimals); //divDecimals(balance, token.inc_token.decimals);
-          }
-        } catch (err) {
-          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
+    for (const token of this.stores.rewards.allData) {
+      try {
+        const balance = await this.getBridgeRewardsBalance(token.pool_address);
+
+        if (balance.includes(unlockToken)) {
+          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = balance;
+        } else {
+          // rewards are in the rewards_token decimals
+          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = divDecimals(
+            balance,
+            token.rewards_token.decimals,
+          ); //divDecimals(balance, token.inc_token.decimals);
         }
+      } catch (err) {
+        this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
+      }
 
-        try {
-          const balance = await this.getBridgeDepositBalance(
-            token.pool_address,
-          );
+      try {
+        const balance = await this.getBridgeDepositBalance(token.pool_address);
 
-          if (balance.includes(unlockToken)) {
-            this.balanceRewards[
-              rewardsDepositKey(token.inc_token.symbol)
-            ] = balance;
-          } else {
-            this.balanceRewards[
-              rewardsDepositKey(token.inc_token.symbol)
-            ] = divDecimals(balance, token.inc_token.decimals);
-          }
-        } catch (err) {
+        if (balance.includes(unlockToken)) {
           this.balanceRewards[
             rewardsDepositKey(token.inc_token.symbol)
-          ] = unlockToken;
+          ] = balance;
+        } else {
+          this.balanceRewards[
+            rewardsDepositKey(token.inc_token.symbol)
+          ] = divDecimals(balance, token.inc_token.decimals);
         }
+      } catch (err) {
+        this.balanceRewards[
+          rewardsDepositKey(token.inc_token.symbol)
+        ] = unlockToken;
+      }
 
-        try {
-          const balance = await this.getSnip20Balance(
-            token.rewards_token.address,
+      try {
+        const balance = await this.getSnip20Balance(
+          token.rewards_token.address,
+          token.rewards_token.decimals,
+        );
+
+        if (balance.includes(unlockToken)) {
+          this.balanceRewards[token.rewards_token.symbol] = balance;
+        } else {
+          this.balanceRewards[token.rewards_token.symbol] = divDecimals(
+            balance,
             token.rewards_token.decimals,
           );
-
-          if (balance.includes(unlockToken)) {
-            this.balanceRewards[token.rewards_token.symbol] = balance;
-          } else {
-            this.balanceRewards[token.rewards_token.symbol] = divDecimals(
-              balance,
-              token.rewards_token.decimals,
-            );
-          }
-        } catch (err) {
-          this.balanceRewards[token.rewards_token.symbol] = unlockToken;
         }
+      } catch (err) {
+        this.balanceRewards[token.rewards_token.symbol] = unlockToken;
       }
     }
   };
