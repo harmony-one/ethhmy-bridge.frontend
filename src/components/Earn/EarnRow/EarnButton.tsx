@@ -4,9 +4,16 @@ import { valueToDecimals } from '../../../utils';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button } from 'semantic-ui-react';
+import { unlockToken } from '../../../utils';
 
 // todo: add failed toast or something
-const EarnButton = ({ props, value }) => {
+const EarnButton = ({
+  props,
+  value,
+  changeValue,
+  togglePulse,
+  setPulseInterval,
+}) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
@@ -25,7 +32,21 @@ const EarnButton = ({ props, value }) => {
             Number(value).toFixed(6),
             props.token.decimals,
           ),
-        }).catch(reason => console.log(`Failed to deposit: ${reason}`));
+        })
+          .then(_ => {
+            changeValue({
+              target: {
+                value: '0.0',
+              },
+            });
+
+            if (props.token.deposit === unlockToken) {
+              togglePulse();
+              const interval = setInterval(togglePulse, 700);
+              setPulseInterval(interval);
+            }
+          })
+          .catch(reason => console.log(`Failed to deposit: ${reason}`));
         setLoading(false);
       }}
     >

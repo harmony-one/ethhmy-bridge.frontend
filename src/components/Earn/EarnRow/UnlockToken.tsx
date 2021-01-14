@@ -12,6 +12,7 @@ const UnlockToken = (props: {
   tokenAddress: string;
   selected: boolean;
   subTitle: string;
+  pulseInterval: number;
 }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -21,18 +22,13 @@ const UnlockToken = (props: {
         loading={loading}
         onClick={async () => {
           setLoading(true);
-          try {
-            await props.userStore.keplrWallet.suggestToken(
-              props.userStore.chainId,
-              props.tokenAddress,
-            );
-            await props.userStore.updateBalanceForSymbol(
-              null,
-              props.tokenAddress,
-            );
-          } catch (error) {
-            console.error(error);
-          }
+          props.userStore.keplrWallet
+            .suggestToken(props.userStore.chainId, props.tokenAddress)
+            .then(
+              props.userStore.updateBalanceForSymbol(null, props.tokenAddress),
+            )
+            .then(clearInterval(props.pulseInterval))
+            .catch(error => console.error(error));
           setLoading(false);
         }}
         style={{

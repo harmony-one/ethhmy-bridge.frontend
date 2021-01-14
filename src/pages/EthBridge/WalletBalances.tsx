@@ -45,6 +45,7 @@ const AssetRow = observer<any>(props => {
           tokenAddress={props.token.dst_address}
           selected={props.selected}
           subTitle={null}
+          pulseInterval={props.pulseInterval}
         />
       </div>
     );
