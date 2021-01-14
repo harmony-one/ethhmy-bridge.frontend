@@ -52,10 +52,6 @@ const ScrtTokenBalance = (props: {
           tokenAddress={props.tokenAddress}
           selected={props.selected}
         />
-        <SoftTitleValue
-          title={'View Balance'}
-          subTitle={'Rewards unavailable'}
-        />
       </div>
     );
   } else {
