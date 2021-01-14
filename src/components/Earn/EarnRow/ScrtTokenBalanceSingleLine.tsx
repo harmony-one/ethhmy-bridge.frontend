@@ -1,7 +1,7 @@
 import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
-import { Button, Popup } from 'semantic-ui-react';
+import { Button, Icon, Popup } from 'semantic-ui-react';
 
 const ScrtTokenBalanceSingleLine = (props: {
   value: string;
@@ -13,7 +13,19 @@ const ScrtTokenBalanceSingleLine = (props: {
   if (!props.value) {
     return <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />;
   } else if (props.value === unlockToken) {
-    return <Popup content={props.popupText} trigger={<div>Unlock</div>} />;
+    return (
+      <div>
+        <Popup
+          content={props.popupText}
+          trigger={
+            <div>
+              <Icon name="question circle outline" />
+              {props.currency}
+            </div>
+          }
+        />
+      </div>
+    );
   } else {
     return (
       <>

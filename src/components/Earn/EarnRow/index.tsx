@@ -220,6 +220,7 @@ class EarnRow extends Component<
                     balance={this.props.token.balance}
                     currency={this.props.token.lockedAsset}
                     balanceText="Available"
+                    unlockPopupText='In order to view your available assets, go to the Keplr extension and click the three horizontal lines -> "Add Token"'
                   />
                 </Grid.Column>
                 <Grid.Column>
