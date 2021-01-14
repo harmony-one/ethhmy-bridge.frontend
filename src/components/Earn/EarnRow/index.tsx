@@ -189,6 +189,8 @@ class EarnRow extends Component<
               subtitle={`Available to Deposit`}
               pulse={this.state.claimButtonPulse}
               pulseInterval={this.state.pulseInterval}
+              unlockTitle={'View Balance'}
+              unlockSubtitle={'Available to Deposit'}
             />
 
             {/*/<SoftTitleValue title={`${} ${} `}  />*/}

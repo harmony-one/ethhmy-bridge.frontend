@@ -31,6 +31,8 @@ const ClaimBox = (props: {
             value={available}
             pulse={props.pulse}
             pulseInterval={props.pulseInterval}
+            unlockTitle="View Balance"
+            unlockSubtitle="Available Rewards"
           />
           {/*<SoftTitleValue title={`${} sSCRT`} subTitle={} />*/}
         </div>
