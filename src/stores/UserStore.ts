@@ -393,7 +393,7 @@ export class UserStoreEx extends StoreConstructor {
         continue;
       }
       try {
-        console.log('update', token.display_props.symbol);
+        console.log('updateing', token.display_props.symbol, 'balance');
 
         const balance = await this.getSnip20Balance(
           token.dst_address,
@@ -502,7 +502,7 @@ export class UserStoreEx extends StoreConstructor {
       return;
     }
 
-    console.log('update', symbol);
+    console.log('updating', symbol, 'balance');
 
     if (symbol === 'SCRT') {
       this.secretjs.getAccount(this.address).then(account => {
