@@ -4,12 +4,15 @@ import { SigningCosmWasmClient } from 'secretjs';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button } from 'semantic-ui-react';
+import { useStores } from 'stores';
 
 const ClaimButton = (props: {
   secretjs: SigningCosmWasmClient;
   contract: string;
   available: string;
+  symbol: string;
 }) => {
+  const { user } = useStores();
   const [loading, setLoading] = useState<boolean>(false);
   return (
     <Button
@@ -20,11 +23,17 @@ const ClaimButton = (props: {
       }
       onClick={async () => {
         setLoading(true);
-        await Redeem({
-          secretjs: props.secretjs,
-          address: props.contract,
-          amount: '0',
-        }).catch(reason => console.log(`Failed to claim: ${reason}`));
+        try {
+          await Redeem({
+            secretjs: props.secretjs,
+            address: props.contract,
+            amount: '0',
+          });
+          await user.updateBalanceForSymbol(props.symbol);
+        } catch (reason) {
+          console.error(`Failed to claim: ${reason}`);
+        }
+
         setLoading(false);
       }}
     >

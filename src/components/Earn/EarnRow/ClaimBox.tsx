@@ -12,6 +12,7 @@ const ClaimBox = (props: {
   available: string;
   pulse: boolean;
   pulseInterval: number;
+  symbol: string;
 }) => {
   const [available, setAvailable] = useState<string>(props.available);
   useEffect(() => {
@@ -41,6 +42,7 @@ const ClaimBox = (props: {
             secretjs={props.userStore.secretjs}
             contract={props.rewardsContract}
             available={props.available}
+            symbol={props.symbol}
           />
         }
       </div>

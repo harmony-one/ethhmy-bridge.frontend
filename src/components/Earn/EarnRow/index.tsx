@@ -253,6 +253,7 @@ class EarnRow extends Component<
               rewardsContract={this.props.token.rewardsContract}
               pulse={this.state.claimButtonPulse}
               pulseInterval={this.state.pulseInterval}
+              symbol={this.props.token.display_props.symbol}
             />
           </div>
           <Text
