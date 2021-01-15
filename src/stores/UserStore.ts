@@ -224,7 +224,10 @@ export class UserStoreEx extends StoreConstructor {
     this.stores.userMetamask.erc20TokenDetails = null;
   };
 
-  @action.bound public setHRC20Mapping = async (hrc20Address: string) => {
+  @action.bound public setHRC20Mapping = async (
+    hrc20Address: string,
+    ignoreValidations?: boolean,
+  ) => {
     this.hrc20Balance = '0';
     this.hrc20Address = '';
     this.stores.userMetamask.erc20Address = '';
@@ -233,24 +236,26 @@ export class UserStoreEx extends StoreConstructor {
       throw new Error('Address field is empty');
     }
 
-    if (
-      this.stores.tokens.allData
-        .filter(t => t.type === 'erc20')
-        .find(t => t.hrc20Address === hrc20Address)
-    ) {
-      throw new Error('This address already using for ERC20 token wrapper');
-    }
+    if (!ignoreValidations) {
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.type === 'erc20')
+          .find(t => t.hrc20Address === hrc20Address)
+      ) {
+        throw new Error('This address already using for ERC20 token wrapper');
+      }
 
-    if (
-      this.stores.tokens.allData
-        .filter(t => t.type === 'erc721')
-        .find(t => t.hrc20Address === hrc20Address)
-    ) {
-      throw new Error('This address already using for ERC721 token wrapper');
-    }
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.type === 'erc721')
+          .find(t => t.hrc20Address === hrc20Address)
+      ) {
+        throw new Error('This address already using for ERC721 token wrapper');
+      }
 
-    if (process.env.ETH_HRC20 === hrc20Address) {
-      throw new Error('This address already using for Harmony Eth token');
+      if (process.env.ETH_HRC20 === hrc20Address) {
+        throw new Error('This address already using for Harmony Eth token');
+      }
     }
 
     try {

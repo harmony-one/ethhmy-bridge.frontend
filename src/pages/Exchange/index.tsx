@@ -348,7 +348,7 @@ export class Exchange extends React.Component<
                 exchange.setToken(TOKEN.ONE);
                 routing.push(`/${exchange.token}`);
 
-                user.setHRC20Mapping(process.env.ONE_HRC20);
+                user.setHRC20Mapping(process.env.ONE_HRC20, true);
 
                 // user.setHRC20Token(process.env.ONE_HRC20);
                 // userMetamask.setTokenDetails({
