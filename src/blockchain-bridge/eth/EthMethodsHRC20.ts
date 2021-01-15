@@ -109,8 +109,10 @@ export class EthMethodsHRC20 {
     return { name, symbol, decimals, erc20Address };
   };
 
-  getMappingFor = async erc20TokenAddr => {
-    const hmyAddrHex = getAddress(erc20TokenAddr).checksum;
+  getMappingFor = async (erc20TokenAddr, withoutFormat = false) => {
+    const hmyAddrHex = withoutFormat
+      ? erc20TokenAddr
+      : getAddress(erc20TokenAddr).checksum;
 
     if (!this.web3.utils.isAddress(hmyAddrHex)) {
       throw new Error('Invalid token address');

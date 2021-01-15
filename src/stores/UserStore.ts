@@ -279,7 +279,10 @@ export class UserStoreEx extends StoreConstructor {
     let address;
 
     try {
-      address = await ethMethodsHRC20.getMappingFor(hrc20Address);
+      address = await ethMethodsHRC20.getMappingFor(
+        hrc20Address,
+        this.stores.exchange.token === TOKEN.ONE,
+      );
     } catch (e) {
       console.error(e);
     }
