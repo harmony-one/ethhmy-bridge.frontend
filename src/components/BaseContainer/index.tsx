@@ -37,7 +37,7 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
               minWidth,
               maxWidth,
               margin: '120px auto 52px',
-              height: 'calc(100% - 324px)',
+              height: 'calc(100% - 388px)',
               minHeight: '586px',
             }}
             {...props}
