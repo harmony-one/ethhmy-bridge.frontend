@@ -273,19 +273,25 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 style={{ width: 220 }}
                 align="center"
               >
-                <a
-                  className={styles.addressLink}
-                  href={
-                    (isEth(action.type)
-                      ? process.env.ETH_EXPLORER_URL
-                      : process.env.HMY_EXPLORER_URL) +
-                    '/tx/' +
-                    action.transactionHash
-                  }
-                  target="_blank"
-                >
-                  {truncateAddressString(action.transactionHash, 9)}
-                </a>
+                {action.transactionHash === 'skip' ? (
+                  <Box fill={true} margin={{ left: 'small' }} direction="row">
+                    skipped
+                  </Box>
+                ) : (
+                  <a
+                    className={styles.addressLink}
+                    href={
+                      (isEth(action.type)
+                        ? process.env.ETH_EXPLORER_URL
+                        : process.env.HMY_EXPLORER_URL) +
+                      '/tx/' +
+                      action.transactionHash
+                    }
+                    target="_blank"
+                  >
+                    {truncateAddressString(action.transactionHash, 9)}
+                  </a>
+                )}
               </Box>
             )}
 

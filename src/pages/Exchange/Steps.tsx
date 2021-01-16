@@ -51,14 +51,20 @@ const StepRow = ({
           </Text>
         )}
       </Box>
-      {action.transactionHash && (
+      {action.transactionHash && action.transactionHash !== 'skip' ? (
         <Box direction="row" justify="between">
           <Text className={textClassName}>Tx hash: </Text>
           <a href={explorerUrl + action.transactionHash} target="_blank">
             {truncateAddressString(action.transactionHash, 10)}
           </a>
         </Box>
-      )}
+      ) : null}
+
+      {action.transactionHash && action.transactionHash === 'skip' ? (
+        <Box direction="row" justify="between">
+          <Text className={textClassName}>Operation was skipped</Text>
+        </Box>
+      ) : null}
 
       {hrc20Address && (
         <Box
