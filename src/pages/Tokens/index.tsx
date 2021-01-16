@@ -139,11 +139,13 @@ export const Tokens = observer((props: any) => {
   const filteredData = tokens.data.filter(token => {
     if (search) {
       return (
-        Object.values(token).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+        Object.values(token).some(
+          value =>
+            value &&
+            value
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()),
         ) ||
         getBech32Address(token.hrc20Address).toLowerCase() ===
           search.toLowerCase()
@@ -173,7 +175,7 @@ export const Tokens = observer((props: any) => {
                   marginLeft: 5,
                   color: '#47b8eb',
                   fontWeight: 600,
-                  letterSpacing: 0.2
+                  letterSpacing: 0.2,
                 }}
               >
                 {formatWithTwoDecimals(tokens.totalLockedUSD)}
