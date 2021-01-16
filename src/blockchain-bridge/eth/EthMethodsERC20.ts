@@ -47,10 +47,7 @@ export class EthMethodsERC20 {
       .on('transactionHash', hash => sendTxCallback(hash));
   };
 
-  setApprovalForAllEthManger = async (
-    erc20Address,
-    sendTxCallback?,
-  ) => {
+  setApprovalForAllEthManger = async (erc20Address, sendTxCallback?) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -60,24 +57,25 @@ export class EthMethodsERC20 {
       erc20Address,
     );
 
-    debugger;
+    let res = await erc20Contract.methods
+      .isApprovedForAll(accounts[0], this.ethManagerAddress)
+      .call();
 
-    await erc20Contract.methods
-      .setApprovalForAll(this.ethManagerAddress, true)
-      .send({
-        from: accounts[0],
-        gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: await getGasPrice(this.web3),
-      })
-      .on('transactionHash', hash => sendTxCallback(hash));
+    if (!res) {
+      await erc20Contract.methods
+        .setApprovalForAll(this.ethManagerAddress, true)
+        .send({
+          from: accounts[0],
+          gas: process.env.ETH_GAS_LIMIT,
+          gasPrice: await getGasPrice(this.web3),
+        })
+        .on('transactionHash', hash => sendTxCallback(hash));
+    } else {
+      sendTxCallback('skip');
+    }
   };
 
-  lockTokens = async (
-    erc20Address,
-    userAddr,
-    amount,
-    sendTxCallback?,
-  ) => {
+  lockTokens = async (erc20Address, userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 

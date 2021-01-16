@@ -1,5 +1,6 @@
 import { Harmony } from '@harmony-js/core';
 import { Contract } from '@harmony-js/contract';
+import { getAddress } from '@harmony-js/crypto';
 import { connectToOneWallet } from './helpers';
 import { mulDecimals } from '../../utils';
 
@@ -62,12 +63,25 @@ export class HmyMethodsERC20 {
         // TODO
         await connectToOneWallet(hmyTokenContract.wallet, null, reject);
 
-        const res = await hmyTokenContract.methods
-          .setApprovalForAll(this.hmyManagerContract.address, true)
-          .send(this.options)
-          .on('transactionHash', sendTxCallback);
+        // @ts-ignore
+        let { address } = await window.onewallet.getAccount();
+        const hmyAddrHex = getAddress(address).checksum;
 
-        resolve(res);
+        let res = await hmyTokenContract.methods
+          .isApprovedForAll(hmyAddrHex, this.hmyManagerContract.address)
+          .call(this.options);
+
+        if (!res) {
+          res = await hmyTokenContract.methods
+            .setApprovalForAll(this.hmyManagerContract.address, true)
+            .send(this.options)
+            .on('transactionHash', sendTxCallback);
+
+          resolve(res);
+        } else {
+          sendTxCallback('skip');
+          resolve(res);
+        }
       } catch (e) {
         reject(e);
       }
@@ -97,12 +111,7 @@ export class HmyMethodsERC20 {
     });
   };
 
-  burnTokens = async (
-    hrc20Address,
-    userAddr,
-    amount,
-    sendTxCallback?,
-  ) => {
+  burnTokens = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
     return new Promise(async (resolve, reject) => {
       try {
         await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
