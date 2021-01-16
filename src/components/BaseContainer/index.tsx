@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Box, BoxProps } from 'grommet';
 import { Head } from 'components';
+import { Footer } from 'components';
 import { withTheme } from 'styled-components';
 import { IStyledChildrenProps } from 'interfaces';
 // import * as styles from './styles.styl';
@@ -35,13 +36,16 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
             style={{
               minWidth,
               maxWidth,
-              margin: '120px auto 20px',
+              margin: '120px auto 52px',
+              height: 'calc(100% - 324px)',
+              minHeight: '586px',
             }}
             {...props}
           >
             {process.env.NODE_ENV === 'testnet' ? <Disclaimer /> : null}
             {children}
           </Box>
+          <Footer />
         </div>
       </>
     );
