@@ -15,6 +15,8 @@ export const Footer: typeof Box = props => (
       width: '100%',
       zIndex: 100,
       minWidth: '550px',
+      paddingTop: '64px',
+      paddingBottom: '64px',
     }}
     direction="row"
     justify="end"
@@ -53,7 +55,7 @@ export const Footer: typeof Box = props => (
           <a href="https://forum.scrt.network/" style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }} target="_blank">
             <Text>Forum</Text>
           </a>
-          <a href="https://discord.scrt.network/" style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }} target="_blank">
+          <a href="https://discord.gg/7t7PqPZFJq" style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }} target="_blank">
             <Text>Discord</Text>
           </a>
           <a href="https://github.com/enigmampc" style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }} target="_blank">
