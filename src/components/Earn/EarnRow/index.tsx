@@ -143,7 +143,11 @@ class EarnRow extends Component<
     //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
     const { activeIndex } = this.state;
     return (
-      <Accordion className={cn(style)}>
+      <Accordion className={cn(style)}
+      style={{
+        marginTop: '62px',
+      }}
+      >
         <Accordion.Title
           active={activeIndex === 0}
           index={0}
