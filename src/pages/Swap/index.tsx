@@ -8,7 +8,7 @@ import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
 import { divDecimals, inputNumberFormat, mulDecimals } from 'utils';
-import { AssetRow } from './AssetRow';
+import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
 import {
@@ -444,7 +444,7 @@ export const SwapPage = () => {
                   'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
               }}
             >
-              <AssetRow
+              <SwapAssetRow
                 isFrom={true}
                 balance={myBalances[selectedTokens.from]}
                 tokens={tokens}
@@ -502,7 +502,7 @@ export const SwapPage = () => {
                 </span>
                 {flexRowSpace}
               </div>
-              <AssetRow
+              <SwapAssetRow
                 isFrom={false}
                 balance={myBalances[selectedTokens.to]}
                 tokens={tokens}
