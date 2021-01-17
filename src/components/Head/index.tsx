@@ -108,15 +108,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Bridge</Text>
             </Box>
 
-            {/*<Box*/}
-            {/*  className={cn(styles.itemToken, isSwap ? styles.selected : '')}*/}
-            {/*  onClick={() => {*/}
-            {/*    routing.push(`/swap`);*/}
-            {/*  }}*/}
-            {/*>*/}
-            {/*  <Text>Swap</Text>*/}
-            {/*</Box>*/}
-
             <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
               onClick={() => {
@@ -150,6 +141,15 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               onClick={() => routing.push('/earn')}
             >
               <Text>Earn</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/swap`);
+              }}
+            >
+              <Text>Swap</Text>
             </Box>
 
             <Box

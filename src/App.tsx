@@ -19,7 +19,7 @@ export const App: React.FC = () => (
   <Providers>
     <Suspense fallback={<div />}>
       <Switch>
-        {/*<Route exact path="/swap" component={SwapPage} />*/}
+        <Route exact path="/swap" component={SwapPage} />
         <Route exact path="/tokens" component={Tokens} />
         <Route exact path="/faq" component={FAQPage} />
         {/* <Route exact path="/info" component={InfoPage} /> */}
