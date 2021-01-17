@@ -311,7 +311,7 @@ export const SwapPage = () => {
             );
           }}
         >
-          🔓 Unlock
+          🔍 View
         </span>
       );
 
