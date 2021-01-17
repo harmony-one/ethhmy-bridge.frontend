@@ -403,6 +403,9 @@ export class UserStoreEx extends StoreConstructor {
       await sleep(100);
     }
 
+    if (!symbol && tokenAddress === process.env.SSCRT_CONTRACT) {
+      symbol = 'sSCRT';
+    }
     if (!symbol && tokenAddress) {
       try {
         symbol = this.stores.tokens.allData.find(
