@@ -384,10 +384,14 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    await this.updateBalanceForSymbol('SCRT');
-    await this.updateBalanceForSymbol('sSCRT');
-    for (const token of this.stores.tokens.allData) {
-      await this.updateBalanceForSymbol(token.display_props.symbol);
+    for (const symbol of ['SCRT', 'sSCRT'].concat(
+      this.stores.tokens.allData.map(t => t.display_props.symbol),
+    )) {
+      try {
+        await this.updateBalanceForSymbol(symbol);
+      } catch (error) {
+        console.error(`Error getting balance for ${symbol}:`, error);
+      }
     }
   };
 
