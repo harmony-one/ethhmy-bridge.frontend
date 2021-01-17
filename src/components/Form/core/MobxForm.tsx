@@ -384,6 +384,6 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
 
   public render() {
     const WrappedComponent = this.WrappedComponent as any;
-    return <WrappedComponent {...this.props} form={this} ref={this.props.rootRef} />;
+    return <WrappedComponent key={" "} {...this.props} form={this} ref={this.props.rootRef} />;
   }
 }

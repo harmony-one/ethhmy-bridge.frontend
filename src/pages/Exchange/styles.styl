@@ -36,9 +36,9 @@
         // color #00ADE8
         // border-bottom 1px solid #00ADE8
         border-radius 5px
-        background: #f2f3f8;
+        background #f2f3f8
         position relative
-
+        border 1px solid #212529
         &:after {
             display none
             position absolute
@@ -50,5 +50,11 @@
 
             background: linear-gradient(269.98deg, #69FABC -0.02%, #00ADE8 100%);
         }
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .exchangeContainer {
+        width 100%
     }
 }

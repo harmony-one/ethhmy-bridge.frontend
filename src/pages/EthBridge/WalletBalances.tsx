@@ -5,13 +5,14 @@ import { Button, Icon, Text, Title } from 'components/Base';
 import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
-import { truncateAddressString } from 'utils';
+import { truncateAddressString, unlockToken } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import UnlockToken from 'components/Earn/EarnRow/UnlockToken';
 
 const AssetRow = observer<any>(props => {
   let value = (
@@ -36,26 +37,19 @@ const AssetRow = observer<any>(props => {
     value = (
       <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
     );
-  } else if (props.value === 'Unlock') {
+  } else if (props.value === unlockToken) {
     value = (
-      <Box direction="row">
-        <span
-          onClick={() => {
-            props.userStore.keplrWallet.suggestToken(
-              props.userStore.chainId,
-              props.token.dst_address,
-            );
-          }}
-        >
-          <Text
-            color={props.selected ? '#00ADE8' : null}
-            bold={true}
-            style={{ cursor: 'pointer' }}
-          >
-            🔓 Unlock Token
-          </Text>
-        </span>
-      </Box>
+      <div style={{ margin: 0, display: 'flex', flexDirection: 'row' }}>
+        <UnlockToken
+          userStore={props.userStore}
+          tokenAddress={props.token.dst_address}
+          selected={props.selected}
+          subtitle={null}
+          showSubTitle={false}
+          pulseInterval={props.pulseInterval}
+          title="View Balance"
+        />
+      </div>
     );
   } else if (props.value === 'Fix Unlock') {
     value = (
@@ -95,7 +89,13 @@ const AssetRow = observer<any>(props => {
       )}
     >
       <Box direction="row" align="center" justify="center">
-        <Text color={props.selected ? '#00ADE8' : null} bold={false}>
+        <Text
+          color={props.selected ? '#00ADE8' : null}
+          bold={false}
+          style={
+            props.value === unlockToken ? { padding: '1em 0 1em 0' } : null
+          }
+        >
           {props.asset}
         </Text>
         {props.link ? (
@@ -245,6 +245,13 @@ export const WalletBalances = observer(() => {
                 address={true}
               />
               <AssetRow asset="SCRT" value={user.balanceSCRT} />
+              <AssetRow
+                asset="secretSCRT"
+                value={user.balanceToken['sSCRT']}
+                token={{ dst_address: process.env.SSCRT_CONTRACT }}
+                userStore={user}
+                link={`${process.env.SCRT_EXPLORER_URL}/contracts/${process.env.SSCRT_CONTRACT}`}
+              />
               {exchange.token === TOKEN.ETH ? (
                 <AssetRow
                   asset="secretETH"
@@ -275,21 +282,23 @@ export const WalletBalances = observer(() => {
                     exchange.token === TOKEN.ERC20 &&
                     user.snip20Address === token.dst_address,
                 )
-                .map((token, idx) => (
-                  <AssetRow
-                    key={idx}
-                    asset={'secret' + token.display_props.symbol}
-                    value={user.balanceToken[token.src_coin]}
-                    token={token}
-                    userStore={user}
-                    link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
-                    selected={
-                      exchange.token === TOKEN.ERC20 &&
-                      exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                      user.snip20Address === token.dst_address
-                    }
-                  />
-                ))}
+                .map((token, idx) => {
+                  return (
+                    <AssetRow
+                      key={idx}
+                      asset={'secret' + token.display_props.symbol}
+                      value={user.balanceToken[token.src_coin]}
+                      token={token}
+                      userStore={user}
+                      link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
+                      selected={
+                        exchange.token === TOKEN.ERC20 &&
+                        exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+                        user.snip20Address === token.dst_address
+                      }
+                    />
+                  );
+                })}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">

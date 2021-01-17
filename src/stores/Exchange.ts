@@ -7,6 +7,7 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
 import { getStatus } from 'services';
 
 export enum EXCHANGE_STEPS {
@@ -236,8 +237,6 @@ export class Exchange extends StoreConstructor {
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
 
-        console.log(`${JSON.stringify(swap.swap)}`)
-
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
 
@@ -369,7 +368,6 @@ export class Exchange extends StoreConstructor {
     ) {
       await sleep(2000);
       lolStatus = await this.getStatus(this.operation.id);
-      console.log(lolStatus);
       if (
         lolStatus === SwapStatus.SWAP_CONFIRMED ||
         lolStatus === SwapStatus.SWAP_FAILED
@@ -463,33 +461,26 @@ export class Exchange extends StoreConstructor {
     await this.createOperation();
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
-    const tx = await this.stores.user.secretjs.execute(
-      this.transaction.snip20Address,
-      {
-        send: {
-          amount: amount,
-          msg: btoa(this.transaction.ethAddress),
-          recipient: process.env.SCRT_SWAP_CONTRACT,
-        },
-      },
-    );
+    let tx_id = "";
 
-    const txIdKvp = tx.logs[0].events[1].attributes.find(
-      kv => kv.key === 'tx_id',
-    );
-
-    let tx_id: string;
-    if (txIdKvp && txIdKvp.value) {
-      tx_id = txIdKvp.value;
-    } else {
+    try {
+       tx_id = await Snip20SendToBridge({
+        secretjs: this.stores.user.secretjs,
+        address: this.transaction.snip20Address,
+        amount,
+        msg: btoa(this.transaction.ethAddress)
+      });
+    } catch (e) {
       this.operation.status = SwapStatus.SWAP_FAILED;
       this.setStatus();
-      throw 'Cannot find tx_id';
+      throw e;
     }
 
     this.operation.status = await this.updateOperation(
       this.operation.id,
-      `${tx_id}|${this.transaction.snip20Address}`,
+      Snip20SwapHash({
+        tx_id,
+        address: this.transaction.snip20Address}),
     );
     this.setStatus();
 

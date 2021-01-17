@@ -27,6 +27,7 @@ type Pair = {
   liquidity_token: string;
   token_code_hash: string;
 };
+import { balanceNumberFormat, priceNumberFormat } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
