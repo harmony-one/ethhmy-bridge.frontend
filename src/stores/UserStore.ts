@@ -174,6 +174,20 @@ export class UserStoreEx extends StoreConstructor {
             );
           }
 
+          // Also hook sSCRT
+          symbolUpdateHeightCache['sSCRT'] = 0;
+
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'sSCRT', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `message.module='compute' AND message.contract_address='${process.env.SSCRT_CONTRACT}' AND message.action='execute'`,
+              },
+            }),
+          );
+
           symbolUpdateHeightCache['SCRT'] = 0;
 
           // If I sent a tx, I paid for gas => update SCRT balance
@@ -370,106 +384,10 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    while (!this.address || !this.secretjs) {
-      await sleep(100);
-    }
-
-    this.secretjs.getAccount(this.address).then(account => {
-      try {
-        this.balanceSCRT = formatWithSixDecimals(
-          divDecimals(account.balance[0].amount, 6),
-        );
-      } catch (e) {
-        this.balanceSCRT = '0';
-      }
-    });
-
+    await this.updateBalanceForSymbol('SCRT');
+    await this.updateBalanceForSymbol('sSCRT');
     for (const token of this.stores.tokens.allData) {
-      if (
-        this.snip20Address !== token.dst_address &&
-        this.snip20Address !== '' &&
-        token.src_coin !== 'Ethereum'
-      ) {
-        continue;
-      }
-      try {
-        console.log('updateing', token.display_props.symbol, 'balance');
-
-        const balance = await this.getSnip20Balance(
-          token.dst_address,
-          token.decimals,
-        );
-        if (balance.includes(unlockToken)) {
-          this.balanceToken[token.src_coin] = balance;
-        } else {
-          this.balanceToken[token.src_coin] = formatWithSixDecimals(
-            toFixedTrunc(balance, 6),
-          );
-        }
-      } catch (err) {
-        this.balanceToken[token.src_coin] = unlockToken;
-      }
-
-      try {
-        this.balanceTokenMin[token.src_coin] =
-          token.display_props.min_from_scrt;
-      } catch (e) {
-        // Ethereum?
-      }
-    }
-
-    for (const token of this.stores.rewards.allData) {
-      try {
-        const balance = await this.getBridgeRewardsBalance(token.pool_address);
-
-        if (balance.includes(unlockToken)) {
-          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = balance;
-        } else {
-          // rewards are in the rewards_token decimals
-          this.balanceRewards[rewardsKey(token.inc_token.symbol)] = divDecimals(
-            balance,
-            token.rewards_token.decimals,
-          ); //divDecimals(balance, token.inc_token.decimals);
-        }
-      } catch (err) {
-        this.balanceRewards[rewardsKey(token.inc_token.symbol)] = unlockToken;
-      }
-
-      try {
-        const balance = await this.getBridgeDepositBalance(token.pool_address);
-
-        if (balance.includes(unlockToken)) {
-          this.balanceRewards[
-            rewardsDepositKey(token.inc_token.symbol)
-          ] = balance;
-        } else {
-          this.balanceRewards[
-            rewardsDepositKey(token.inc_token.symbol)
-          ] = divDecimals(balance, token.inc_token.decimals);
-        }
-      } catch (err) {
-        this.balanceRewards[
-          rewardsDepositKey(token.inc_token.symbol)
-        ] = unlockToken;
-      }
-
-      try {
-        const balance = await this.getSnip20Balance(
-          token.rewards_token.address,
-          token.rewards_token.decimals,
-        );
-
-        if (balance.includes(unlockToken)) {
-          this.balanceRewards[token.rewards_token.symbol] = balance;
-        } else {
-          this.balanceRewards[token.rewards_token.symbol] = divDecimals(
-            balance,
-            token.rewards_token.decimals,
-          );
-        }
-      } catch (err) {
-        this.balanceRewards[token.rewards_token.symbol] = unlockToken;
-      }
+      await this.updateBalanceForSymbol(token.display_props.symbol);
     }
   };
 
@@ -514,6 +432,24 @@ export class UserStoreEx extends StoreConstructor {
           this.balanceSCRT = '0';
         }
       });
+      return;
+    }
+    if (symbol === 'sSCRT') {
+      try {
+        const balance = await this.getSnip20Balance(
+          process.env.SSCRT_CONTRACT,
+          6,
+        );
+        if (balance.includes(unlockToken)) {
+          this.balanceToken['sSCRT'] = balance;
+        } else {
+          this.balanceToken['sSCRT'] = formatWithSixDecimals(
+            toFixedTrunc(balance, 6),
+          );
+        }
+      } catch (err) {
+        this.balanceToken['sSCRT'] = unlockToken;
+      }
       return;
     }
 

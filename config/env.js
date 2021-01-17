@@ -68,6 +68,7 @@ function getClientEnvironment(publicUrl) {
         SECRET_RPC: process.env.SECRET_RPC,
         SECRET_LCD: process.env.SECRET_LCD,
         SECRET_WS: process.env.SECRET_WS,
+        SSCRT_CONTRACT: process.env.SSCRT_CONTRACT,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,

@@ -245,7 +245,13 @@ export const WalletBalances = observer(() => {
                 address={true}
               />
               <AssetRow asset="SCRT" value={user.balanceSCRT} />
-              {/*<AssetRow asset="secret-SCRT" value={user.balanceRewards["sSCRT"]} />*/}
+              <AssetRow
+                asset="secretSCRT"
+                value={user.balanceToken['sSCRT']}
+                token={{ dst_address: process.env.SSCRT_CONTRACT }}
+                userStore={user}
+                link={`${process.env.SCRT_EXPLORER_URL}/contracts/${process.env.SSCRT_CONTRACT}`}
+              />
               {exchange.token === TOKEN.ETH ? (
                 <AssetRow
                   asset="secretETH"
