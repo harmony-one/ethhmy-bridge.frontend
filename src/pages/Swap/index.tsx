@@ -20,6 +20,7 @@ import {
 } from '../../blockchain-bridge/scrt/swap';
 import { Currency, Trade, Asset, NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
+import Style from 'style-it';
 
 type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -301,9 +302,20 @@ export const SwapPage = () => {
         });
       }
 
-      const unlockJsx = (
+      const unlockJsx = Style.it(
+        `
+        .yolo{
+          cursor: pointer;
+          border-radius: 30px;
+          padding: 0 0.3em;
+        }
+
+        .yolo:hover {
+          background: whitesmoke;
+        }
+      `,
         <span
-          style={{ cursor: 'pointer' }}
+          className="yolo"
           onClick={async () => {
             await user.keplrWallet.suggestToken(
               user.chainId,
@@ -312,7 +324,7 @@ export const SwapPage = () => {
           }}
         >
           🔍 View
-        </span>
+        </span>,
       );
 
       if (!viewingKey) {
