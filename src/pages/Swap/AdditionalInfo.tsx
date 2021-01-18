@@ -27,6 +27,15 @@ export const AdditionalInfo = ({
     'whitesmoke',
   );
 
+  let priceImpactColor = 'green'; // Less than 1% - Awesome
+  if (priceImpact > 0.05) {
+    priceImpactColor = 'red'; // High
+  } else if (priceImpact > 0.03) {
+    priceImpactColor = 'orange'; // Medium
+  } else if (priceImpact > 0.01) {
+    priceImpactColor = 'black'; // Low
+  }
+
   return (
     <div style={{ maxWidth: '400px', minWidth: '400px' }}>
       <Container
@@ -108,7 +117,9 @@ export const AdditionalInfo = ({
             />
           </span>
           {flexRowSpace}
-          <strong>{`${(priceImpact * 100).toFixed(2)}%`}</strong>
+          <strong style={{ color: priceImpactColor }}>{`${(
+            priceImpact * 100
+          ).toFixed(2)}%`}</strong>
         </div>
         <div
           style={{
