@@ -384,11 +384,15 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    await this.updateBalanceForSymbol('SCRT');
-    await this.updateBalanceForSymbol('sSCRT');
-    for (const token of this.stores.tokens.allData) {
-      await this.updateBalanceForSymbol(token.display_props.symbol);
-    }
+    Promise.all([
+      this.updateBalanceForSymbol('SCRT'),
+      this.updateBalanceForSymbol('sSCRT'),
+    ]);
+    Promise.all(
+      this.stores.tokens.allData.map(token =>
+        this.updateBalanceForSymbol(token.display_props.symbol),
+      ),
+    );
   };
 
   @action public updateBalanceForSymbol = async (
