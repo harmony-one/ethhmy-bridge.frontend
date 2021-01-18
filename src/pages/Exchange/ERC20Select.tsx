@@ -30,7 +30,7 @@ const inputPlaceholder: Record<string, string> = {
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { userMetamask, tokens, user } = useStores();
+    const { userMetamask, tokens, user, exchange } = useStores();
     const [erc20, setERC20] = useState(
       type === TOKEN.HRC20 ? user.hrc20Address : userMetamask.erc20Address,
     );
@@ -147,6 +147,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Button
                   disabled={isLoading}
                   onClick={async () => {
+                    exchange.error = '';
                     setError('');
                     setLoading(true);
                     try {

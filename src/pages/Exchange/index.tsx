@@ -12,7 +12,7 @@ import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
 import { divDecimals, formatWithSixDecimals, moreThanZero } from 'utils';
-import { Spinner } from 'ui/Spinner';
+import { Spinner, Error } from 'ui';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
@@ -62,6 +62,7 @@ export class Exchange extends React.Component<
 
   onClickHandler = async (needValidate: boolean, callback: () => void) => {
     const { actionModals, user, userMetamask, exchange } = this.props;
+    exchange.error = '';
 
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
@@ -90,6 +91,11 @@ export class Exchange extends React.Component<
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
       }
+    }
+
+    if (!userMetamask.erc20Address && !user.hrc20Address) {
+      exchange.error = 'No token selected ';
+      throw 'No token selected ';
     }
 
     if (needValidate) {
@@ -401,6 +407,12 @@ export class Exchange extends React.Component<
 
               {exchange.token === TOKEN.ERC721 ? (
                 <ERC20Select type={exchange.token} options={false} />
+              ) : null}
+
+              {exchange.step.id === EXCHANGE_STEPS.BASE ? (
+                <Box margin={{ top: 'small' }} align="start">
+                  <Text color="red">{exchange.error}</Text>
+                </Box>
               ) : null}
 
               {/*<Box direction="column" fill={true}>*/}
