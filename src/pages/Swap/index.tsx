@@ -7,16 +7,14 @@ import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { divDecimals, inputNumberFormat, mulDecimals } from 'utils';
+import { divDecimals, fromToNumberFormat, mulDecimals } from 'utils';
 import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
 import {
+  compute_swap,
+  cumpute_offer_amount,
   handleSimulation,
-  ReverseSimulateResult,
-  ReverseSimulationResponse,
-  SimulateResult,
-  SimulationReponse,
 } from '../../blockchain-bridge/scrt/swap';
 import { Currency, Trade, Asset, NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
@@ -60,10 +58,14 @@ export const SwapPage = () => {
   const { user } = useStores();
   const [selectedTokens, setSelectedTokens] = useState<{
     from: string;
+    fromPoolBalance: number;
     to: string;
+    toPoolBalance: number;
   }>({
     from: 'ETH',
+    fromPoolBalance: 0,
     to: 'SCRT',
+    toPoolBalance: 0,
   });
   const [tokens, setTokens] = useState<{
     [symbol: string]: TokenDisplay;
@@ -79,25 +81,31 @@ export const SwapPage = () => {
     to: string;
     isFromEstimated: boolean;
     isToEstimated: boolean;
+    spread: number;
+    commission: number;
+    priceImpact: number;
   }>({
     from: '',
     to: '',
     isFromEstimated: false,
     isToEstimated: false,
+    spread: 0,
+    commission: 0,
+    priceImpact: 0,
   });
   const [buttonMessage, setButtonMessage] = useState<string>('Enter an amount');
-  const [price, setPrice] = useState<number>(null);
-  const [minimumReceived, setMinimumReceived] = useState<number>(0);
-  const [priceImpact, setPriceImpact] = useState<number>(0);
-
-  const [liquidityProviderFee, setLiquidityProviderFee] = useState<number>(0);
 
   const [secretjs, setSecretjs] = useState<SigningCosmWasmClient>(null);
 
+  const hidePrice: boolean =
+    isNaN(Number(amounts.to) / Number(amounts.from)) ||
+    buttonMessage === 'Insufficient liquidity for this trade' ||
+    buttonMessage === 'Trading pair does not exist';
+
+  /*
   useEffect(() => {
     (async () => {
       if (!secretjs) {
-        setPriceImpact(0);
         return;
       }
 
@@ -109,7 +117,6 @@ export const SwapPage = () => {
       const trade = new Trade(
         new Currency(fromCurrency, amounts.from),
         new Currency(toCurrency, amounts.to),
-        price,
         swapDirection,
       );
 
@@ -123,27 +130,20 @@ export const SwapPage = () => {
         pair,
         swapDirection,
       ).catch(err => console.log(err));
-
-      if (result && Number(result.returned_asset) !== 0) {
-        setPriceImpact(
-          Number(result.spread_amount) / Number(result.returned_asset),
-        );
-
-        setMinimumReceived(Number(trade.getEstimatedAmount()) * 0.995);
-        setLiquidityProviderFee(Number(result.commission_amount));
-      }
     })();
   }, [
     secretjs,
     selectedTokens.to,
+    selectedTokens.toPoolBalance,
     selectedTokens.from,
+    selectedTokens.fromPoolBalance,
     amounts.from,
     amounts.to,
-    price,
     tokens,
     symbolsToPairs,
     swapDirection,
   ]);
+  */
 
   useEffect(() => {
     // Setup Keplr
@@ -252,27 +252,46 @@ export const SwapPage = () => {
     // The token list has changed
     setSelectedTokens({
       from: Object.keys(tokens)[1],
+      fromPoolBalance: 0,
       to: Object.keys(tokens)[0],
+      toPoolBalance: 0,
     });
   }, [tokens]);
 
   useEffect(() => {
     // From or To amounts have changed
     // Update buttonMessage
-    // TODO: Insufficient liquidity for this trade
     // TODO: Insufficient XXX balance
+    // TODO: Price Impact Too High
+    if (amounts.from === '' && amounts.to === '') {
+      setButtonMessage('Enter an amount');
+      return;
+    }
 
-    if (price === null) {
+    const pair = symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
+    if (!pair) {
       setButtonMessage('Trading pair does not exist');
       return;
     }
 
-    if (amounts.from === '' && amounts.to === '') {
-      setButtonMessage('Enter an amount');
-    } else {
-      setButtonMessage('Swap');
+    if (amounts.priceImpact >= 1 || amounts.priceImpact < 0) {
+      setButtonMessage('Insufficient liquidity for this trade');
+      return;
     }
-  }, [amounts.from, amounts.to, price]);
+
+    if (amounts.priceImpact >= 0.15) {
+      setButtonMessage('Price Impact Too High');
+      return;
+    }
+
+    setButtonMessage('Swap');
+  }, [
+    amounts.from,
+    amounts.to,
+    amounts.priceImpact,
+    amounts.spread,
+    amounts.commission,
+  ]);
 
   useEffect(() => {
     // selectedTokens have changed
@@ -308,6 +327,9 @@ export const SwapPage = () => {
           cursor: pointer;
           border-radius: 30px;
           padding: 0 0.3em;
+          border: solid;
+          border-width: thin;
+          border-color: whitesmoke;
         }
 
         .yolo:hover {
@@ -397,7 +419,6 @@ export const SwapPage = () => {
           symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
 
         if (!pair) {
-          setPrice(null);
           return;
         }
 
@@ -416,15 +437,14 @@ export const SwapPage = () => {
           ),
         ]);
 
-        const newPrice = Number(balances[1]) / Number(balances[0]);
-        if (isNaN(newPrice)) {
-          setPrice(null);
-        } else {
-          setPrice(newPrice);
-        }
+        setSelectedTokens(
+          Object.assign({}, selectedTokens, {
+            fromPoolBalance: Number(balances[0]),
+            toPoolBalance: Number(balances[1]),
+          }),
+        );
       } catch (error) {
         console.error(error);
-        setPrice(null);
       }
     })();
   }, [secretjs, selectedTokens.from, selectedTokens.to]);
@@ -465,11 +485,20 @@ export const SwapPage = () => {
                 setToken={(value: string) => {
                   if (value === selectedTokens.to) {
                     // switch
-                    setSelectedTokens({ from: value, to: selectedTokens.from });
+                    setSelectedTokens({
+                      from: value,
+                      to: selectedTokens.from,
+                      fromPoolBalance: 0,
+                      toPoolBalance: 0,
+                    });
                   } else {
-                    setSelectedTokens({ from: value, to: selectedTokens.to });
+                    setSelectedTokens({
+                      from: value,
+                      to: selectedTokens.to,
+                      fromPoolBalance: 0,
+                      toPoolBalance: 0,
+                    });
                   }
-                  setPrice(null);
                 }}
                 amount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
@@ -481,13 +510,39 @@ export const SwapPage = () => {
                       isFromEstimated: false,
                       to: '',
                       isToEstimated: false,
+                      spread: 0,
+                      commission: 0,
+                      priceImpact: 0,
                     });
                   } else {
+                    const {
+                      return_amount,
+                      spread_amount,
+                      commission_amount,
+                    } = compute_swap(
+                      selectedTokens.fromPoolBalance,
+                      selectedTokens.toPoolBalance,
+                      Number(value),
+                    );
+
+                    console.log(
+                      'js',
+                      `return_amount=${return_amount}`,
+                      `spread_amount=${spread_amount}`,
+                      `commission_amount=${commission_amount}`,
+                    );
+
                     setAmounts({
                       from: value,
                       isFromEstimated: false,
-                      to: inputNumberFormat.format(Number(value) / price),
+                      to:
+                        return_amount < 0
+                          ? ''
+                          : fromToNumberFormat.format(return_amount),
                       isToEstimated: true,
+                      spread: spread_amount,
+                      commission: commission_amount,
+                      priceImpact: spread_amount / return_amount,
                     });
                   }
                 }}
@@ -506,9 +561,10 @@ export const SwapPage = () => {
                   onClick={() => {
                     setSelectedTokens({
                       to: selectedTokens.from,
+                      toPoolBalance: selectedTokens.fromPoolBalance,
                       from: selectedTokens.to,
+                      fromPoolBalance: selectedTokens.toPoolBalance,
                     });
-                    setPrice(null);
                   }}
                 >
                   {downArrow}
@@ -523,11 +579,20 @@ export const SwapPage = () => {
                 setToken={(value: string) => {
                   if (value === selectedTokens.from) {
                     // switch
-                    setSelectedTokens({ to: value, from: selectedTokens.to });
+                    setSelectedTokens({
+                      to: value,
+                      from: selectedTokens.to,
+                      toPoolBalance: 0,
+                      fromPoolBalance: 0,
+                    });
                   } else {
-                    setSelectedTokens({ to: value, from: selectedTokens.from });
+                    setSelectedTokens({
+                      to: value,
+                      from: selectedTokens.from,
+                      toPoolBalance: 0,
+                      fromPoolBalance: 0,
+                    });
                   }
-                  setPrice(null);
                 }}
                 amount={amounts.to}
                 isEstimated={amounts.isToEstimated}
@@ -539,25 +604,54 @@ export const SwapPage = () => {
                       isToEstimated: false,
                       from: '',
                       isFromEstimated: false,
+                      spread: 0,
+                      commission: 0,
+                      priceImpact: 0,
                     });
                   } else {
+                    const {
+                      offer_amount,
+                      spread_amount,
+                      commission_amount,
+                    } = cumpute_offer_amount(
+                      selectedTokens.fromPoolBalance,
+                      selectedTokens.toPoolBalance,
+                      Number(value),
+                    );
+
+                    console.log(
+                      'js reverse',
+                      `offer_amount=${offer_amount}`,
+                      `spread_amount=${spread_amount}`,
+                      `commission_amount=${commission_amount}`,
+                    );
+
                     setAmounts({
                       to: value,
                       isToEstimated: false,
-                      from: inputNumberFormat.format(Number(value) * price),
+                      from:
+                        offer_amount < 0
+                          ? ''
+                          : fromToNumberFormat.format(offer_amount),
                       isFromEstimated: true,
+                      spread: spread_amount,
+                      commission: commission_amount,
+                      priceImpact: spread_amount / offer_amount,
                     });
                   }
                 }}
               />
-              <PriceRow
-                toToken={selectedTokens.to}
-                fromToken={selectedTokens.from}
-                price={price}
-              />
+              {!hidePrice && (
+                <PriceRow
+                  toToken={selectedTokens.to}
+                  fromToken={selectedTokens.from}
+                  price={Number(amounts.to) / Number(amounts.from)}
+                />
+              )}
               <Button
                 disabled={buttonMessage !== 'Swap'}
                 primary={buttonMessage === 'Swap'}
+                color={buttonMessage === 'Price Impact Too High' ? 'red' : null}
                 fluid
                 style={{
                   borderRadius: '12px',
@@ -627,13 +721,13 @@ export const SwapPage = () => {
                 {buttonMessage}
               </Button>
             </Container>
-            {Number(price) > 0 && (
+            {!hidePrice && (
               <AdditionalInfo
                 fromToken={selectedTokens.from}
                 toToken={selectedTokens.to}
-                liquidityProviderFee={liquidityProviderFee}
-                priceImpact={priceImpact}
-                minimumReceived={minimumReceived}
+                liquidityProviderFee={amounts.commission}
+                priceImpact={amounts.priceImpact}
+                minimumReceived={amounts.to}
               />
             )}
           </Box>

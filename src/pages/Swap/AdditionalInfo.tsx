@@ -4,7 +4,7 @@ import { formatWithSixDecimals } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const additionaInfoNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
+  maximumFractionDigits: 12,
   useGrouping: true,
 });
 
@@ -73,7 +73,7 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {formatWithSixDecimals(minimumReceived)} {toToken}
+            {additionaInfoNumberFormat.format(minimumReceived)} {toToken}
           </strong>
         </div>
         <div

@@ -490,6 +490,11 @@ export class UserStoreEx extends StoreConstructor {
       t => t.inc_token.symbol === `s${symbol}`,
     );
 
+    if (!rewradsToken) {
+      console.log('No rewards token for', symbol);
+      return;
+    }
+
     try {
       const balance = await this.getBridgeRewardsBalance(
         rewradsToken.pool_address,

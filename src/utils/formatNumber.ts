@@ -20,7 +20,7 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
-export const inputNumberFormat = new Intl.NumberFormat('en-US', {
+export const fromToNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 20,
   useGrouping: false,
 });
