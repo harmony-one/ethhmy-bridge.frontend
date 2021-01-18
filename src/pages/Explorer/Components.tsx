@@ -6,7 +6,9 @@ import * as React from 'react';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
-import { formatWithSixDecimals } from '../../utils';
+import { formatWithSixDecimals, sliceByLength } from '../../utils';
+import { useEffect } from 'react';
+import ReactTooltip from 'react-tooltip';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -77,6 +79,10 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { tokens } = useStores();
   const { value, erc20Address = '', hrc20Address = '' } = props;
 
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
   if ([TOKEN.ERC20, TOKEN.ERC721, TOKEN.HRC20].includes(value)) {
     const token = tokens.data.find(
       t =>
@@ -85,7 +91,14 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
     );
 
     if (token) {
-      return <Box>{token.symbol}</Box>;
+      return token.symbol.length > 9 ? (
+        <Box>
+          <a data-tip={token.symbol}>{sliceByLength(token.symbol, 9)}</a>
+          <ReactTooltip place="top" type="dark" effect="solid" />
+        </Box>
+      ) : (
+        <Box>{sliceByLength(token.symbol, 9)}</Box>
+      );
     }
   }
 

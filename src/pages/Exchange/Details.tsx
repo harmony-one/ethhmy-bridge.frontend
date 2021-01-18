@@ -7,6 +7,7 @@ import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
+import { SliceTooltip } from '../../ui/SliceTooltip';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -19,7 +20,7 @@ const AssetRow = props => {
     >
       <Box>
         <Text size="small" bold={true}>
-          {props.label}
+          <SliceTooltip value={props.label} maxLength={24} /> Token IDs
         </Text>
       </Box>
       <Box direction="row" align="center">

@@ -5,7 +5,7 @@ import { isRequired } from 'components/Form/validations';
 import { Button, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { observer } from 'mobx-react-lite';
-import { CloseIcon } from 'ui';
+import { CloseIcon, SliceTooltip } from 'ui';
 
 export const TokensField = observer<{ label: string; maxTokens: string }>(
   (params: { label: string; maxTokens: string }) => {
@@ -13,7 +13,9 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
 
     return (
       <>
-        <Text bold={true} size="large">{`${params.label} Token IDs`}</Text>
+        <Text bold={true} size="large">
+          <SliceTooltip value={params.label} maxLength={18} /> Token IDs
+        </Text>
         <Box
           direction="column"
           align="end"

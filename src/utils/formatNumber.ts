@@ -73,3 +73,11 @@ export const divDecimals = (
 
   return amountStr.toFixed();
 };
+
+export const sliceByLength = (str: string, maxLength: number) => {
+  if (str && str.length > maxLength) {
+    return str.slice(0, maxLength - 2) + '...';
+  }
+
+  return str;
+};

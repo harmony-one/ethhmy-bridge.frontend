@@ -10,7 +10,7 @@ import {
 } from 'stores/interfaces';
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { dateTimeAgoFormat, truncateAddressString } from 'utils';
+import { dateTimeAgoFormat, sliceByLength, truncateAddressString } from 'utils';
 import { STEPS_TITLE } from './steps-constants';
 import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
@@ -250,7 +250,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   }
                   target="_blank"
                 >
-                  {token.symbol}
+                  {sliceByLength(token.symbol, 7)}
                 </a>
                 <span style={{ margin: '0 10px' }}>/</span>
                 <a
@@ -264,7 +264,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 >
                   {props.data.token === TOKEN.HRC20
                     ? token.symbol.slice(1)
-                    : `1${token.symbol}`}
+                    : `1${sliceByLength(token.symbol, 7)}`}
                 </a>
               </Box>
             ) : (

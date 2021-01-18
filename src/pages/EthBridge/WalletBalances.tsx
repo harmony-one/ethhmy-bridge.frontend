@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { Button, Icon, Text, Title } from 'components/Base';
-import { Error } from 'ui';
+import { Error, SliceTooltip } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
 import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
@@ -10,7 +10,6 @@ import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { TOKEN } from '../../stores/interfaces';
 import { getBech32Address } from '../../blockchain-bridge';
-// import { Routes } from '../../constants';
 
 const AssetRow = observer<any>(props => {
   return (
@@ -22,7 +21,7 @@ const AssetRow = observer<any>(props => {
     >
       <Box direction="row" align="center" justify="center">
         <Text color={props.selected ? '#00ADE8' : null} bold={false}>
-          {props.asset}
+          <SliceTooltip value={props.asset} maxLength={18} />
         </Text>
         {props.link ? (
           <a
