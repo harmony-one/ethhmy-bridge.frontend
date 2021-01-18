@@ -11,7 +11,7 @@ import {
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, sliceByLength, truncateAddressString } from 'utils';
-import { STEPS_TITLE } from './steps-constants';
+import { getStepsTitle } from './steps-constants';
 import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
@@ -78,64 +78,6 @@ const renderActionFee = (action: IAction): string => {
     return fee.value + ' ONE';
   }
 };
-
-const actionColumns: IColumn<IAction>[] = [
-  {
-    title: 'Action',
-    key: 'type',
-    dataIndex: 'type',
-    width: 240,
-    render: value => (
-      <Box className={cn(styles.actionCell, styles.type)}>
-        {STEPS_TITLE[value]}
-      </Box>
-    ),
-  },
-  {
-    title: 'tx Hash',
-    key: 'transactionHash',
-    dataIndex: 'transactionHash',
-    width: 220,
-    render: (value, action) => (
-      <a
-        className={styles.addressLink}
-        href={
-          (isEth(action.type)
-            ? process.env.ETH_EXPLORER_URL
-            : process.env.HMY_EXPLORER_URL) +
-          '/tx/' +
-          action.transactionHash
-        }
-        target="_blank"
-      >
-        {truncateAddressString(action.transactionHash, 10)}
-      </a>
-    ),
-  },
-  {
-    title: 'Status',
-    key: 'status',
-    dataIndex: 'status',
-    width: 140,
-    render: value => (
-      <Box className={cn(styles.status, styles[value])}>{value}</Box>
-    ),
-  },
-  {
-    title: 'Age',
-    key: 'timestamp',
-    dataIndex: 'timestamp',
-    width: 140,
-    render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
-  },
-  {
-    title: 'Txn fee',
-    key: 'payload',
-    dataIndex: 'payload',
-    width: 180,
-    render: (value, data) => (data.payload ? renderActionFee(data) : '--'),
-  },
-];
 
 // export const ExpandedRow = observer((props: IExpandedRowProps) => {
 //   return (
@@ -218,7 +160,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     width: 'auto',
                   }}
                 />
-                {STEPS_TITLE[action.type]}
+                {getStepsTitle(action.type, props.data.token)}
               </Box>
               {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>

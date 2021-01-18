@@ -1,6 +1,14 @@
-import { ACTION_TYPE } from 'stores/interfaces';
+import { ACTION_TYPE, TOKEN } from 'stores/interfaces';
 
-export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
+export const getStepsTitle = (action: ACTION_TYPE, token: TOKEN) => {
+  if (token === TOKEN.ERC721 && action === ACTION_TYPE.getHRC20Address) {
+    return 'Register user ERC72 on Harmony';
+  }
+
+  return STEPS_TITLE[action];
+};
+
+const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   getHRC20Address: 'Register user ERC20 on Harmony',
   approveEthManger: 'User approve bridge to lock tokens ',
   lockToken: 'Bridge lock tokens on Ethereum',

@@ -7,8 +7,6 @@ import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo } from 'stores/interfaces';
 import {
-  dateTimeAgoFormat,
-  divDecimals,
   formatWithTwoDecimals,
   truncateAddressString,
 } from 'utils';

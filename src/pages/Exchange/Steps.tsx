@@ -6,24 +6,26 @@ import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { ACTION_TYPE, IAction, STATUS } from 'stores/interfaces';
+import { ACTION_TYPE, IAction, STATUS, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
-import { STEPS_TITLE } from './steps-constants';
+import { getStepsTitle } from './steps-constants';
 
 const StepRow = ({
   action,
   active,
   number,
   hrc20Address,
+  token,
 }: {
   action: IAction;
   hrc20Address?: string;
   number: number;
   active: boolean;
+  token: TOKEN;
 }) => {
   const completed = action.status === STATUS.SUCCESS;
 
-  const label = STEPS_TITLE[action.type] || action.type;
+  const label = getStepsTitle(action.type, token) || action.type;
 
   const textClassName = cn(
     styles.stepRow,
@@ -139,6 +141,7 @@ export const Steps = observer(() => {
           key={action.id}
           action={action}
           number={idx}
+          token={exchange.operation.token}
           active={
             action.status === STATUS.IN_PROGRESS ||
             (action.status === STATUS.WAITING &&

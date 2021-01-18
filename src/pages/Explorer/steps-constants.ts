@@ -1,6 +1,14 @@
-import { ACTION_TYPE } from 'stores/interfaces';
+import { ACTION_TYPE, TOKEN } from 'stores/interfaces';
 
-export const STEPS_TITLE: Record<ACTION_TYPE, string> = {
+export const getStepsTitle = (action: ACTION_TYPE, token: TOKEN) => {
+  if (token === TOKEN.ERC721 && action === ACTION_TYPE.getHRC20Address) {
+    return 'Get HRC721 token';
+  }
+
+  return STEPS_TITLE[action];
+};
+
+const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   getHRC20Address: 'Get HRC20 token',
   approveEthManger: 'Approve lock',
   lockToken: 'Lock tokens',
