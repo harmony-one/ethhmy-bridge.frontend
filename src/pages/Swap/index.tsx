@@ -299,7 +299,7 @@ export const SwapPage = () => {
       walletAddress: string,
       tokens: any,
       viewingKey: string,
-    ): Promise<number | JSX.Element> {
+    ): Promise<number | JSX.Element | string> {
       if (tokenSymbol === 'SCRT') {
         return secretjs.getAccount(walletAddress).then(account => {
           try {
@@ -355,6 +355,10 @@ export const SwapPage = () => {
           },
         })
         .then(result => {
+          if (viewingKey && 'viewing_key_error' in result) {
+            return 'Wrong Viewing Key Exists' /* TODO handle this */;
+          }
+
           try {
             return Number(
               divDecimals(result.balance.amount, tokens[tokenSymbol].decimals),
@@ -378,20 +382,13 @@ export const SwapPage = () => {
           user.chainId,
           tokens[selectedTokens.from].address,
         );
-      } catch (error) {
-        console.log(
-          `Tried to get viewing key for ${selectedTokens.from}`,
-          error,
-        );
-      }
+      } catch (error) {}
       try {
         toViewingKey = await user.keplrWallet.getSecret20ViewingKey(
           user.chainId,
           tokens[selectedTokens.to].address,
         );
-      } catch (error) {
-        console.log(`Tried to get viewing key for ${selectedTokens.to}`, error);
-      }
+      } catch (error) {}
 
       const [fromBalance, toBalance] = await Promise.all([
         getBalance(selectedTokens.from, user.address, tokens, fromViewingKey),
