@@ -123,12 +123,12 @@ export const handleSimulation = async (
       commission_amount = result.commission_amount;
       spread_amount = result.spread_amount;
 
-      console.log(
-        'sim',
-        `return_amount=${returned_asset}`,
-        `commission_amount=${commission_amount}`,
-        `spread_amount=${spread_amount}`,
-      );
+      // console.log(
+      //   'sim',
+      //   `return_amount=${returned_asset}`,
+      //   `commission_amount=${commission_amount}`,
+      //   `spread_amount=${spread_amount}`,
+      // );
 
       break;
     case TradeType.EXACT_OUTPUT:
@@ -149,12 +149,12 @@ export const handleSimulation = async (
       commission_amount = resultReverse.commission_amount;
       spread_amount = resultReverse.spread_amount;
 
-      console.log(
-        'sim reverse',
-        `offer_amount=${returned_asset}`,
-        `commission_amount=${commission_amount}`,
-        `spread_amount=${spread_amount}`,
-      );
+      // console.log(
+      //   'sim reverse',
+      //   `offer_amount=${returned_asset}`,
+      //   `commission_amount=${commission_amount}`,
+      //   `spread_amount=${spread_amount}`,
+      // );
 
       break;
   }

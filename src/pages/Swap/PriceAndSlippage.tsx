@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'semantic-ui-react';
 
-const priceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 10,
+const numberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 6,
   useGrouping: true,
 });
 
@@ -22,8 +22,8 @@ export const PriceAndSlippage = ({
   const [tokens, setTokens] = useState({
     from: fromToken,
     to: toToken,
-    price: priceNumberFormat.format(price),
-    priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
+    price: numberFormat.format(price),
+    priceInvert: numberFormat.format(1 / price), // prevents price distortion from multiple clicks
   });
   const [iconBackground, setIconBackground] = useState('whitesmoke');
   const [
@@ -35,8 +35,8 @@ export const PriceAndSlippage = ({
     setTokens({
       from: fromToken,
       to: toToken,
-      price: priceNumberFormat.format(price),
-      priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
+      price: numberFormat.format(price),
+      priceInvert: numberFormat.format(1 / price), // prevents price distortion from multiple clicks
     });
   }, [fromToken, toToken, price]);
 
@@ -70,7 +70,7 @@ export const PriceAndSlippage = ({
               from: tokens.to,
               to: tokens.from,
               price: tokens.priceInvert,
-              priceInvert: tokens.price, // prevents price distortion by multiple clicks
+              priceInvert: tokens.price, // prevents price distortion from multiple clicks
             });
           }}
         />
