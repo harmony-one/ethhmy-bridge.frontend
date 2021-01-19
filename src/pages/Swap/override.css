@@ -8,6 +8,7 @@ html {
   background-color: rgb(242, 243, 248);
 }
 
+/* Semantic UI dropdown */
 .ui.dropdown > .text > .image,
 .ui.dropdown > .text > img {
   vertical-align: bottom;
