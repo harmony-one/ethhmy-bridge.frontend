@@ -14,9 +14,8 @@ import { PriceAndSlippage } from './PriceAndSlippage';
 import {
   compute_swap,
   cumpute_offer_amount,
-  handleSimulation,
 } from '../../blockchain-bridge/scrt/swap';
-import { Currency, Trade, Asset, NativeToken, Token, TradeType } from './trade';
+import { NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
 import Style from 'style-it';
 
@@ -26,7 +25,6 @@ type Pair = {
   liquidity_token: string;
   token_code_hash: string;
 };
-import { balanceNumberFormat, priceNumberFormat } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 const downArrow = (
@@ -72,9 +70,6 @@ export const SwapPage = () => {
   }>(preloadedTokens);
   const [myBalances, setMyBalances] = useState({});
   const [pairs, setPairs] = useState<Array<Pair>>([]);
-  const [swapDirection, setSwapDirection] = useState<TradeType>(
-    TradeType.EXACT_INPUT,
-  );
   const [symbolsToPairs, setSymbolsToPairs] = useState({});
   const [amounts, setAmounts] = useState<{
     from: string;
@@ -101,45 +96,6 @@ export const SwapPage = () => {
     isNaN(Number(amounts.to) / Number(amounts.from)) ||
     buttonMessage === 'Insufficient liquidity for this trade' ||
     buttonMessage === 'Trading pair does not exist';
-
-  /* 
-  useEffect(() => {
-    (async () => {
-      if (!secretjs) {
-        return;
-      }
-      const fromCurrency: Asset = Asset.fromTokenInfo(
-        tokens[selectedTokens.from],
-      );
-      const toCurrency: Asset = Asset.fromTokenInfo(tokens[selectedTokens.to]);
-      const trade = new Trade(
-        new Currency(fromCurrency, amounts.from),
-        new Currency(toCurrency, amounts.to),
-        swapDirection,
-      );
-      const pair =
-        symbolsToPairs[`${selectedTokens.from}/${selectedTokens.to}`]
-          .contract_addr;
-      const result = await handleSimulation(
-        trade,
-        secretjs,
-        pair,
-        swapDirection,
-      ).catch(err => console.log(err));
-    })();
-  }, [
-    secretjs,
-    selectedTokens.to,
-    selectedTokens.toPoolBalance,
-    selectedTokens.from,
-    selectedTokens.fromPoolBalance,
-    amounts.from,
-    amounts.to,
-    tokens,
-    symbolsToPairs,
-    swapDirection,
-  ]);
- */
 
   useEffect(() => {
     // Setup Keplr
@@ -494,7 +450,6 @@ export const SwapPage = () => {
                 amount={amounts.from}
                 isEstimated={amounts.isFromEstimated}
                 setAmount={(value: string) => {
-                  setSwapDirection(TradeType.EXACT_INPUT);
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       from: value,
@@ -516,12 +471,12 @@ export const SwapPage = () => {
                       Number(value),
                     );
 
-                    console.log(
-                      'js',
-                      `return_amount=${return_amount}`,
-                      `spread_amount=${spread_amount}`,
-                      `commission_amount=${commission_amount}`,
-                    );
+                    // console.log(
+                    //   'js',
+                    //   `return_amount=${return_amount}`,
+                    //   `spread_amount=${spread_amount}`,
+                    //   `commission_amount=${commission_amount}`,
+                    // );
 
                     setAmounts({
                       from: value,
@@ -556,6 +511,54 @@ export const SwapPage = () => {
                       from: selectedTokens.to,
                       fromPoolBalance: selectedTokens.toPoolBalance,
                     });
+
+                    if (amounts.isFromEstimated) {
+                      const {
+                        return_amount,
+                        spread_amount,
+                        commission_amount,
+                      } = compute_swap(
+                        selectedTokens.toPoolBalance,
+                        selectedTokens.fromPoolBalance,
+                        Number(amounts.to),
+                      );
+
+                      setAmounts({
+                        from: amounts.to,
+                        isFromEstimated: false,
+                        to:
+                          return_amount < 0
+                            ? ''
+                            : fromToNumberFormat.format(return_amount),
+                        isToEstimated: true,
+                        spread: spread_amount,
+                        commission: commission_amount,
+                        priceImpact: spread_amount / return_amount,
+                      });
+                    } else {
+                      const {
+                        offer_amount,
+                        spread_amount,
+                        commission_amount,
+                      } = cumpute_offer_amount(
+                        selectedTokens.toPoolBalance,
+                        selectedTokens.fromPoolBalance,
+                        Number(amounts.from),
+                      );
+
+                      setAmounts({
+                        to: amounts.from,
+                        isToEstimated: false,
+                        from:
+                          offer_amount < 0
+                            ? ''
+                            : fromToNumberFormat.format(offer_amount),
+                        isFromEstimated: true,
+                        spread: spread_amount,
+                        commission: commission_amount,
+                        priceImpact: spread_amount / offer_amount,
+                      });
+                    }
                   }}
                 >
                   {downArrow}
@@ -588,7 +591,6 @@ export const SwapPage = () => {
                 amount={amounts.to}
                 isEstimated={amounts.isToEstimated}
                 setAmount={(value: string) => {
-                  setSwapDirection(TradeType.EXACT_OUTPUT);
                   if (value === '' || Number(value) === 0) {
                     setAmounts({
                       to: value,
@@ -610,12 +612,12 @@ export const SwapPage = () => {
                       Number(value),
                     );
 
-                    console.log(
-                      'js reverse',
-                      `offer_amount=${offer_amount}`,
-                      `spread_amount=${spread_amount}`,
-                      `commission_amount=${commission_amount}`,
-                    );
+                    // console.log(
+                    //   'js reverse',
+                    //   `offer_amount=${offer_amount}`,
+                    //   `spread_amount=${spread_amount}`,
+                    //   `commission_amount=${commission_amount}`,
+                    // );
 
                     setAmounts({
                       to: value,
