@@ -7,7 +7,7 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
+import { Snip20Send, Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
 import { getStatus } from 'services';
 
 export enum EXCHANGE_STEPS {
@@ -446,15 +446,24 @@ export class Exchange extends StoreConstructor {
     this.setStatus();
 
     let decimals: number | string;
+    let recipient = process.env.SCRT_SWAP_CONTRACT;
     if (isEth) {
       decimals = 18;
       this.transaction.snip20Address = this.stores.tokens.allData.find(
         t => t.src_coin === 'Ethereum',
       ).dst_address;
     } else {
-      decimals = this.stores.tokens.allData.find(
+      const token = this.stores.tokens.allData.find(
         t => t.dst_address === this.transaction.snip20Address,
-      ).decimals;
+      );
+
+      if (token) {
+        if (token.display_props.proxy) {
+          recipient = process.env.WSCRT_PROXY_CONTRACT;
+          this.transaction.snip20Address = process.env.SSCRT_CONTRACT;
+        }
+      }
+
     }
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
@@ -465,6 +474,7 @@ export class Exchange extends StoreConstructor {
 
     try {
        tx_id = await Snip20SendToBridge({
+        recipient,
         secretjs: this.stores.user.secretjs,
         address: this.transaction.snip20Address,
         amount,

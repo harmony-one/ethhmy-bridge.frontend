@@ -94,6 +94,8 @@ export interface ITokenInfo {
     symbol: string;
     min_to_scrt: string;
     min_from_scrt: string;
+    hidden: boolean;
+    proxy?: string;
   };
 }
 
