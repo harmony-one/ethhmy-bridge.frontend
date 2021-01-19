@@ -104,6 +104,7 @@ export const SwapAssetRow = ({
             border: 'none',
             borderRadius: '15px',
             background: dropdownBackground,
+            padding: 1,
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
