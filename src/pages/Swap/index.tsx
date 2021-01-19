@@ -312,7 +312,7 @@ export const SwapPage = () => {
         })
         .then(result => {
           if (viewingKey && 'viewing_key_error' in result) {
-            return 'Wrong Viewing Key Exists' /* TODO handle this */;
+            return 'Wrong viewing key used' /* TODO handle this */;
           }
 
           try {
