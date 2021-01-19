@@ -54,6 +54,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public isInfoReading = false;
   @observable public chainId: string;
 
+  @observable public ws: WebSocket;
+
   constructor(stores) {
     super(stores);
 
@@ -98,11 +100,11 @@ export class UserStoreEx extends StoreConstructor {
 
         this.getBalances();
 
-        const ws = new WebSocket(process.env.SECRET_WS);
+        this.ws = new WebSocket(process.env.SECRET_WS);
 
         const symbolUpdateHeightCache: { [symbol: string]: number } = {};
 
-        ws.onmessage = async event => {
+        this.ws.onmessage = async event => {
           try {
             const data = JSON.parse(event.data);
 
@@ -136,7 +138,7 @@ export class UserStoreEx extends StoreConstructor {
           }
         };
 
-        ws.onopen = async () => {
+        this.ws.onopen = async () => {
           while (this.stores.tokens.allData.length === 0) {
             await sleep(100);
           }
@@ -151,7 +153,7 @@ export class UserStoreEx extends StoreConstructor {
 
             symbolUpdateHeightCache[symbol] = 0;
 
-            ws.send(
+            this.ws.send(
               JSON.stringify({
                 jsonrpc: '2.0',
                 id: symbol, // jsonrpc id
@@ -162,7 +164,7 @@ export class UserStoreEx extends StoreConstructor {
               }),
             );
 
-            ws.send(
+            this.ws.send(
               JSON.stringify({
                 jsonrpc: '2.0',
                 id: symbol, // jsonrpc id
@@ -177,7 +179,7 @@ export class UserStoreEx extends StoreConstructor {
           // Also hook sSCRT
           symbolUpdateHeightCache['sSCRT'] = 0;
 
-          ws.send(
+          this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
               id: 'sSCRT', // jsonrpc id
@@ -191,7 +193,7 @@ export class UserStoreEx extends StoreConstructor {
           symbolUpdateHeightCache['SCRT'] = 0;
 
           // If I sent a tx, I paid for gas => update SCRT balance
-          ws.send(
+          this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
               id: 'SCRT', // jsonrpc id
@@ -203,7 +205,7 @@ export class UserStoreEx extends StoreConstructor {
           );
 
           // If I received SCRT => update SCRT balance
-          ws.send(
+          this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
               id: 'SCRT', // jsonrpc id
