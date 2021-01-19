@@ -10,10 +10,18 @@ const additionaInfoNumberFormat = new Intl.NumberFormat('en-US', {
 
 export const AdditionalInfo = ({
   minimumReceived,
+  maximumSold,
   liquidityProviderFee,
   priceImpact,
   fromToken,
   toToken,
+}: {
+  minimumReceived?: number;
+  maximumSold?: number;
+  liquidityProviderFee: number;
+  priceImpact: number;
+  fromToken: string;
+  toToken: string;
 }) => {
   const [
     minimumReceivedIconBackground,
@@ -57,7 +65,7 @@ export const AdditionalInfo = ({
           }}
         >
           <span>
-            Minimum received
+            {minimumReceived !== null ? 'Minimum received' : 'Maximum sold'}
             <Popup
               trigger={
                 <Icon
@@ -82,7 +90,11 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {additionaInfoNumberFormat.format(minimumReceived)} {toToken}
+            {minimumReceived !== null
+              ? `${additionaInfoNumberFormat.format(
+                  minimumReceived,
+                )} ${toToken}`
+              : `${additionaInfoNumberFormat.format(maximumSold)} ${fromToken}`}
           </strong>
         </div>
         <div

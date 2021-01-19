@@ -10,7 +10,7 @@ import './override.css';
 import { divDecimals, fromToNumberFormat, mulDecimals } from 'utils';
 import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
-import { PriceRow } from './PriceRow';
+import { PriceAndSlippage } from './PriceAndSlippage';
 import {
   compute_swap,
   cumpute_offer_amount,
@@ -93,14 +93,53 @@ export const SwapPage = () => {
     commission: 0,
     priceImpact: 0,
   });
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.005);
   const [buttonMessage, setButtonMessage] = useState<string>('Enter an amount');
-
   const [secretjs, setSecretjs] = useState<SigningCosmWasmClient>(null);
 
   const hidePrice: boolean =
     isNaN(Number(amounts.to) / Number(amounts.from)) ||
     buttonMessage === 'Insufficient liquidity for this trade' ||
     buttonMessage === 'Trading pair does not exist';
+
+  /* 
+  useEffect(() => {
+    (async () => {
+      if (!secretjs) {
+        return;
+      }
+      const fromCurrency: Asset = Asset.fromTokenInfo(
+        tokens[selectedTokens.from],
+      );
+      const toCurrency: Asset = Asset.fromTokenInfo(tokens[selectedTokens.to]);
+      const trade = new Trade(
+        new Currency(fromCurrency, amounts.from),
+        new Currency(toCurrency, amounts.to),
+        swapDirection,
+      );
+      const pair =
+        symbolsToPairs[`${selectedTokens.from}/${selectedTokens.to}`]
+          .contract_addr;
+      const result = await handleSimulation(
+        trade,
+        secretjs,
+        pair,
+        swapDirection,
+      ).catch(err => console.log(err));
+    })();
+  }, [
+    secretjs,
+    selectedTokens.to,
+    selectedTokens.toPoolBalance,
+    selectedTokens.from,
+    selectedTokens.fromPoolBalance,
+    amounts.from,
+    amounts.to,
+    tokens,
+    symbolsToPairs,
+    swapDirection,
+  ]);
+ */
 
   useEffect(() => {
     // Setup Keplr
@@ -135,7 +174,6 @@ export const SwapPage = () => {
         setPairs(pairsResponse.pairs);
       } catch (error) {
         console.error(error);
-        alert(error);
       }
     })();
   }, [secretjs]);
@@ -599,10 +637,11 @@ export const SwapPage = () => {
                 }}
               />
               {!hidePrice && (
-                <PriceRow
+                <PriceAndSlippage
                   toToken={selectedTokens.to}
                   fromToken={selectedTokens.from}
                   price={Number(amounts.to) / Number(amounts.from)}
+                  slippageTolerance={slippageTolerance}
                 />
               )}
               <Button
@@ -684,7 +723,16 @@ export const SwapPage = () => {
                 toToken={selectedTokens.to}
                 liquidityProviderFee={amounts.commission}
                 priceImpact={amounts.priceImpact}
-                minimumReceived={amounts.to}
+                minimumReceived={
+                  amounts.isToEstimated
+                    ? Number(amounts.to) * (1 - slippageTolerance)
+                    : null
+                }
+                maximumSold={
+                  amounts.isFromEstimated
+                    ? Number(amounts.from) * (1 + slippageTolerance)
+                    : null
+                }
               />
             )}
           </Box>
