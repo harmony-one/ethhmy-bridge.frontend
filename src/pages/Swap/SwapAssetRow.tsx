@@ -52,11 +52,9 @@ export const SwapAssetRow = ({
             return '-';
           }
 
-          const label = `${token === 'SCRT' ? '' : 'Secret '}Balance: `;
-
           return (
             <>
-              {label}
+              {'Balance: '}
               {isNaN(Number(myBalance))
                 ? myBalance
                 : balanceNumberFormat.format(myBalance)}
