@@ -211,21 +211,20 @@ export const SwapPage = () => {
                 },
               );
 
-              if (
-                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol]
-              ) {
-                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol] =
-                  unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol];
-              } else {
-                unwrapedTokensFromPairs[tokenInfoResponse.token_info.symbol] = {
-                  symbol: tokenInfoResponse.token_info.symbol,
+              const symbol = tokenInfoResponse.token_info.symbol;
+
+              if (!(symbol in unwrapedTokensFromPairs)) {
+                unwrapedTokensFromPairs[symbol] = {
+                  symbol: symbol,
                   decimals: tokenInfoResponse.token_info.decimals,
-                  logo: '/unknown.png',
+                  logo: preloadedTokens[symbol]
+                    ? preloadedTokens[symbol].logo
+                    : '/unknown.png',
                   address: t.token.contract_addr,
                   token_code_hash: t.token.token_code_hash,
                 };
               }
-              symbols.push(tokenInfoResponse.token_info.symbol);
+              symbols.push(symbol);
             }
             newSymbolsToPairs[`${symbols[0]}/${symbols[1]}`] = pair;
             newSymbolsToPairs[`${symbols[1]}/${symbols[0]}`] = pair;
