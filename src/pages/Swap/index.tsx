@@ -102,49 +102,6 @@ export const SwapPage = () => {
     buttonMessage === 'Insufficient liquidity for this trade' ||
     buttonMessage === 'Trading pair does not exist';
 
-  /*
-  useEffect(() => {
-    (async () => {
-      if (!secretjs) {
-        return;
-      }
-
-      const fromCurrency: Asset = Asset.fromTokenInfo(
-        tokens[selectedTokens.from],
-      );
-      const toCurrency: Asset = Asset.fromTokenInfo(tokens[selectedTokens.to]);
-
-      const trade = new Trade(
-        new Currency(fromCurrency, amounts.from),
-        new Currency(toCurrency, amounts.to),
-        swapDirection,
-      );
-
-      const pair =
-        symbolsToPairs[`${selectedTokens.from}/${selectedTokens.to}`]
-          .contract_addr;
-
-      const result = await handleSimulation(
-        trade,
-        secretjs,
-        pair,
-        swapDirection,
-      ).catch(err => console.log(err));
-    })();
-  }, [
-    secretjs,
-    selectedTokens.to,
-    selectedTokens.toPoolBalance,
-    selectedTokens.from,
-    selectedTokens.fromPoolBalance,
-    amounts.from,
-    amounts.to,
-    tokens,
-    symbolsToPairs,
-    swapDirection,
-  ]);
-  */
-
   useEffect(() => {
     // Setup Keplr
     (async () => {
@@ -422,7 +379,7 @@ export const SwapPage = () => {
           return;
         }
 
-        const balances = await Promise.all([
+        const poolBalances = await Promise.all([
           getBalance(
             selectedTokens.from,
             pair.contract_addr,
@@ -439,8 +396,8 @@ export const SwapPage = () => {
 
         setSelectedTokens(
           Object.assign({}, selectedTokens, {
-            fromPoolBalance: Number(balances[0]),
-            toPoolBalance: Number(balances[1]),
+            fromPoolBalance: Number(poolBalances[0]),
+            toPoolBalance: Number(poolBalances[1]),
           }),
         );
       } catch (error) {
