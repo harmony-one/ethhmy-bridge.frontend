@@ -7,3 +7,10 @@ html {
   overflow-x: hidden;
   background-color: rgb(242, 243, 248);
 }
+
+.ui.dropdown > .text > .image,
+.ui.dropdown > .text > img {
+  vertical-align: bottom;
+  margin-top: 0;
+  margin-bottom: 0;
+}
