@@ -456,7 +456,7 @@ export class Exchange extends StoreConstructor {
       const token = this.stores.tokens.allData.find(
         t => t.dst_address === this.transaction.snip20Address,
       );
-
+      decimals = token.decimals
       if (token) {
         if (token.display_props.proxy) {
           recipient = process.env.WSCRT_PROXY_CONTRACT;
