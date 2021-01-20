@@ -26,10 +26,6 @@ export const PriceAndSlippage = ({
     priceInvert: numberFormat.format(1 / price), // prevents price distortion from multiple clicks
   });
   const [iconBackground, setIconBackground] = useState('whitesmoke');
-  const [
-    slippageToleranceIconBackground,
-    setSlippageToleranceIconBackground,
-  ] = useState('whitesmoke');
 
   useEffect(() => {
     setTokens({
@@ -81,10 +77,6 @@ export const PriceAndSlippage = ({
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
-          cursor: 'pointer',
-        }}
-        onClick={() => {
-          // TODO open a mini-menu to allow changing slippageTolerance
         }}
       >
         {' '}
