@@ -6,24 +6,25 @@ import cn from 'classnames';
 import { Icon } from 'components/Base/components/Icons';
 
 export const Footer: typeof Box = props => (
-  <Box
-    flex={{ shrink: 0 }}
-    // style={{
-    //   borderTop: '1px solid rgb(231, 236, 247)',
-    //   backgroundColor: '#1c2a5e',
-    //   overflow: 'visible',
-    //   width: '100%',
-    //   zIndex: 100,
-    //   minWidth: '550px',
-    //   paddingTop: '64px',
-    //   paddingBottom: '64px',
-    // }}
-    style={{ borderTop: '1px solid rgb(231, 236, 247)' }}
-    direction="row"
-    justify="end"
-    pad={{ horizontal: 'xlarge', vertical: 'large' }}
-    {...props}
-  />
+  <></>
+  // <Box
+  //   flex={{ shrink: 0 }}
+  //   // style={{
+  //   //   borderTop: '1px solid rgb(231, 236, 247)',
+  //   //   backgroundColor: '#1c2a5e',
+  //   //   overflow: 'visible',
+  //   //   width: '100%',
+  //   //   zIndex: 100,
+  //   //   minWidth: '550px',
+  //   //   paddingTop: '64px',
+  //   //   paddingBottom: '64px',
+  //   // }}
+  //   style={{ borderTop: '1px solid rgb(231, 236, 247)' }}
+  //   direction="row"
+  //   justify="end"
+  //   pad={{ horizontal: 'xlarge', vertical: 'large' }}
+  //   {...props}
+  // />
 );
 {
   /*<Box*/
