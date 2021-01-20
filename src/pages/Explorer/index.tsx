@@ -156,14 +156,9 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
       if (data.dst_network === 'Ethereum') {
         return <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />;
       } else {
-        const token: ITokenInfo = user.stores.tokens.allData.find(
-          t => t.dst_coin === data.dst_coin,
+        return (
+          <SecretToken value={TOKEN.S20} secretAddress={data.dst_address} />
         );
-        if (token && token.display_props) {
-          return <Box>secret{token.display_props.symbol}</Box>;
-        } else {
-          return <Box>secretETH</Box>;
-        }
       }
     },
   },
