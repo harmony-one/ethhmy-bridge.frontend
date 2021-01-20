@@ -18,10 +18,16 @@ export const SwapAssetRow = ({
   balance,
   isFrom,
 }) => {
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-  const [myBalance, setMyBalance] = useState(balance);
+  const [dropdownBackground, setDropdownBackground] = useState<string>(
+    undefined,
+  );
+  const [myBalance, setMyBalance] = useState<string>(balance);
 
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
+  const font = {
+    fontWeight: 500,
+    fontSize: '14px',
+    color: 'rgb(86, 90, 105)',
+  };
 
   useEffect(() => {
     setMyBalance(balance);
@@ -57,7 +63,7 @@ export const SwapAssetRow = ({
               {'Balance: '}
               {isNaN(Number(myBalance))
                 ? myBalance
-                : balanceNumberFormat.format(myBalance)}
+                : balanceNumberFormat.format(Number(myBalance))}
             </>
           );
         })()}
@@ -88,13 +94,15 @@ export const SwapAssetRow = ({
         {isFrom && (
           <Button
             primary
+            disabled={isNaN(Number(myBalance))}
             style={{
               borderRadius: '15px',
               fontSize: '1rem',
               fontWeight: 500,
               height: '30px',
-              padding: '0rem 0.3rem',
+              padding: '0rem 0.4rem',
             }}
+            onClick={() => setAmount(myBalance)}
           >
             MAX
           </Button>
