@@ -73,7 +73,6 @@ export const PriceAndSlippage = ({
       </div>
       <div
         style={{
-          padding: '0 0 1em 0',
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',

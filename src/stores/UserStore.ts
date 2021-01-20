@@ -54,6 +54,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public isInfoReading = false;
   @observable public chainId: string;
 
+  @observable public ws: WebSocket;
+
   constructor(stores) {
     super(stores);
 
@@ -98,125 +100,151 @@ export class UserStoreEx extends StoreConstructor {
 
         this.getBalances();
 
-        const ws = new WebSocket(process.env.SECRET_WS);
-
-        const symbolUpdateHeightCache: { [symbol: string]: number } = {};
-
-        ws.onmessage = async event => {
-          try {
-            const data = JSON.parse(event.data);
-
-            const symbol = data.id;
-
-            if (!(symbol in symbolUpdateHeightCache)) {
-              console.error(
-                symbol,
-                'not in symbolUpdateHeightCache:',
-                symbolUpdateHeightCache,
-              );
-              return;
-            }
-
-            let height = 0;
-            try {
-              height = Number(data.result.data.value.TxResult.height);
-            } catch (error) {
-              // Not a tx
-              // Probably just the /subscribe ok event
-              return;
-            }
-
-            if (height <= symbolUpdateHeightCache[symbol]) {
-              console.log('Already updated', symbol, 'for height', height);
-              return;
-            }
-            symbolUpdateHeightCache[symbol] = height;
-            await this.updateBalanceForSymbol(symbol);
-          } catch (error) {
-            console.log(error);
-          }
-        };
-
-        ws.onopen = async () => {
-          while (this.stores.tokens.allData.length === 0) {
-            await sleep(100);
-          }
-
-          while (!this.address.startsWith('secret')) {
-            await sleep(100);
-          }
-
-          for (const token of this.stores.rewards.allData) {
-            // For any tx on this token's address or rewards pool => update my balance
-            const symbol = token.inc_token.symbol.replace('s', '');
-
-            symbolUpdateHeightCache[symbol] = 0;
-
-            ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: symbol, // jsonrpc id
-                method: 'subscribe',
-                params: {
-                  query: `message.module='compute' AND message.contract_address='${token.inc_token.address}' AND message.action='execute'`,
-                },
-              }),
-            );
-
-            ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: symbol, // jsonrpc id
-                method: 'subscribe',
-                params: {
-                  query: `message.module='compute' AND message.contract_address='${token.pool_address}' AND message.action='execute'`,
-                },
-              }),
-            );
-          }
-
-          // Also hook sSCRT
-          symbolUpdateHeightCache['sSCRT'] = 0;
-
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'sSCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `message.module='compute' AND message.contract_address='${process.env.SSCRT_CONTRACT}' AND message.action='execute'`,
-              },
-            }),
-          );
-
-          symbolUpdateHeightCache['SCRT'] = 0;
-
-          // If I sent a tx, I paid for gas => update SCRT balance
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'SCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `message.sender='${this.address}'`,
-              },
-            }),
-          );
-
-          // If I received SCRT => update SCRT balance
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'SCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `transfer.recipient='${this.address}'`,
-              },
-            }),
-          );
-        };
+        this.websocketInit();
       });
     }
+  }
+
+  @action public async websocketTerminate(waitToBeOpen?: boolean) {
+    if (waitToBeOpen) {
+      while (!this.ws && this.ws.readyState !== WebSocket.OPEN) {
+        await sleep(100);
+      }
+    }
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.close(1000 /* Normal Closure */, 'Ba bye');
+    }
+  }
+
+  @action public async websocketInit() {
+    if (this.ws) {
+      while (this.ws.readyState === WebSocket.CONNECTING) {
+        await sleep(100);
+      }
+
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close(1012 /* Service Restart */, 'Refreshing connection');
+      }
+    }
+
+    this.ws = new WebSocket(process.env.SECRET_WS);
+
+    const symbolUpdateHeightCache: { [symbol: string]: number } = {};
+
+    this.ws.onmessage = async event => {
+      try {
+        const data = JSON.parse(event.data);
+
+        const symbol = data.id;
+
+        if (!(symbol in symbolUpdateHeightCache)) {
+          console.error(
+            symbol,
+            'not in symbolUpdateHeightCache:',
+            symbolUpdateHeightCache,
+          );
+          return;
+        }
+
+        let height = 0;
+        try {
+          height = Number(data.result.data.value.TxResult.height);
+        } catch (error) {
+          // Not a tx
+          // Probably just the /subscribe ok event
+          return;
+        }
+
+        if (height <= symbolUpdateHeightCache[symbol]) {
+          console.log('Already updated', symbol, 'for height', height);
+          return;
+        }
+        symbolUpdateHeightCache[symbol] = height;
+        await this.updateBalanceForSymbol(symbol);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.ws.onopen = async () => {
+      while (this.stores.tokens.allData.length === 0) {
+        await sleep(100);
+      }
+
+      while (!this.address.startsWith('secret')) {
+        await sleep(100);
+      }
+
+      for (const token of this.stores.rewards.allData) {
+        // For any tx on this token's address or rewards pool => update my balance
+        const symbol = token.inc_token.symbol.replace('s', '');
+
+        symbolUpdateHeightCache[symbol] = 0;
+
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: symbol, // jsonrpc id
+            method: 'subscribe',
+            params: {
+              query: `message.module='compute' AND message.contract_address='${token.inc_token.address}' AND message.action='execute'`,
+            },
+          }),
+        );
+
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: symbol, // jsonrpc id
+            method: 'subscribe',
+            params: {
+              query: `message.module='compute' AND message.contract_address='${token.pool_address}' AND message.action='execute'`,
+            },
+          }),
+        );
+      }
+
+      // Also hook sSCRT
+      symbolUpdateHeightCache['sSCRT'] = 0;
+
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'sSCRT', // jsonrpc id
+          method: 'subscribe',
+          params: {
+            query: `message.module='compute' AND message.contract_address='${process.env.SSCRT_CONTRACT}' AND message.action='execute'`,
+          },
+        }),
+      );
+
+      symbolUpdateHeightCache['SCRT'] = 0;
+
+      // If I sent a tx, I paid for gas => update SCRT balance
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'SCRT', // jsonrpc id
+          method: 'subscribe',
+          params: {
+            query: `message.sender='${this.address}'`,
+          },
+        }),
+      );
+
+      // If I received SCRT => update SCRT balance
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: 'SCRT', // jsonrpc id
+          method: 'subscribe',
+          params: {
+            query: `transfer.recipient='${this.address}'`,
+          },
+        }),
+      );
+    };
   }
 
   @action public setInfoReading() {

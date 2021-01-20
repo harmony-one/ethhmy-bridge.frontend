@@ -7,7 +7,7 @@ import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { divDecimals, fromToNumberFormat, mulDecimals } from 'utils';
+import { divDecimals, fromToNumberFormat, mulDecimals, sleep } from 'utils';
 import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceAndSlippage } from './PriceAndSlippage';
@@ -18,6 +18,7 @@ import {
 import { NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
 import Style from 'style-it';
+import { UserStoreEx } from 'stores/UserStore';
 
 type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -52,25 +53,112 @@ type TokenDisplay = {
   token_code_hash?: string;
 };
 
+async function getBalance(
+  symbol: string,
+  walletAddress: string,
+  tokens: {
+    [symbol: string]: TokenDisplay;
+  },
+  viewingKey: string,
+  userStore: UserStoreEx,
+  secretjs: SigningCosmWasmClient,
+): Promise<number | JSX.Element> {
+  if (symbol === 'SCRT') {
+    return secretjs.getAccount(walletAddress).then(account => {
+      try {
+        return Number(
+          divDecimals(account.balance[0].amount, tokens[symbol].decimals),
+        );
+      } catch (error) {
+        return 0;
+      }
+    });
+  }
+
+  const unlockJsx = Style.it(
+    `.behold-token {
+      cursor: pointer;
+      border-radius: 30px;
+      padding: 0 0.3em;
+      border: solid;
+      border-width: thin;
+      border-color: whitesmoke;
+    }
+
+    .behold-token:hover {
+      background: whitesmoke;
+    }`,
+    <span
+      className="behold-token"
+      onClick={async () => {
+        await userStore.keplrWallet.suggestToken(
+          userStore.chainId,
+          tokens[symbol].address,
+        );
+      }}
+    >
+      🔍 View
+    </span>,
+  );
+
+  if (!viewingKey) {
+    return unlockJsx;
+  }
+
+  const result = await secretjs.queryContractSmart(tokens[symbol].address, {
+    balance: {
+      address: walletAddress,
+      key: viewingKey,
+    },
+  });
+
+  if (viewingKey && 'viewing_key_error' in result) {
+    // TODO handle this
+    return (
+      <strong
+        style={{
+          marginLeft: '0.2em',
+          color: 'red',
+        }}
+      >
+        Wrong viewing key used
+      </strong>
+    );
+  }
+
+  try {
+    return Number(divDecimals(result.balance.amount, tokens[symbol].decimals));
+  } catch (error) {
+    console.log(
+      `Got an error while trying to query ${symbol} token balance for address ${walletAddress}:`,
+      result,
+      error,
+    );
+    return unlockJsx;
+  }
+}
+
 export const SwapPage = () => {
   const { user } = useStores();
   const [selectedTokens, setSelectedTokens] = useState<{
     from: string;
-    fromPoolBalance: number;
     to: string;
-    toPoolBalance: number;
   }>({
     from: 'ETH',
-    fromPoolBalance: 0,
     to: 'SCRT',
-    toPoolBalance: 0,
   });
+  const selectedPairSymbol = `${selectedTokens.from}/${selectedTokens.to}`;
+
   const [tokens, setTokens] = useState<{
     [symbol: string]: TokenDisplay;
-  }>(preloadedTokens);
-  const [myBalances, setMyBalances] = useState({});
+  }>({});
+  const [balances, setBalances] = useState<{
+    [symbol: string]: number | JSX.Element;
+  }>({});
   const [pairs, setPairs] = useState<Array<Pair>>([]);
-  const [symbolsToPairs, setSymbolsToPairs] = useState({});
+  const [symbolsToPairs, setSymbolsToPairs] = useState<{
+    [pairSymbol: string]: Pair;
+  }>({});
   const [amounts, setAmounts] = useState<{
     from: string;
     to: string;
@@ -92,7 +180,9 @@ export const SwapPage = () => {
   const [buttonMessage, setButtonMessage] = useState<string>('Enter an amount');
   const [secretjs, setSecretjs] = useState<SigningCosmWasmClient>(null);
 
-  const hidePrice: boolean =
+  const hidePriceRow: boolean =
+    amounts.to === '' ||
+    amounts.from === '' ||
     isNaN(Number(amounts.to) / Number(amounts.from)) ||
     buttonMessage === 'Insufficient liquidity for this trade' ||
     buttonMessage === 'Trading pair does not exist';
@@ -102,13 +192,161 @@ export const SwapPage = () => {
     (async () => {
       await user.signIn();
 
-      const sleep = ms => new Promise(accept => setTimeout(accept, ms));
       while (!user.secretjs) {
-        await sleep(50);
+        await sleep(100);
       }
       setSecretjs(user.secretjs);
     })();
   }, [user]);
+
+  useEffect(() => {
+    if (
+      Object.keys(tokens).length === 0 ||
+      Object.keys(pairs).length === 0 ||
+      Object.keys(symbolsToPairs).length === 0
+    ) {
+      return () => {};
+    }
+
+    // Close the Bridge page ws and open the Swap page
+    user.websocketTerminate(true);
+
+    const ws = new WebSocket(process.env.SECRET_WS);
+
+    ws.onmessage = async event => {
+      try {
+        const data = JSON.parse(event.data);
+
+        const tokenSymbol: string = data.id;
+
+        try {
+          const height = Number(data.result.data.value.TxResult.height);
+          console.log('Blockchain height', height);
+        } catch (error) {
+          // Not a tx, just the /subscribe ok event
+          // Get balances for the first time...
+        }
+
+        let viewingKey: string;
+        if (tokenSymbol !== 'SCRT') {
+          try {
+            viewingKey = await user.keplrWallet.getSecret20ViewingKey(
+              user.chainId,
+              tokens[tokenSymbol].address,
+            );
+          } catch (error) {}
+        }
+
+        const userBalancePromise = getBalance(
+          tokenSymbol,
+          user.address,
+          tokens,
+          viewingKey,
+          user,
+          secretjs,
+        );
+
+        const pairsSymbols = Object.keys(symbolsToPairs).filter(pairSymbol =>
+          pairSymbol.startsWith(`${tokenSymbol}/`),
+        );
+        const pairsBalancesPromises = pairsSymbols.map(pairSymbol =>
+          getBalance(
+            tokenSymbol,
+            symbolsToPairs[pairSymbol].contract_addr,
+            tokens,
+            'SecretSwap',
+            user,
+            secretjs,
+          ),
+        );
+
+        const freshBalances = await Promise.all(
+          [userBalancePromise].concat(pairsBalancesPromises),
+        );
+
+        const pairSymbolToFreshBalances: {
+          [symbol: string]: number | JSX.Element;
+        } = {};
+        for (let i = 0; i < pairsSymbols.length; i++) {
+          const pairSymbol = pairsSymbols[i];
+          const [a, b] = pairSymbol.split('/');
+          const invertedPairSymbol = `${b}/${a}`;
+
+          pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] =
+            freshBalances[i + 1];
+          pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] =
+            freshBalances[i + 1];
+        }
+
+        setBalances(
+          Object.assign(
+            balances,
+            {
+              [tokenSymbol]: freshBalances[0],
+            },
+            pairSymbolToFreshBalances,
+          ),
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    ws.onopen = async () => {
+      while (!user.address) {
+        await sleep(100);
+      }
+
+      for (const symbol of Object.keys(tokens)) {
+        if (symbol === 'SCRT') {
+          // Every block => update user and pairs' SCRT balances (this is cheap)
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'SCRT', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `tm.event='NewBlock'`,
+              },
+            }),
+          );
+        } else {
+          // Any tx on the token's contract => update user and pairs' token balances
+          ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: symbol, // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `message.module='compute' AND message.contract_address='${tokens[symbol].address}' AND message.action='execute'`,
+              },
+            }),
+          );
+        }
+      }
+    };
+
+    // Return a cleanup function
+    // Once Swap page is unmounted, close Swap page ws and re-open Bridge page ws
+    return async () => {
+      user.websocketInit();
+
+      if (ws) {
+        while (ws.readyState === WebSocket.CONNECTING) {
+          await sleep(100);
+        }
+
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.close(1000 /* Normal Closure */, 'See ya');
+        }
+      }
+    };
+  }, [
+    user,
+    Object.keys(tokens).length > 0,
+    Object.keys(pairs).length > 0,
+    Object.keys(symbolsToPairs).length > 0,
+  ]);
 
   useEffect(() => {
     if (!secretjs) {
@@ -146,7 +384,7 @@ export const SwapPage = () => {
             tokensFromPairs: Promise<{
               [symbol: string]: TokenDisplay;
             }>,
-            pair,
+            pair: Pair,
           ) => {
             let unwrapedTokensFromPairs: {
               [symbol: string]: TokenDisplay;
@@ -202,9 +440,7 @@ export const SwapPage = () => {
     // The token list has changed
     setSelectedTokens({
       from: Object.keys(tokens)[1],
-      fromPoolBalance: 0,
       to: Object.keys(tokens)[0],
-      toPoolBalance: 0,
     });
   }, [tokens]);
 
@@ -218,9 +454,14 @@ export const SwapPage = () => {
       return;
     }
 
-    const pair = symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
+    const pair = symbolsToPairs[selectedPairSymbol];
     if (!pair) {
       setButtonMessage('Trading pair does not exist');
+      return;
+    }
+
+    if (amounts.from === '' || amounts.to === '') {
+      setButtonMessage('Wating for price data');
       return;
     }
 
@@ -242,163 +483,6 @@ export const SwapPage = () => {
     amounts.spread,
     amounts.commission,
   ]);
-
-  useEffect(() => {
-    // selectedTokens have changed
-    // update price and myBalances
-    if (!secretjs || !selectedTokens.from || !selectedTokens.to) {
-      return;
-    }
-
-    function getBalance(
-      tokenSymbol: string,
-      walletAddress: string,
-      tokens: any,
-      viewingKey: string,
-    ): Promise<number | JSX.Element | string> {
-      if (tokenSymbol === 'SCRT') {
-        return secretjs.getAccount(walletAddress).then(account => {
-          try {
-            return Number(
-              divDecimals(
-                account.balance[0].amount,
-                tokens[tokenSymbol].decimals,
-              ),
-            );
-          } catch (error) {
-            return 0;
-          }
-        });
-      }
-
-      const unlockJsx = Style.it(
-        `
-        .yolo{
-          cursor: pointer;
-          border-radius: 30px;
-          padding: 0 0.3em;
-          border: solid;
-          border-width: thin;
-          border-color: whitesmoke;
-        }
-
-        .yolo:hover {
-          background: whitesmoke;
-        }
-      `,
-        <span
-          className="yolo"
-          onClick={async () => {
-            await user.keplrWallet.suggestToken(
-              user.chainId,
-              tokens[tokenSymbol].address,
-            );
-          }}
-        >
-          🔍 View
-        </span>,
-      );
-
-      if (!viewingKey) {
-        return Promise.resolve(unlockJsx);
-      }
-
-      return secretjs
-        .queryContractSmart(tokens[tokenSymbol].address, {
-          balance: {
-            address: walletAddress,
-            key: viewingKey,
-          },
-        })
-        .then(result => {
-          if (viewingKey && 'viewing_key_error' in result) {
-            return (
-              <strong style={{ marginLeft: '0.2em', color: 'red' }}>
-                Wrong viewing key used
-              </strong> /* TODO handle this */
-            );
-          }
-
-          try {
-            return Number(
-              divDecimals(result.balance.amount, tokens[tokenSymbol].decimals),
-            );
-          } catch (error) {
-            console.log(
-              `Got an error while trying to query ${tokenSymbol} token balance for address ${walletAddress}:`,
-              result,
-              error,
-            );
-            return unlockJsx;
-          }
-        });
-    }
-
-    // update myBalances
-    (async () => {
-      let fromViewingKey, toViewingKey;
-      try {
-        fromViewingKey = await user.keplrWallet.getSecret20ViewingKey(
-          user.chainId,
-          tokens[selectedTokens.from].address,
-        );
-      } catch (error) {}
-      try {
-        toViewingKey = await user.keplrWallet.getSecret20ViewingKey(
-          user.chainId,
-          tokens[selectedTokens.to].address,
-        );
-      } catch (error) {}
-
-      const [fromBalance, toBalance] = await Promise.all([
-        getBalance(selectedTokens.from, user.address, tokens, fromViewingKey),
-        getBalance(selectedTokens.to, user.address, tokens, toViewingKey),
-      ]);
-
-      setMyBalances(
-        Object.assign({}, myBalances, {
-          [selectedTokens.from]: fromBalance,
-          [selectedTokens.to]: toBalance,
-        }),
-      );
-    })();
-
-    // update price
-    (async () => {
-      try {
-        const pair =
-          symbolsToPairs[selectedTokens.from + '/' + selectedTokens.to];
-
-        if (!pair) {
-          return;
-        }
-
-        const poolBalances = await Promise.all([
-          getBalance(
-            selectedTokens.from,
-            pair.contract_addr,
-            tokens,
-            'SecretSwap',
-          ),
-          getBalance(
-            selectedTokens.to,
-            pair.contract_addr,
-            tokens,
-            'SecretSwap',
-          ),
-        ]);
-
-        setSelectedTokens(
-          Object.assign({}, selectedTokens, {
-            fromPoolBalance: Number(poolBalances[0]),
-            toPoolBalance: Number(poolBalances[1]),
-          }),
-        );
-      } catch (error) {
-        console.error(error);
-      }
-    })();
-  }, [secretjs, selectedTokens.from, selectedTokens.to]);
 
   return (
     <BaseContainer>
@@ -430,7 +514,7 @@ export const SwapPage = () => {
             >
               <SwapAssetRow
                 isFrom={true}
-                balance={myBalances[selectedTokens.from]}
+                balance={balances[selectedTokens.from]}
                 tokens={tokens}
                 token={selectedTokens.from}
                 setToken={(value: string) => {
@@ -439,15 +523,11 @@ export const SwapPage = () => {
                     setSelectedTokens({
                       from: value,
                       to: selectedTokens.from,
-                      fromPoolBalance: 0,
-                      toPoolBalance: 0,
                     });
                   } else {
                     setSelectedTokens({
                       from: value,
                       to: selectedTokens.to,
-                      fromPoolBalance: 0,
-                      toPoolBalance: 0,
                     });
                   }
                 }}
@@ -470,30 +550,41 @@ export const SwapPage = () => {
                       spread_amount,
                       commission_amount,
                     } = compute_swap(
-                      selectedTokens.fromPoolBalance,
-                      selectedTokens.toPoolBalance,
+                      Number(
+                        balances[
+                          `${selectedTokens.from}-${selectedPairSymbol}`
+                        ],
+                      ),
+                      Number(
+                        balances[`${selectedTokens.to}-${selectedPairSymbol}`],
+                      ),
                       Number(value),
                     );
 
-                    // console.log(
-                    //   'js',
-                    //   `return_amount=${return_amount}`,
-                    //   `spread_amount=${spread_amount}`,
-                    //   `commission_amount=${commission_amount}`,
-                    // );
-
-                    setAmounts({
-                      from: value,
-                      isFromEstimated: false,
-                      to:
-                        return_amount < 0
-                          ? ''
-                          : fromToNumberFormat.format(return_amount),
-                      isToEstimated: true,
-                      spread: spread_amount,
-                      commission: commission_amount,
-                      priceImpact: spread_amount / return_amount,
-                    });
+                    if (isNaN(return_amount)) {
+                      setAmounts({
+                        from: value,
+                        isFromEstimated: false,
+                        to: '',
+                        isToEstimated: false,
+                        spread: 0,
+                        commission: 0,
+                        priceImpact: 0,
+                      });
+                    } else {
+                      setAmounts({
+                        from: value,
+                        isFromEstimated: false,
+                        to:
+                          return_amount < 0
+                            ? ''
+                            : fromToNumberFormat.format(return_amount),
+                        isToEstimated: true,
+                        spread: spread_amount,
+                        commission: commission_amount,
+                        priceImpact: spread_amount / return_amount,
+                      });
+                    }
                   }
                 }}
               />
@@ -511,9 +602,7 @@ export const SwapPage = () => {
                   onClick={() => {
                     setSelectedTokens({
                       to: selectedTokens.from,
-                      toPoolBalance: selectedTokens.fromPoolBalance,
                       from: selectedTokens.to,
-                      fromPoolBalance: selectedTokens.toPoolBalance,
                     });
 
                     if (amounts.isFromEstimated) {
@@ -522,46 +611,86 @@ export const SwapPage = () => {
                         spread_amount,
                         commission_amount,
                       } = compute_swap(
-                        selectedTokens.toPoolBalance,
-                        selectedTokens.fromPoolBalance,
+                        Number(
+                          balances[
+                            `${selectedTokens.to}-${selectedPairSymbol}`
+                          ],
+                        ),
+                        Number(
+                          balances[
+                            `${selectedTokens.from}-${selectedPairSymbol}`
+                          ],
+                        ),
                         Number(amounts.to),
                       );
 
-                      setAmounts({
-                        from: amounts.to,
-                        isFromEstimated: false,
-                        to:
-                          return_amount < 0
-                            ? ''
-                            : fromToNumberFormat.format(return_amount),
-                        isToEstimated: true,
-                        spread: spread_amount,
-                        commission: commission_amount,
-                        priceImpact: spread_amount / return_amount,
-                      });
+                      if (isNaN(return_amount)) {
+                        setAmounts({
+                          from: amounts.to,
+                          isFromEstimated: false,
+                          to: '',
+                          isToEstimated: true,
+                          spread: 0,
+                          commission: 0,
+                          priceImpact: 0,
+                        });
+                      } else {
+                        setAmounts({
+                          from: amounts.to,
+                          isFromEstimated: false,
+                          to:
+                            return_amount < 0
+                              ? ''
+                              : fromToNumberFormat.format(return_amount),
+                          isToEstimated: true,
+                          spread: spread_amount,
+                          commission: commission_amount,
+                          priceImpact: spread_amount / return_amount,
+                        });
+                      }
                     } else {
                       const {
                         offer_amount,
                         spread_amount,
                         commission_amount,
                       } = cumpute_offer_amount(
-                        selectedTokens.toPoolBalance,
-                        selectedTokens.fromPoolBalance,
+                        Number(
+                          balances[
+                            `${selectedTokens.to}-${selectedPairSymbol}`
+                          ],
+                        ),
+                        Number(
+                          balances[
+                            `${selectedTokens.from}-${selectedPairSymbol}`
+                          ],
+                        ),
                         Number(amounts.from),
                       );
 
-                      setAmounts({
-                        to: amounts.from,
-                        isToEstimated: false,
-                        from:
-                          offer_amount < 0
-                            ? ''
-                            : fromToNumberFormat.format(offer_amount),
-                        isFromEstimated: true,
-                        spread: spread_amount,
-                        commission: commission_amount,
-                        priceImpact: spread_amount / offer_amount,
-                      });
+                      if (isNaN(offer_amount)) {
+                        setAmounts({
+                          to: amounts.from,
+                          isToEstimated: false,
+                          from: '',
+                          isFromEstimated: true,
+                          spread: 0,
+                          commission: 0,
+                          priceImpact: 0,
+                        });
+                      } else {
+                        setAmounts({
+                          to: amounts.from,
+                          isToEstimated: false,
+                          from:
+                            offer_amount < 0
+                              ? ''
+                              : fromToNumberFormat.format(offer_amount),
+                          isFromEstimated: true,
+                          spread: spread_amount,
+                          commission: commission_amount,
+                          priceImpact: spread_amount / offer_amount,
+                        });
+                      }
                     }
                   }}
                 >
@@ -571,7 +700,7 @@ export const SwapPage = () => {
               </div>
               <SwapAssetRow
                 isFrom={false}
-                balance={myBalances[selectedTokens.to]}
+                balance={balances[selectedTokens.to]}
                 tokens={tokens}
                 token={selectedTokens.to}
                 setToken={(value: string) => {
@@ -580,15 +709,11 @@ export const SwapPage = () => {
                     setSelectedTokens({
                       to: value,
                       from: selectedTokens.to,
-                      toPoolBalance: 0,
-                      fromPoolBalance: 0,
                     });
                   } else {
                     setSelectedTokens({
                       to: value,
                       from: selectedTokens.from,
-                      toPoolBalance: 0,
-                      fromPoolBalance: 0,
                     });
                   }
                 }}
@@ -611,34 +736,45 @@ export const SwapPage = () => {
                       spread_amount,
                       commission_amount,
                     } = cumpute_offer_amount(
-                      selectedTokens.fromPoolBalance,
-                      selectedTokens.toPoolBalance,
+                      Number(
+                        balances[
+                          `${selectedTokens.from}-${selectedPairSymbol}`
+                        ],
+                      ),
+                      Number(
+                        balances[`${selectedTokens.to}-${selectedPairSymbol}`],
+                      ),
                       Number(value),
                     );
 
-                    // console.log(
-                    //   'js reverse',
-                    //   `offer_amount=${offer_amount}`,
-                    //   `spread_amount=${spread_amount}`,
-                    //   `commission_amount=${commission_amount}`,
-                    // );
-
-                    setAmounts({
-                      to: value,
-                      isToEstimated: false,
-                      from:
-                        offer_amount < 0
-                          ? ''
-                          : fromToNumberFormat.format(offer_amount),
-                      isFromEstimated: true,
-                      spread: spread_amount,
-                      commission: commission_amount,
-                      priceImpact: spread_amount / offer_amount,
-                    });
+                    if (isNaN(offer_amount)) {
+                      setAmounts({
+                        to: value,
+                        isToEstimated: false,
+                        from: '',
+                        isFromEstimated: false,
+                        spread: 0,
+                        commission: 0,
+                        priceImpact: 0,
+                      });
+                    } else {
+                      setAmounts({
+                        to: value,
+                        isToEstimated: false,
+                        from:
+                          offer_amount < 0
+                            ? ''
+                            : fromToNumberFormat.format(offer_amount),
+                        isFromEstimated: true,
+                        spread: spread_amount,
+                        commission: commission_amount,
+                        priceImpact: spread_amount / offer_amount,
+                      });
+                    }
                   }
                 }}
               />
-              {!hidePrice && (
+              {!hidePriceRow && (
                 <PriceAndSlippage
                   toToken={selectedTokens.to}
                   fromToken={selectedTokens.from}
@@ -652,6 +788,7 @@ export const SwapPage = () => {
                 color={buttonMessage === 'Price Impact Too High' ? 'red' : null}
                 fluid
                 style={{
+                  margin: '1em 0 0 0',
                   borderRadius: '12px',
                   padding: '18px',
                   fontSize: '20px',
@@ -719,7 +856,7 @@ export const SwapPage = () => {
                 {buttonMessage}
               </Button>
             </Container>
-            {!hidePrice && (
+            {!hidePriceRow && (
               <AdditionalInfo
                 fromToken={selectedTokens.from}
                 toToken={selectedTokens.to}

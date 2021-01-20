@@ -18,20 +18,13 @@ export const SwapAssetRow = ({
   balance,
   isFrom,
 }) => {
-  const [dropdownBackground, setDropdownBackground] = useState<string>(
-    undefined,
-  );
-  const [myBalance, setMyBalance] = useState<string>(balance);
+  const [dropdownBackground, setDropdownBackground] = useState<string>();
 
   const font = {
     fontWeight: 500,
     fontSize: '14px',
     color: 'rgb(86, 90, 105)',
   };
-
-  useEffect(() => {
-    setMyBalance(balance);
-  }, [balance]);
 
   return (
     <Container
@@ -54,16 +47,16 @@ export const SwapAssetRow = ({
         </span>
         {flexRowSpace}
         {(() => {
-          if (myBalance == undefined) {
+          if (balance == undefined) {
             return '-';
           }
 
           return (
             <>
               {'Balance: '}
-              {isNaN(Number(myBalance))
-                ? myBalance
-                : balanceNumberFormat.format(Number(myBalance))}
+              {isNaN(Number(balance))
+                ? balance
+                : balanceNumberFormat.format(Number(balance))}
             </>
           );
         })()}
@@ -94,7 +87,7 @@ export const SwapAssetRow = ({
         {isFrom && (
           <Button
             primary
-            disabled={isNaN(Number(myBalance))}
+            disabled={isNaN(Number(balance))}
             style={{
               borderRadius: '15px',
               fontSize: '1rem',
@@ -102,7 +95,7 @@ export const SwapAssetRow = ({
               height: '30px',
               padding: '0rem 0.4rem',
             }}
-            onClick={() => setAmount(myBalance)}
+            onClick={() => setAmount(balance)}
           >
             MAX
           </Button>
