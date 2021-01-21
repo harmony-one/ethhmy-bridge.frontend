@@ -159,8 +159,8 @@ export class SwapPage extends React.Component<
       [symbol: string]: number | JSX.Element;
     };
     pairs: Array<Pair>;
-    symbolsToPairs: {
-      [pairSymbol: string]: Pair;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
     };
     fromInput: string;
     toInput: string;
@@ -171,6 +171,7 @@ export class SwapPage extends React.Component<
     priceImpact: number;
     slippageTolerance: number;
     buttonMessage: string;
+    loadingSwap: boolean;
   }
 > {
   constructor(props) {
@@ -183,21 +184,23 @@ export class SwapPage extends React.Component<
   private ws: WebSocket;
   public state = {
     pairs: [], // done
-    symbolsToPairs: {}, // done
+    pairFromSymbol: {}, // done
     tokens: {}, // done
     fromToken: '', // done
     toToken: '', // done
     balances: {}, // done
-    fromInput: '',
-    toInput: '',
-    isFromEstimated: false,
-    isToEstimated: false,
-    spread: 0,
-    commission: 0,
-    priceImpact: 0,
+    fromInput: '', // done
+    toInput: '', // done
+    isFromEstimated: false, // done
+    isToEstimated: false, // done
+    spread: 0, // done
+    commission: 0, // done
+    priceImpact: 0, // done
     slippageTolerance: 0.005,
     buttonMessage: 'Enter an amount', // done
+    loadingSwap: false,
   };
+  private symbolUpdateHeightCache: { [symbol: string]: number } = {};
 
   async componentDidMount() {
     await this.user.signIn();
@@ -219,7 +222,7 @@ export class SwapPage extends React.Component<
       },
     );
 
-    const symbolsToPairs = {};
+    const pairFromSymbol = {};
 
     const tokens: {
       [symbol: string]: TokenDisplay;
@@ -264,8 +267,8 @@ export class SwapPage extends React.Component<
           }
           symbols.push(symbol);
         }
-        symbolsToPairs[`${symbols[0]}/${symbols[1]}`] = pair;
-        symbolsToPairs[`${symbols[1]}/${symbols[0]}`] = pair;
+        pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
+        pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
 
         return unwrapedTokensFromPairs;
       },
@@ -277,142 +280,216 @@ export class SwapPage extends React.Component<
 
     this.user.websocketTerminate(true);
 
-    const ws = new WebSocket(process.env.SECRET_WS);
+    this.ws = new WebSocket(process.env.SECRET_WS);
 
-    ws.onmessage = async event => {
+    this.ws.onmessage = async event => {
       try {
         const data = JSON.parse(event.data);
 
-        const tokenSymbol: string = data.id;
+        const symbols: Array<string> = data.id.split('/');
 
-        // const height =
-        //   data?.result?.data?.value?.TxResult?.height ||
-        //   data?.result?.data?.value?.block?.header?.height;
-        // if (height) {
-        //   console.log(`Updating ${tokenSymbol} for height ${height}`);
-        // } else {
-        //   console.log(`Updating ${tokenSymbol} for the first time`);
-        // }
+        const height =
+          data?.result?.data?.value?.TxResult?.height ||
+          data?.result?.data?.value?.block?.header?.height ||
+          0;
 
-        let viewingKey: string;
-        if (tokenSymbol !== 'SCRT') {
-          // Retry getSecret20ViewingKey 3 times
-          // Sometimes this event is fired before Keplr stores the viewing key
-          let tries = 0;
-          while (true) {
-            tries += 1;
-            try {
-              viewingKey = await this.user.keplrWallet.getSecret20ViewingKey(
-                this.user.chainId,
-                tokens[tokenSymbol].address,
-              );
-            } catch (error) {}
-            if (viewingKey || tries === 3) {
-              break;
-            }
-            await sleep(100);
+        console.log(`Refresing balances for ${symbols.join(' and ')}`);
+
+        for (const tokenSymbol of symbols) {
+          if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
+            console.log(`${tokenSymbol} already fresh for height ${height}`);
+            return;
           }
-        }
+          this.symbolUpdateHeightCache[tokenSymbol] = height;
 
-        const userBalancePromise = getBalance(
-          tokenSymbol,
-          this.user.address,
-          tokens,
-          viewingKey,
-          this.user,
-          this.secretjs,
-        );
+          let viewingKey: string;
+          if (tokenSymbol !== 'SCRT') {
+            // Retry getSecret20ViewingKey 3 times
+            // Sometimes this event is fired before Keplr stores the viewing key
+            let tries = 0;
+            while (true) {
+              tries += 1;
+              try {
+                viewingKey = await this.user.keplrWallet.getSecret20ViewingKey(
+                  this.user.chainId,
+                  tokens[tokenSymbol].address,
+                );
+              } catch (error) {}
+              if (viewingKey || tries === 3) {
+                break;
+              }
+              await sleep(100);
+            }
+          }
 
-        const pairsSymbols = Object.keys(symbolsToPairs).filter(pairSymbol =>
-          pairSymbol.startsWith(`${tokenSymbol}/`),
-        );
-        const pairsBalancesPromises = pairsSymbols.map(pairSymbol =>
-          getBalance(
+          const userBalancePromise = getBalance(
             tokenSymbol,
-            symbolsToPairs[pairSymbol].contract_addr,
+            this.user.address,
             tokens,
-            'SecretSwap',
+            viewingKey,
             this.user,
             this.secretjs,
-          ),
-        );
+          );
 
-        const freshBalances = await Promise.all(
-          [userBalancePromise].concat(pairsBalancesPromises),
-        );
-
-        const pairSymbolToFreshBalances: {
-          [symbol: string]: number | JSX.Element;
-        } = {};
-        for (let i = 0; i < pairsSymbols.length; i++) {
-          const pairSymbol = pairsSymbols[i];
-          const [a, b] = pairSymbol.split('/');
-          const invertedPairSymbol = `${b}/${a}`;
-
-          pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] =
-            freshBalances[i + 1];
-          pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] =
-            freshBalances[i + 1];
-        }
-
-        // Using a callbak to setState prevents a race condition
-        // where two tokens gets updated after the same block
-        // and they start this update with the same this.state.balances
-        this.setState(currentState => {
-          return {
-            balances: Object.assign(
-              {},
-              currentState.balances,
-              {
-                [tokenSymbol]: freshBalances[0],
-              },
-              pairSymbolToFreshBalances,
+          const pairsSymbols = Object.keys(pairFromSymbol).filter(pairSymbol =>
+            pairSymbol.startsWith(`${tokenSymbol}/`),
+          );
+          const pairsBalancesPromises = pairsSymbols.map(pairSymbol =>
+            getBalance(
+              tokenSymbol,
+              pairFromSymbol[pairSymbol].contract_addr,
+              tokens,
+              'SecretSwap',
+              this.user,
+              this.secretjs,
             ),
-          };
-        });
+          );
+
+          const freshBalances = await Promise.all(
+            [userBalancePromise].concat(pairsBalancesPromises),
+          );
+
+          const pairSymbolToFreshBalances: {
+            [symbol: string]: number | JSX.Element;
+          } = {};
+          for (let i = 0; i < pairsSymbols.length; i++) {
+            const pairSymbol = pairsSymbols[i];
+            const [a, b] = pairSymbol.split('/');
+            const invertedPairSymbol = `${b}/${a}`;
+
+            pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] =
+              freshBalances[i + 1];
+            pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] =
+              freshBalances[i + 1];
+          }
+
+          // Using a callbak to setState prevents a race condition
+          // where two tokens gets updated after the same block
+          // and they start this update with the same this.state.balances
+          // (Atomic setState)
+          this.setState(currentState => {
+            return {
+              balances: Object.assign(
+                {},
+                currentState.balances,
+                {
+                  [tokenSymbol]: freshBalances[0],
+                },
+                pairSymbolToFreshBalances,
+              ),
+            };
+          });
+        }
       } catch (error) {
         console.log(error);
       }
     };
 
-    ws.onopen = async () => {
+    this.ws.onopen = async () => {
+      // Here we register for token related events
+      // Then in onmessage we know when to refresh all the balances
       while (!this.user.address) {
         await sleep(100);
       }
 
+      // Register for token or SCRT events
       for (const symbol of Object.keys(tokens)) {
         if (symbol === 'SCRT') {
-          // Every block => update user and pairs' SCRT balances
-          // Assaf: This might be cheaper than subscribing to as many queries as there are pairs
-          ws.send(
+          // I sent a tx => I paid for gas
+          this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
               id: 'SCRT', // jsonrpc id
               method: 'subscribe',
               params: {
-                query: `tm.event='NewBlock'`,
+                query: `message.sender='${this.user.address}'`,
+              },
+            }),
+          );
+
+          // I received SCRT
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: 'SCRT', // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `transfer.recipient='${this.user.address}'`,
               },
             }),
           );
         } else {
-          // Any tx on the token's contract => update user and pairs' token balances
-          ws.send(
+          // Any tx on the token's contract
+          const tokenAddress = tokens[symbol].address;
+
+          this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
               id: symbol, // jsonrpc id
               method: 'subscribe',
               params: {
-                query: `message.module='compute' AND message.contract_address='${tokens[symbol].address}' AND message.action='execute'`,
+                query: `message.contract_address='${tokenAddress}'`,
+              },
+            }),
+          );
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: symbol, // jsonrpc id
+              method: 'subscribe',
+              params: {
+                query: `wasm.contract_address='${tokenAddress}'`,
               },
             }),
           );
         }
       }
+
+      // Register for pair events
+      // Token events aren't enough because of a bug in x/compute
+      // See: TODO link to PR
+      const uniquePairSymbols: Array<string> = Object.values(
+        Object.keys(pairFromSymbol).reduce((symbolFromPair, symbol) => {
+          const pair = JSON.stringify(pairFromSymbol[symbol]);
+          if (pair in symbolFromPair) {
+            return symbolFromPair;
+          }
+
+          return Object.assign(symbolFromPair, {
+            [pair]: symbol,
+          });
+        }, {}),
+      );
+
+      for (const symbol of uniquePairSymbols) {
+        const pairAddress = pairFromSymbol[symbol].contract_addr;
+
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: symbol, // jsonrpc id
+            method: 'subscribe',
+            params: {
+              query: `message.contract_address='${pairAddress}'`,
+            },
+          }),
+        );
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: symbol, // jsonrpc id
+            method: 'subscribe',
+            params: {
+              query: `wasm.contract_address='${pairAddress}'`,
+            },
+          }),
+        );
+      }
     };
 
     this.setState({
       pairs,
-      symbolsToPairs,
+      pairFromSymbol,
       tokens,
       fromToken,
       toToken,
@@ -435,9 +512,9 @@ export class SwapPage extends React.Component<
 
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
-    const pair = this.state.symbolsToPairs[selectedPairSymbol];
+    const pair = this.state.pairFromSymbol[selectedPairSymbol];
 
-    let buttonMessage;
+    let buttonMessage: string;
     // TODO: Insufficient XXX balance
     if (this.state.fromInput === '' && this.state.toInput === '') {
       buttonMessage = 'Enter an amount';
@@ -601,7 +678,7 @@ export class SwapPage extends React.Component<
                           Number(this.state.toInput),
                         );
 
-                        if (isNaN(return_amount)) {
+                        if (isNaN(return_amount) || this.state.toInput === '') {
                           this.setState({
                             toToken: this.state.fromToken,
                             fromToken: this.state.toToken,
@@ -648,7 +725,10 @@ export class SwapPage extends React.Component<
                           Number(this.state.fromInput),
                         );
 
-                        if (isNaN(offer_amount)) {
+                        if (
+                          isNaN(offer_amount) ||
+                          this.state.fromInput === ''
+                        ) {
                           this.setState({
                             toToken: this.state.fromToken,
                             fromToken: this.state.toToken,
@@ -774,7 +854,8 @@ export class SwapPage extends React.Component<
                   />
                 )}
                 <Button
-                  disabled={buttonMessage !== 'Swap'}
+                  disabled={buttonMessage !== 'Swap' || this.state.loadingSwap}
+                  loading={this.state.loadingSwap}
                   primary={buttonMessage === 'Swap'}
                   color={
                     buttonMessage === 'Price Impact Too High' ? 'red' : null
@@ -787,66 +868,82 @@ export class SwapPage extends React.Component<
                     fontSize: '20px',
                   }}
                   onClick={async () => {
-                    const pair = this.state.symbolsToPairs[
-                      `${this.state.fromToken}/${this.state.toToken}`
-                    ];
+                    this.setState({ loadingSwap: true });
 
-                    if (this.state.fromToken === 'SCRT') {
-                      const amountUscrt = mulDecimals(
-                        this.state.fromInput,
-                        this.state.tokens[this.state.fromToken].decimals,
-                      ).toString();
-                      await this.secretjs.execute(
-                        pair.contract_addr,
-                        {
-                          swap: {
-                            offer_asset: {
-                              info: { native_token: { denom: 'uscrt' } },
-                              amount: amountUscrt,
-                            },
-                            /*
+                    try {
+                      const pair = this.state.pairFromSymbol[
+                        `${this.state.fromToken}/${this.state.toToken}`
+                      ];
+
+                      if (this.state.fromToken === 'SCRT') {
+                        const amountUscrt = mulDecimals(
+                          this.state.fromInput,
+                          this.state.tokens[this.state.fromToken].decimals,
+                        ).toString();
+                        await this.secretjs.execute(
+                          pair.contract_addr,
+                          {
+                            swap: {
+                              offer_asset: {
+                                info: { native_token: { denom: 'uscrt' } },
+                                amount: amountUscrt,
+                              },
+                              /*
                             offer_asset: Asset, // Done
                             belief_price: Option<Decimal>, // TODO
                             max_spread: Option<Decimal>, // TODO
                             to: Option<HumanAddr>, // TODO
                             */
+                            },
                           },
-                        },
-                        '',
-                        [
-                          {
-                            amount: amountUscrt,
-                            denom: 'uscrt',
-                          },
-                        ],
-                      );
-                    } else {
-                      const amountInTokenDenom = mulDecimals(
-                        this.state.fromInput,
-                        this.state.tokens[this.state.fromToken].decimals,
-                      ).toString();
+                          '',
+                          [
+                            {
+                              amount: amountUscrt,
+                              denom: 'uscrt',
+                            },
+                          ],
+                        );
+                      } else {
+                        const amountInTokenDenom = mulDecimals(
+                          this.state.fromInput,
+                          this.state.tokens[this.state.fromToken].decimals,
+                        ).toString();
 
-                      await this.secretjs.execute(
-                        this.state.tokens[this.state.fromToken].address,
-                        {
-                          send: {
-                            recipient: pair.contract_addr,
-                            amount: amountInTokenDenom,
-                            msg: btoa(
-                              JSON.stringify({
-                                swap: {
-                                  /*
+                        await this.secretjs.execute(
+                          this.state.tokens[this.state.fromToken].address,
+                          {
+                            send: {
+                              recipient: pair.contract_addr,
+                              amount: amountInTokenDenom,
+                              msg: btoa(
+                                JSON.stringify({
+                                  swap: {
+                                    /*
                                   belief_price: Option<Decimal>, // TODO
                                   max_spread: Option<Decimal>, // TODO
                                   to: Option<HumanAddr>, // TODO
                                   */
-                                },
-                              }),
-                            ),
+                                  },
+                                }),
+                              ),
+                            },
                           },
-                        },
-                      );
+                        );
+                      }
+                    } catch (error) {
+                      console.error('Swap error', error);
+                      this.setState({
+                        loadingSwap: false,
+                      });
+                      return;
                     }
+
+                    this.setState({
+                      loadingSwap: false,
+                      toInput: '',
+                      fromInput: '',
+                    });
                   }}
                 >
                   {buttonMessage}
