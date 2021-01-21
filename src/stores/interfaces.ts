@@ -96,6 +96,8 @@ export interface ITokenInfo {
     min_from_scrt: string;
     hidden: boolean;
     proxy?: string;
+    proxy_symbol?: string;
+    proxy_address?: string;
   };
 }
 
@@ -111,7 +113,7 @@ export interface IRewardPool {
     address: string;
     decimals: number;
     price: number;
-  }
+  };
   total_locked: string;
   pending_rewards: string;
   deadline: string;
