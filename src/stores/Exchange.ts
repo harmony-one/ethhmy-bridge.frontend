@@ -7,7 +7,11 @@ import * as operationService from 'services';
 import * as contract from '../blockchain-bridge';
 import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
-import { Snip20Send, Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
+import {
+  Snip20Send,
+  Snip20SendToBridge,
+  Snip20SwapHash,
+} from '../blockchain-bridge';
 import { getStatus } from 'services';
 
 export enum EXCHANGE_STEPS {
@@ -236,12 +240,11 @@ export class Exchange extends StoreConstructor {
       this.operation.status = swap.swap.status;
 
       if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
-
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
 
         const decimals = this.stores.tokens.allData.find(
-           t => t.dst_address === swap.swap.dst_address,
+          t => t.dst_address === swap.swap.dst_address,
         ).decimals;
 
         this.transaction.amount = divDecimals(swap.swap.amount, decimals);
@@ -445,6 +448,7 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
     this.setStatus();
 
+    let proxyContract: string;
     let decimals: number | string;
     let recipient = process.env.SCRT_SWAP_CONTRACT;
     if (isEth) {
@@ -456,29 +460,29 @@ export class Exchange extends StoreConstructor {
       const token = this.stores.tokens.allData.find(
         t => t.dst_address === this.transaction.snip20Address,
       );
-      decimals = token.decimals
+      decimals = token.decimals;
       if (token) {
         if (token.display_props.proxy) {
+          proxyContract = process.env.WSCRT_PROXY_CONTRACT;
           recipient = process.env.WSCRT_PROXY_CONTRACT;
           this.transaction.snip20Address = process.env.SSCRT_CONTRACT;
         }
       }
-
     }
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     await this.createOperation();
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
-    let tx_id = "";
+    let tx_id = '';
 
     try {
-       tx_id = await Snip20SendToBridge({
+      tx_id = await Snip20SendToBridge({
         recipient,
         secretjs: this.stores.user.secretjs,
         address: this.transaction.snip20Address,
         amount,
-        msg: btoa(this.transaction.ethAddress)
+        msg: btoa(this.transaction.ethAddress),
       });
     } catch (e) {
       this.operation.status = SwapStatus.SWAP_FAILED;
@@ -490,7 +494,8 @@ export class Exchange extends StoreConstructor {
       this.operation.id,
       Snip20SwapHash({
         tx_id,
-        address: this.transaction.snip20Address}),
+        address: proxyContract || this.transaction.snip20Address,
+      }),
     );
     this.setStatus();
 
