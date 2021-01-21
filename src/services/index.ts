@@ -82,7 +82,9 @@ export const getTokensInfo = async (
     .filter(t => !t.display_props.hidden)
     .map(t => {
       if (t.display_props.proxy) {
+        t.display_props.proxy_address = t.dst_address;
         t.dst_address = process.env.SSCRT_CONTRACT;
+        t.display_props.proxy_symbol = 'WSCRT';
         //t.display_props.symbol = t.name;
       }
 
