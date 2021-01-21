@@ -13,11 +13,13 @@ export const PriceAndSlippage = ({
   fromToken,
   toToken,
   slippageTolerance,
+  setSlippageTolerance,
 }: {
   price: number;
   fromToken: string;
   toToken: string;
   slippageTolerance: number;
+  setSlippageTolerance: (slippageTolerance: number) => void;
 }) => {
   const [tokens, setTokens] = useState({
     from: fromToken,
