@@ -93,7 +93,7 @@ export class Exchange extends React.Component<
       }
     }
 
-    if (!userMetamask.erc20Address && !user.hrc20Address) {
+    if ([TOKEN.ERC721].includes(exchange.token) && !userMetamask.erc20Address) {
       exchange.error = 'No token selected ';
       throw 'No token selected ';
     }
