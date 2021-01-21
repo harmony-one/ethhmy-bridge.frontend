@@ -11,7 +11,7 @@ import { EXCHANGE_MODE, ITokenInfo } from 'stores/interfaces';
 
 const selectTokenText = (mode: string, token: ITokenInfo) => {
   if (mode === EXCHANGE_MODE.SCRT_TO_ETH && !token.display_props.proxy) {
-    return `Secret ${token.display_props.label} (secret${token.display_props.symbol})`;
+    return `Secret ${token.name} (secret${token.display_props.symbol})`;
   } else if (mode !== EXCHANGE_MODE.SCRT_TO_ETH && !token.display_props.proxy) {
     return `${token.display_props.label} (${token.display_props.symbol})`;
   } else if (mode === EXCHANGE_MODE.SCRT_TO_ETH) {
