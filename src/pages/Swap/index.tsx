@@ -974,7 +974,7 @@ export class SwapPage extends React.Component<
                           '',
                           [
                             {
-                              amount: amountUscrt,
+                              amount: amountInTokenDenom,
                               denom: 'uscrt',
                             },
                           ],
