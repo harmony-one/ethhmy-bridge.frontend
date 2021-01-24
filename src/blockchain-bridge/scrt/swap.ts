@@ -238,7 +238,7 @@ export const compute_max_spread = (
   offer_amount: number,
   slippage_tolerance: number,
 ): number => {
-  // weare going to pay offer_amount but simulate like we're paying extra due to slippage
+  // we are going to pay offer_amount but simulate like we're paying extra due to slippage
   // then use the spread from this simulation as the max_spread in which a swap should abort
   const { spread_amount, return_amount } = compute_swap(
     offer_pool,
