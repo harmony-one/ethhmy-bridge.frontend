@@ -12,7 +12,7 @@ html {
 /* Semantic UI dropdown */
 .ui.dropdown > .text > .image,
 .ui.dropdown > .text > img {
-  vertical-align: middle;
+  vertical-align: bottom;
   margin-top: 0;
   margin-bottom: -0.2em;
 }
