@@ -21,6 +21,7 @@ import Style from 'style-it';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { observable } from 'mobx';
+import { SwapHeader } from './Header';
 
 type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -30,6 +31,7 @@ type Pair = {
 };
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
+
 const downArrow = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -597,11 +599,12 @@ export class SwapPage extends React.Component<
                   zIndex: '10',
                   borderRadius: '30px',
                   backgroundColor: 'white',
-                  padding: '2rem',
+                  padding: '2em',
                   boxShadow:
                     'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
                 }}
               >
+                <SwapHeader />
                 <SwapAssetRow
                   isFrom={true}
                   balance={fromBalance}
@@ -681,7 +684,7 @@ export class SwapPage extends React.Component<
                 />
                 <div
                   style={{
-                    padding: '1rem',
+                    padding: '1em',
                     display: 'flex',
                     flexDirection: 'row',
                     alignContent: 'center',
