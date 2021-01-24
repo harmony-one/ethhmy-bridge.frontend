@@ -97,6 +97,8 @@ async function getBalance(
           userStore.chainId,
           tokens[symbol].address,
         );
+        // TODO trigger balance refresh if this was an "advanced set" that didn't
+        // result in an on-chain transaction
       }}
     >
       🔍 View
