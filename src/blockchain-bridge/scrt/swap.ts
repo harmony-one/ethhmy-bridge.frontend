@@ -191,7 +191,7 @@ export const compute_swap = (
 };
 
 // To reduce unnecessary queries, cumpute_offer_amount is ported from here https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/contract.rs#L638-L661
-export const cumpute_offer_amount = (
+export const compute_offer_amount = (
   offer_pool: number,
   ask_pool: number,
   ask_amount: number,
@@ -230,4 +230,21 @@ const reverse_decimal = (decimal: number): number => {
   }
 
   return DECIMAL_FRACTIONAL / (decimal * DECIMAL_FRACTIONAL);
+};
+
+export const compute_max_spread = (
+  offer_pool: number,
+  ask_pool: number,
+  offer_amount: number,
+  slippage_tolerance: number,
+): number => {
+  // weare going to pay offer_amount but simulate like we're paying extra due to slippage
+  // then use the spread from this simulation as the max_spread in which a swap should abort
+  const { spread_amount, return_amount } = compute_swap(
+    offer_pool,
+    ask_pool,
+    offer_amount * (1 + slippage_tolerance),
+  );
+  const max_spread = spread_amount / (return_amount + spread_amount);
+  return max_spread;
 };

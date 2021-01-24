@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
@@ -7,13 +7,20 @@ import { Button, Container } from 'semantic-ui-react';
 import { useStores } from 'stores';
 import preloadedTokens from './tokens.json';
 import './override.css';
-import { divDecimals, fromToNumberFormat, mulDecimals, sleep } from 'utils';
+import {
+  divDecimals,
+  fromToNumberFormat,
+  maxSpreadNumberFormat,
+  mulDecimals,
+  sleep,
+} from 'utils';
 import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceAndSlippage } from './PriceAndSlippage';
 import {
   compute_swap,
-  cumpute_offer_amount,
+  compute_offer_amount,
+  compute_max_spread,
 } from '../../blockchain-bridge/scrt/swap';
 import { NativeToken, Token, TradeType } from './trade';
 import { SigningCosmWasmClient } from 'secretjs';
@@ -746,7 +753,7 @@ export class SwapPage extends React.Component<
                           offer_amount,
                           spread_amount,
                           commission_amount,
-                        } = cumpute_offer_amount(
+                        } = compute_offer_amount(
                           Number(
                             this.state.balances[
                               `${this.state.toToken}-${selectedPairSymbol}`
@@ -834,7 +841,7 @@ export class SwapPage extends React.Component<
                         offer_amount,
                         spread_amount,
                         commission_amount,
-                      } = cumpute_offer_amount(
+                      } = compute_offer_amount(
                         Number(
                           this.state.balances[
                             `${this.state.fromToken}-${selectedPairSymbol}`
@@ -919,24 +926,48 @@ export class SwapPage extends React.Component<
                         `${this.state.fromToken}/${this.state.toToken}`
                       ];
 
+                      const amountInTokenDenom = mulDecimals(
+                        this.state.fromInput,
+                        this.state.tokens[this.state.fromToken].decimals,
+                      ).toString();
+
+                      const [offer_pool, ask_pool, offer_amount] = [
+                        Number(
+                          this.state.balances[
+                            `${this.state.fromToken}-${selectedPairSymbol}`
+                          ],
+                        ),
+                        Number(
+                          this.state.balances[
+                            `${this.state.toToken}-${selectedPairSymbol}`
+                          ],
+                        ),
+                        Number(this.state.fromInput),
+                      ];
+                      const max_spread = maxSpreadNumberFormat.format(
+                        compute_max_spread(
+                          offer_pool,
+                          ask_pool,
+                          offer_amount,
+                          this.state.slippageTolerance,
+                        ),
+                      );
+
                       if (this.state.fromToken === 'SCRT') {
-                        const amountUscrt = mulDecimals(
-                          this.state.fromInput,
-                          this.state.tokens[this.state.fromToken].decimals,
-                        ).toString();
                         await this.secretjs.execute(
                           pair.contract_addr,
                           {
                             swap: {
                               offer_asset: {
                                 info: { native_token: { denom: 'uscrt' } },
-                                amount: amountUscrt,
+                                amount: amountInTokenDenom,
                               },
+                              max_spread: max_spread,
                               /*
-                              offer_asset: Asset, // Done
-                              belief_price: Option<Decimal>, // TODO
-                              max_spread: Option<Decimal>, // TODO
-                              to: Option<HumanAddr>, // TODO
+                              offer_asset: Asset,
+                              belief_price: Option<Decimal>,
+                              max_spread: Option<Decimal>,
+                              to: Option<HumanAddr>,
                               */
                             },
                           },
@@ -949,11 +980,6 @@ export class SwapPage extends React.Component<
                           ],
                         );
                       } else {
-                        const amountInTokenDenom = mulDecimals(
-                          this.state.fromInput,
-                          this.state.tokens[this.state.fromToken].decimals,
-                        ).toString();
-
                         await this.secretjs.execute(
                           this.state.tokens[this.state.fromToken].address,
                           {
@@ -963,10 +989,11 @@ export class SwapPage extends React.Component<
                               msg: btoa(
                                 JSON.stringify({
                                   swap: {
+                                    max_spread: max_spread,
                                     /*
-                                    belief_price: Option<Decimal>, // TODO
-                                    max_spread: Option<Decimal>, // TODO
-                                    to: Option<HumanAddr>, // TODO
+                                    belief_price: Option<Decimal>,
+                                    max_spread: Option<Decimal>,
+                                    to: Option<HumanAddr>,
                                     */
                                   },
                                 }),
