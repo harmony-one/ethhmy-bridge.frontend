@@ -123,7 +123,7 @@ async function getBalance(
           color: 'red',
         }}
       >
-        Wrong viewing key used
+        {ERROR_WRONG_VIEWING_KEY}
       </strong>
     );
   }
@@ -140,15 +140,23 @@ async function getBalance(
   }
 }
 
-export const SwapPageWrapper = observer((props: any) => {
-  /* This is necessary to get the user store from mobx 🤷‍♂️ */
+const ERROR_WRONG_VIEWING_KEY = 'Wrong viewing key used';
+
+const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
+const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
+const BUTTON_MSG_LOADING_PRICE = 'Loading price data';
+const BUTTON_MSG_NOT_ENOUGH_LIQUIDITY = 'Insufficient liquidity for this trade';
+const BUTTON_MSG_SWAP = 'Swap';
+
+export const SwapPageWrapper = observer(() => {
+  // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   const { user } = useStores();
 
   return <SwapPage user={user} />;
 });
 
 export class SwapPage extends React.Component<
-  { user: UserStoreEx },
+  Readonly<{ user: UserStoreEx }>,
   {
     fromToken: string;
     toToken: string;
@@ -174,7 +182,7 @@ export class SwapPage extends React.Component<
     loadingSwap: boolean;
   }
 > {
-  constructor(props) {
+  constructor(props: Readonly<{ user: UserStoreEx }>) {
     super(props);
     this.user = props.user;
   }
@@ -183,21 +191,21 @@ export class SwapPage extends React.Component<
   private secretjs: SigningCosmWasmClient;
   private ws: WebSocket;
   public state = {
-    pairs: [], // done
-    pairFromSymbol: {}, // done
-    tokens: {}, // done
-    fromToken: '', // done
-    toToken: '', // done
-    balances: {}, // done
-    fromInput: '', // done
-    toInput: '', // done
-    isFromEstimated: false, // done
-    isToEstimated: false, // done
-    spread: 0, // done
-    commission: 0, // done
-    priceImpact: 0, // done
+    pairs: [],
+    pairFromSymbol: {},
+    tokens: {},
+    fromToken: '',
+    toToken: '',
+    balances: {},
+    fromInput: '',
+    toInput: '',
+    isFromEstimated: false,
+    isToEstimated: false,
+    spread: 0,
+    commission: 0,
+    priceImpact: 0,
     slippageTolerance: 0.005,
-    buttonMessage: 'Enter an amount', // done
+    buttonMessage: BUTTON_MSG_ENTER_AMOUNT,
     loadingSwap: false,
   };
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
@@ -288,12 +296,19 @@ export class SwapPage extends React.Component<
 
         const symbols: Array<string> = data.id.split('/');
 
-        const height =
+        const heightFromEvent =
           data?.result?.data?.value?.TxResult?.height ||
           data?.result?.data?.value?.block?.header?.height ||
           0;
+        const height = Number(heightFromEvent);
 
-        console.log(`Refresing balances for ${symbols.join(' and ')}`);
+        if (isNaN(height)) {
+          console.error(
+            `height is NaN for some reason. Unexpected behavior from here on out: got heightFromEvent=${heightFromEvent}`,
+          );
+        }
+
+        console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
 
         for (const tokenSymbol of symbols) {
           if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
@@ -304,6 +319,19 @@ export class SwapPage extends React.Component<
 
           let viewingKey: string;
           if (tokenSymbol !== 'SCRT') {
+            const currentBalance: string = JSON.stringify(
+              this.state.balances[tokenSymbol],
+            );
+
+            if (
+              typeof currentBalance === 'string' &&
+              currentBalance.includes(ERROR_WRONG_VIEWING_KEY)
+            ) {
+              // In case this tx was set_viewing_key in order to correct the wrong viewing key error
+              // Allow Keplr time to locally save the new viewing key
+              await sleep(1000);
+            }
+
             // Retry getSecret20ViewingKey 3 times
             // Sometimes this event is fired before Keplr stores the viewing key
             let tries = 0;
@@ -515,27 +543,29 @@ export class SwapPage extends React.Component<
     const pair = this.state.pairFromSymbol[selectedPairSymbol];
 
     let buttonMessage: string;
-    // TODO: Insufficient XXX balance
     if (this.state.fromInput === '' && this.state.toInput === '') {
-      buttonMessage = 'Enter an amount';
+      buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
+    } else if (
+      Number(this.state.balances[this.state.fromToken]) <
+      Number(this.state.fromInput)
+    ) {
+      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
     } else if (!pair) {
-      buttonMessage = 'Trading pair does not exist';
+      buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
-      buttonMessage = 'Loading price data';
+      buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else if (this.state.priceImpact >= 1 || this.state.priceImpact < 0) {
-      buttonMessage = 'Insufficient liquidity for this trade';
-    } else if (this.state.priceImpact >= 0.15) {
-      buttonMessage = 'Price Impact Too High';
+      buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else {
-      buttonMessage = 'Swap';
+      buttonMessage = BUTTON_MSG_SWAP;
     }
 
     const hidePriceRow: boolean =
       this.state.toInput === '' ||
       this.state.fromInput === '' ||
       isNaN(Number(this.state.toInput) / Number(this.state.fromInput)) ||
-      this.state.buttonMessage === 'Insufficient liquidity for this trade' ||
-      this.state.buttonMessage === 'Trading pair does not exist';
+      this.state.buttonMessage === BUTTON_MSG_NOT_ENOUGH_LIQUIDITY ||
+      this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
 
     const [fromBalance, toBalance] = [
       this.state.balances[this.state.fromToken],
@@ -854,12 +884,11 @@ export class SwapPage extends React.Component<
                   />
                 )}
                 <Button
-                  disabled={buttonMessage !== 'Swap' || this.state.loadingSwap}
-                  loading={this.state.loadingSwap}
-                  primary={buttonMessage === 'Swap'}
-                  color={
-                    buttonMessage === 'Price Impact Too High' ? 'red' : null
+                  disabled={
+                    buttonMessage !== BUTTON_MSG_SWAP || this.state.loadingSwap
                   }
+                  loading={this.state.loadingSwap}
+                  primary={buttonMessage === BUTTON_MSG_SWAP}
                   fluid
                   style={{
                     margin: '1em 0 0 0',
@@ -868,6 +897,16 @@ export class SwapPage extends React.Component<
                     fontSize: '20px',
                   }}
                   onClick={async () => {
+                    if (this.state.priceImpact >= 0.15) {
+                      const confirmString = 'confirm';
+                      const confirm = prompt(
+                        `Price impact for this swap is very high. Please type the word "${confirmString}" to continue.`,
+                      );
+                      if (confirm !== confirmString) {
+                        return;
+                      }
+                    }
+
                     this.setState({ loadingSwap: true });
 
                     try {
@@ -889,11 +928,11 @@ export class SwapPage extends React.Component<
                                 amount: amountUscrt,
                               },
                               /*
-                            offer_asset: Asset, // Done
-                            belief_price: Option<Decimal>, // TODO
-                            max_spread: Option<Decimal>, // TODO
-                            to: Option<HumanAddr>, // TODO
-                            */
+                              offer_asset: Asset, // Done
+                              belief_price: Option<Decimal>, // TODO
+                              max_spread: Option<Decimal>, // TODO
+                              to: Option<HumanAddr>, // TODO
+                              */
                             },
                           },
                           '',
@@ -920,10 +959,10 @@ export class SwapPage extends React.Component<
                                 JSON.stringify({
                                   swap: {
                                     /*
-                                  belief_price: Option<Decimal>, // TODO
-                                  max_spread: Option<Decimal>, // TODO
-                                  to: Option<HumanAddr>, // TODO
-                                  */
+                                    belief_price: Option<Decimal>, // TODO
+                                    max_spread: Option<Decimal>, // TODO
+                                    to: Option<HumanAddr>, // TODO
+                                    */
                                   },
                                 }),
                               ),
