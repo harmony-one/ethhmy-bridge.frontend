@@ -133,6 +133,7 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
     const token = tokens.data.find(
       t =>
         t.dst_address.toLowerCase() === secretAddress.toLowerCase() ||
+        t.dst_coin?.toLowerCase() === secretAddress.toLowerCase() ||
         t.display_props.proxy_address === secretAddress.toLowerCase(),
     );
 

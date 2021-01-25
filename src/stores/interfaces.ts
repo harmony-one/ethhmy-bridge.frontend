@@ -76,6 +76,7 @@ export interface ISwap {
 }
 
 export interface ITokenInfo {
+  dst_coin: any;
   price: string;
   name: string;
   symbol: string;
