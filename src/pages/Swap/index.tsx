@@ -631,7 +631,7 @@ export class SwapPage extends React.Component<
                     }
                   }}
                   amount={this.state.fromInput}
-                  isEstimated={this.state.isFromEstimated}
+                  isEstimated={false /* this.state.isFromEstimated */}
                   setAmount={(value: string) => {
                     if (value === '' || Number(value) === 0) {
                       this.setState({
@@ -824,7 +824,9 @@ export class SwapPage extends React.Component<
                     }
                   }}
                   amount={this.state.toInput}
-                  isEstimated={this.state.isToEstimated}
+                  isEstimated={
+                    this.state.toInput !== '' /* this.state.isToEstimated */
+                  }
                   setAmount={(value: string) => {
                     if (value === '' || Number(value) === 0) {
                       this.setState({
@@ -1028,17 +1030,23 @@ export class SwapPage extends React.Component<
                   liquidityProviderFee={this.state.commission}
                   priceImpact={this.state.priceImpact}
                   minimumReceived={
+                    Number(this.state.toInput) *
+                    (1 - this.state.slippageTolerance)
+                    /*
                     this.state.isToEstimated
                       ? Number(this.state.toInput) *
                         (1 - this.state.slippageTolerance)
                       : null
+                    */
                   }
+                  /*
                   maximumSold={
                     this.state.isFromEstimated
                       ? Number(this.state.fromInput) *
                         (1 + this.state.slippageTolerance)
                       : null
                   }
+                  */
                 />
               )}
             </Box>
