@@ -13,8 +13,16 @@ import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
+import { HarmonyAddress } from '@harmony-js/crypto';
 
 const defaults = {};
+
+export function isAddressEqual(a, b) {
+  return (
+    new HarmonyAddress(a).checksum.toLowerCase() ===
+    new HarmonyAddress(b).checksum.toLowerCase()
+  );
+}
 
 export class UserStoreEx extends StoreConstructor {
   public stores: IStores;
@@ -243,6 +251,18 @@ export class UserStoreEx extends StoreConstructor {
           .find(t => t.hrc20Address === hrc20Address)
       ) {
         throw new Error('This address already using for ERC20 token wrapper');
+      }
+
+      const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');
+
+      if (busd && isAddressEqual(busd.hrc20Address, hrc20Address)) {
+        throw new Error('This address already using for BUSD token wrapper');
+      }
+
+      const link = this.stores.tokens.allData.find(v => v.symbol === 'LINK');
+
+      if (link && isAddressEqual(link.hrc20Address, hrc20Address)) {
+        throw new Error('This address already using for LINK token wrapper');
       }
 
       if (
