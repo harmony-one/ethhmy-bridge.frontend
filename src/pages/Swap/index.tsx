@@ -953,7 +953,7 @@ export class SwapPage extends React.Component<
                       const max_spread = '0';
 
                       if (this.state.fromToken === 'SCRT') {
-                        awaitbel this.secretjs.execute(
+                        await this.secretjs.execute(
                           pair.contract_addr,
                           {
                             swap: {
@@ -967,7 +967,7 @@ export class SwapPage extends React.Component<
                               offer_asset: Asset,
                               belief_price: Option<Decimal>,
                               max_spread: Option<Decimal>,
-                              to: Option<HumanAddr>,
+                              to: Option<HumanAddr>, // TODO 
                               */
                             },
                           },
@@ -994,7 +994,7 @@ export class SwapPage extends React.Component<
                                     /*
                                     belief_price: Option<Decimal>,
                                     max_spread: Option<Decimal>,
-                                    to: Option<HumanAddr>,
+                                    to: Option<HumanAddr>, // TODO
                                     */
                                   },
                                 }),
