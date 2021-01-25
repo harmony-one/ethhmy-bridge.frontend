@@ -130,6 +130,6 @@ export class HmyMethodsHRC20 {
     const symbol = await erc20Contract.methods.symbol().call(this.options);
     const decimals = await erc20Contract.methods.decimals().call(this.options);
 
-    return { name, symbol, decimals, erc20Address };
+    return { name, symbol, decimals: Number('0x' + decimals).toString(), erc20Address };
   };
 }
