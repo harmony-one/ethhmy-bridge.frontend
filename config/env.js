@@ -88,6 +88,8 @@ function getClientEnvironment(publicUrl) {
 
         BACKEND_URL: process.env.BACKEND_URL,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
+
+        TEST_COINS: !!process.env.TEST_COINS,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
