@@ -20,8 +20,9 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
-export const maxSpreadNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
+// https://docs.rs/cosmwasm-std/0.13.2/cosmwasm_std/struct.Decimal.html
+export const beliefPriceNumberFormat = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 18,
   useGrouping: false,
 });
 
