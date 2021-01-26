@@ -318,10 +318,11 @@ export class SwapTab extends React.Component<
       // Register for token or SCRT events
       for (const symbol of Object.keys(tokens)) {
         if (symbol === 'SCRT') {
+          const myAddress = this.user.address;
           const scrtQueries = [
-            `message.sender='${this.user.address}'` /* sent a tx => paid for gas */,
-            `message.signer='${this.user.address}'` /* executed a contract => paid for gas */,
-            `transfer.recipient='${this.user.address}'` /* received SCRT */,
+            `message.sender='${myAddress}'` /* sent a tx (gas) */,
+            `message.signer='${myAddress}'` /* executed a contract (gas) */,
+            `transfer.recipient='${myAddress}'` /* received SCRT */,
           ];
 
           for (const query of scrtQueries) {
@@ -356,8 +357,8 @@ export class SwapTab extends React.Component<
       }
 
       // Register for pair events
-      // Token events aren't enough because of a bug in x/compute
-      // See: TODO link to PR
+      // Token events aren't enough because of a bug in x/compute (x/wasmd)
+      // See: https://github.com/CosmWasm/wasmd/pull/386
       const uniquePairSymbols: Array<string> = Object.values(
         Object.keys(pairFromSymbol).reduce((symbolFromPair, symbol) => {
           const pair = JSON.stringify(pairFromSymbol[symbol]);
