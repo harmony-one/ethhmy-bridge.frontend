@@ -150,69 +150,61 @@ export class UserStoreEx extends StoreConstructor {
             const symbol = token.inc_token.symbol.replace('s', '');
 
             symbolUpdateHeightCache[symbol] = 0;
+            const tokenQueries = [
+              `message.contract_address='${token.inc_token.address}'`,
+              `wasm.contract_address='${token.inc_token.address}'`,
+              `message.contract_address='${token.pool_address}'`,
+              `wasm.contract_address='${token.pool_address}'`,
+            ];
 
+            for (const query of tokenQueries) {
+              ws.send(
+                JSON.stringify({
+                  jsonrpc: '2.0',
+                  id: symbol, // jsonrpc id
+                  method: 'subscribe',
+                  params: { query },
+                }),
+              );
+            }
+          }
+
+          // For any tx on sSCRT => update my balance
+          symbolUpdateHeightCache['sSCRT'] = 0;
+          const sScrtQueries = [
+            `message.contract_address='${process.env.SSCRT_CONTRACT}'`,
+            `wasm.contract_address='${process.env.SSCRT_CONTRACT}'`,
+          ];
+
+          for (const query of sScrtQueries) {
             ws.send(
               JSON.stringify({
                 jsonrpc: '2.0',
-                id: symbol, // jsonrpc id
+                id: 'sSCRT', // jsonrpc id
                 method: 'subscribe',
-                params: {
-                  query: `message.module='compute' AND message.contract_address='${token.inc_token.address}' AND message.action='execute'`,
-                },
-              }),
-            );
-
-            ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: symbol, // jsonrpc id
-                method: 'subscribe',
-                params: {
-                  query: `message.module='compute' AND message.contract_address='${token.pool_address}' AND message.action='execute'`,
-                },
+                params: { query },
               }),
             );
           }
 
-          // Also hook sSCRT
-          symbolUpdateHeightCache['sSCRT'] = 0;
-
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'sSCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `message.module='compute' AND message.contract_address='${process.env.SSCRT_CONTRACT}' AND message.action='execute'`,
-              },
-            }),
-          );
-
+          // For any tx related to me on SCRT => update my balance
           symbolUpdateHeightCache['SCRT'] = 0;
+          const scrtQueries = [
+            `message.sender='${this.address}'` /* sent a tx (gas) */,
+            `message.signer='${this.address}'` /* executed a contract (gas) */,
+            `transfer.recipient='${this.address}'` /* received SCRT */,
+          ];
 
-          // If I sent a tx, I paid for gas => update SCRT balance
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'SCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `message.sender='${this.address}'`,
-              },
-            }),
-          );
-
-          // If I received SCRT => update SCRT balance
-          ws.send(
-            JSON.stringify({
-              jsonrpc: '2.0',
-              id: 'SCRT', // jsonrpc id
-              method: 'subscribe',
-              params: {
-                query: `transfer.recipient='${this.address}'`,
-              },
-            }),
-          );
+          for (const query of scrtQueries) {
+            ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: 'SCRT', // jsonrpc id
+                method: 'subscribe',
+                params: { query },
+              }),
+            );
+          }
         };
       });
     }
