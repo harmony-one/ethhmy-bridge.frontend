@@ -406,18 +406,21 @@ export class SwapPage extends React.Component<
           // where two tokens gets updated after the same block
           // and they start this update with the same this.state.balances
           // (Atomic setState)
-          this.setState(currentState => {
-            return {
-              balances: Object.assign(
-                {},
-                currentState.balances,
-                {
-                  [tokenSymbol]: freshBalances[0],
-                },
-                pairSymbolToFreshBalances,
-              ),
-            };
-          });
+          this.setState(
+            currentState => {
+              return {
+                balances: Object.assign(
+                  {},
+                  currentState.balances,
+                  {
+                    [tokenSymbol]: freshBalances[0],
+                  },
+                  pairSymbolToFreshBalances,
+                ),
+              };
+            },
+            () => this.updateInputs(),
+          );
         }
       } catch (error) {
         console.log(error);
@@ -549,6 +552,80 @@ export class SwapPage extends React.Component<
     }
   }
 
+  async updateInputs() {
+    const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
+
+    const offer_pool = Number(
+      this.state.balances[`${this.state.fromToken}-${selectedPairSymbol}`],
+    );
+    const ask_pool = Number(
+      this.state.balances[`${this.state.toToken}-${selectedPairSymbol}`],
+    );
+
+    if (isNaN(offer_pool) || isNaN(ask_pool)) {
+      return;
+    }
+
+    if (this.state.isToEstimated) {
+      const offer_amount = Number(this.state.fromInput);
+
+      const { return_amount, spread_amount, commission_amount } = compute_swap(
+        offer_pool,
+        ask_pool,
+        offer_amount,
+      );
+
+      if (isNaN(return_amount) || this.state.fromInput === '') {
+        this.setState({
+          isFromEstimated: false,
+          toInput: '',
+          isToEstimated: false,
+          spread: 0,
+          commission: 0,
+          priceImpact: 0,
+        });
+      } else {
+        this.setState({
+          toInput:
+            return_amount < 0 ? '' : fromToNumberFormat.format(return_amount),
+          isToEstimated: true,
+          spread: spread_amount,
+          commission: commission_amount,
+          priceImpact: spread_amount / return_amount,
+        });
+      }
+    } else if (this.state.isFromEstimated) {
+      const ask_amount = Number(this.state.toInput);
+
+      const {
+        offer_amount,
+        spread_amount,
+        commission_amount,
+      } = compute_offer_amount(offer_pool, ask_pool, ask_amount);
+
+      if (isNaN(offer_amount) || this.state.toInput === '') {
+        this.setState({
+          isToEstimated: false,
+          fromInput: '',
+          isFromEstimated: false,
+          spread: 0,
+          commission: 0,
+          priceImpact: 0,
+        });
+      } else {
+        this.setState({
+          isToEstimated: false,
+          fromInput:
+            offer_amount < 0 ? '' : fromToNumberFormat.format(offer_amount),
+          isFromEstimated: offer_amount >= 0,
+          spread: spread_amount,
+          commission: commission_amount,
+          priceImpact: spread_amount / offer_amount,
+        });
+      }
+    }
+  }
+
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
     const pair = this.state.pairFromSymbol[selectedPairSymbol];
@@ -643,50 +720,17 @@ export class SwapPage extends React.Component<
                         commission: 0,
                         priceImpact: 0,
                       });
-                    } else {
-                      const {
-                        return_amount,
-                        spread_amount,
-                        commission_amount,
-                      } = compute_swap(
-                        Number(
-                          this.state.balances[
-                            `${this.state.fromToken}-${selectedPairSymbol}`
-                          ],
-                        ),
-                        Number(
-                          this.state.balances[
-                            `${this.state.toToken}-${selectedPairSymbol}`
-                          ],
-                        ),
-                        Number(value),
-                      );
-
-                      if (isNaN(return_amount)) {
-                        this.setState({
-                          fromInput: value,
-                          isFromEstimated: false,
-                          toInput: '',
-                          isToEstimated: false,
-                          spread: 0,
-                          commission: 0,
-                          priceImpact: 0,
-                        });
-                      } else {
-                        this.setState({
-                          fromInput: value,
-                          isFromEstimated: false,
-                          toInput:
-                            return_amount < 0
-                              ? ''
-                              : fromToNumberFormat.format(return_amount),
-                          isToEstimated: true,
-                          spread: spread_amount,
-                          commission: commission_amount,
-                          priceImpact: spread_amount / return_amount,
-                        });
-                      }
+                      return;
                     }
+
+                    this.setState(
+                      {
+                        fromInput: value,
+                        isFromEstimated: false,
+                        isToEstimated: true,
+                      },
+                      () => this.updateInputs(),
+                    );
                   }}
                 />
                 <div
@@ -838,50 +882,17 @@ export class SwapPage extends React.Component<
                         commission: 0,
                         priceImpact: 0,
                       });
-                    } else {
-                      const {
-                        offer_amount,
-                        spread_amount,
-                        commission_amount,
-                      } = compute_offer_amount(
-                        Number(
-                          this.state.balances[
-                            `${this.state.fromToken}-${selectedPairSymbol}`
-                          ],
-                        ),
-                        Number(
-                          this.state.balances[
-                            `${this.state.toToken}-${selectedPairSymbol}`
-                          ],
-                        ),
-                        Number(value),
-                      );
-
-                      if (isNaN(offer_amount)) {
-                        this.setState({
-                          toInput: value,
-                          isToEstimated: false,
-                          fromInput: '',
-                          isFromEstimated: false,
-                          spread: 0,
-                          commission: 0,
-                          priceImpact: 0,
-                        });
-                      } else {
-                        this.setState({
-                          toInput: value,
-                          isToEstimated: false,
-                          fromInput:
-                            offer_amount < 0
-                              ? ''
-                              : fromToNumberFormat.format(offer_amount),
-                          isFromEstimated: offer_amount >= 0,
-                          spread: spread_amount,
-                          commission: commission_amount,
-                          priceImpact: spread_amount / offer_amount,
-                        });
-                      }
+                      return;
                     }
+
+                    this.setState(
+                      {
+                        toInput: value,
+                        isToEstimated: false,
+                        isFromEstimated: true,
+                      },
+                      () => this.updateInputs(),
+                    );
                   }}
                 />
                 {!hidePriceRow && (
