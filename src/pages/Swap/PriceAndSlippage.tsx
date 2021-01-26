@@ -73,7 +73,7 @@ export const PriceAndSlippage = ({
           }}
         />
       </div>
-      <div
+      {/*  <div
         style={{
           display: 'flex',
           flexDirection: 'row',
@@ -84,7 +84,7 @@ export const PriceAndSlippage = ({
         Slippage Tolerance
         {flexRowSpace}
         {`${100 * slippageTolerance}%`}
-      </div>
+      </div> */}
     </>
   );
 };
