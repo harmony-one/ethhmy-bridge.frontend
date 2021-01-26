@@ -1,13 +1,25 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { Button, TextInput, Text, Select, Checkbox } from 'components/Base';
-import { useEffect, useState } from 'react';
+import { Button, Select, Text } from 'components/Base';
 // import { tokens } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
-import { EXCHANGE_MODE } from 'stores/interfaces';
+import { EXCHANGE_MODE, ITokenInfo } from 'stores/interfaces';
+
+const selectTokenText = (mode: string, token: ITokenInfo) => {
+  if (mode === EXCHANGE_MODE.SCRT_TO_ETH && !token.display_props.proxy) {
+    return `Secret ${token.name} (secret${token.display_props.symbol})`;
+  } else if (mode !== EXCHANGE_MODE.SCRT_TO_ETH && !token.display_props.proxy) {
+    return `${token.display_props.label} (${token.display_props.symbol})`;
+  } else if (mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+    return `Secret ${token.display_props.label} (secret${token.display_props.label})`;
+  } else {
+    return `${token.display_props.label} (${token.name})`;
+  }
+};
 
 export const ERC20Select = observer(() => {
   const { userMetamask, exchange, tokens } = useStores();
@@ -40,11 +52,7 @@ export const ERC20Select = observer(() => {
               .map(token => ({
                 ...token,
                 image: token.display_props.image,
-                text: `${
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'Secret'
-                } ${token.display_props.label} (${
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '' : 'secret'
-                }${token.display_props.symbol})`,
+                text: selectTokenText(exchange.mode, token),
                 value: token.src_address,
               }))}
             value={token}

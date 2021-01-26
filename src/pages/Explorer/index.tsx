@@ -153,13 +153,11 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     dataIndex: 'dst_coin',
     width: 180,
     render: (value, data) => {
-      if (data.dst_network === 'Ethereum') {
-        return <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />;
-      } else {
-        return (
-          <SecretToken value={TOKEN.S20} secretAddress={data.dst_address} />
-        );
-      }
+      return data.dst_network === 'Ethereum' ? (
+        <ERC20Token value={TOKEN.ERC20} erc20Address={data.dst_coin} />
+      ) : (
+        <SecretToken value={TOKEN.S20} secretAddress={data.dst_coin} />
+      );
     },
   },
   {

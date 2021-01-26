@@ -69,6 +69,7 @@ function getClientEnvironment(publicUrl) {
         SECRET_LCD: process.env.SECRET_LCD,
         SECRET_WS: process.env.SECRET_WS,
         SSCRT_CONTRACT: process.env.SSCRT_CONTRACT,
+        WSCRT_PROXY_CONTRACT: process.env.WSCRT_PROXY_CONTRACT,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
@@ -87,6 +88,8 @@ function getClientEnvironment(publicUrl) {
 
         BACKEND_URL: process.env.BACKEND_URL,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
+
+        TEST_COINS: !!process.env.TEST_COINS,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin

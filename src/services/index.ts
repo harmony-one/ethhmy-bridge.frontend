@@ -78,7 +78,18 @@ export const getTokensInfo = async (
 
   const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
 
-  const content = res.body.tokens.filter(t => !t.display_props.hidden);
+  const content = res.body.tokens
+    .filter(t => (process.env.TEST_COINS ? t : !t.display_props.hidden))
+    .map(t => {
+      if (t.display_props.proxy) {
+        t.display_props.proxy_address = t.dst_address;
+        t.dst_address = process.env.SSCRT_CONTRACT;
+        t.display_props.proxy_symbol = 'WSCRT';
+        //t.display_props.symbol = t.name;
+      }
+
+      return t;
+    });
 
   return { ...res.body, content };
 };
