@@ -695,18 +695,12 @@ export class SwapTab extends React.Component<
                   this.state.tokens[this.state.fromToken].decimals,
                 ).toString();
 
-                /* 
-                        offer_amount    - exactly how much we're sending
-                        ask_amount      - roughly how much we're getting
-                        expected_return - at least ask_amount minus some slippage
-                        
-                        belief_price:
-                          calculated from this line:
-                          https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/contract.rs#L674
-                        max_spread:
-                          always zero, because we want this condition to always be true if `return_amount < expected_return`:
-                          https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/contract.rs#L677-L678 
-                      */
+                // offer_amount: exactly how much we're sending
+                // ask_amount: roughly how much we're getting
+                // expected_return: at least ask_amount minus some slippage
+                // belief_price: calculated from this line https://github.com/enigmampc/SecretSwap/blob/6135f0/contracts/secretswap_pair/src/contract.rs#L674
+                // max_spread: always zero, because we want this condition to always be true if `return_amount < expected_return` https://github.com/enigmampc/SecretSwap/blob/6135f0/contracts/secretswap_pair/src/contract.rs#L677-L678
+
                 const offer_amount = Number(this.state.fromInput);
                 const ask_amount = Number(this.state.toInput);
                 const expected_return =
@@ -727,12 +721,10 @@ export class SwapTab extends React.Component<
                         },
                         belief_price: belief_price,
                         max_spread: max_spread,
-                        /*
-                              offer_asset: Asset,
-                              belief_price: Option<Decimal>,
-                              max_spread: Option<Decimal>,
-                              to: Option<HumanAddr>, // TODO 
-                              */
+                        // offer_asset: Asset,
+                        // belief_price: Option<Decimal>,
+                        // max_spread: Option<Decimal>,
+                        // to: Option<HumanAddr>, // TODO
                       },
                     },
                     '',
@@ -755,11 +747,9 @@ export class SwapTab extends React.Component<
                             swap: {
                               belief_price: belief_price,
                               max_spread: max_spread,
-                              /*
-                                    belief_price: Option<Decimal>,
-                                    max_spread: Option<Decimal>,
-                                    to: Option<HumanAddr>, // TODO
-                                    */
+                              // belief_price: Option<Decimal>,
+                              // max_spread: Option<Decimal>,
+                              // to: Option<HumanAddr>, // TODO
                             },
                           }),
                         ),
