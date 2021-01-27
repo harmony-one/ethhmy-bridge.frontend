@@ -5,13 +5,15 @@ import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
 import './override.css';
-import { divDecimals } from 'utils';
+import { divDecimals, sleep } from 'utils';
 import { NativeToken, Token } from './trade';
-import { SigningCosmWasmClient } from 'secretjs';
 import Style from 'style-it';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
+import { ProvideTab } from './ProvideTab';
+import { WithdrawTab } from './WithdrawTab';
+import preloadedTokens from './tokens.json';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -30,6 +32,17 @@ export type TokenDisplay = {
 
 export const ERROR_WRONG_VIEWING_KEY = 'Wrong viewing key used';
 
+export const flexRowSpace = <span style={{ flex: 1 }}></span>;
+
+export const swapContainerStyle = {
+  zIndex: '10',
+  borderRadius: '30px',
+  backgroundColor: 'white',
+  padding: '2em',
+  boxShadow:
+    'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
+};
+
 export async function getBalance(
   symbol: string,
   walletAddress: string,
@@ -38,10 +51,9 @@ export async function getBalance(
   },
   viewingKey: string,
   userStore: UserStoreEx,
-  secretjs: SigningCosmWasmClient,
 ): Promise<number | JSX.Element> {
   if (symbol === 'SCRT') {
-    return secretjs.getAccount(walletAddress).then(account => {
+    return userStore.secretjs.getAccount(walletAddress).then(account => {
       try {
         return Number(
           divDecimals(account.balance[0].amount, tokens[symbol].decimals),
@@ -84,12 +96,15 @@ export async function getBalance(
     return unlockJsx;
   }
 
-  const result = await secretjs.queryContractSmart(tokens[symbol].address, {
-    balance: {
-      address: walletAddress,
-      key: viewingKey,
+  const result = await userStore.secretjs.queryContractSmart(
+    tokens[symbol].address,
+    {
+      balance: {
+        address: walletAddress,
+        key: viewingKey,
+      },
     },
-  });
+  );
 
   if (viewingKey && 'viewing_key_error' in result) {
     // TODO handle this
@@ -125,8 +140,29 @@ export const SwapPageWrapper = observer(() => {
 });
 
 export class SwapRouter extends React.Component<
-  Readonly<{ user: UserStoreEx }>
+  Readonly<{ user: UserStoreEx }>,
+  {
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    balances: {
+      [symbol: string]: number | JSX.Element;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  }
 > {
+  private symbolUpdateHeightCache: { [symbol: string]: number } = {};
+  private ws: WebSocket;
+  public state = {
+    tokens: {},
+    balances: {},
+    pairs: [],
+    pairFromSymbol: {},
+  };
+
   constructor(props: Readonly<{ user: UserStoreEx }>) {
     super(props);
     window.onhashchange = this.onHashChange.bind(this);
@@ -136,24 +172,317 @@ export class SwapRouter extends React.Component<
     this.forceUpdate();
   }
 
+  async componentDidMount() {
+    await this.props.user.signIn();
+
+    while (!this.props.user.secretjs) {
+      await sleep(100);
+    }
+
+    const {
+      pairs,
+    }: {
+      pairs: Array<Pair>;
+    } = await this.props.user.secretjs.queryContractSmart(
+      process.env.AMM_FACTORY_CONTRACT,
+      {
+        pairs: {},
+      },
+    );
+
+    const pairFromSymbol = {};
+
+    const tokens: {
+      [symbol: string]: TokenDisplay;
+    } = await pairs.reduce(
+      async (
+        tokensFromPairs: Promise<{
+          [symbol: string]: TokenDisplay;
+        }>,
+        pair: Pair,
+      ) => {
+        let unwrapedTokensFromPairs: {
+          [symbol: string]: TokenDisplay;
+        } = await tokensFromPairs; // reduce with async/await
+
+        const symbols = [];
+        for (const t of pair.asset_infos) {
+          if ('native_token' in t) {
+            unwrapedTokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
+            symbols.push('SCRT');
+            continue;
+          }
+
+          const tokenInfoResponse = await this.props.user.secretjs.queryContractSmart(
+            t.token.contract_addr,
+            {
+              token_info: {},
+            },
+          );
+
+          const symbol = tokenInfoResponse.token_info.symbol;
+
+          if (!(symbol in unwrapedTokensFromPairs)) {
+            unwrapedTokensFromPairs[symbol] = {
+              symbol: symbol,
+              decimals: tokenInfoResponse.token_info.decimals,
+              logo: preloadedTokens[symbol]
+                ? preloadedTokens[symbol].logo
+                : '/unknown.png',
+              address: t.token.contract_addr,
+              token_code_hash: t.token.token_code_hash,
+            };
+          }
+          symbols.push(symbol);
+        }
+        pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
+        pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
+
+        return unwrapedTokensFromPairs;
+      },
+      Promise.resolve({}) /* reduce with async/await */,
+    );
+
+    this.props.user.websocketTerminate(true);
+
+    this.ws = new WebSocket(process.env.SECRET_WS);
+
+    this.ws.onmessage = async event => {
+      try {
+        const data = JSON.parse(event.data);
+
+        const symbols: Array<string> = data.id.split('/');
+
+        const heightFromEvent =
+          data?.result?.data?.value?.TxResult?.height ||
+          data?.result?.data?.value?.block?.header?.height ||
+          0;
+        const height = Number(heightFromEvent);
+
+        if (isNaN(height)) {
+          console.error(
+            `height is NaN for some reason. Unexpected behavior from here on out: got heightFromEvent=${heightFromEvent}`,
+          );
+        }
+
+        console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
+
+        for (const tokenSymbol of symbols) {
+          if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
+            console.log(`${tokenSymbol} already fresh for height ${height}`);
+            return;
+          }
+          this.symbolUpdateHeightCache[tokenSymbol] = height;
+
+          let viewingKey: string;
+          if (tokenSymbol !== 'SCRT') {
+            const currentBalance: string = JSON.stringify(
+              this.state.balances[tokenSymbol],
+            );
+
+            if (
+              typeof currentBalance === 'string' &&
+              currentBalance.includes(ERROR_WRONG_VIEWING_KEY)
+            ) {
+              // In case this tx was set_viewing_key in order to correct the wrong viewing key error
+              // Allow Keplr time to locally save the new viewing key
+              await sleep(1000);
+            }
+
+            // Retry getSecret20ViewingKey 3 times
+            // Sometimes this event is fired before Keplr stores the viewing key
+            let tries = 0;
+            while (true) {
+              tries += 1;
+              try {
+                viewingKey = await this.props.user.keplrWallet.getSecret20ViewingKey(
+                  this.props.user.chainId,
+                  tokens[tokenSymbol].address,
+                );
+              } catch (error) {}
+              if (viewingKey || tries === 3) {
+                break;
+              }
+              await sleep(100);
+            }
+          }
+
+          const userBalancePromise = getBalance(
+            tokenSymbol,
+            this.props.user.address,
+            tokens,
+            viewingKey,
+            this.props.user,
+          );
+
+          const pairsSymbols = Object.keys(pairFromSymbol).filter(pairSymbol =>
+            pairSymbol.startsWith(`${tokenSymbol}/`),
+          );
+          const pairsBalancesPromises = pairsSymbols.map(pairSymbol =>
+            getBalance(
+              tokenSymbol,
+              pairFromSymbol[pairSymbol].contract_addr,
+              tokens,
+              'SecretSwap',
+              this.props.user,
+            ),
+          );
+
+          const freshBalances = await Promise.all(
+            [userBalancePromise].concat(pairsBalancesPromises),
+          );
+
+          const pairSymbolToFreshBalances: {
+            [symbol: string]: number | JSX.Element;
+          } = {};
+          for (let i = 0; i < pairsSymbols.length; i++) {
+            const pairSymbol = pairsSymbols[i];
+            const [a, b] = pairSymbol.split('/');
+            const invertedPairSymbol = `${b}/${a}`;
+
+            pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] =
+              freshBalances[i + 1];
+            pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] =
+              freshBalances[i + 1];
+          }
+
+          // Using a callbak to setState prevents a race condition
+          // where two tokens gets updated after the same block
+          // and they start this update with the same this.state.balances
+          // (Atomic setState)
+          this.setState(currentState => {
+            return {
+              balances: Object.assign(
+                {},
+                currentState.balances,
+                {
+                  [tokenSymbol]: freshBalances[0],
+                },
+                pairSymbolToFreshBalances,
+              ),
+            };
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.ws.onopen = async () => {
+      // Here we register for token related events
+      // Then in onmessage we know when to refresh all the balances
+      while (!this.props.user.address) {
+        await sleep(100);
+      }
+
+      // Register for token or SCRT events
+      for (const symbol of Object.keys(tokens)) {
+        if (symbol === 'SCRT') {
+          const myAddress = this.props.user.address;
+          const scrtQueries = [
+            `message.sender='${myAddress}'` /* sent a tx (gas) */,
+            `message.signer='${myAddress}'` /* executed a contract (gas) */,
+            `transfer.recipient='${myAddress}'` /* received SCRT */,
+          ];
+
+          for (const query of scrtQueries) {
+            this.ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: 'SCRT', // jsonrpc id
+                method: 'subscribe',
+                params: { query },
+              }),
+            );
+          }
+        } else {
+          // Any tx on the token's contract
+          const tokenAddress = tokens[symbol].address;
+          const tokenQueries = [
+            `message.contract_address='${tokenAddress}'`,
+            `wasm.contract_address='${tokenAddress}'`,
+          ];
+
+          for (const query of tokenQueries) {
+            this.ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: symbol, // jsonrpc id
+                method: 'subscribe',
+                params: { query },
+              }),
+            );
+          }
+        }
+      }
+
+      // Register for pair events
+      // Token events aren't enough because of a bug in x/compute (x/wasmd)
+      // See: https://github.com/CosmWasm/wasmd/pull/386
+      const uniquePairSymbols: Array<string> = Object.values(
+        Object.keys(pairFromSymbol).reduce((symbolFromPair, symbol) => {
+          const pair = JSON.stringify(pairFromSymbol[symbol]);
+          if (pair in symbolFromPair) {
+            return symbolFromPair;
+          }
+
+          return Object.assign(symbolFromPair, {
+            [pair]: symbol,
+          });
+        }, {}),
+      );
+
+      for (const symbol of uniquePairSymbols) {
+        const pairAddress = pairFromSymbol[symbol].contract_addr;
+
+        const pairQueries = [
+          `message.contract_address='${pairAddress}'`,
+          `wasm.contract_address='${pairAddress}'`,
+        ];
+
+        for (const query of pairQueries) {
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: symbol, // jsonrpc id
+              method: 'subscribe',
+              params: { query },
+            }),
+          );
+        }
+      }
+    };
+
+    this.setState({
+      pairs,
+      pairFromSymbol,
+      tokens,
+    });
+  }
+
+  async componentWillUnmount() {
+    this.props.user.websocketInit();
+
+    if (this.ws) {
+      while (this.ws.readyState === WebSocket.CONNECTING) {
+        await sleep(100);
+      }
+
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close(1000 /* Normal Closure */, 'See ya');
+      }
+    }
+  }
+
   render() {
-    if (
-      window.location.hash !== '#Swap' &&
-      window.location.hash !== '#Provide' &&
-      window.location.hash !== '#Withdraw'
-    ) {
+    const isSwap = window.location.hash === '#Swap';
+    const isProvide = window.location.hash === '#Provide';
+    const isWithdraw = window.location.hash === '#Withdraw';
+
+    if (!isSwap && !isProvide && !isWithdraw) {
       window.location.hash = 'Swap';
       return <></>;
     }
-
-    const containerStyle = {
-      zIndex: '10',
-      borderRadius: '30px',
-      backgroundColor: 'white',
-      padding: '2em',
-      boxShadow:
-        'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
-    };
 
     return (
       <BaseContainer>
@@ -173,7 +502,17 @@ export class SwapRouter extends React.Component<
               }}
               pad={{ bottom: 'medium' }}
             >
-              <SwapTab user={this.props.user} containerStyle={containerStyle} />
+              {isSwap && (
+                <SwapTab
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                />
+              )}
+              {isProvide && <ProvideTab user={this.props.user} />}
+              {isWithdraw && <WithdrawTab user={this.props.user} />}
             </Box>
           </Box>
         </PageContainer>

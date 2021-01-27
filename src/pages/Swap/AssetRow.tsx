@@ -8,7 +8,7 @@ const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
-export const SwapAssetRow = ({
+export const AssetRow = ({
   tokens,
   token,
   setToken,

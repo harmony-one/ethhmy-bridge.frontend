@@ -25,7 +25,7 @@ const Tab: React.FC<{ name: string }> = ({ name }) => {
   );
 };
 
-export class SwapTabsHeader extends React.Component {
+export class TabsHeader extends React.Component {
   constructor(props: Readonly<{}>) {
     super(props);
   }
