@@ -584,101 +584,18 @@ export class SwapTab extends React.Component<
             <span
               style={{ cursor: 'pointer' }}
               onClick={() => {
-                if (this.state.isFromEstimated) {
-                  const {
-                    return_amount,
-                    spread_amount,
-                    commission_amount,
-                  } = compute_swap(
-                    Number(
-                      this.state.balances[
-                        `${this.state.toToken}-${selectedPairSymbol}`
-                      ],
-                    ),
-                    Number(
-                      this.state.balances[
-                        `${this.state.fromToken}-${selectedPairSymbol}`
-                      ],
-                    ),
-                    Number(this.state.toInput),
-                  );
+                this.setState(
+                  {
+                    toToken: this.state.fromToken,
+                    toInput: this.state.fromInput,
+                    isToEstimated: this.state.isFromEstimated,
 
-                  if (isNaN(return_amount) || this.state.toInput === '') {
-                    this.setState({
-                      toToken: this.state.fromToken,
-                      fromToken: this.state.toToken,
-                      fromInput: this.state.toInput,
-                      isFromEstimated: false,
-                      toInput: '',
-                      isToEstimated: false,
-                      spread: 0,
-                      commission: 0,
-                      priceImpact: 0,
-                    });
-                  } else {
-                    this.setState({
-                      toToken: this.state.fromToken,
-                      fromToken: this.state.toToken,
-                      fromInput: this.state.toInput,
-                      isFromEstimated: false,
-                      toInput:
-                        return_amount < 0
-                          ? ''
-                          : fromToNumberFormat.format(return_amount),
-                      isToEstimated: return_amount >= 0,
-                      spread: spread_amount,
-                      commission: commission_amount,
-                      priceImpact: spread_amount / return_amount,
-                    });
-                  }
-                } else {
-                  const {
-                    offer_amount,
-                    spread_amount,
-                    commission_amount,
-                  } = compute_offer_amount(
-                    Number(
-                      this.state.balances[
-                        `${this.state.toToken}-${selectedPairSymbol}`
-                      ],
-                    ),
-                    Number(
-                      this.state.balances[
-                        `${this.state.fromToken}-${selectedPairSymbol}`
-                      ],
-                    ),
-                    Number(this.state.fromInput),
-                  );
-
-                  if (isNaN(offer_amount) || this.state.fromInput === '') {
-                    this.setState({
-                      toToken: this.state.fromToken,
-                      fromToken: this.state.toToken,
-                      toInput: this.state.fromInput,
-                      isToEstimated: false,
-                      fromInput: '',
-                      isFromEstimated: false,
-                      spread: 0,
-                      commission: 0,
-                      priceImpact: 0,
-                    });
-                  } else {
-                    this.setState({
-                      toToken: this.state.fromToken,
-                      fromToken: this.state.toToken,
-                      toInput: this.state.fromInput,
-                      isToEstimated: false,
-                      fromInput:
-                        offer_amount < 0
-                          ? ''
-                          : fromToNumberFormat.format(offer_amount),
-                      isFromEstimated: offer_amount >= 0,
-                      spread: spread_amount,
-                      commission: commission_amount,
-                      priceImpact: spread_amount / offer_amount,
-                    });
-                  }
-                }
+                    fromToken: this.state.toToken,
+                    fromInput: this.state.toInput,
+                    isFromEstimated: this.state.isToEstimated,
+                  },
+                  () => this.updateInputs(),
+                );
               }}
             >
               {downArrow}
