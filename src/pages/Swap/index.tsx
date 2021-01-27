@@ -53,7 +53,7 @@ export async function getBalance(
   }
 
   const unlockJsx = Style.it(
-    `.behold-token {
+    `.view-token-button {
       cursor: pointer;
       border-radius: 30px;
       padding: 0 0.3em;
@@ -62,11 +62,11 @@ export async function getBalance(
       border-color: whitesmoke;
     }
 
-    .behold-token:hover {
+    .view-token-button:hover {
       background: whitesmoke;
     }`,
     <span
-      className="behold-token"
+      className="view-token-button"
       onClick={async () => {
         await userStore.keplrWallet.suggestToken(
           userStore.chainId,
