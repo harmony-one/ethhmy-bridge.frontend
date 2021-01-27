@@ -26,6 +26,14 @@ export const AssetRow = ({
     color: 'rgb(86, 90, 105)',
   };
 
+  let label = 'Input';
+  if (isFrom === true) {
+    label = 'From';
+  }
+  if (isFrom === false) {
+    label = 'To';
+  }
+
   return (
     <Container
       style={{
@@ -42,7 +50,7 @@ export const AssetRow = ({
         }}
       >
         <span style={font}>
-          {isFrom ? 'From' : 'To'}
+          {label}
           {isEstimated ? ` (estimated)` : null}
         </span>
         {flexRowSpace}

@@ -26,7 +26,7 @@ export const beliefPriceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: false,
 });
 
-export const fromToNumberFormat = new Intl.NumberFormat('en-US', {
+export const swapInputNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 20,
   useGrouping: false,
 });

@@ -511,7 +511,15 @@ export class SwapRouter extends React.Component<
                   pairFromSymbol={this.state.pairFromSymbol}
                 />
               )}
-              {isProvide && <ProvideTab user={this.props.user} />}
+              {isProvide && (
+                <ProvideTab
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                />
+              )}
               {isWithdraw && <WithdrawTab user={this.props.user} />}
             </Box>
           </Box>

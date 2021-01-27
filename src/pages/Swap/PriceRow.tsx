@@ -8,18 +8,14 @@ const numberFormat = new Intl.NumberFormat('en-US', {
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
-export const PriceAndSlippage = ({
+export const PriceRow = ({
   price,
   fromToken,
   toToken,
-  slippageTolerance,
-  setSlippageTolerance,
 }: {
   price: number;
   fromToken: string;
   toToken: string;
-  slippageTolerance: number;
-  setSlippageTolerance: (slippageTolerance: number) => void;
 }) => {
   const [tokens, setTokens] = useState({
     from: fromToken,
@@ -42,7 +38,7 @@ export const PriceAndSlippage = ({
     <>
       <div
         style={{
-          padding: '1em 0 0.2em 0',
+          padding: '1em 0 0 0',
           display: 'flex',
           flexDirection: 'row',
           alignContent: 'center',
@@ -73,18 +69,6 @@ export const PriceAndSlippage = ({
           }}
         />
       </div>
-      {/*  <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          alignContent: 'center',
-        }}
-      >
-        {' '}
-        Slippage Tolerance
-        {flexRowSpace}
-        {`${100 * slippageTolerance}%`}
-      </div> */}
     </>
   );
 };

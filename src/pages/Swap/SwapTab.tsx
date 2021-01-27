@@ -2,13 +2,13 @@ import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
 import {
-  fromToNumberFormat,
+  swapInputNumberFormat,
   beliefPriceNumberFormat,
   mulDecimals,
 } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
-import { PriceAndSlippage } from './PriceAndSlippage';
+import { PriceRow } from './PriceRow';
 import {
   compute_swap,
   compute_offer_amount,
@@ -18,7 +18,7 @@ import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 
-const sortedStringify = (obj: any) =>
+export const sortedStringify = (obj: any) =>
   JSON.stringify(obj, Object.keys(obj).sort());
 
 const downArrow = (
@@ -92,21 +92,6 @@ export class SwapTab extends React.Component<
     };
   }
 
-  public state = {
-    fromToken: '',
-    toToken: '',
-    fromInput: '',
-    toInput: '',
-    isFromEstimated: false,
-    isToEstimated: false,
-    spread: 0,
-    commission: 0,
-    priceImpact: 0,
-    slippageTolerance: 0.005,
-    buttonMessage: BUTTON_MSG_ENTER_AMOUNT,
-    loadingSwap: false,
-  };
-
   componentDidUpdate(previousProps) {
     if (
       sortedStringify(previousProps.balances) !==
@@ -131,6 +116,16 @@ export class SwapTab extends React.Component<
 
   async updateInputs() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
+    const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    if (!pair) {
+      this.setState({
+        fromInput: '',
+        isFromEstimated: false,
+        toInput: '',
+        isToEstimated: false,
+      });
+      return;
+    }
 
     const offer_pool = Number(
       this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`],
@@ -139,7 +134,12 @@ export class SwapTab extends React.Component<
       this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`],
     );
 
-    if (isNaN(offer_pool) || isNaN(ask_pool)) {
+    if (
+      isNaN(offer_pool) ||
+      isNaN(ask_pool) ||
+      offer_pool === 0 ||
+      ask_pool === 0
+    ) {
       return;
     }
 
@@ -164,7 +164,9 @@ export class SwapTab extends React.Component<
       } else {
         this.setState({
           toInput:
-            return_amount < 0 ? '' : fromToNumberFormat.format(return_amount),
+            return_amount < 0
+              ? ''
+              : swapInputNumberFormat.format(return_amount),
           isToEstimated: true,
           spread: spread_amount,
           commission: commission_amount,
@@ -193,7 +195,7 @@ export class SwapTab extends React.Component<
         this.setState({
           isToEstimated: false,
           fromInput:
-            offer_amount < 0 ? '' : fromToNumberFormat.format(offer_amount),
+            offer_amount < 0 ? '' : swapInputNumberFormat.format(offer_amount),
           isFromEstimated: offer_amount >= 0,
           spread: spread_amount,
           commission: commission_amount,
@@ -206,21 +208,33 @@ export class SwapTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    const offer_pool = Number(
+      this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`],
+    );
+    const ask_pool = Number(
+      this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`],
+    );
+    const [fromBalance, toBalance] = [
+      this.props.balances[this.state.fromToken],
+      this.props.balances[this.state.toToken],
+    ];
 
     let buttonMessage: string;
-    if (this.state.fromInput === '' && this.state.toInput === '') {
-      buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
-    } else if (
-      Number(this.props.balances[this.state.fromToken]) <
-      Number(this.state.fromInput)
-    ) {
-      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
-    } else if (!pair) {
+    if (!pair) {
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
+    } else if (this.state.fromInput === '' && this.state.toInput === '') {
+      buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
+    } else if (Number(fromBalance) < Number(this.state.fromInput)) {
+      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
+    } else if (
+      this.state.priceImpact >= 1 ||
+      this.state.priceImpact < 0 ||
+      offer_pool === 0 ||
+      ask_pool === 0
+    ) {
+      buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
-    } else if (this.state.priceImpact >= 1 || this.state.priceImpact < 0) {
-      buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else {
       buttonMessage = BUTTON_MSG_SWAP;
     }
@@ -231,11 +245,6 @@ export class SwapTab extends React.Component<
       isNaN(Number(this.state.toInput) / Number(this.state.fromInput)) ||
       this.state.buttonMessage === BUTTON_MSG_NOT_ENOUGH_LIQUIDITY ||
       this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
-
-    const [fromBalance, toBalance] = [
-      this.props.balances[this.state.fromToken],
-      this.props.balances[this.state.toToken],
-    ];
 
     return (
       <>
@@ -249,14 +258,27 @@ export class SwapTab extends React.Component<
             setToken={(value: string) => {
               if (value === this.state.toToken) {
                 // switch
-                this.setState({
-                  fromToken: value,
-                  toToken: this.state.fromToken,
-                });
+                this.setState(
+                  {
+                    fromToken: value,
+                    toToken: this.state.fromToken,
+                    isFromEstimated: this.state.isToEstimated,
+                    isToEstimated: this.state.isFromEstimated,
+                    fromInput: this.state.toInput,
+                    toInput: this.state.fromInput,
+                  },
+                  () => this.updateInputs(),
+                );
               } else {
-                this.setState({
-                  fromToken: value,
-                });
+                this.setState(
+                  {
+                    fromToken: value,
+                    fromInput: '',
+                    isFromEstimated: true,
+                    isToEstimated: false,
+                  },
+                  () => this.updateInputs(),
+                );
               }
             }}
             amount={this.state.fromInput}
@@ -323,14 +345,27 @@ export class SwapTab extends React.Component<
             setToken={(value: string) => {
               if (value === this.state.fromToken) {
                 // switch
-                this.setState({
-                  toToken: value,
-                  fromToken: this.state.toToken,
-                });
+                this.setState(
+                  {
+                    toToken: value,
+                    fromToken: this.state.toToken,
+                    isFromEstimated: this.state.isToEstimated,
+                    isToEstimated: this.state.isFromEstimated,
+                    fromInput: this.state.toInput,
+                    toInput: this.state.fromInput,
+                  },
+                  () => this.updateInputs(),
+                );
               } else {
-                this.setState({
-                  toToken: value,
-                });
+                this.setState(
+                  {
+                    toToken: value,
+                    toInput: '',
+                    isToEstimated: true,
+                    isFromEstimated: false,
+                  },
+                  () => this.updateInputs(),
+                );
               }
             }}
             amount={this.state.toInput}
@@ -362,14 +397,10 @@ export class SwapTab extends React.Component<
             }}
           />
           {!hidePriceRow && (
-            <PriceAndSlippage
+            <PriceRow
               toToken={this.state.toToken}
               fromToken={this.state.fromToken}
               price={Number(this.state.toInput) / Number(this.state.fromInput)}
-              slippageTolerance={this.state.slippageTolerance}
-              setSlippageTolerance={slippageTolerance => {
-                this.setState({ slippageTolerance });
-              }}
             />
           )}
           <Button
@@ -482,6 +513,8 @@ export class SwapTab extends React.Component<
                 loadingSwap: false,
                 toInput: '',
                 fromInput: '',
+                isFromEstimated: false,
+                isToEstimated: false,
               });
             }}
           >
