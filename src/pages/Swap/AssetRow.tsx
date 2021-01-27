@@ -92,7 +92,7 @@ export const AssetRow = ({
           }}
         />
         {flexRowSpace}
-        {isFrom && (
+        {(isFrom === true || isFrom === null) && (
           <Button
             primary
             disabled={isNaN(Number(balance))}
