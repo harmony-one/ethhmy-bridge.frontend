@@ -8,11 +8,31 @@ import * as styles from './wallet-balances.styl';
 import { truncateAddressString, unlockToken } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
+import { EXCHANGE_MODE, ITokenInfo, TOKEN } from '../../stores/interfaces';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import UnlockToken from 'components/Earn/EarnRow/UnlockToken';
+
+const getTokenName = (tokenType: TOKEN, token: ITokenInfo) => {
+  switch (tokenType) {
+    case TOKEN.ERC20:
+      if (!token.display_props.proxy) {
+        return token.display_props.symbol;
+      } else {
+        return token.name;
+      }
+    case TOKEN.S20:
+      if (!token.display_props.proxy) {
+        return `secret${token.display_props.symbol}`;
+      } else {
+        return token.name;
+      }
+    case TOKEN.ETH:
+    default:
+      return `ETH`;
+  }
+};
 
 const AssetRow = observer<any>(props => {
   let value = (
@@ -187,14 +207,10 @@ export const WalletBalances = observer(() => {
                 .map((token, idx) => (
                   <AssetRow
                     key={idx}
-                    asset={token.display_props.symbol}
+                    asset={getTokenName(TOKEN.ERC20, token)}
                     value={userMetamask.balanceToken[token.src_coin]}
                     link={`${process.env.ETH_EXPLORER_URL}/token/${token.src_address}`}
-                    selected={
-                      exchange.token === TOKEN.ERC20 &&
-                      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-                      userMetamask.erc20Address === token.src_address
-                    }
+                    selected={true}
                   />
                 ))}
             </>
@@ -251,6 +267,7 @@ export const WalletBalances = observer(() => {
                 token={{ dst_address: process.env.SSCRT_CONTRACT }}
                 userStore={user}
                 link={`${process.env.SCRT_EXPLORER_URL}/contracts/${process.env.SSCRT_CONTRACT}`}
+                selected={user.snip20Address === process.env.SSCRT_CONTRACT}
               />
               {exchange.token === TOKEN.ETH ? (
                 <AssetRow
@@ -269,10 +286,7 @@ export const WalletBalances = observer(() => {
                     }
                     return `${process.env.SCRT_EXPLORER_URL}/contracts/${eth.dst_address}`;
                   })()}
-                  selected={
-                    exchange.token === TOKEN.ETH &&
-                    exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-                  }
+                  selected={true}
                 />
               ) : null}
               {tokens.allData
@@ -280,13 +294,14 @@ export const WalletBalances = observer(() => {
                   token =>
                     token.display_props &&
                     exchange.token === TOKEN.ERC20 &&
-                    user.snip20Address === token.dst_address,
+                    user.snip20Address === token.dst_address &&
+                    token.name !== 'WSCRT',
                 )
                 .map((token, idx) => {
                   return (
                     <AssetRow
                       key={idx}
-                      asset={'secret' + token.display_props.symbol}
+                      asset={getTokenName(TOKEN.S20, token)}
                       value={user.balanceToken[token.src_coin]}
                       token={token}
                       userStore={user}

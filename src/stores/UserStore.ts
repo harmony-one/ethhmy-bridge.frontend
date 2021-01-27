@@ -182,68 +182,60 @@ export class UserStoreEx extends StoreConstructor {
 
         symbolUpdateHeightCache[symbol] = 0;
 
-        this.ws.send(
-          JSON.stringify({
-            jsonrpc: '2.0',
-            id: symbol, // jsonrpc id
-            method: 'subscribe',
-            params: {
-              query: `message.module='compute' AND message.contract_address='${token.inc_token.address}' AND message.action='execute'`,
-            },
-          }),
-        );
+        const tokenQueries = [
+          `message.contract_address='${token.inc_token.address}'`,
+          `wasm.contract_address='${token.inc_token.address}'`,
+          `message.contract_address='${token.pool_address}'`,
+          `wasm.contract_address='${token.pool_address}'`,
+        ];
 
-        this.ws.send(
-          JSON.stringify({
-            jsonrpc: '2.0',
-            id: symbol, // jsonrpc id
-            method: 'subscribe',
-            params: {
-              query: `message.module='compute' AND message.contract_address='${token.pool_address}' AND message.action='execute'`,
-            },
-          }),
-        );
+        for (const query of tokenQueries) {
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: symbol, // jsonrpc id
+              method: 'subscribe',
+              params: { query },
+            }),
+          );
+        }
       }
 
       // Also hook sSCRT
       symbolUpdateHeightCache['sSCRT'] = 0;
+      const secretScrtQueries = [
+        `message.contract_address='${process.env.SSCRT_CONTRACT}'`,
+        `wasm.contract_address='${process.env.SSCRT_CONTRACT}'`,
+      ];
 
-      this.ws.send(
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'sSCRT', // jsonrpc id
-          method: 'subscribe',
-          params: {
-            query: `message.module='compute' AND message.contract_address='${process.env.SSCRT_CONTRACT}' AND message.action='execute'`,
-          },
-        }),
-      );
+      for (const query of secretScrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'sSCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
 
       symbolUpdateHeightCache['SCRT'] = 0;
+      const scrtQueries = [
+        `message.sender='${this.address}'` /* sent a tx (gas) */,
+        `message.signer='${this.address}'` /* executed a contract (gas) */,
+        `transfer.recipient='${this.address}'` /* received SCRT */,
+      ];
 
-      // If I sent a tx, I paid for gas => update SCRT balance
-      this.ws.send(
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'SCRT', // jsonrpc id
-          method: 'subscribe',
-          params: {
-            query: `message.sender='${this.address}'`,
-          },
-        }),
-      );
-
-      // If I received SCRT => update SCRT balance
-      this.ws.send(
-        JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'SCRT', // jsonrpc id
-          method: 'subscribe',
-          params: {
-            query: `transfer.recipient='${this.address}'`,
-          },
-        }),
-      );
+      for (const query of scrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'SCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
     };
   }
 
@@ -413,15 +405,15 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    for (const symbol of ['SCRT', 'sSCRT'].concat(
-      this.stores.tokens.allData.map(t => t.display_props.symbol),
-    )) {
-      try {
-        await this.updateBalanceForSymbol(symbol);
-      } catch (error) {
-        console.error(`Error getting balance for ${symbol}:`, error);
-      }
-    }
+    Promise.all([
+      this.updateBalanceForSymbol('SCRT'),
+      this.updateBalanceForSymbol('sSCRT'),
+    ]);
+    Promise.all(
+      this.stores.tokens.allData.map(token =>
+        this.updateBalanceForSymbol(token.display_props.symbol),
+      ),
+    );
   };
 
   @action public updateBalanceForSymbol = async (

@@ -36,8 +36,8 @@ export const Snip20GetBalance = async (params: { secretjs: SigningCosmWasmClient
   );
 }
 
-export const Snip20SendToBridge = async (params: { secretjs: SigningCosmWasmClient, address: string, amount: string, msg: string }): Promise<string> => {
-  const tx = await Snip20Send({recipient: process.env.SCRT_SWAP_CONTRACT, ...params});
+export const Snip20SendToBridge = async (params: { secretjs: SigningCosmWasmClient, address: string, amount: string, msg: string, recipient?: string }): Promise<string> => {
+  const tx = await Snip20Send({recipient: params.recipient || process.env.SCRT_SWAP_CONTRACT, ...params});
 
   const txIdKvp = tx.logs[0].events[1].attributes.find(
     kv => kv.key === 'tx_id',
