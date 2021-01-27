@@ -45,7 +45,7 @@ const BUTTON_MSG_NOT_ENOUGH_LIQUIDITY = 'Insufficient liquidity for this trade';
 const BUTTON_MSG_SWAP = 'Swap';
 
 export class SwapTab extends React.Component<
-  Readonly<{
+  {
     secretjs: SigningCosmWasmClient;
     tokens: {
       [symbol: string]: TokenDisplay;
@@ -57,11 +57,10 @@ export class SwapTab extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
-  }>,
+  },
   {
     fromToken: string;
     toToken: string;
-
     fromInput: string;
     toInput: string;
     isFromEstimated: boolean;
@@ -74,25 +73,23 @@ export class SwapTab extends React.Component<
     loadingSwap: boolean;
   }
 > {
-  constructor(
-    props: Readonly<{
-      secretjs: SigningCosmWasmClient;
-      tokens: {
-        [symbol: string]: TokenDisplay;
-      };
-      balances: {
-        [symbol: string]: number | JSX.Element;
-      };
-      pairs: Array<Pair>;
-      pairFromSymbol: {
-        [symbol: string]: Pair;
-      };
-    }>,
-  ) {
+  constructor(props) {
     super(props);
 
-    this.state.fromToken = Object.keys(this.props.tokens)[1] || '';
-    this.state.toToken = Object.keys(this.props.tokens)[0] || '';
+    this.state = {
+      fromToken: Object.keys(this.props.tokens)[1] || '',
+      toToken: Object.keys(this.props.tokens)[0] || '',
+      fromInput: '',
+      toInput: '',
+      isFromEstimated: false,
+      isToEstimated: false,
+      spread: 0,
+      commission: 0,
+      priceImpact: 0,
+      slippageTolerance: 0.005,
+      buttonMessage: BUTTON_MSG_ENTER_AMOUNT,
+      loadingSwap: false,
+    };
   }
 
   public state = {
