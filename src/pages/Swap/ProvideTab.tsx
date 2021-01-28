@@ -71,15 +71,9 @@ export class ProvideTab extends React.Component<
   constructor(props) {
     super(props);
 
-    let [tokenA, tokenB] = ['', ''];
-    const firstPairSymbol = Object.keys(props.pairFromSymbol)[0];
-    if (firstPairSymbol) {
-      [tokenA, tokenB] = firstPairSymbol.split('/');
-    }
-
     this.state = {
-      tokenA,
-      tokenB,
+      tokenA: '',
+      tokenB: '',
       inputA: '',
       inputB: '',
       allowanceA: 0,
@@ -91,6 +85,18 @@ export class ProvideTab extends React.Component<
       loadingApproveA: false,
       loadingApproveB: false,
     };
+  }
+
+  componentDidMount() {
+    const firstPairSymbol = Object.keys(this.props.pairFromSymbol)[0];
+    if (firstPairSymbol) {
+      const [tokenA, tokenB] = firstPairSymbol.split('/');
+      this.setState({ tokenA, tokenB }, () => {
+        const pair = this.props.pairFromSymbol[firstPairSymbol];
+        this.updateAllowance(pair, tokenA);
+        this.updateAllowance(pair, tokenB);
+      });
+    }
   }
 
   componentDidUpdate(previousProps) {
