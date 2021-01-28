@@ -1,13 +1,19 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container } from 'semantic-ui-react';
-import { divDecimals, swapInputNumberFormat, UINT128_MAX } from 'utils';
+import {
+  divDecimals,
+  mulDecimals,
+  swapInputNumberFormat,
+  UINT128_MAX,
+} from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
 import { sortedStringify } from './SwapTab';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
+import { Coin } from 'secretjs/types/types';
 
 const plus = (
   <svg
@@ -522,14 +528,64 @@ export class ProvideTab extends React.Component<
               loadingProvide: true,
             });
 
-            // TODO
+            const msg = {
+              provide_liquidity: {
+                assets: [],
+              },
+            };
+
+            let transferAmount: Array<Coin> = undefined;
+            for (const i of ['A', 'B']) {
+              const amount: string = mulDecimals(
+                this.state['input' + i],
+                this.props.tokens[this.state['token' + i]].decimals,
+              ).toString();
+
+              if (this.state['token' + i] === 'SCRT') {
+                msg.provide_liquidity.assets.push({
+                  info: {
+                    native_token: {
+                      denom: 'uscrt',
+                    },
+                  },
+                  amount: amount,
+                });
+                transferAmount = [{ amount: amount, denom: 'uscrt' }];
+              } else {
+                const token = this.props.tokens[this.state['token' + i]];
+                msg.provide_liquidity.assets.push({
+                  info: {
+                    token: {
+                      contract_addr: token.address,
+                      token_code_hash: token.token_code_hash,
+                      viewing_key: '',
+                    },
+                  },
+                  amount: amount,
+                });
+              }
+            }
+
+            try {
+              const x = await this.props.secretjs.execute(
+                pair.contract_addr,
+                msg,
+                '',
+                transferAmount,
+              );
+              console.log(x);
+              this.setState({
+                inputA: '',
+                inputB: '',
+                isEstimatedA: false,
+                isEstimatedB: false,
+              });
+            } catch (error) {
+              console.error('Error while trying to add liquidity', error);
+            }
 
             this.setState({
               loadingProvide: false,
-              inputA: '',
-              inputB: '',
-              isEstimatedA: false,
-              isEstimatedB: false,
             });
           }}
         >
