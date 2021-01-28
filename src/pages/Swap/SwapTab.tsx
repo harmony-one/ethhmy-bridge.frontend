@@ -1,11 +1,7 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
-import {
-  swapInputNumberFormat,
-  beliefPriceNumberFormat,
-  mulDecimals,
-} from 'utils';
+import { beliefPriceNumberFormat, mulDecimals } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
@@ -162,12 +158,13 @@ export class SwapTab extends React.Component<
           priceImpact: 0,
         });
       } else {
+        const nf = new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: this.props.tokens[this.state.toToken].decimals,
+          useGrouping: false,
+        });
         this.setState({
           isFromEstimated: false,
-          toInput:
-            return_amount < 0
-              ? ''
-              : swapInputNumberFormat.format(return_amount),
+          toInput: return_amount < 0 ? '' : nf.format(return_amount),
           isToEstimated: return_amount >= 0,
           spread: spread_amount,
           commission: commission_amount,
@@ -193,10 +190,14 @@ export class SwapTab extends React.Component<
           priceImpact: 0,
         });
       } else {
+        const nf = new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: this.props.tokens[this.state.fromToken]
+            .decimals,
+          useGrouping: false,
+        });
         this.setState({
           isToEstimated: false,
-          fromInput:
-            offer_amount < 0 ? '' : swapInputNumberFormat.format(offer_amount),
+          fromInput: offer_amount < 0 ? '' : nf.format(offer_amount),
           isFromEstimated: offer_amount >= 0,
           spread: spread_amount,
           commission: commission_amount,
@@ -441,9 +442,15 @@ export class SwapTab extends React.Component<
                   `${this.state.fromToken}/${this.state.toToken}`
                 ];
 
+                const { decimals } = this.props.tokens[this.state.fromToken];
+                const nf = new Intl.NumberFormat('en-US', {
+                  maximumFractionDigits: decimals,
+                  useGrouping: false,
+                });
+
                 const amountInTokenDenom = mulDecimals(
-                  this.state.fromInput,
-                  this.props.tokens[this.state.fromToken].decimals,
+                  nf.format(Number(this.state.fromInput)),
+                  decimals,
                 ).toString();
 
                 // offer_amount: exactly how much we're sending

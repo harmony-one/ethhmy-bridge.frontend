@@ -1,12 +1,7 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container } from 'semantic-ui-react';
-import {
-  divDecimals,
-  mulDecimals,
-  swapInputNumberFormat,
-  UINT128_MAX,
-} from 'utils';
+import { divDecimals, mulDecimals, UINT128_MAX } from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
 import { sortedStringify } from './SwapTab';
@@ -228,8 +223,12 @@ export class ProvideTab extends React.Component<
           isEstimatedB: false,
         });
       } else {
+        const nf = new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: this.props.tokens[this.state.tokenB].decimals,
+          useGrouping: false,
+        });
         this.setState({
-          inputB: inputB < 0 ? '' : swapInputNumberFormat.format(inputB),
+          inputB: inputB < 0 ? '' : nf.format(inputB),
           isEstimatedB: inputB >= 0,
         });
       }
@@ -246,9 +245,13 @@ export class ProvideTab extends React.Component<
           isEstimatedA: false,
         });
       } else {
+        const nf = new Intl.NumberFormat('en-US', {
+          maximumFractionDigits: this.props.tokens[this.state.tokenA].decimals,
+          useGrouping: false,
+        });
         this.setState({
           isEstimatedB: false,
-          inputA: inputA < 0 ? '' : swapInputNumberFormat.format(inputA),
+          inputA: inputA < 0 ? '' : nf.format(inputA),
           isEstimatedA: inputA >= 0,
         });
       }
@@ -536,9 +539,15 @@ export class ProvideTab extends React.Component<
 
             let transferAmount: Array<Coin> = undefined;
             for (const i of ['A', 'B']) {
+              const { decimals } = this.props.tokens[this.state['token' + i]];
+              const nf = new Intl.NumberFormat('en-US', {
+                maximumFractionDigits: decimals,
+                useGrouping: false,
+              });
+
               const amount: string = mulDecimals(
-                this.state['input' + i],
-                this.props.tokens[this.state['token' + i]].decimals,
+                nf.format(this.state['input' + i]),
+                decimals,
               ).toString();
 
               if (this.state['token' + i] === 'SCRT') {

@@ -10,11 +10,6 @@ export const toFixedTrunc = (x, n) => {
   return `${v[0]}.${f}`;
 };
 
-export const priceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 10,
-  useGrouping: true,
-});
-
 export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
   useGrouping: true,
@@ -23,11 +18,6 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
 // https://docs.rs/cosmwasm-std/0.13.2/cosmwasm_std/struct.Decimal.html
 export const beliefPriceNumberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 18,
-  useGrouping: false,
-});
-
-export const swapInputNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 20,
   useGrouping: false,
 });
 

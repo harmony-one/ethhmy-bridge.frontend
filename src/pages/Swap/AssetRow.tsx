@@ -4,11 +4,6 @@ import { TokenDisplay } from '.';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
-const balanceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
-  useGrouping: true,
-});
-
 export const AssetRow = ({
   tokens,
   token,
@@ -65,12 +60,15 @@ export const AssetRow = ({
             return '-';
           }
 
+          const nf = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: Math.min(tokens[token].decimals, 6),
+            useGrouping: false,
+          });
+
           return (
             <>
               {'Balance: '}
-              {isNaN(Number(balance))
-                ? balance
-                : balanceNumberFormat.format(Number(balance))}
+              {isNaN(Number(balance)) ? balance : nf.format(Number(balance))}
             </>
           );
         })()}
