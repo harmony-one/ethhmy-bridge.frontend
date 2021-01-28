@@ -173,6 +173,14 @@ export class ProvideTab extends React.Component<
       this.props.balances[this.state.tokenB],
     ];
 
+    const poolA = Number(
+      this.props.balances[`${this.state.tokenA}-${selectedPairSymbol}`],
+    );
+    const poolB = Number(
+      this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
+    );
+    const price = poolB / poolA;
+
     let buttonMessage: string;
     if (!pair) {
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
@@ -182,27 +190,11 @@ export class ProvideTab extends React.Component<
       buttonMessage = `Insufficient ${this.state.tokenA} balance`;
     } else if (Number(balanceB) < Number(this.state.inputB)) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
-    } else if (this.state.inputA === '' || this.state.inputB === '') {
+    } else if (isNaN(price)) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else {
       buttonMessage = BUTTON_MSG_SUPPLY;
     }
-
-    const offer_pool = Number(
-      this.props.balances[`${this.state.inputA}-${selectedPairSymbol}`],
-    );
-    const ask_pool = Number(
-      this.props.balances[`${this.state.inputB}-${selectedPairSymbol}`],
-    );
-    const price = ask_pool / offer_pool;
-
-    const hidePriceRow: boolean =
-      this.state.inputA === '' ||
-      this.state.inputB === '' ||
-      isNaN(price) ||
-      this.state.buttonMessage === BUTTON_MSG_ENTER_AMOUNT ||
-      this.state.buttonMessage === BUTTON_MSG_LOADING_PRICE ||
-      this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
 
     return (
       <Container style={swapContainerStyle}>
@@ -327,11 +319,11 @@ export class ProvideTab extends React.Component<
             );
           }}
         />
-        {!hidePriceRow && (
+        {!isNaN(price) && (
           <PriceRow
             fromToken={this.state.tokenA}
             toToken={this.state.tokenB}
-            price={Number(this.state.inputB) / Number(this.state.inputA)}
+            price={price}
           />
         )}
         <Button
