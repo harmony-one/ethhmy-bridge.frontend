@@ -513,6 +513,7 @@ export class SwapRouter extends React.Component<
               )}
               {isProvide && (
                 <ProvideTab
+                  user={this.props.user}
                   secretjs={this.props.user.secretjs}
                   tokens={this.state.tokens}
                   balances={this.state.balances}

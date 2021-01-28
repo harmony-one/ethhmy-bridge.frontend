@@ -259,12 +259,12 @@ export class SwapTab extends React.Component<
             balance={fromBalance}
             tokens={this.props.tokens}
             token={this.state.fromToken}
-            setToken={(value: string) => {
-              if (value === this.state.toToken) {
+            setToken={(symbol: string) => {
+              if (symbol === this.state.toToken) {
                 // switch
                 this.setState(
                   {
-                    fromToken: value,
+                    fromToken: symbol,
                     toToken: this.state.fromToken,
                     isFromEstimated: this.state.isToEstimated,
                     isToEstimated: this.state.isFromEstimated,
@@ -276,7 +276,7 @@ export class SwapTab extends React.Component<
               } else {
                 this.setState(
                   {
-                    fromToken: value,
+                    fromToken: symbol,
                     fromInput: '',
                     isFromEstimated: true,
                     isToEstimated: false,
@@ -349,12 +349,12 @@ export class SwapTab extends React.Component<
             balance={toBalance}
             tokens={this.props.tokens}
             token={this.state.toToken}
-            setToken={(value: string) => {
-              if (value === this.state.fromToken) {
+            setToken={(symbol: string) => {
+              if (symbol === this.state.fromToken) {
                 // switch
                 this.setState(
                   {
-                    toToken: value,
+                    toToken: symbol,
                     fromToken: this.state.toToken,
                     isFromEstimated: this.state.isToEstimated,
                     isToEstimated: this.state.isFromEstimated,
@@ -366,7 +366,7 @@ export class SwapTab extends React.Component<
               } else {
                 this.setState(
                   {
-                    toToken: value,
+                    toToken: symbol,
                     toInput: '',
                     isToEstimated: true,
                     isFromEstimated: false,

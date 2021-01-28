@@ -1,16 +1,13 @@
-import {
-  compute_offer_amount,
-  compute_swap,
-} from '../../blockchain-bridge/scrt/swap';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container } from 'semantic-ui-react';
-import { swapInputNumberFormat } from 'utils';
+import { divDecimals, swapInputNumberFormat, UINT128_MAX } from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
 import { sortedStringify } from './SwapTab';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
+import { UserStoreEx } from 'stores/UserStore';
 
 const plus = (
   <svg
@@ -20,14 +17,21 @@ const plus = (
     viewBox="0 0 24 24"
     fill="none"
     stroke="#00ADE8"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   >
     <line x1="12" y1="5" x2="12" y2="19"></line>
     <line x1="5" y1="12" x2="19" y2="12"></line>
   </svg>
 );
+
+const buttonStyle = {
+  margin: '0.5em 0 0 0',
+  borderRadius: '12px',
+  padding: '18px',
+  fontSize: '20px',
+};
 
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
@@ -36,6 +40,7 @@ const BUTTON_MSG_SUPPLY = 'Supply';
 
 export class ProvideTab extends React.Component<
   {
+    user: UserStoreEx;
     secretjs: SigningCosmWasmClient;
     tokens: {
       [symbol: string]: TokenDisplay;
@@ -55,8 +60,12 @@ export class ProvideTab extends React.Component<
     inputB: string;
     isEstimatedA: boolean;
     isEstimatedB: boolean;
+    allowanceA: number;
+    allowanceB: number;
     buttonMessage: string;
     loadingProvide: boolean;
+    loadingApproveA: boolean;
+    loadingApproveB: boolean;
   }
 > {
   constructor(props) {
@@ -73,10 +82,14 @@ export class ProvideTab extends React.Component<
       tokenB,
       inputA: '',
       inputB: '',
+      allowanceA: 0,
+      allowanceB: 0,
       isEstimatedA: false,
       isEstimatedB: false,
       buttonMessage: '',
       loadingProvide: false,
+      loadingApproveA: false,
+      loadingApproveB: false,
     };
   }
 
@@ -95,13 +108,77 @@ export class ProvideTab extends React.Component<
       const firstPairSymbol = Object.keys(this.props.pairFromSymbol)[0];
       if (firstPairSymbol) {
         const [tokenA, tokenB] = firstPairSymbol.split('/');
-        this.setState({
-          tokenA,
-          tokenB,
-        });
+        this.setState(
+          {
+            tokenA,
+            tokenB,
+          },
+          () => {
+            const pair = this.props.pairFromSymbol[`${tokenA}/${tokenB}`];
+            this.updateAllowance(pair, tokenA);
+            this.updateAllowance(pair, tokenB);
+          },
+        );
       }
     }
   }
+
+  async updateAllowance(pair: Pair, symbol: string) {
+    let stateField: string;
+    if (this.state.tokenA === symbol) {
+      stateField = 'allowanceA';
+    } else if (this.state.tokenB === symbol) {
+      stateField = 'allowanceB';
+    } else {
+      console.error('updateAllowance for non-selected token', symbol);
+      return;
+    }
+
+    if (symbol === 'SCRT') {
+      this.setState<never>({ [stateField]: Infinity });
+      return;
+    }
+
+    if (!pair) {
+      console.error('updateAllowance for non-existant pair');
+      return;
+    }
+
+    const result: {
+      allowance: {
+        owner: string;
+        spender: string;
+        allowance: string;
+        expiration: number;
+      };
+    } = await this.props.secretjs.queryContractSmart(
+      this.props.tokens[symbol].address,
+      {
+        allowance: {
+          owner: this.props.user.address,
+          spender: pair.contract_addr,
+          key: 'SecretSwap',
+        },
+      },
+    );
+
+    let allowance = Number(
+      divDecimals(
+        result.allowance.allowance,
+        this.props.tokens[symbol].decimals,
+      ),
+    );
+    if (isNaN(allowance)) {
+      allowance = 0;
+    }
+
+    console.log(
+      `Allowance for ${symbol} is ${allowance} (${result.allowance.allowance})`,
+    );
+
+    this.setState<never>({ [stateField]: allowance });
+  }
+
   async updateInputs() {
     const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
@@ -128,7 +205,8 @@ export class ProvideTab extends React.Component<
 
     if (this.state.isEstimatedB) {
       // inputB/inputA = poolB/poolA
-      // => inputB = inputA*(poolB/poolA)
+      // =>
+      // inputB = inputA*(poolB/poolA)
       const inputB = Number(this.state.inputA) * (poolB / poolA);
 
       if (isNaN(inputB) || this.state.inputA === '') {
@@ -145,7 +223,8 @@ export class ProvideTab extends React.Component<
       }
     } else if (this.state.isEstimatedA) {
       // inputA/inputB = poolA/poolB
-      // => inputA = inputB*(poolA/poolB)
+      // =>
+      // inputA = inputB*(poolA/poolB)
       const inputA = Number(this.state.inputB) * (poolA / poolB);
 
       if (isNaN(inputA) || this.state.inputB === '') {
@@ -162,6 +241,38 @@ export class ProvideTab extends React.Component<
         });
       }
     }
+  }
+
+  async approveOnClick(pair: Pair, symbol: string) {
+    let stateFieldSuffix: string;
+    if (this.state.tokenA === symbol) {
+      stateFieldSuffix = 'A';
+    } else if (this.state.tokenB === symbol) {
+      stateFieldSuffix = 'B';
+    } else {
+      console.error('approveOnClick for non-selected token', symbol);
+      return;
+    }
+
+    this.setState<never>({
+      [`loadingApprove${stateFieldSuffix}`]: true,
+    });
+
+    try {
+      await this.props.secretjs.execute(this.props.tokens[symbol].address, {
+        increase_allowance: {
+          spender: pair.contract_addr,
+          amount: UINT128_MAX,
+        },
+      });
+      this.setState<never>({ [`allowance${stateFieldSuffix}`]: Infinity });
+    } catch (error) {
+      console.error('Error while trying to approve', symbol, error);
+    }
+
+    this.setState<never>({
+      [`loadingApprove${stateFieldSuffix}`]: false,
+    });
   }
 
   render() {
@@ -196,6 +307,15 @@ export class ProvideTab extends React.Component<
       buttonMessage = BUTTON_MSG_SUPPLY;
     }
 
+    const showApproveAButton: boolean =
+      this.state.tokenA !== 'SCRT' &&
+      pair &&
+      this.state.allowanceA < Number(this.state.inputA);
+    const showApproveBButton: boolean =
+      this.state.tokenB !== 'SCRT' &&
+      pair &&
+      this.state.allowanceB < Number(this.state.inputB);
+
     return (
       <Container style={swapContainerStyle}>
         <TabsHeader />
@@ -205,29 +325,39 @@ export class ProvideTab extends React.Component<
           balance={balanceA}
           tokens={this.props.tokens}
           token={this.state.tokenA}
-          setToken={(value: string) => {
-            if (value === this.state.tokenB) {
+          setToken={(symbol: string) => {
+            if (symbol === this.state.tokenB) {
               // switch
               this.setState(
                 {
-                  tokenA: value,
+                  tokenA: symbol,
                   isEstimatedA: this.state.isEstimatedB,
                   inputA: this.state.inputB,
+                  allowanceA: this.state.allowanceB,
                   tokenB: this.state.tokenA,
                   isEstimatedB: this.state.isEstimatedA,
                   inputB: this.state.inputA,
+                  allowanceB: this.state.allowanceA,
                 },
                 () => this.updateInputs(),
               );
             } else {
               this.setState(
                 {
-                  tokenA: value,
+                  tokenA: symbol,
                   inputA: '',
                   isEstimatedA: true,
                   isEstimatedB: false,
                 },
-                () => this.updateInputs(),
+                () => {
+                  this.updateInputs();
+                  this.updateAllowance(
+                    this.props.pairFromSymbol[
+                      `${this.state.tokenA}/${this.state.tokenB}`
+                    ],
+                    symbol,
+                  );
+                },
               );
             }
           }}
@@ -272,29 +402,39 @@ export class ProvideTab extends React.Component<
           balance={balanceB}
           tokens={this.props.tokens}
           token={this.state.tokenB}
-          setToken={(value: string) => {
-            if (value === this.state.tokenA) {
+          setToken={(symbol: string) => {
+            if (symbol === this.state.tokenA) {
               // switch
               this.setState(
                 {
-                  tokenB: value,
+                  tokenB: symbol,
                   isEstimatedB: this.state.isEstimatedA,
                   inputB: this.state.inputA,
+                  allowanceB: this.state.allowanceA,
                   tokenA: this.state.tokenB,
                   isEstimatedA: this.state.isEstimatedB,
                   inputA: this.state.inputB,
+                  allowanceA: this.state.allowanceB,
                 },
                 () => this.updateInputs(),
               );
             } else {
               this.setState(
                 {
-                  tokenB: value,
+                  tokenB: symbol,
                   inputB: '',
                   isEstimatedB: true,
                   isEstimatedA: false,
                 },
-                () => this.updateInputs(),
+                () => {
+                  this.updateInputs();
+                  this.updateAllowance(
+                    this.props.pairFromSymbol[
+                      `${this.state.tokenA}/${this.state.tokenB}`
+                    ],
+                    symbol,
+                  );
+                },
               );
             }
           }}
@@ -328,19 +468,49 @@ export class ProvideTab extends React.Component<
             price={price}
           />
         )}
+        {showApproveAButton && (
+          <Button
+            disabled={this.state.loadingApproveA}
+            loading={this.state.loadingApproveA}
+            primary
+            fluid
+            style={buttonStyle}
+            onClick={() => {
+              this.approveOnClick(pair, this.state.tokenA);
+            }}
+          >
+            {`Approve ${this.state.tokenA}`}
+          </Button>
+        )}
+        {showApproveBButton && (
+          <Button
+            disabled={this.state.loadingApproveB}
+            loading={this.state.loadingApproveB}
+            primary
+            fluid
+            style={buttonStyle}
+            onClick={() => {
+              this.approveOnClick(pair, this.state.tokenB);
+            }}
+          >
+            {`Approve ${this.state.tokenB}`}
+          </Button>
+        )}
         <Button
           disabled={
-            buttonMessage !== BUTTON_MSG_SUPPLY || this.state.loadingProvide
+            buttonMessage !== BUTTON_MSG_SUPPLY ||
+            this.state.loadingProvide ||
+            showApproveAButton ||
+            showApproveBButton
           }
           loading={this.state.loadingProvide}
-          primary={buttonMessage === BUTTON_MSG_SUPPLY}
+          primary={
+            buttonMessage === BUTTON_MSG_SUPPLY &&
+            !showApproveAButton &&
+            !showApproveBButton
+          }
           fluid
-          style={{
-            margin: '1em 0 0 0',
-            borderRadius: '12px',
-            padding: '18px',
-            fontSize: '20px',
-          }}
+          style={buttonStyle}
           onClick={async () => {
             this.setState({
               loadingProvide: true,
