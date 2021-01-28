@@ -115,56 +115,40 @@ export class ProvideTab extends React.Component<
       return;
     }
 
-    const offer_pool = Number(
+    const poolA = Number(
       this.props.balances[`${this.state.tokenA}-${selectedPairSymbol}`],
     );
-    const ask_pool = Number(
+    const poolB = Number(
       this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
     );
 
-    if (
-      isNaN(offer_pool) ||
-      isNaN(ask_pool) ||
-      offer_pool === 0 ||
-      ask_pool === 0
-    ) {
+    if (isNaN(poolA) || isNaN(poolB) || poolA === 0 || poolB === 0) {
       return;
     }
 
     if (this.state.isEstimatedB) {
-      const offer_amount = Number(this.state.inputA);
+      // inputB/inputA = poolB/poolA
+      // => inputB = inputA*(poolB/poolA)
+      const inputB = Number(this.state.inputA) * (poolB / poolA);
 
-      const { return_amount } = compute_swap(
-        offer_pool,
-        ask_pool,
-        offer_amount,
-      );
-
-      if (isNaN(return_amount) || this.state.inputA === '') {
+      if (isNaN(inputB) || this.state.inputA === '') {
         this.setState({
           isEstimatedA: false,
-          inputA: '',
+          inputB: '',
           isEstimatedB: false,
         });
       } else {
         this.setState({
-          inputB:
-            return_amount < 0
-              ? ''
-              : swapInputNumberFormat.format(return_amount),
-          isEstimatedB: true,
+          inputB: inputB < 0 ? '' : swapInputNumberFormat.format(inputB),
+          isEstimatedB: inputB >= 0,
         });
       }
     } else if (this.state.isEstimatedA) {
-      const ask_amount = Number(this.state.inputB);
+      // inputA/inputB = poolA/poolB
+      // => inputA = inputB*(poolA/poolB)
+      const inputA = Number(this.state.inputB) * (poolA / poolB);
 
-      const { offer_amount } = compute_offer_amount(
-        offer_pool,
-        ask_pool,
-        ask_amount,
-      );
-
-      if (isNaN(offer_amount) || this.state.inputB === '') {
+      if (isNaN(inputA) || this.state.inputB === '') {
         this.setState({
           isEstimatedB: false,
           inputA: '',
@@ -173,9 +157,8 @@ export class ProvideTab extends React.Component<
       } else {
         this.setState({
           isEstimatedB: false,
-          inputA:
-            offer_amount < 0 ? '' : swapInputNumberFormat.format(offer_amount),
-          isEstimatedA: offer_amount >= 0,
+          inputA: inputA < 0 ? '' : swapInputNumberFormat.format(inputA),
+          isEstimatedA: inputA >= 0,
         });
       }
     }
@@ -184,12 +167,6 @@ export class ProvideTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const offer_pool = Number(
-      this.props.balances[`${this.state.tokenA}-${selectedPairSymbol}`],
-    );
-    const ask_pool = Number(
-      this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
-    );
 
     const [balanceA, balanceB] = [
       this.props.balances[this.state.tokenA],
@@ -211,14 +188,21 @@ export class ProvideTab extends React.Component<
       buttonMessage = BUTTON_MSG_SUPPLY;
     }
 
+    const offer_pool = Number(
+      this.props.balances[`${this.state.inputA}-${selectedPairSymbol}`],
+    );
+    const ask_pool = Number(
+      this.props.balances[`${this.state.inputB}-${selectedPairSymbol}`],
+    );
+    const price = ask_pool / offer_pool;
+
     const hidePriceRow: boolean =
       this.state.inputA === '' ||
       this.state.inputB === '' ||
-      isNaN(
-        Number(this.state.inputB) / Number(this.state.inputA),
-      ); /* ||
-      this.state.buttonMessage === BUTTON_MSG_NOT_ENOUGH_LIQUIDITY ||
-      this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR; */
+      isNaN(price) ||
+      this.state.buttonMessage === BUTTON_MSG_ENTER_AMOUNT ||
+      this.state.buttonMessage === BUTTON_MSG_LOADING_PRICE ||
+      this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
 
     return (
       <Container style={swapContainerStyle}>

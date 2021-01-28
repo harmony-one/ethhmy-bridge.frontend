@@ -163,11 +163,12 @@ export class SwapTab extends React.Component<
         });
       } else {
         this.setState({
+          isFromEstimated: false,
           toInput:
             return_amount < 0
               ? ''
               : swapInputNumberFormat.format(return_amount),
-          isToEstimated: true,
+          isToEstimated: return_amount >= 0,
           spread: spread_amount,
           commission: commission_amount,
           priceImpact: spread_amount / return_amount,
@@ -243,6 +244,7 @@ export class SwapTab extends React.Component<
       this.state.toInput === '' ||
       this.state.fromInput === '' ||
       isNaN(Number(this.state.toInput) / Number(this.state.fromInput)) ||
+      this.state.buttonMessage === BUTTON_MSG_LOADING_PRICE ||
       this.state.buttonMessage === BUTTON_MSG_NOT_ENOUGH_LIQUIDITY ||
       this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
 
