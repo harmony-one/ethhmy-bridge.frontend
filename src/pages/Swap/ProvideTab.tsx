@@ -200,7 +200,8 @@ export class ProvideTab extends React.Component<
       <Container style={swapContainerStyle}>
         <TabsHeader />
         <AssetRow
-          isFrom={null}
+          label="Input"
+          maxButton={true}
           balance={balanceA}
           tokens={this.props.tokens}
           token={this.state.tokenA}
@@ -266,7 +267,8 @@ export class ProvideTab extends React.Component<
           {flexRowSpace}
         </div>
         <AssetRow
-          isFrom={null}
+          label="Input"
+          maxButton={true}
           balance={balanceB}
           tokens={this.props.tokens}
           token={this.state.tokenB}

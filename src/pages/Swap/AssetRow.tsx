@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
+import { TokenDisplay } from '.';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
@@ -16,7 +17,20 @@ export const AssetRow = ({
   setAmount,
   isEstimated,
   balance,
-  isFrom,
+  label,
+  maxButton,
+}: {
+  tokens: {
+    [symbol: string]: TokenDisplay;
+  };
+  token: string;
+  setToken: (symbol: string) => void;
+  amount: string;
+  setAmount: (amount: string) => void;
+  isEstimated: boolean;
+  balance: number | JSX.Element;
+  label: string;
+  maxButton: boolean;
 }) => {
   const [dropdownBackground, setDropdownBackground] = useState<string>();
 
@@ -25,14 +39,6 @@ export const AssetRow = ({
     fontSize: '14px',
     color: 'rgb(86, 90, 105)',
   };
-
-  let label = 'Input';
-  if (isFrom === true) {
-    label = 'From';
-  }
-  if (isFrom === false) {
-    label = 'To';
-  }
 
   return (
     <Container
@@ -84,7 +90,7 @@ export const AssetRow = ({
           size="massive"
           placeholder="0.0"
           value={amount}
-          onChange={(_, { value }) => {
+          onChange={(_, { value }: { value: string }) => {
             if (isNaN(Number(value))) {
               return;
             }
@@ -92,7 +98,7 @@ export const AssetRow = ({
           }}
         />
         {flexRowSpace}
-        {(isFrom === true || isFrom === null) && (
+        {maxButton && (
           <Button
             primary
             disabled={isNaN(Number(balance))}
@@ -103,7 +109,7 @@ export const AssetRow = ({
               height: '30px',
               padding: '0rem 0.4rem',
             }}
-            onClick={() => setAmount(balance)}
+            onClick={() => setAmount(String(balance))}
           >
             MAX
           </Button>
@@ -132,7 +138,7 @@ export const AssetRow = ({
             }),
           )}
           value={token}
-          onChange={(_, { value }) => setToken(value)}
+          onChange={(_, { value }: { value: string }) => setToken(value)}
         />
       </div>
     </Container>

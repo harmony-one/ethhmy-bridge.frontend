@@ -231,7 +231,8 @@ export class SwapTab extends React.Component<
       this.state.priceImpact >= 1 ||
       this.state.priceImpact < 0 ||
       offer_pool === 0 ||
-      ask_pool === 0
+      ask_pool === 0 ||
+      Number(this.state.toInput) > ask_pool
     ) {
       buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
@@ -253,7 +254,8 @@ export class SwapTab extends React.Component<
         <Container style={swapContainerStyle}>
           <TabsHeader />
           <AssetRow
-            isFrom={true}
+            label="From"
+            maxButton={true}
             balance={fromBalance}
             tokens={this.props.tokens}
             token={this.state.fromToken}
@@ -284,7 +286,9 @@ export class SwapTab extends React.Component<
               }
             }}
             amount={this.state.fromInput}
-            isEstimated={false /* this.state.isFromEstimated */}
+            isEstimated={
+              false /* Eventually From is the exact amount that will be sent, so even if we estimate it in updateInputs we don't show the "(estimated)" label to the user */
+            }
             setAmount={(value: string) => {
               if (value === '' || Number(value) === 0) {
                 this.setState({
@@ -340,7 +344,8 @@ export class SwapTab extends React.Component<
             {flexRowSpace}
           </div>
           <AssetRow
-            isFrom={false}
+            label="To"
+            maxButton={false}
             balance={toBalance}
             tokens={this.props.tokens}
             token={this.state.toToken}
