@@ -139,7 +139,7 @@ export const EthBridge = observer((props: any) => {
               <LargeButton
                 title="ONE -> ETH"
                 reverse={true}
-                description="(ONE Wallet)"
+                description={user.isMetamask ? '(Metamask)' : '(ONE Wallet)'}
                 onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                 isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
               />

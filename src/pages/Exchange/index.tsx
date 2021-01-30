@@ -17,11 +17,12 @@ import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed } from 'mobx';
+import { autorun, computed, observable } from 'mobx';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 import { TokensField } from './AmountField';
+import { MetamaskWarning } from '../../components/MetamaskWarning';
 
 export interface ITokenInfo {
   label: string;
@@ -38,6 +39,8 @@ export class Exchange extends React.Component<
     Pick<IStores, 'userMetamask'>
 > {
   formRef: MobxForm;
+
+  @observable metamaskNetworkError = '';
 
   constructor(props) {
     super(props);
@@ -91,6 +94,24 @@ export class Exchange extends React.Component<
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
       }
+    }
+
+    if (
+      exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      user.isMetamask &&
+      !user.isNetworkActual
+    ) {
+      return actionModals.open(() => <MetamaskWarning />, {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      });
     }
 
     if ([TOKEN.ERC721].includes(exchange.token) && !userMetamask.erc20Address) {
@@ -567,6 +588,10 @@ export class Exchange extends React.Component<
               </Text>
             </Box>
           </>
+        ) : null}
+
+        {this.metamaskNetworkError ? (
+          <Box>{this.metamaskNetworkError}</Box>
         ) : null}
 
         <Box

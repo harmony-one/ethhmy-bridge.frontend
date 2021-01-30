@@ -1,4 +1,4 @@
-import { action, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
@@ -13,6 +13,7 @@ import {
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { TOKEN } from './interfaces';
+import Web3 from 'web3';
 
 const defaults = {};
 
@@ -40,6 +41,8 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable erc20Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
   @observable erc20Balance: string = '';
+
+  @observable metamaskChainId = 0;
 
   constructor(stores) {
     super(stores);
@@ -74,6 +77,18 @@ export class UserStoreMetamask extends StoreConstructor {
         }
       }
     }
+  }
+
+  @computed public get isNetworkActual() {
+    switch (process.env.NETWORK) {
+      case 'testnet':
+        return Number(this.metamaskChainId) === 42;
+
+      case 'mainnet':
+        return Number(this.metamaskChainId) === 1;
+    }
+
+    return false;
   }
 
   @action.bound
@@ -137,10 +152,17 @@ export class UserStoreMetamask extends StoreConstructor {
         this.ethAddress = null;
       });
 
+      this.provider.on('chainIdChanged', chainId => this.metamaskChainId = chainId);
+      this.provider.on('chainChanged', chainId => this.metamaskChainId = chainId);
+      this.provider.on('networkChanged', chainId => this.metamaskChainId = chainId);
+
       this.provider
         .request({ method: 'eth_requestAccounts' })
         .then(async params => {
           this.handleAccountsChanged(params);
+
+          const web3 = new Web3(window.web3.currentProvider);
+          this.metamaskChainId = await web3.eth.net.getId();
 
           if (isNew) {
             await this.provider.request({

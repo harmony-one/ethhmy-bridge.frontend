@@ -1,4 +1,6 @@
+import Web3 from 'web3';
 import { HmyMethods } from './HmyMethods';
+import { HmyMethodsWeb3 } from './HmyMethodsWeb3';
 import { HmyMethodsERC20 } from './HmyMethodsERC20';
 import { HmyMethodsHRC20 } from './HmyMethodsHRC20';
 const { Harmony } = require('@harmony-js/core');
@@ -13,14 +15,30 @@ export const hmy = new Harmony(
   },
 );
 
+const web3URL = window.web3
+  ? window.web3.currentProvider
+  : process.env.HMY_NODE_URL;
+
+export const hmyWeb3 = new Web3(web3URL);
+
 const hmyBUSDJson = require('../out/MyERC20.json');
 const hmyBUSDContract = this.hmy.contracts.createContract(
   hmyBUSDJson.abi,
   process.env.HMY_BUSD_CONTRACT,
 );
 
+const hmyBUSDContractWeb3 = new hmyWeb3.eth.Contract(
+  hmyBUSDJson.abi,
+  process.env.HMY_BUSD_CONTRACT,
+);
+
 const hmyBUSDManagerJson = require('../out/LINKHmyManager.json');
 let hmyBUSDManagerContract = this.hmy.contracts.createContract(
+  hmyBUSDManagerJson.abi,
+  process.env.HMY_BUSD_MANAGER_CONTRACT,
+);
+
+let hmyBUSDManagerContractWeb3 = new hmyWeb3.eth.Contract(
   hmyBUSDManagerJson.abi,
   process.env.HMY_BUSD_MANAGER_CONTRACT,
 );
@@ -41,6 +59,13 @@ export const hmyMethodsBUSD = new HmyMethods({
   hmy: hmy,
   hmyTokenContract: hmyBUSDContract,
   hmyManagerContract: hmyBUSDManagerContract,
+});
+
+export const hmyMethodsBUSDWeb3 = new HmyMethodsWeb3({
+  web3: hmyWeb3,
+  hmyTokenContract: hmyBUSDContractWeb3,
+  hmyManagerContract: hmyBUSDManagerContractWeb3,
+  hmyManagerContractAddress: process.env.HMY_BUSD_MANAGER_CONTRACT,
 });
 
 export const hmyMethodsLINK = new HmyMethods({

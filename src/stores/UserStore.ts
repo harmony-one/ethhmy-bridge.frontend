@@ -1,6 +1,7 @@
-import { action, observable } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
+import detectEthereumProvider from '@metamask/detect-provider';
 import {
   ethMethodsHRC20,
   getHmyBalance,
@@ -14,6 +15,7 @@ import * as agent from 'superagent';
 import { IOperation, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
 import { HarmonyAddress } from '@harmony-js/crypto';
+const Web3 = require('web3');
 
 const defaults = {};
 
@@ -30,10 +32,14 @@ export class UserStoreEx extends StoreConstructor {
   public status: statusFetching;
   redirectUrl: string;
 
+  @observable error: string = '';
+  @observable public isMetaMask = false;
+  private provider: any;
+
   private onewallet: any;
   @observable public isOneWallet = false;
 
-  @observable public sessionType: 'mathwallet' | 'ledger' | 'wallet';
+  @observable public sessionType: 'onewallet' | 'metamask';
   @observable public address: string;
 
   @observable public balance: string = '0';
@@ -50,6 +56,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hrc20Balance = '';
 
   @observable public isInfoReading = false;
+
+  @observable metamaskChainId = 0;
 
   constructor(stores) {
     super(stores);
@@ -84,6 +92,16 @@ export class UserStoreEx extends StoreConstructor {
     if (sessionObj && sessionObj.address) {
       this.address = sessionObj.address;
       this.sessionType = sessionObj.sessionType;
+
+      if (this.sessionType === 'metamask') {
+        // const web3 = new Web3(window.web3.currentProvider);
+        // web3.eth.net.getId().then(id => (this.metamaskChainId = id));
+
+        if (sessionObj.address) {
+          this.signInMetamask();
+        }
+      }
+
       this.isAuthorized = true;
 
       this.stores.exchange.transaction.oneAddress = this.address;
@@ -92,16 +110,124 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
+  @computed public get isNetworkActual() {
+    switch (process.env.NETWORK) {
+      case 'testnet':
+        return Number(this.metamaskChainId) === 1666700000;
+    }
+
+    return false;
+  }
+
+  @computed public get isMetamask() {
+    return this.sessionType === 'metamask';
+  }
+
   @action public setInfoReading() {
     this.isInfoReading = true;
     this.syncLocalStorage();
+  }
+
+  @action.bound
+  setError(error: string) {
+    this.error = error;
+    this.isAuthorized = false;
+  }
+
+  @action.bound
+  handleAccountsChanged(...args) {
+    console.log(args);
+
+    if (args[0].length === 0) {
+      return this.setError('Please connect to MetaMask');
+    } else {
+      this.address = args[0][0];
+      this.syncLocalStorage();
+    }
+  }
+
+  @action.bound
+  public async signInMetamask(isNew = false) {
+    try {
+      this.error = '';
+
+      const provider = await detectEthereumProvider();
+
+      // @ts-ignore
+      if (provider !== window.ethereum) {
+        console.error('Do you have multiple wallets installed?');
+      }
+
+      if (!provider) {
+        return this.setError('Metamask not found');
+      }
+
+      this.provider = provider;
+
+      this.provider.on('accountsChanged', this.handleAccountsChanged);
+
+      this.provider.on(
+        'chainIdChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
+      this.provider.on(
+        'chainChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
+      this.provider.on(
+        'networkChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
+
+      this.provider.on('disconnect', () => {
+        this.isAuthorized = false;
+        this.address = null;
+      });
+
+      this.provider
+        .request({ method: 'eth_requestAccounts' })
+        .then(async params => {
+          const web3 = new Web3(window.web3.currentProvider);
+          this.metamaskChainId = await web3.eth.net.getId();
+
+          this.sessionType = 'metamask';
+
+          this.handleAccountsChanged(params);
+
+          if (isNew) {
+            await this.provider.request({
+              method: 'wallet_requestPermissions',
+              params: [
+                {
+                  eth_accounts: {},
+                },
+              ],
+            });
+          }
+
+          this.isAuthorized = true;
+          // this.metamaskNetwork = await web3.eth.net.getNetworkType()
+        })
+        .catch(err => {
+          if (err.code === 4001) {
+            this.isAuthorized = false;
+            this.address = null;
+            this.syncLocalStorage();
+            return this.setError('Please connect to MetaMask.');
+          } else {
+            console.error(err);
+          }
+        });
+    } catch (e) {
+      return this.setError(e.message);
+    }
   }
 
   @action public signIn() {
     return this.onewallet
       .getAccount()
       .then(account => {
-        this.sessionType = `mathwallet`;
+        this.sessionType = 'onewallet';
         this.address = account.address;
         this.isAuthorized = true;
 
@@ -192,12 +318,6 @@ export class UserStoreEx extends StoreConstructor {
         isInfoReading: this.isInfoReading,
       }),
     );
-  }
-
-  @action public signTransaction(txn: any) {
-    if (this.sessionType === 'mathwallet' && this.isOneWallet) {
-      return this.onewallet.signTransaction(txn);
-    }
   }
 
   public saveRedirectUrl(url: string) {
