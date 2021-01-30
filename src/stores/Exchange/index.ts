@@ -334,17 +334,23 @@ export class Exchange extends StoreConstructor {
       switch (this.token) {
         case TOKEN.BUSD:
           ethMethods = contract.ethMethodsBUSD;
-          hmyMethods = contract.hmyMethodsBUSDWeb3;
+          hmyMethods = this.stores.user.isMetamask
+            ? contract.hmyMethodsBUSD.hmyMethodsWeb3
+            : contract.hmyMethodsBUSD.hmyMethods;
           break;
 
         case TOKEN.LINK:
           ethMethods = contract.ethMethodsLINK;
-          hmyMethods = contract.hmyMethodsLINK;
+          hmyMethods = this.stores.user.isMetamask
+            ? contract.hmyMethodsLINK.hmyMethodsWeb3
+            : contract.hmyMethodsLINK.hmyMethods;
           break;
 
         case TOKEN.ERC20:
           ethMethods = contract.ethMethodsERC20;
-          hmyMethods = contract.hmyMethodsERC20;
+          hmyMethods = this.stores.user.isMetamask
+            ? contract.hmyMethodsERC20.hmyMethodsWeb3
+            : contract.hmyMethodsERC20.hmyMethods;
           break;
 
         case TOKEN.ONE:

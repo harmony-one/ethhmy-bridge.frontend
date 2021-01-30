@@ -3,7 +3,7 @@ import { sleep } from 'utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
 import { ethMethodsBUSD } from '../../blockchain-bridge/eth';
-import { hmyMethodsERC20 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsERC20, hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
 
 export const send1ETHToken = async (params: {
   transaction: ITransaction;
@@ -20,7 +20,10 @@ export const send1ETHToken = async (params: {
     mode,
   } = params;
 
-  const hmyMethods = hmyMethodsERC20;
+  const hmyMethods = stores.user.isMetamask
+    ? hmyMethodsERC20.hmyMethodsWeb3
+    : hmyMethodsERC20.hmyMethods;
+
   const ethMethods = ethMethodsBUSD;
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {

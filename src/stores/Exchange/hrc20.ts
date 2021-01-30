@@ -20,7 +20,10 @@ export const sendHrc20Token = async (params: {
     mode,
   } = params;
 
-  const hmyMethods = hmyMethodsHRC20;
+  const hmyMethods = stores.user.isMetamask
+    ? hmyMethodsHRC20.hmyMethodsWeb3
+    : hmyMethodsHRC20.hmyMethods;
+  
   const ethMethods = ethMethodsHRC20;
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {

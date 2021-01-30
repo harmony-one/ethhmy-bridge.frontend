@@ -264,7 +264,7 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
     this.erc20Address = erc20Address;
 
-    const address = await hmyMethodsERC20.getMappingFor(erc20Address);
+    const address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
@@ -306,7 +306,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
-    const address = await hmyMethodsERC721.getMappingFor(erc20Address);
+    const address = await hmyMethodsERC721.hmyMethods.getMappingFor(erc20Address);
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;

@@ -251,7 +251,7 @@ export class UserStoreEx extends StoreConstructor {
         this.balance = res && res.result;
 
         if (this.hrc20Address) {
-          const hrc20Balance = await hmyMethodsERC20.checkHmyBalance(
+          const hrc20Balance = await hmyMethodsERC20.hmyMethods.checkHmyBalance(
             this.hrc20Address,
             this.address,
           );
@@ -264,10 +264,14 @@ export class UserStoreEx extends StoreConstructor {
 
         let resBalance = 0;
 
-        resBalance = await hmyMethodsBUSD.checkHmyBalance(this.address);
+        resBalance = await hmyMethodsBUSD.hmyMethods.checkHmyBalance(
+          this.address,
+        );
         this.hmyBUSDBalance = divDecimals(resBalance, 18);
 
-        resBalance = await hmyMethodsLINK.checkHmyBalance(this.address);
+        resBalance = await hmyMethodsLINK.hmyMethods.checkHmyBalance(
+          this.address,
+        );
         this.hmyLINKBalance = divDecimals(resBalance, 18);
       } catch (e) {
         console.error(e);
@@ -407,7 +411,7 @@ export class UserStoreEx extends StoreConstructor {
           erc20Address: '',
         };
       } else {
-        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.tokenDetails(
+        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.hmyMethods.tokenDetails(
           hrc20Address,
         );
       }
