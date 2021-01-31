@@ -68,7 +68,7 @@ export async function getBalance(
     `.view-token-button {
       cursor: pointer;
       border-radius: 30px;
-      padding: 0 0.3em;
+      padding: 0 0.6em 0 0.3em;
       border: solid;
       border-width: thin;
       border-color: whitesmoke;
@@ -190,7 +190,9 @@ export class SwapRouter extends React.Component<
       },
     );
 
-    const pairFromSymbol = {};
+    const pairFromSymbol: {
+      [symbol: string]: Pair;
+    } = {};
 
     const tokens: {
       [symbol: string]: TokenDisplay;
@@ -267,6 +269,107 @@ export class SwapRouter extends React.Component<
 
         console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
 
+        const getViewingKey = async (symbol: string, tokenAddress: string) => {
+          let viewingKey: string;
+          const currentBalance: string = JSON.stringify(
+            this.state.balances[symbol],
+          );
+
+          if (
+            typeof currentBalance === 'string' &&
+            currentBalance.includes(ERROR_WRONG_VIEWING_KEY)
+          ) {
+            // In case this tx was set_viewing_key in order to correct the wrong viewing key error
+            // Allow Keplr time to locally save the new viewing key
+            await sleep(1000);
+          }
+
+          // Retry getSecret20ViewingKey 3 times
+          // Sometimes this event is fired before Keplr stores the viewing key
+          let tries = 0;
+          while (true) {
+            tries += 1;
+            try {
+              viewingKey = await this.props.user.keplrWallet.getSecret20ViewingKey(
+                this.props.user.chainId,
+                tokenAddress,
+              );
+            } catch (error) {}
+            if (viewingKey || tries === 3) {
+              break;
+            }
+            await sleep(100);
+          }
+          return viewingKey;
+        };
+
+        const pairSymbol = data.id;
+        const pair = pairFromSymbol[pairSymbol];
+        if (pair) {
+          console.log('Refresh LP token for', pairSymbol);
+          // update my LP token balance
+          const lpTokenSymbol = `LP-${pairSymbol}`;
+          const viewingKey = await getViewingKey(
+            lpTokenSymbol,
+            pair.liquidity_token,
+          );
+          const lpBalance = await getBalance(
+            lpTokenSymbol,
+            this.props.user.address,
+            {
+              [lpTokenSymbol]: {
+                address: pair.liquidity_token,
+                decimals: 6,
+                symbol: lpTokenSymbol,
+                logo: '',
+              },
+            },
+            viewingKey,
+            this.props.user,
+          );
+
+          // update LP token total supply
+          let lpTotalSupply = 0;
+          try {
+            const result: {
+              token_info: {
+                name: string;
+                symbol: string;
+                decimals: number;
+                total_supply: string;
+              };
+            } = await this.props.user.secretjs.queryContractSmart(
+              pair.liquidity_token,
+              {
+                token_info: {},
+              },
+            );
+
+            lpTotalSupply = Number(
+              divDecimals(result.token_info.total_supply, 6),
+            );
+          } catch (error) {
+            console.error(
+              `Error trying to get LP token total supply of ${pairSymbol}`,
+              pair,
+              error,
+            );
+          }
+
+          // Using a callbak to setState prevents a race condition
+          // where two tokens gets updated after the same block
+          // and they start this update with the same this.state.balances
+          // (Atomic setState)
+          this.setState(currentState => {
+            return {
+              balances: Object.assign({}, currentState.balances, {
+                [lpTokenSymbol]: lpBalance,
+                [`${lpTokenSymbol}-total-supply`]: lpTotalSupply,
+              }),
+            };
+          });
+        }
+
         for (const tokenSymbol of symbols) {
           if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
             console.log(`${tokenSymbol} already fresh for height ${height}`);
@@ -276,35 +379,10 @@ export class SwapRouter extends React.Component<
 
           let viewingKey: string;
           if (tokenSymbol !== 'SCRT') {
-            const currentBalance: string = JSON.stringify(
-              this.state.balances[tokenSymbol],
+            viewingKey = await getViewingKey(
+              tokenSymbol,
+              tokens[tokenSymbol].address,
             );
-
-            if (
-              typeof currentBalance === 'string' &&
-              currentBalance.includes(ERROR_WRONG_VIEWING_KEY)
-            ) {
-              // In case this tx was set_viewing_key in order to correct the wrong viewing key error
-              // Allow Keplr time to locally save the new viewing key
-              await sleep(1000);
-            }
-
-            // Retry getSecret20ViewingKey 3 times
-            // Sometimes this event is fired before Keplr stores the viewing key
-            let tries = 0;
-            while (true) {
-              tries += 1;
-              try {
-                viewingKey = await this.props.user.keplrWallet.getSecret20ViewingKey(
-                  this.props.user.chainId,
-                  tokens[tokenSymbol].address,
-                );
-              } catch (error) {}
-              if (viewingKey || tries === 3) {
-                break;
-              }
-              await sleep(100);
-            }
           }
 
           const userBalancePromise = getBalance(
@@ -376,8 +454,8 @@ export class SwapRouter extends React.Component<
       }
 
       // Register for token or SCRT events
-      for (const symbol of Object.keys(tokens)) {
-        if (symbol === 'SCRT') {
+      for (const tokenSymbol of Object.keys(tokens)) {
+        if (tokenSymbol === 'SCRT') {
           const myAddress = this.props.user.address;
           const scrtQueries = [
             `message.sender='${myAddress}'` /* sent a tx (gas) */,
@@ -397,7 +475,7 @@ export class SwapRouter extends React.Component<
           }
         } else {
           // Any tx on the token's contract
-          const tokenAddress = tokens[symbol].address;
+          const tokenAddress = tokens[tokenSymbol].address;
           const tokenQueries = [
             `message.contract_address='${tokenAddress}'`,
             `wasm.contract_address='${tokenAddress}'`,
@@ -407,7 +485,7 @@ export class SwapRouter extends React.Component<
             this.ws.send(
               JSON.stringify({
                 jsonrpc: '2.0',
-                id: symbol, // jsonrpc id
+                id: tokenSymbol, // jsonrpc id
                 method: 'subscribe',
                 params: { query },
               }),
@@ -432,19 +510,22 @@ export class SwapRouter extends React.Component<
         }, {}),
       );
 
-      for (const symbol of uniquePairSymbols) {
-        const pairAddress = pairFromSymbol[symbol].contract_addr;
+      for (const pairSymbol of uniquePairSymbols) {
+        const pairAddress = pairFromSymbol[pairSymbol].contract_addr;
+        const lpTokenAddress = pairFromSymbol[pairSymbol].liquidity_token;
 
         const pairQueries = [
           `message.contract_address='${pairAddress}'`,
           `wasm.contract_address='${pairAddress}'`,
+          `message.contract_address='${lpTokenAddress}'`,
+          `wasm.contract_address='${lpTokenAddress}'`,
         ];
 
         for (const query of pairQueries) {
           this.ws.send(
             JSON.stringify({
               jsonrpc: '2.0',
-              id: symbol, // jsonrpc id
+              id: pairSymbol, // jsonrpc id
               method: 'subscribe',
               params: { query },
             }),
@@ -521,7 +602,16 @@ export class SwapRouter extends React.Component<
                   pairFromSymbol={this.state.pairFromSymbol}
                 />
               )}
-              {isWithdraw && <WithdrawTab user={this.props.user} />}
+              {isWithdraw && (
+                <WithdrawTab
+                  user={this.props.user}
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                />
+              )}
             </Box>
           </Box>
         </PageContainer>

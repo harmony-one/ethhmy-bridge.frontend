@@ -72,6 +72,9 @@ export function truncateAddressString(address: string, num = 12) {
   return `${first}...${last}`;
 }
 
+export const sortedStringify = (obj: any) =>
+  JSON.stringify(obj, Object.keys(obj).sort());
+
 export const mulDecimals = (
   amount: string | number,
   decimals: string | number,

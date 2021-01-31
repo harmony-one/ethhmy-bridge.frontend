@@ -1,10 +1,9 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container } from 'semantic-ui-react';
-import { divDecimals, mulDecimals, UINT128_MAX } from 'utils';
+import { divDecimals, mulDecimals, UINT128_MAX, sortedStringify } from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
-import { sortedStringify } from './SwapTab';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';

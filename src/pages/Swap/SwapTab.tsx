@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
-import { beliefPriceNumberFormat, mulDecimals } from 'utils';
+import { beliefPriceNumberFormat, mulDecimals, sortedStringify } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
@@ -13,9 +13,6 @@ import {
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
-
-export const sortedStringify = (obj: any) =>
-  JSON.stringify(obj, Object.keys(obj).sort());
 
 const downArrow = (
   <svg
