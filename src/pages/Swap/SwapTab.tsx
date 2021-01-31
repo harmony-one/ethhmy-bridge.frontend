@@ -70,8 +70,8 @@ export class SwapTab extends React.Component<
     super(props);
 
     this.state = {
-      fromToken: Object.keys(this.props.tokens)[1] || '',
-      toToken: Object.keys(this.props.tokens)[0] || '',
+      fromToken: Object.keys(this.props.tokens)[0] || '',
+      toToken: Object.keys(this.props.tokens)[1] || '',
       fromInput: '',
       toInput: '',
       isFromEstimated: false,
@@ -97,8 +97,8 @@ export class SwapTab extends React.Component<
       sortedStringify(previousProps.tokens) !==
       sortedStringify(this.props.tokens)
     ) {
-      const fromToken = Object.keys(this.props.tokens)[1];
-      const toToken = Object.keys(this.props.tokens)[0];
+      const fromToken = Object.keys(this.props.tokens)[0];
+      const toToken = Object.keys(this.props.tokens)[1];
 
       this.setState({
         fromToken,
