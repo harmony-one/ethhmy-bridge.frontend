@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Image } from 'semantic-ui-react';
+import { CSSProperties } from 'styled-components';
 import { flexRowSpace, Pair, TokenDisplay } from '.';
 
 export class LiquidityRow extends React.Component<{
@@ -89,6 +90,12 @@ export class LiquidityRow extends React.Component<{
       />
     );
 
+    const rowStyle: CSSProperties = {
+      display: 'flex',
+      flexDirection: 'row',
+      padding: '1em 0 0 0',
+    };
+
     return (
       <Container
         style={{
@@ -117,26 +124,14 @@ export class LiquidityRow extends React.Component<{
           </span>
           {flexRowSpace}
         </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            padding: '1em 0 0 0',
-          }}
-        >
+        <div style={rowStyle}>
           <span>Your total pool tokens:</span>
           {flexRowSpace}
           {lpTokenBalance}
         </div>
         {!isNaN(Number(lpTokenBalance)) && (
           <>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                padding: '1em 0 0 0',
-              }}
-            >
+            <div style={rowStyle}>
               <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}:`}</span>
               {flexRowSpace}
               <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
@@ -144,14 +139,7 @@ export class LiquidityRow extends React.Component<{
               </span>
               {getLogo(tokenA)}
             </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                padding: '1em 0 0 0',
-                margin: 'auto',
-              }}
-            >
+            <div style={rowStyle}>
               <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}:`}</span>
               {flexRowSpace}
               <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
@@ -159,16 +147,15 @@ export class LiquidityRow extends React.Component<{
               </span>
               {getLogo(tokenB)}
             </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                padding: '1em 0 0 0',
-              }}
-            >
+            <div style={rowStyle}>
               <span>Your pool share:</span>
               {flexRowSpace}
               {lpShareJsxElement}
+            </div>
+            <div style={rowStyle}>
+              {flexRowSpace}
+              <span>TODO remove liquidity panel</span>
+              {flexRowSpace}
             </div>
           </>
         )}{' '}

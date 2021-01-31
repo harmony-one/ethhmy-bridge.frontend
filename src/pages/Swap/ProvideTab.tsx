@@ -476,11 +476,18 @@ export class ProvideTab extends React.Component<
           }}
         />
         {!isNaN(price) && (
-          <PriceRow
-            fromToken={this.state.tokenA}
-            toToken={this.state.tokenB}
-            price={price}
-          />
+          <>
+            <PriceRow
+              fromToken={this.state.tokenA}
+              toToken={this.state.tokenB}
+              price={price}
+            />
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              {flexRowSpace}
+              TODO show expected pool share
+              {flexRowSpace}
+            </div>
+          </>
         )}
         {showApproveAButton && (
           <Button

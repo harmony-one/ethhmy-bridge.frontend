@@ -72,6 +72,7 @@ export const AdditionalInfo = ({
                   style={{
                     marginLeft: '0.5rem',
                     background: minReceivedIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
                     setMinReceivedIconBackground('rgb(237, 238, 242)')
@@ -110,6 +111,7 @@ export const AdditionalInfo = ({
                   style={{
                     marginLeft: '0.5rem',
                     background: priceImpactIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
                     setPriceImpactIconBackground('rgb(237, 238, 242)')
@@ -146,6 +148,7 @@ export const AdditionalInfo = ({
                   style={{
                     marginLeft: '0.5rem',
                     background: liqProvFeeIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
                     setLiqProvFeeIconBackground('rgb(237, 238, 242)')
@@ -161,6 +164,17 @@ export const AdditionalInfo = ({
           <strong>
             {numberFormat.format(liquidityProviderFee)} {fromToken}
           </strong>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingTop: '0.2rem',
+          }}
+        >
+          {flexRowSpace}
+          <span>TODO link to pair analytics</span>
+          {flexRowSpace}
         </div>
       </Container>
     </div>

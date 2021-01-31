@@ -1,9 +1,8 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import { Button, Container } from 'semantic-ui-react';
+import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
-import { AssetRow } from './AssetRow';
+import { Pair, swapContainerStyle, TokenDisplay } from '.';
 import { LiquidityRow } from './LiqudityRow';
 import { TabsHeader } from './TabsHeader';
 

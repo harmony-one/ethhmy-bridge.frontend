@@ -14,6 +14,7 @@ import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
+import { Icon, Popup } from 'semantic-ui-react';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -152,6 +153,7 @@ export class SwapRouter extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
+    securedByIconBackground: string;
   }
 > {
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
@@ -161,6 +163,7 @@ export class SwapRouter extends React.Component<
     balances: {},
     pairs: [],
     pairFromSymbol: {},
+    securedByIconBackground: 'whitesmoke',
   };
 
   constructor(props: Readonly<{ user: UserStoreEx }>) {
@@ -613,6 +616,42 @@ export class SwapRouter extends React.Component<
                 />
               )}
             </Box>
+            <span>
+              Secured by{' '}
+              <a
+                href="https://scrt.network"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Secret Network
+              </a>
+              <Popup
+                trigger={
+                  <Icon
+                    name="help"
+                    circular
+                    size="tiny"
+                    style={{
+                      marginLeft: '0.5rem',
+                      background: this.state.securedByIconBackground,
+                      verticalAlign: 'middle',
+                    }}
+                    onMouseEnter={() =>
+                      this.setState({
+                        securedByIconBackground: 'rgb(237, 238, 242)',
+                      })
+                    }
+                    onMouseLeave={() =>
+                      this.setState({
+                        securedByIconBackground: 'whitesmoke',
+                      })
+                    }
+                  />
+                }
+                content="Secret Network protects your swaps from front-running attacks. (TODO phrasing)"
+                position="top center"
+              />
+            </span>
           </Box>
         </PageContainer>
       </BaseContainer>
