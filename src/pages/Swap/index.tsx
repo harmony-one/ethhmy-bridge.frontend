@@ -14,7 +14,7 @@ import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
-import { Icon, Popup } from 'semantic-ui-react';
+import { Icon, Message, Popup } from 'semantic-ui-react';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -616,13 +616,9 @@ export class SwapRouter extends React.Component<
                 />
               )}
             </Box>
-            <span>
+            <div>
               Secured by{' '}
-              <a
-                href="https://scrt.network"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://scrt.network" target="_blank">
                 Secret Network
               </a>
               <Popup
@@ -648,10 +644,49 @@ export class SwapRouter extends React.Component<
                     }
                   />
                 }
-                content="Secret Network protects your swaps from front-running attacks. (TODO phrasing)"
+                content="Secret Network protects your swaps from front-running attacks." /* TODO phrasing */
                 position="top center"
               />
-            </span>
+            </div>
+            <Message warning>
+              <Message.Header>Hello beta testers! 👋</Message.Header>
+              <p>
+                <strong>Getting SCRT:</strong>{' '}
+                <a href="https://faucet.secrettestnet.io" target="_blank">
+                  holodeck-2 faucet
+                </a>
+              </p>
+              <p>
+                <strong>Getting ETH:</strong> Swap for it 👆😋
+              </p>
+              <strong>Feedback channels:</strong>
+              <ul>
+                <li>
+                  Open a{' '}
+                  <a
+                    href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new"
+                    target="_blank"
+                  >
+                    GitHub issue
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://discord.com/channels/360051864110235648/760897182756503572"
+                    target="_blank"
+                  >
+                    #🛠development
+                  </a>{' '}
+                  on Discord
+                </li>
+                <li>
+                  Tag @assafmo on{' '}
+                  <a href="https://t.me/SCRTCommunity" target="_blank">
+                    Telegram
+                  </a>
+                </li>
+              </ul>
+            </Message>
           </Box>
         </PageContainer>
       </BaseContainer>
