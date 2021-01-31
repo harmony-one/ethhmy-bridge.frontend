@@ -686,6 +686,18 @@ export class SwapRouter extends React.Component<
                   </a>
                 </li>
               </ul>
+              <strong>In the works (will be available for mainnet):</strong>
+              <ul>
+                <li>Withdraw liquidity button</li>
+                <li>View pair analytics</li>
+                <li>Create a new pair</li>
+                <li>Route swapping</li>
+                <li>Approval screens before Swap and Provide</li>
+                <li>
+                  Expert mode (customize slippage, skip approval screens, etc.)
+                </li>
+                <li>Better stats before Provide liquidity</li>
+              </ul>
             </Message>
           </Box>
         </PageContainer>
