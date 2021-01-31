@@ -479,21 +479,15 @@ export class SwapRouter extends React.Component<
         } else {
           // Any tx on the token's contract
           const tokenAddress = tokens[tokenSymbol].address;
-          const tokenQueries = [
-            `message.contract_address='${tokenAddress}'`,
-            `wasm.contract_address='${tokenAddress}'`,
-          ];
 
-          for (const query of tokenQueries) {
-            this.ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: tokenSymbol, // jsonrpc id
-                method: 'subscribe',
-                params: { query },
-              }),
-            );
-          }
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: tokenSymbol, // jsonrpc id
+              method: 'subscribe',
+              params: { query: `wasm.contract_address='${tokenAddress}'` },
+            }),
+          );
         }
       }
 
@@ -518,9 +512,7 @@ export class SwapRouter extends React.Component<
         const lpTokenAddress = pairFromSymbol[pairSymbol].liquidity_token;
 
         const pairQueries = [
-          `message.contract_address='${pairAddress}'`,
           `wasm.contract_address='${pairAddress}'`,
-          `message.contract_address='${lpTokenAddress}'`,
           `wasm.contract_address='${lpTokenAddress}'`,
         ];
 
