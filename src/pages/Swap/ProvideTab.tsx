@@ -482,11 +482,11 @@ export class ProvideTab extends React.Component<
               toToken={this.state.tokenB}
               price={price}
             />
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
+            {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
               {flexRowSpace}
               TODO show expected pool share
               {flexRowSpace}
-            </div>
+            </div> */}
           </>
         )}
         {showApproveAButton && (

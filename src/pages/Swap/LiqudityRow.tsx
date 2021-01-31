@@ -152,11 +152,11 @@ export class LiquidityRow extends React.Component<{
               {flexRowSpace}
               {lpShareJsxElement}
             </div>
-            <div style={rowStyle}>
+            {/*    <div style={rowStyle}>
               {flexRowSpace}
               <span>TODO remove liquidity panel</span>
               {flexRowSpace}
-            </div>
+            </div> */}
           </>
         )}{' '}
       </Container>

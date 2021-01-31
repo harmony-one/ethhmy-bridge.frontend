@@ -33,7 +33,7 @@ export interface NativeToken {
 
 export class Currency {
   public readonly amount: string;
-  public readonly token: Asset; // todo: replace with bech32
+  public readonly token: Asset;
 
   isEqualToIdentifier(info: string) {
     return this.token.info.type === 'native_token'

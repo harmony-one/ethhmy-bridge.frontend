@@ -165,7 +165,7 @@ export const AdditionalInfo = ({
             {numberFormat.format(liquidityProviderFee)} {fromToken}
           </strong>
         </div>
-        <div
+        {/*   <div
           style={{
             display: 'flex',
             flexDirection: 'row',
@@ -175,7 +175,7 @@ export const AdditionalInfo = ({
           {flexRowSpace}
           <span>TODO link to pair analytics</span>
           {flexRowSpace}
-        </div>
+        </div> */}
       </Container>
     </div>
   );
