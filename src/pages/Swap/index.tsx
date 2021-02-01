@@ -645,7 +645,7 @@ export class SwapRouter extends React.Component<
                     }
                   />
                 }
-                content="Secret Network protects your swaps from front-running attacks." /* TODO phrasing */
+                content="Secret Network's privacy-by-default design protects your swaps from front-running attacks and helps secure your trading and transactions."
                 position="top center"
               />
             </div>
