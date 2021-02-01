@@ -22,18 +22,18 @@ export const App: React.FC = () => {
       <Suspense fallback={<div />}>
         <Switch>
           <Route exact path="/swap" component={SwapPageWrapper} />
-          <Route exact path="/tokens" component={Tokens} />
-          <Route exact path="/faq" component={FAQPage} />
+          {/* <Route exact path="/tokens" component={Tokens} /> */}
+          {/* <Route exact path="/faq" component={FAQPage} /> */}
           {/* <Route exact path="/info" component={InfoPage} /> */}
-          <Route exact path="/explorer" component={Explorer} />
-          <Route exact path="/earn" component={EarnRewards} />
-          <Route exact path="/:token" component={EthBridge} />
-          <Route
+          {/* <Route exact path="/explorer" component={Explorer} /> */}
+          {/* <Route exact path="/earn" component={EarnRewards} /> */}
+          {/* <Route exact path="/:token" component={EthBridge} /> */}
+          {/* <Route
             exact
             path="/:token/operations/:operationId"
             component={EthBridge}
-          />
-          <Redirect to="/eth" />
+          /> */}
+          <Redirect to="/swap" />
         </Switch>
       </Suspense>
       <ActionModals />
