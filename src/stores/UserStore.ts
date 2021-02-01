@@ -244,19 +244,19 @@ export class UserStoreEx extends StoreConstructor {
     this.syncLocalStorage();
   }
 
-  @action public async signIn() {
-    console.log(1, 'keplr login');
+  @action public async signIn(wait?: boolean) {
     this.error = '';
 
+    console.log('Waiting for Keplr...');
+    while (wait && !this.keplrWallet) {
+      await sleep(100);
+    }
+    console.log('Found Keplr');
+
     this.chainId = process.env.CHAIN_ID;
-    console.log(2, this.chainId);
     try {
       // Setup Secret Testnet (not needed on mainnet)
-      console.log(3, process.env.ENV);
       if (process.env.ENV !== 'MAINNET') {
-        console.log(4, process.env.CHAIN_NAME);
-        console.log(4, process.env.SECRET_RPC);
-        console.log(4, process.env.SECRET_LCD);
         await this.keplrWallet.experimentalSuggestChain({
           chainId: this.chainId,
           chainName: process.env.CHAIN_NAME,
@@ -302,7 +302,6 @@ export class UserStoreEx extends StoreConstructor {
         });
       }
 
-      console.log(5);
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 

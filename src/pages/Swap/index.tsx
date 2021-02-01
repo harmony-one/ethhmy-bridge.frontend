@@ -176,7 +176,7 @@ export class SwapRouter extends React.Component<
   }
 
   async componentDidMount() {
-    await this.props.user.signIn();
+    await this.props.user.signIn(true);
 
     while (!this.props.user.secretjs) {
       await sleep(100);
