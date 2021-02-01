@@ -697,7 +697,6 @@ export class SwapRouter extends React.Component<
                 <li>
                   Expert mode (customize slippage, skip approval screens, etc.)
                 </li>
-                <li>Better stats before Provide liquidity</li>
               </ul>
             </Message>
           </Box>

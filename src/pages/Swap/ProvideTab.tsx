@@ -321,14 +321,18 @@ export class ProvideTab extends React.Component<
       buttonMessage = BUTTON_MSG_PROVIDE;
     }
 
+    const amountA = Number(this.state.inputA);
+    const amountB = Number(this.state.inputB);
+
     const showApproveAButton: boolean =
-      this.state.tokenA !== 'SCRT' &&
-      pair &&
-      this.state.allowanceA < Number(this.state.inputA);
+      this.state.tokenA !== 'SCRT' && pair && this.state.allowanceA < amountA;
     const showApproveBButton: boolean =
-      this.state.tokenB !== 'SCRT' &&
-      pair &&
-      this.state.allowanceB < Number(this.state.inputB);
+      this.state.tokenB !== 'SCRT' && pair && this.state.allowanceB < amountB;
+
+    const shareOfPool = Math.min(
+      amountA / (poolA + amountA),
+      amountB / (poolB + amountB),
+    );
 
     return (
       <Container style={swapContainerStyle}>
@@ -476,18 +480,28 @@ export class ProvideTab extends React.Component<
           }}
         />
         {!isNaN(price) && (
-          <>
-            <PriceRow
-              fromToken={this.state.tokenA}
-              toToken={this.state.tokenB}
-              price={price}
-            />
-            {/* <div style={{ display: 'flex', flexDirection: 'row' }}>
-              {flexRowSpace}
-              TODO show expected pool share
-              {flexRowSpace}
-            </div> */}
-          </>
+          <PriceRow
+            fromToken={this.state.tokenA}
+            toToken={this.state.tokenB}
+            price={price}
+          />
+        )}
+        {shareOfPool > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              paddingTop: '0.2rem',
+            }}
+          >
+            Share of Pool
+            {flexRowSpace}
+            {new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 2,
+              useGrouping: false,
+            }).format(shareOfPool * 100)}
+            %
+          </div>
         )}
         {showApproveAButton && (
           <Button
