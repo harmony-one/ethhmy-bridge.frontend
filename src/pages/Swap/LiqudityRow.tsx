@@ -31,11 +31,8 @@ export class LiquidityRow extends React.Component<{
     let pooledTokenB = lpTokenBalance; // View Balance
 
     if (!isNaN(Number(lpTokenBalance))) {
-      console.log('lpTokenBalance', lpTokenBalance);
-
       if (lpTokenTotalSupply > 0) {
         lpShare = Number(lpTokenBalance) / Number(lpTokenTotalSupply);
-        console.log('lpShare', lpShare);
 
         let nf = new Intl.NumberFormat('en-US', {
           maximumFractionDigits: 6,
@@ -46,21 +43,11 @@ export class LiquidityRow extends React.Component<{
             lpShare * Number(this.props.balances[`${tokenA}-${pairSymbol}`]),
           ),
         );
-        console.log(
-          'pooledTokenA',
-          pooledTokenA,
-          Number(this.props.balances[`${tokenA}-${pairSymbol}`]),
-        );
 
         pooledTokenB = Number(
           nf.format(
             lpShare * Number(this.props.balances[`${tokenB}-${pairSymbol}`]),
           ),
-        );
-        console.log(
-          'pooledTokenB',
-          pooledTokenB,
-          Number(this.props.balances[`${tokenB}-${pairSymbol}`]),
         );
 
         nf = new Intl.NumberFormat('en-US', {
@@ -93,7 +80,7 @@ export class LiquidityRow extends React.Component<{
     const rowStyle: CSSProperties = {
       display: 'flex',
       flexDirection: 'row',
-      padding: '1em 0 0 0',
+      padding: '0.5em 0 0 0',
     };
 
     return (
@@ -125,14 +112,14 @@ export class LiquidityRow extends React.Component<{
           {flexRowSpace}
         </div>
         <div style={rowStyle}>
-          <span>Your total pool tokens:</span>
+          <span>Your Total Pool Tokens</span>
           {flexRowSpace}
           {lpTokenBalance}
         </div>
         {!isNaN(Number(lpTokenBalance)) && (
           <>
             <div style={rowStyle}>
-              <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}:`}</span>
+              <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>
               {flexRowSpace}
               <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                 {pooledTokenA}
@@ -140,7 +127,7 @@ export class LiquidityRow extends React.Component<{
               {getLogo(tokenA)}
             </div>
             <div style={rowStyle}>
-              <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}:`}</span>
+              <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}`}</span>
               {flexRowSpace}
               <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                 {pooledTokenB}
@@ -148,13 +135,13 @@ export class LiquidityRow extends React.Component<{
               {getLogo(tokenB)}
             </div>
             <div style={rowStyle}>
-              <span>Your pool share:</span>
+              <span>Your Pool Share</span>
               {flexRowSpace}
               {lpShareJsxElement}
             </div>
             {/*    <div style={rowStyle}>
               {flexRowSpace}
-              <span>TODO remove liquidity panel</span>
+              <span>TODO "Remove Liquidity" panel</span>
               {flexRowSpace}
             </div> */}
           </>

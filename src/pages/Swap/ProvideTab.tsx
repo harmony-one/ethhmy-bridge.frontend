@@ -329,7 +329,14 @@ export class ProvideTab extends React.Component<
     const showApproveBButton: boolean =
       this.state.tokenB !== 'SCRT' && pair && this.state.allowanceB < amountB;
 
-    const shareOfPool = Math.min(
+    const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
+    const lpTokenTotalSupply = this.props.balances[
+      `LP-${selectedPairSymbol}-total-supply`
+    ];
+    const currentShareOfPool =
+      Number(lpTokenBalance) / Number(lpTokenTotalSupply);
+
+    const gainedShareOfPool = Math.min(
       amountA / (poolA + amountA),
       amountB / (poolB + amountB),
     );
@@ -486,20 +493,38 @@ export class ProvideTab extends React.Component<
             price={price}
           />
         )}
-        {shareOfPool > 0 && (
+        {lpTokenBalance && (
           <div
             style={{
               display: 'flex',
               flexDirection: 'row',
-              paddingTop: '0.2rem',
+              paddingTop: '0.5rem',
             }}
           >
-            Share of Pool
+            Current Share of Pool
+            {flexRowSpace}
+            {isNaN(currentShareOfPool)
+              ? lpTokenBalance
+              : `${new Intl.NumberFormat('en-US', {
+                  maximumFractionDigits: 2,
+                  useGrouping: false,
+                }).format(currentShareOfPool * 100)}%`}
+          </div>
+        )}
+        {gainedShareOfPool > 0 && (
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              paddingTop: '0.5rem',
+            }}
+          >
+            Gained Share of Pool
             {flexRowSpace}
             {new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 2,
               useGrouping: false,
-            }).format(shareOfPool * 100)}
+            }).format(gainedShareOfPool * 100)}
             %
           </div>
         )}
