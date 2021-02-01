@@ -673,10 +673,10 @@ export class SwapRouter extends React.Component<
                 </li>
                 <li>
                   <a
-                    href="https://discord.com/channels/360051864110235648/760897182756503572"
+                    href="https://discord.com/channels/360051864110235648/805840792303960155"
                     target="_blank"
                   >
-                    #🛠development
+                    #🔀amm-support
                   </a>{' '}
                   on Discord
                 </li>
