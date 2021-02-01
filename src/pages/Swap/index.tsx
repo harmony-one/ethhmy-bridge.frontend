@@ -26,7 +26,7 @@ export type Pair = {
 export type TokenDisplay = {
   symbol: string;
   logo: string;
-  decimals: number;
+  decimals?: number;
   address?: string;
   token_code_hash?: string;
 };
