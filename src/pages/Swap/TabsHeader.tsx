@@ -6,13 +6,14 @@ const Tab: React.FC<{ name: string }> = ({ name }) => {
   const isSelected = window.location.hash === `#${name}`;
 
   return (
-    <span
+    <strong
       style={{
-        paddingLeft: '0.5em',
+        padding: '0.3em',
+        marginRight: '1em',
         fontSize: '16px',
         cursor: 'pointer',
-        fontWeight: isSelected ? 'bold' : null,
-        textDecoration: isSelected ? 'underline' : null,
+        borderRadius: '10px',
+        background: isSelected ? 'whitesmoke' : null,
       }}
       onClick={() => {
         if (!isSelected) {
@@ -21,7 +22,7 @@ const Tab: React.FC<{ name: string }> = ({ name }) => {
       }}
     >
       {name}
-    </span>
+    </strong>
   );
 };
 
