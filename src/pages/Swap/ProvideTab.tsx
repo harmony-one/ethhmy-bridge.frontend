@@ -501,7 +501,7 @@ export class ProvideTab extends React.Component<
               paddingTop: '0.5rem',
             }}
           >
-            Current Share of Pool
+            Your Current Share of Pool
             {flexRowSpace}
             {isNaN(currentShareOfPool)
               ? lpTokenBalance
@@ -519,7 +519,7 @@ export class ProvideTab extends React.Component<
               paddingTop: '0.5rem',
             }}
           >
-            Gained Share of Pool
+            Expected Gain in Your Share of Pool
             {flexRowSpace}
             {`~${new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 2,
