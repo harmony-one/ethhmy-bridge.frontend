@@ -245,12 +245,18 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async signIn() {
+    console.log(1, 'keplr login');
     this.error = '';
 
     this.chainId = process.env.CHAIN_ID;
+    console.log(2, this.chainId);
     try {
       // Setup Secret Testnet (not needed on mainnet)
+      console.log(3, process.env.ENV);
       if (process.env.ENV !== 'MAINNET') {
+        console.log(4, process.env.CHAIN_NAME);
+        console.log(4, process.env.SECRET_RPC);
+        console.log(4, process.env.SECRET_LCD);
         await this.keplrWallet.experimentalSuggestChain({
           chainId: this.chainId,
           chainName: process.env.CHAIN_NAME,
@@ -295,6 +301,8 @@ export class UserStoreEx extends StoreConstructor {
           features: ['secretwasm'],
         });
       }
+
+      console.log(5);
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 
@@ -326,6 +334,7 @@ export class UserStoreEx extends StoreConstructor {
     } catch (error) {
       this.error = error.message;
       this.isAuthorized = false;
+      console.error('keplr login error', error);
     }
   }
 
