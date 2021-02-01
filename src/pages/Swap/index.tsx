@@ -227,9 +227,10 @@ export class SwapRouter extends React.Component<
 
           const symbol = tokenInfoResponse.token_info.symbol;
 
+          const displaySymbol = preloadedTokens[symbol]?.symbol || symbol;
           if (!(symbol in unwrapedTokensFromPairs)) {
-            unwrapedTokensFromPairs[symbol] = {
-              symbol: symbol,
+            unwrapedTokensFromPairs[displaySymbol] = {
+              symbol: displaySymbol,
               decimals: tokenInfoResponse.token_info.decimals,
               logo: preloadedTokens[symbol]
                 ? preloadedTokens[symbol].logo
@@ -238,7 +239,7 @@ export class SwapRouter extends React.Component<
               token_code_hash: t.token.token_code_hash,
             };
           }
-          symbols.push(symbol);
+          symbols.push(displaySymbol);
         }
         pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
         pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
