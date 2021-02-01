@@ -521,11 +521,10 @@ export class ProvideTab extends React.Component<
           >
             Gained Share of Pool
             {flexRowSpace}
-            {new Intl.NumberFormat('en-US', {
+            {`~${new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 2,
               useGrouping: false,
-            }).format(gainedShareOfPool * 100)}
-            %
+            }).format(gainedShareOfPool * 100)}%`}
           </div>
         )}
         {showApproveAButton && (
