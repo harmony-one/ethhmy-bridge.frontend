@@ -62,7 +62,7 @@ export const AdditionalInfo = ({
           }}
         >
           <span>
-            {minimumReceived !== null ? 'Minimum received' : 'Maximum sold'}
+            {minimumReceived !== null ? 'Minimum Received' : 'Maximum Sold'}
             <Popup
               trigger={
                 <Icon
