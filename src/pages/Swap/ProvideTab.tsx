@@ -36,7 +36,7 @@ const buttonStyle = {
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
 const BUTTON_MSG_LOADING_PRICE = 'Loading price data';
-const BUTTON_MSG_SUPPLY = 'Supply';
+const BUTTON_MSG_PROVIDE = 'Provide';
 
 export class ProvideTab extends React.Component<
   {
@@ -318,7 +318,7 @@ export class ProvideTab extends React.Component<
     } else if (isNaN(price)) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else {
-      buttonMessage = BUTTON_MSG_SUPPLY;
+      buttonMessage = BUTTON_MSG_PROVIDE;
     }
 
     const showApproveAButton: boolean =
@@ -519,14 +519,14 @@ export class ProvideTab extends React.Component<
         )}
         <Button
           disabled={
-            buttonMessage !== BUTTON_MSG_SUPPLY ||
+            buttonMessage !== BUTTON_MSG_PROVIDE ||
             this.state.loadingProvide ||
             showApproveAButton ||
             showApproveBButton
           }
           loading={this.state.loadingProvide}
           primary={
-            buttonMessage === BUTTON_MSG_SUPPLY &&
+            buttonMessage === BUTTON_MSG_PROVIDE &&
             !showApproveAButton &&
             !showApproveBButton
           }
