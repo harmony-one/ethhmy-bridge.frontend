@@ -674,8 +674,10 @@ export class SwapRouter extends React.Component<
                 to convert to sSCRT */}
               </p>
               <p>
-                <strong>Getting sETH:</strong> Via the bridge from the ETH
-                rinkeby testnet, or just swap SCRT for it 👆😋
+                <strong>Getting sETH:</strong>{' '}
+                {/* Via the bridge from the ETH
+                rinkeby testnet, or just  */}
+                Swap SCRT for it 👆😋
               </p>
               <strong>Feedback channels:</strong>
               <ul>
