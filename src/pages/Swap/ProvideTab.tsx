@@ -493,7 +493,7 @@ export class ProvideTab extends React.Component<
             price={price}
           />
         )}
-        {lpTokenBalance && (
+        {lpTokenBalance !== undefined && (
           <div
             style={{
               display: 'flex',
