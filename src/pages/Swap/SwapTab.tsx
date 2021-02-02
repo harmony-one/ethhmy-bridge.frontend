@@ -405,7 +405,7 @@ export class SwapTab extends React.Component<
             <PriceRow
               toToken={this.state.toToken}
               fromToken={this.state.fromToken}
-              price={Number(this.state.toInput) / Number(this.state.fromInput)}
+              price={Number(this.state.fromInput) / Number(this.state.toInput)}
             />
           )}
           <Button

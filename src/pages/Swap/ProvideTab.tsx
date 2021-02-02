@@ -304,7 +304,7 @@ export class ProvideTab extends React.Component<
     const poolB = Number(
       this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
     );
-    const price = poolB / poolA;
+    const price = poolA / poolB;
 
     let buttonMessage: string;
     if (!pair) {
