@@ -134,6 +134,7 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
       t =>
         t.dst_address.toLowerCase() === secretAddress.toLowerCase() ||
         t.dst_coin?.toLowerCase() === secretAddress.toLowerCase() ||
+        t.name?.toLowerCase() === secretAddress.toLowerCase() ||
         t.display_props.proxy_address === secretAddress.toLowerCase(),
     );
 
@@ -147,6 +148,8 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
   } else if (value === TOKEN.ETH) {
     return <Box>secretETH</Box>;
   }
+
+  console.log(secretAddress);
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;
 });
