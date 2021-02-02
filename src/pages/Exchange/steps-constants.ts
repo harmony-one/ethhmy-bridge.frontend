@@ -9,6 +9,9 @@ export const getStepsTitle = (action: ACTION_TYPE, token: TOKEN) => {
 };
 
 const STEPS_TITLE: Record<ACTION_TYPE, string> = {
+  depositOne: 'Deposit ONE tokens',
+  withdrawOne: 'Withdraw ONE tokens',
+
   getHRC20Address: 'Register user ERC20 on Harmony',
   approveEthManger: 'User approve bridge to lock tokens ',
   lockToken: 'Bridge lock tokens on Ethereum',

@@ -313,8 +313,6 @@ export class Exchange extends StoreConstructor {
         });
       };
 
-      let ethMethods, hmyMethods;
-
       if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
         await sleep(3000);
       }
@@ -330,6 +328,35 @@ export class Exchange extends StoreConstructor {
           return;
         }
       }
+
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        const hmyMethods = this.stores.user.isMetamask
+          ? contract.hmyMethodsDeposit.hmyMethodsWeb3
+          : contract.hmyMethodsDeposit.hmyMethods;
+
+        let depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+
+        if (depositOne && depositOne.status === STATUS.WAITING) {
+          await hmyMethods.deposit(
+            depositOne.depositAmount,
+            hash => confirmCallback(hash, depositOne.type),
+          );
+        }
+
+        while (
+          [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
+          ) {
+          depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+
+          await sleep(500);
+        }
+
+        if (depositOne.status !== STATUS.SUCCESS) {
+          return;
+        }
+      }
+
+      let ethMethods, hmyMethods;
 
       switch (this.token) {
         case TOKEN.BUSD:
@@ -552,7 +579,7 @@ export class Exchange extends StoreConstructor {
 
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.type),
+              confirmCallback(hash + '123', approveHmyManger.type),
             );
           }
 
@@ -591,8 +618,9 @@ export class Exchange extends StoreConstructor {
       if (e.status && e.response.body) {
         this.error = e.response.body.message;
       } else {
-        this.error = e.message;
+        this.error = e.message || e;
       }
+
       this.actionStatus = 'error';
       this.operation = null;
     }

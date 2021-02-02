@@ -1,6 +1,8 @@
 import Web3 from 'web3';
 import { HmyMethods } from './HmyMethods';
+import { HmyMethodsDeposit } from './HmyMethodsDeposit';
 import { HmyMethodsWeb3 } from './HmyMethodsWeb3';
+import { HmyMethodsDepositWeb3 } from './HmyMethodsDepositWeb3';
 import { HmyMethodsERC20 } from './HmyMethodsERC20';
 import { HmyMethodsHRC20 } from './HmyMethodsHRC20';
 import { HmyMethodsERC20Web3 } from './HmyMethodsERC20Web3';
@@ -151,4 +153,25 @@ export const hmyMethodsHRC20 = {
 export const hmyMethodsERC721 = {
   hmyMethods: hmyMethodsERC721Hmy,
   hmyMethodsWeb3: hmyMethodsERC721Web3,
+};
+
+const hmyDepositJson = require('../out/Deposit.json');
+const hmyDepositContract = createContract(
+  hmyDepositJson.abi,
+  process.env.HMY_DEPOSIT_CONTRACT,
+);
+
+const hmyMethodsDepositHmy = new HmyMethodsDeposit({
+  hmy: hmy,
+  hmyManagerContract: hmyDepositContract.hmyContract,
+});
+
+const hmyMethodsDepositWeb3 = new HmyMethodsDepositWeb3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmyDepositContract.web3Contract,
+});
+
+export const hmyMethodsDeposit = {
+  hmyMethods: hmyMethodsDepositHmy,
+  hmyMethodsWeb3: hmyMethodsDepositWeb3,
 };

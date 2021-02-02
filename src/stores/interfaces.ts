@@ -14,6 +14,10 @@ export enum TOKEN {
 }
 
 export enum ACTION_TYPE {
+  // ALL
+  'depositOne' = 'depositOne',
+  'withdrawOne' = 'withdrawOne',
+
   // ETH_TO_ONE
   'getHRC20Address' = 'getHRC20Address',
   'approveEthManger' = 'approveEthManger',
@@ -56,6 +60,7 @@ export interface IAction {
   error: string;
   message: string;
   timestamp: number;
+  depositAmount?: number;
   payload: any;
 }
 

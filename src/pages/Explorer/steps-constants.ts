@@ -9,6 +9,9 @@ export const getStepsTitle = (action: ACTION_TYPE, token: TOKEN) => {
 };
 
 const STEPS_TITLE: Record<ACTION_TYPE, string> = {
+  depositOne: 'Deposit tokens',
+  withdrawOne: 'Withdraw tokens',
+
   getHRC20Address: 'Get HRC20 token',
   approveEthManger: 'Approve lock',
   lockToken: 'Lock tokens',

@@ -96,6 +96,8 @@ function getClientEnvironment(publicUrl) {
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
         ETH_GAS_LIMIT: process.env.ETH_GAS_LIMIT,
 
+        HMY_DEPOSIT_CONTRACT: process.env.HMY_DEPOSIT_CONTRACT,
+
         HMY_NODE_URL: process.env.HMY_NODE_URL,
         HMY_CHAIN_ID: process.env.HMY_CHAIN_ID,
         GAS_LIMIT: process.env.GAS_LIMIT,
