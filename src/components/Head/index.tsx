@@ -90,7 +90,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           </Box>
 
           <Box direction="row" align="center" gap="15px">
-            {/* <Box
+            <Box
               className={cn(
                 styles.itemToken,
                 !isInfo &&
@@ -106,18 +106,18 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               onClick={goToBridge}
             >
               <Text>Bridge</Text>
-            </Box> */}
+            </Box>
 
-            {/* <Box
+            <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/tokens`);
               }}
             >
               <Text>Assets</Text>
-            </Box> */}
+            </Box>
 
-            {/* <Box
+            <Box
               className={cn(
                 styles.itemToken,
                 isExplorer ? styles.selected : '',
@@ -127,7 +127,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               }}
             >
               <Text>Transactions</Text>
-            </Box> */}
+            </Box>
             {/*
             <Box
               className={cn(styles.itemToken, isInfo ? styles.selected : '')}
@@ -135,13 +135,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Info</Text>
             </Box> */}
-            {/* 
+
             <Box
               className={cn(styles.itemToken, isEarn ? styles.selected : '')}
               onClick={() => routing.push('/earn')}
             >
               <Text>Earn</Text>
-            </Box> */}
+            </Box>
 
             <Box
               className={cn(styles.itemToken, isSwap ? styles.selected : '')}
@@ -152,33 +152,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Swap</Text>
             </Box>
 
-            {/* <Box
+            <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}
               onClick={() => routing.push('/faq')}
             >
               <Text>FAQ</Text>
-            </Box> */}
-
-            {/*<Box*/}
-            {/*  direction="column"*/}
-            {/*  align="center"*/}
-            {/*  gap="10px"*/}
-            {/*  style={{ maxWidth: 300 }}*/}
-            {/*  margin={{ left: '50px' }}*/}
-            {/*>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total BUSD locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total LINK locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyLINKBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*</Box>*/}
+            </Box>
           </Box>
         </Box>
       </Box>
