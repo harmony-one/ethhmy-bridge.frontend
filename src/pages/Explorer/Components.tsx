@@ -149,7 +149,5 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
     return <Box>secretETH</Box>;
   }
 
-  console.log(secretAddress);
-
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;
 });
