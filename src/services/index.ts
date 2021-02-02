@@ -1,4 +1,9 @@
-import { IOperation, IRewardPool, ISwap, ITokenInfo } from '../stores/interfaces';
+import {
+  IOperation,
+  IRewardPool,
+  ISwap,
+  ITokenInfo,
+} from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
@@ -17,11 +22,10 @@ export const createOperation = async params => {
 export const updateOperation = async (id: string, transactionHash: string) => {
   const url = backendUrl(`/operations/${id}`);
 
-  const res = await agent.post<IOperation>(url, {transactionHash});
+  const res = await agent.post<IOperation>(url, { transactionHash });
 
   return res.body;
 };
-
 
 export const getStatus = async (params): Promise<SwapStatus> => {
   const url = backendUrl(`/operations/${params.id}`);
@@ -74,7 +78,18 @@ export const getTokensInfo = async (
 
   const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
 
-  const content = res.body.tokens;
+  const content = res.body.tokens
+    .filter(t => (process.env.TEST_COINS ? t : !t.display_props.hidden))
+    .map(t => {
+      if (t.display_props.proxy) {
+        t.display_props.proxy_address = t.dst_address;
+        t.dst_address = process.env.SSCRT_CONTRACT;
+        t.display_props.proxy_symbol = 'WSCRT';
+        //t.display_props.symbol = t.name;
+      }
+
+      return t;
+    });
 
   return { ...res.body, content };
 };

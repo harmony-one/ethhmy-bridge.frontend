@@ -30,6 +30,7 @@ const ClaimButton = (props: {
             amount: '0',
           });
           await user.updateBalanceForSymbol(props.symbol);
+          await user.updateBalanceForSymbol('sSCRT');
         } catch (reason) {
           console.error(`Failed to claim: ${reason}`);
         }
