@@ -579,7 +579,7 @@ export class Exchange extends StoreConstructor {
 
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash + '123', approveHmyManger.type),
+              confirmCallback(hash, approveHmyManger.type),
             );
           }
 
