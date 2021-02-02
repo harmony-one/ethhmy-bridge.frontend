@@ -31,7 +31,7 @@ export type TokenDisplay = {
   token_code_hash?: string;
 };
 
-export const ERROR_WRONG_VIEWING_KEY = 'Wrong viewing key used';
+export const ERROR_WRONG_VIEWING_KEY = 'Viewing Key Error';
 
 export const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
@@ -80,7 +80,7 @@ export async function getBalance(
     }`,
     <span
       className="view-token-button"
-      onClick={async () => {
+      onClick={async e => {
         await userStore.keplrWallet.suggestToken(
           userStore.chainId,
           tokens[symbol].address,
