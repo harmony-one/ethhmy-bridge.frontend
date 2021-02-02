@@ -20,7 +20,8 @@ const AssetRow = props => {
     >
       <Box>
         <Text size="small" bold={true}>
-          <SliceTooltip value={props.label} maxLength={24} /> Token IDs
+          <SliceTooltip value={props.label} maxLength={24} />
+          {props.showIds ? 'Token IDs' : ''}
         </Text>
       </Box>
       <Box direction="row" align="center">
@@ -131,6 +132,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 ? exchange.transaction.amount.map((amount, idx) => (
                     <AssetRow
                       key={idx}
+                      showIds={true}
                       label={`${String(
                         userMetamask.erc20TokenDetails &&
                           userMetamask.erc20TokenDetails.symbol,
@@ -168,6 +170,20 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         />
         {getAmount()}
 
+        {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
+          <AssetRow label="Deposit amount" value="">
+            {!exchange.isDepositAmountLoading ? (
+              <Price
+                value={Number(exchange.depositAmount.toFixed(2))}
+                isEth={false}
+                boxProps={{ pad: {} }}
+              />
+            ) : (
+              <Text>...loading</Text>
+            )}
+          </AssetRow>
+        ) : null}
+
         {/*<DataItem*/}
         {/*  icon="User"*/}
         {/*  iconSize="16px"*/}
@@ -182,7 +198,6 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           <Box
             direction="column"
             pad={{ top: 'small' }}
-            margin={{ top: 'small' }}
             style={{ borderTop: '1px solid #dedede' }}
           >
             <AssetRow label="Network Fee (total)" value="">

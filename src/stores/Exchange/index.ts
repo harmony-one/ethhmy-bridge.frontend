@@ -18,6 +18,7 @@ import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
 import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
+import { getDepositAmount } from 'services';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -52,6 +53,8 @@ export class Exchange extends StoreConstructor {
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = 0;
   @observable isFeeLoading = false;
+  @observable isDepositAmountLoading = false;
+  @observable depositAmount = 0;
 
   defaultTransaction: ITransaction = {
     oneAddress: '',
@@ -123,6 +126,10 @@ export class Exchange extends StoreConstructor {
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
+                this.isDepositAmountLoading = true;
+                this.depositAmount = await getDepositAmount();
+                this.isDepositAmountLoading = false;
+
                 this.transaction.oneAddress = this.stores.user.address;
                 break;
             }
@@ -337,15 +344,14 @@ export class Exchange extends StoreConstructor {
         let depositOne = this.getActionByType(ACTION_TYPE.depositOne);
 
         if (depositOne && depositOne.status === STATUS.WAITING) {
-          await hmyMethods.deposit(
-            depositOne.depositAmount,
-            hash => confirmCallback(hash, depositOne.type),
+          await hmyMethods.deposit(depositOne.depositAmount, hash =>
+            confirmCallback(hash, depositOne.type),
           );
         }
 
         while (
           [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
-          ) {
+        ) {
           depositOne = this.getActionByType(ACTION_TYPE.depositOne);
 
           await sleep(500);
@@ -579,7 +585,10 @@ export class Exchange extends StoreConstructor {
 
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.type),
+              confirmCallback(
+                '0x7b761eabc6aa0a8912595904dcc32a857facc38c427d7e2ab260c9fd5511274a',
+                approveHmyManger.type,
+              ),
             );
           }
 

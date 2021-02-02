@@ -584,7 +584,7 @@ export class Exchange extends React.Component<
               fill={true}
             >
               <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign two transactions
+                You will be prompted to sign several transactions
               </Text>
             </Box>
           </>
