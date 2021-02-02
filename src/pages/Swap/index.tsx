@@ -653,13 +653,29 @@ export class SwapRouter extends React.Component<
             <Message warning>
               <Message.Header>Hello beta testers! 👋</Message.Header>
               <p>
-                <strong>Getting SCRT:</strong>{' '}
+                <strong>Getting sSCRT:</strong> get SCRT from the{' '}
                 <a href="https://faucet.secrettestnet.io" target="_blank">
                   holodeck-2 faucet
                 </a>
+                {/* , then{' '}
+                <a
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    this.props.user.secretjs.execute(
+                      process.env.SSCRT_CONTRACT,
+                      { deposit: {} },
+                      '',
+                      [{ amount: '2000000', denom: 'uscrt' }],
+                    );
+                  }}
+                >
+                  click here
+                </a>{' '}
+                to convert to sSCRT */}
               </p>
               <p>
-                <strong>Getting ETH:</strong> Swap for it 👆😋
+                <strong>Getting sETH:</strong> Via the bridge from the ETH
+                rinkeby testnet, or just swap SCRT for it 👆😋
               </p>
               <strong>Feedback channels:</strong>
               <ul>
@@ -694,7 +710,6 @@ export class SwapRouter extends React.Component<
                 <li>View pair analytics</li>
                 <li>Create a new pair</li>
                 <li>Route swapping</li>
-                <li>Approval screens before Swap and Provide</li>
                 <li>
                   Expert mode (customize slippage, skip approval screens, etc.)
                 </li>

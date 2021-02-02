@@ -626,7 +626,6 @@ export class ProvideTab extends React.Component<
                 '',
                 transferAmount,
               );
-              console.log(x);
               this.setState({
                 inputA: '',
                 inputB: '',

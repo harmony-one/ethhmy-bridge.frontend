@@ -62,7 +62,7 @@ export const AssetRow = ({
 
           const nf = new Intl.NumberFormat('en-US', {
             maximumFractionDigits: Math.min(tokens[token].decimals, 6),
-            useGrouping: false,
+            useGrouping: true,
           });
 
           return (
