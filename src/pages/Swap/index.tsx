@@ -377,7 +377,7 @@ export class SwapRouter extends React.Component<
         for (const tokenSymbol of symbols) {
           if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
             console.log(`${tokenSymbol} already fresh for height ${height}`);
-            return;
+            continue;
           }
           this.symbolUpdateHeightCache[tokenSymbol] = height;
 
@@ -397,10 +397,13 @@ export class SwapRouter extends React.Component<
             this.props.user,
           );
 
-          const pairsSymbols = Object.keys(pairFromSymbol).filter(pairSymbol =>
+          // get all pairs with this token
+          const pairs = Object.keys(pairFromSymbol).filter(pairSymbol =>
             pairSymbol.startsWith(`${tokenSymbol}/`),
           );
-          const pairsBalancesPromises = pairsSymbols.map(pairSymbol =>
+
+          // for each pair, update the pool balance of this token
+          const poolsBalancesPromises = pairs.map(pairSymbol =>
             getBalance(
               tokenSymbol,
               pairFromSymbol[pairSymbol].contract_addr,
@@ -411,14 +414,14 @@ export class SwapRouter extends React.Component<
           );
 
           const freshBalances = await Promise.all(
-            [userBalancePromise].concat(pairsBalancesPromises),
+            [userBalancePromise].concat(poolsBalancesPromises),
           );
 
           const pairSymbolToFreshBalances: {
             [symbol: string]: number | JSX.Element;
           } = {};
-          for (let i = 0; i < pairsSymbols.length; i++) {
-            const pairSymbol = pairsSymbols[i];
+          for (let i = 0; i < pairs.length; i++) {
+            const pairSymbol = pairs[i];
             const [a, b] = pairSymbol.split('/');
             const invertedPairSymbol = `${b}/${a}`;
 
@@ -432,18 +435,16 @@ export class SwapRouter extends React.Component<
           // where two tokens gets updated after the same block
           // and they start this update with the same this.state.balances
           // (Atomic setState)
-          this.setState(currentState => {
-            return {
-              balances: Object.assign(
-                {},
-                currentState.balances,
-                {
-                  [tokenSymbol]: freshBalances[0],
-                },
-                pairSymbolToFreshBalances,
-              ),
-            };
-          });
+          this.setState(currentState => ({
+            balances: Object.assign(
+              {},
+              currentState.balances,
+              {
+                [tokenSymbol]: freshBalances[0],
+              },
+              pairSymbolToFreshBalances,
+            ),
+          }));
         }
       } catch (error) {
         console.log(error);
