@@ -15,12 +15,6 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
-// https://docs.rs/cosmwasm-std/0.13.2/cosmwasm_std/struct.Decimal.html
-export const beliefPriceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 18,
-  useGrouping: false,
-});
-
 export const valueToDecimals = (value: string, decimals: string): string => {
   return BigInt(
     parseFloat(value) * Math.pow(10, parseInt(decimals)),

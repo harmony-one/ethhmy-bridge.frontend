@@ -8,6 +8,8 @@ import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
+import BigNumber from 'bignumber.js';
+import ScrtTokenBalanceSingleLine from 'components/Earn/EarnRow/ScrtTokenBalanceSingleLine';
 
 const plus = (
   <svg
@@ -46,7 +48,7 @@ export class ProvideTab extends React.Component<
       [symbol: string]: TokenDisplay;
     };
     balances: {
-      [symbol: string]: number | JSX.Element;
+      [symbol: string]: BigNumber | JSX.Element;
     };
     pairs: Array<Pair>;
     pairFromSymbol: {
@@ -60,8 +62,8 @@ export class ProvideTab extends React.Component<
     inputB: string;
     isEstimatedA: boolean;
     isEstimatedB: boolean;
-    allowanceA: number;
-    allowanceB: number;
+    allowanceA: BigNumber;
+    allowanceB: BigNumber;
     buttonMessage: string;
     loadingProvide: boolean;
     loadingApproveA: boolean;
@@ -76,8 +78,8 @@ export class ProvideTab extends React.Component<
       tokenB: '',
       inputA: '',
       inputB: '',
-      allowanceA: 0,
-      allowanceB: 0,
+      allowanceA: new BigNumber(0),
+      allowanceB: new BigNumber(0),
       isEstimatedA: false,
       isEstimatedB: false,
       buttonMessage: '',
@@ -141,7 +143,7 @@ export class ProvideTab extends React.Component<
     }
 
     if (symbol === 'SCRT') {
-      this.setState<never>({ [stateField]: Infinity });
+      this.setState<never>({ [stateField]: new BigNumber(Infinity) });
       return;
     }
 
@@ -168,14 +170,9 @@ export class ProvideTab extends React.Component<
       },
     );
 
-    let allowance = Number(
-      divDecimals(
-        result.allowance.allowance,
-        this.props.tokens[symbol].decimals,
-      ),
-    );
-    if (isNaN(allowance)) {
-      allowance = 0;
+    let allowance = new BigNumber(result.allowance.allowance);
+    if (allowance.isNaN()) {
+      allowance = new BigNumber(0);
     }
 
     console.log(
@@ -198,14 +195,26 @@ export class ProvideTab extends React.Component<
       return;
     }
 
-    const poolA = Number(
-      this.props.balances[`${this.state.tokenA}-${selectedPairSymbol}`],
-    );
-    const poolB = Number(
-      this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
-    );
+    const decimalsA = this.props.tokens[this.state.tokenA].decimals;
+    const decimalsB = this.props.tokens[this.state.tokenB].decimals;
 
-    if (isNaN(poolA) || isNaN(poolB) || poolA === 0 || poolB === 0) {
+    const poolA = new BigNumber(
+      this.props.balances[
+        `${this.state.tokenA}-${selectedPairSymbol}`
+      ] as BigNumber,
+    ).dividedBy(new BigNumber(`1e${decimalsA}`));
+    const poolB = new BigNumber(
+      this.props.balances[
+        `${this.state.tokenB}-${selectedPairSymbol}`
+      ] as BigNumber,
+    ).dividedBy(new BigNumber(`1e${decimalsB}`));
+
+    if (
+      poolA.isNaN() ||
+      poolB.isNaN() ||
+      poolA.isEqualTo(0) ||
+      poolB.isEqualTo(0)
+    ) {
       return;
     }
 
@@ -213,7 +222,8 @@ export class ProvideTab extends React.Component<
       // inputB/inputA = poolB/poolA
       // =>
       // inputB = inputA*(poolB/poolA)
-      const inputB = Number(this.state.inputA) * (poolB / poolA);
+      const inputB =
+        Number(this.state.inputA) * poolB.dividedBy(poolA).toNumber();
 
       if (isNaN(inputB) || this.state.inputA === '') {
         this.setState({
@@ -235,7 +245,8 @@ export class ProvideTab extends React.Component<
       // inputA/inputB = poolA/poolB
       // =>
       // inputA = inputB*(poolA/poolB)
-      const inputA = Number(this.state.inputB) * (poolA / poolB);
+      const inputA =
+        Number(this.state.inputB) * poolA.dividedBy(poolB).toNumber();
 
       if (isNaN(inputA) || this.state.inputB === '') {
         this.setState({
@@ -279,7 +290,9 @@ export class ProvideTab extends React.Component<
           amount: UINT128_MAX,
         },
       });
-      this.setState<never>({ [`allowance${stateFieldSuffix}`]: Infinity });
+      this.setState<never>({
+        [`allowance${stateFieldSuffix}`]: Infinity,
+      });
     } catch (error) {
       console.error('Error while trying to approve', symbol, error);
     }
@@ -298,13 +311,23 @@ export class ProvideTab extends React.Component<
       this.props.balances[this.state.tokenB],
     ];
 
-    const poolA = Number(
-      this.props.balances[`${this.state.tokenA}-${selectedPairSymbol}`],
+    const decimalsA = this.props.tokens[this.state.tokenA]?.decimals;
+    const decimalsB = this.props.tokens[this.state.tokenB]?.decimals;
+
+    const poolA = new BigNumber(
+      this.props.balances[
+        `${this.state.tokenA}-${selectedPairSymbol}`
+      ] as BigNumber,
     );
-    const poolB = Number(
-      this.props.balances[`${this.state.tokenB}-${selectedPairSymbol}`],
+    const poolB = new BigNumber(
+      this.props.balances[
+        `${this.state.tokenB}-${selectedPairSymbol}`
+      ] as BigNumber,
     );
-    const price = poolA / poolB;
+
+    const price = poolA
+      .dividedBy(new BigNumber(`1e${decimalsA}`))
+      .dividedBy(poolB.dividedBy(new BigNumber(`1e${decimalsB}`)));
 
     let buttonMessage: string;
     if (!pair) {
@@ -315,30 +338,39 @@ export class ProvideTab extends React.Component<
       buttonMessage = `Insufficient ${this.state.tokenA} balance`;
     } else if (Number(balanceB) < Number(this.state.inputB)) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
-    } else if (isNaN(price)) {
+    } else if (price.isNaN()) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else {
       buttonMessage = BUTTON_MSG_PROVIDE;
     }
 
-    const amountA = Number(this.state.inputA);
-    const amountB = Number(this.state.inputB);
+    const amountA = new BigNumber(this.state.inputA).multipliedBy(
+      new BigNumber(`1e${decimalsA}`),
+    );
+    const amountB = new BigNumber(this.state.inputB).multipliedBy(
+      new BigNumber(`1e${decimalsB}`),
+    );
 
     const showApproveAButton: boolean =
-      this.state.tokenA !== 'SCRT' && pair && this.state.allowanceA < amountA;
+      this.state.tokenA !== 'SCRT' &&
+      pair &&
+      this.state.allowanceA?.lt(amountA);
     const showApproveBButton: boolean =
-      this.state.tokenB !== 'SCRT' && pair && this.state.allowanceB < amountB;
+      this.state.tokenB !== 'SCRT' &&
+      pair &&
+      this.state.allowanceB?.lt(amountB);
 
     const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
     const lpTokenTotalSupply = this.props.balances[
       `LP-${selectedPairSymbol}-total-supply`
-    ];
-    const currentShareOfPool =
-      Number(lpTokenBalance) / Number(lpTokenTotalSupply);
+    ] as BigNumber;
+    const currentShareOfPool = new BigNumber(
+      lpTokenBalance as BigNumber,
+    ).dividedBy(lpTokenTotalSupply);
 
-    const gainedShareOfPool = Math.min(
-      amountA / (poolA + amountA),
-      amountB / (poolB + amountB),
+    const gainedShareOfPool = BigNumber.minimum(
+      amountA.dividedBy(poolA.plus(amountA)),
+      amountB.dividedBy(poolB.plus(amountB)),
     );
 
     return (
@@ -486,11 +518,11 @@ export class ProvideTab extends React.Component<
             );
           }}
         />
-        {!isNaN(price) && (
+        {!price.isNaN() && (
           <PriceRow
             fromToken={this.state.tokenA}
             toToken={this.state.tokenB}
-            price={price}
+            price={price.toNumber()}
           />
         )}
         {lpTokenBalance !== undefined && (
@@ -503,15 +535,15 @@ export class ProvideTab extends React.Component<
           >
             Your Current Share of Pool
             {flexRowSpace}
-            {isNaN(currentShareOfPool)
+            {currentShareOfPool.isNaN()
               ? lpTokenBalance
-              : `${new Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: 2,
-                  useGrouping: false,
-                }).format(currentShareOfPool * 100)}%`}
+              : `${currentShareOfPool
+                  .multipliedBy(100)
+                  .toFixed(2)
+                  .replace(/.?0+$/, '')}%`}
           </div>
         )}
-        {gainedShareOfPool > 0 && (
+        {gainedShareOfPool.gt(0) && (
           <div
             style={{
               display: 'flex',
@@ -521,10 +553,10 @@ export class ProvideTab extends React.Component<
           >
             Expected Gain in Your Share of Pool
             {flexRowSpace}
-            {`~${new Intl.NumberFormat('en-US', {
-              maximumFractionDigits: 2,
-              useGrouping: false,
-            }).format(gainedShareOfPool * 100)}%`}
+            {`~${gainedShareOfPool
+              .multipliedBy(100)
+              .toFixed(2)
+              .replace(/.?0+$/, '')}%`}
           </div>
         )}
         {showApproveAButton && (

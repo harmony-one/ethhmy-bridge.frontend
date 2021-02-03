@@ -323,8 +323,8 @@ export class UserStoreEx extends StoreConstructor {
             gas: '300000',
           },
           exec: {
-            amount: [{ amount: '500000', denom: 'uscrt' }],
-            gas: '500000',
+            amount: [{ amount: '350000', denom: 'uscrt' }],
+            gas: '350000',
           },
         },
       );

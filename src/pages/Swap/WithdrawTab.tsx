@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Container } from 'semantic-ui-react';
@@ -13,7 +14,7 @@ export class WithdrawTab extends React.Component<{
     [symbol: string]: TokenDisplay;
   };
   balances: {
-    [symbol: string]: number | JSX.Element;
+    [symbol: string]: BigNumber | JSX.Element;
   };
   pairs: Array<Pair>;
   pairFromSymbol: {

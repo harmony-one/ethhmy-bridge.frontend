@@ -15,6 +15,7 @@ import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
 import { Icon, Message, Popup } from 'semantic-ui-react';
+import { BigNumber } from 'bignumber.js';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -52,15 +53,13 @@ export async function getBalance(
   },
   viewingKey: string,
   userStore: UserStoreEx,
-): Promise<number | JSX.Element> {
+): Promise<BigNumber | JSX.Element> {
   if (symbol === 'SCRT') {
     return userStore.secretjs.getAccount(walletAddress).then(account => {
       try {
-        return Number(
-          divDecimals(account.balance[0].amount, tokens[symbol].decimals),
-        );
+        return new BigNumber(account.balance[0].amount);
       } catch (error) {
-        return 0;
+        return new BigNumber(0);
       }
     });
   }
@@ -122,7 +121,7 @@ export async function getBalance(
   }
 
   try {
-    return Number(divDecimals(result.balance.amount, tokens[symbol].decimals));
+    return new BigNumber(result.balance.amount);
   } catch (error) {
     console.log(
       `Got an error while trying to query ${symbol} token balance for address ${walletAddress}:`,
@@ -141,13 +140,13 @@ export const SwapPageWrapper = observer(() => {
 });
 
 export class SwapRouter extends React.Component<
-  Readonly<{ user: UserStoreEx }>,
+  { user: UserStoreEx },
   {
     tokens: {
       [symbol: string]: TokenDisplay;
     };
     balances: {
-      [symbol: string]: number | JSX.Element;
+      [symbol: string]: bigint | JSX.Element;
     };
     pairs: Array<Pair>;
     pairFromSymbol: {
@@ -166,7 +165,7 @@ export class SwapRouter extends React.Component<
     securedByIconBackground: 'whitesmoke',
   };
 
-  constructor(props: Readonly<{ user: UserStoreEx }>) {
+  constructor(props: { user: UserStoreEx }) {
     super(props);
     window.onhashchange = this.onHashChange.bind(this);
   }
@@ -333,7 +332,7 @@ export class SwapRouter extends React.Component<
           );
 
           // update LP token total supply
-          let lpTotalSupply = 0;
+          let lpTotalSupply = new BigNumber(0);
           try {
             const result: {
               token_info: {
@@ -349,9 +348,7 @@ export class SwapRouter extends React.Component<
               },
             );
 
-            lpTotalSupply = Number(
-              divDecimals(result.token_info.total_supply, 6),
-            );
+            lpTotalSupply = new BigNumber(result.token_info.total_supply);
           } catch (error) {
             console.error(
               `Error trying to get LP token total supply of ${pairSymbol}`,
@@ -418,7 +415,7 @@ export class SwapRouter extends React.Component<
           );
 
           const pairSymbolToFreshBalances: {
-            [symbol: string]: number | JSX.Element;
+            [symbol: string]: BigNumber | JSX.Element;
           } = {};
           for (let i = 0; i < pairs.length; i++) {
             const pairSymbol = pairs[i];

@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
 import { TokenDisplay } from '.';
@@ -23,7 +24,7 @@ export const AssetRow = ({
   amount: string;
   setAmount: (amount: string) => void;
   isEstimated: boolean;
-  balance: number | JSX.Element;
+  balance: BigNumber | JSX.Element;
   label: string;
   maxButton: boolean;
 }) => {
@@ -60,15 +61,17 @@ export const AssetRow = ({
             return '-';
           }
 
-          const nf = new Intl.NumberFormat('en-US', {
-            maximumFractionDigits: Math.min(tokens[token].decimals, 6),
-            useGrouping: true,
-          });
+          const { decimals } = tokens[token];
 
           return (
             <>
               {'Balance: '}
-              {isNaN(Number(balance)) ? balance : nf.format(Number(balance))}
+              {new BigNumber(balance as any).isNaN()
+                ? balance
+                : (balance as BigNumber)
+                    .dividedBy(new BigNumber(`1e${decimals}`))
+                    .toFormat(6)
+                    .replace(/.?0+$/, '')}
             </>
           );
         })()}
@@ -99,7 +102,7 @@ export const AssetRow = ({
         {maxButton && (
           <Button
             primary
-            disabled={isNaN(Number(balance))}
+            disabled={new BigNumber(balance as any).isNaN()}
             style={{
               borderRadius: '15px',
               fontSize: '1rem',
@@ -107,7 +110,7 @@ export const AssetRow = ({
               height: '30px',
               padding: '0rem 0.4rem',
             }}
-            onClick={() => setAmount(String(balance))}
+            onClick={() => setAmount(new BigNumber(balance as any).toFixed())}
           >
             MAX
           </Button>

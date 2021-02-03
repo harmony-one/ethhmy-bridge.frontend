@@ -1,7 +1,8 @@
+import BigNumber from 'bignumber.js';
 import React from 'react';
 import { Container, Image } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
-import { flexRowSpace, Pair, TokenDisplay } from '.';
+import { flexRowSpace, TokenDisplay } from '.';
 
 export class LiquidityRow extends React.Component<{
   lpTokenSymbol: string;
@@ -9,7 +10,7 @@ export class LiquidityRow extends React.Component<{
     [symbol: string]: TokenDisplay;
   };
   balances: {
-    [symbol: string]: number | JSX.Element;
+    [symbol: string]: BigNumber | JSX.Element;
   };
 }> {
   constructor(props) {
@@ -23,41 +24,40 @@ export class LiquidityRow extends React.Component<{
     const lpTokenBalance = this.props.balances[this.props.lpTokenSymbol];
     const lpTokenTotalSupply = this.props.balances[
       this.props.lpTokenSymbol + '-total-supply'
-    ];
+    ] as BigNumber;
 
-    let lpShare = 0;
+    let lpShare = new BigNumber(0);
     let lpShareJsxElement = lpTokenBalance; // View Balance
-    let pooledTokenA = lpTokenBalance; // View Balance
-    let pooledTokenB = lpTokenBalance; // View Balance
+    let pooledTokenA: string;
+    let pooledTokenB: string;
 
-    if (!isNaN(Number(lpTokenBalance))) {
-      if (lpTokenTotalSupply > 0) {
-        lpShare = Number(lpTokenBalance) / Number(lpTokenTotalSupply);
+    const lpTokenBalanceNum = lpTokenBalance as BigNumber;
+    if (!lpTokenBalanceNum.isNaN()) {
+      if (lpTokenTotalSupply.isGreaterThan(0)) {
+        lpShare = lpTokenBalanceNum.dividedBy(lpTokenTotalSupply);
 
-        let nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: 6,
-          useGrouping: false,
-        });
-        pooledTokenA = Number(
-          nf.format(
-            lpShare * Number(this.props.balances[`${tokenA}-${pairSymbol}`]),
-          ),
-        );
+        pooledTokenA = lpShare
+          .multipliedBy(
+            this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber,
+          )
+          .dividedBy(new BigNumber(`1e${this.props.tokens[tokenA].decimals}`))
+          .toFormat(6)
+          .replace(/.?0+$/, '');
 
-        pooledTokenB = Number(
-          nf.format(
-            lpShare * Number(this.props.balances[`${tokenB}-${pairSymbol}`]),
-          ),
-        );
+        pooledTokenB = lpShare
+          .multipliedBy(
+            this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber,
+          )
+          .dividedBy(new BigNumber(`1e${this.props.tokens[tokenB].decimals}`))
+          .toFormat(6)
+          .replace(/.?0+$/, '');
 
-        nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: 2,
-          useGrouping: false,
-        });
         lpShareJsxElement = (
-          <span>{`${nf.format(
-            (Number(lpTokenBalance) * 100) / Number(lpTokenTotalSupply),
-          )}%`}</span>
+          <span>{`${lpTokenBalanceNum
+            .multipliedBy(100)
+            .dividedBy(lpTokenTotalSupply)
+            .toFormat(2)
+            .replace(/.?0+$/, '')}%`}</span>
         );
       } else {
         lpShareJsxElement = <span>0%</span>;
@@ -114,9 +114,14 @@ export class LiquidityRow extends React.Component<{
         <div style={rowStyle}>
           <span>Your Total Pool Tokens</span>
           {flexRowSpace}
-          {lpTokenBalance}
+          {lpTokenBalanceNum.isNaN()
+            ? lpTokenBalance
+            : lpTokenBalanceNum
+                .dividedBy(new BigNumber(`1e6`))
+                .toFormat(6)
+                .replace(/.?0+$/, '')}
         </div>
-        {!isNaN(Number(lpTokenBalance)) && (
+        {!lpTokenBalanceNum.isNaN() && (
           <>
             <div style={rowStyle}>
               <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>

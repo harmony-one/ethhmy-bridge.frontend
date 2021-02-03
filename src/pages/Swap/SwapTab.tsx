@@ -1,18 +1,18 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
-import { beliefPriceNumberFormat, mulDecimals, sortedStringify } from 'utils';
+import { mulDecimals, sortedStringify } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
 import {
   compute_swap,
   compute_offer_amount,
-  reverse_decimal,
 } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
+import { BigNumber } from 'bignumber.js';
 
 const downArrow = (
   <svg
@@ -44,7 +44,7 @@ export class SwapTab extends React.Component<
       [symbol: string]: TokenDisplay;
     };
     balances: {
-      [symbol: string]: number | JSX.Element;
+      [symbol: string]: BigNumber | JSX.Element;
     };
     pairs: Array<Pair>;
     pairFromSymbol: {
@@ -61,7 +61,7 @@ export class SwapTab extends React.Component<
     spread: number;
     commission: number;
     priceImpact: number;
-    slippageTolerance: number;
+    slippageTolerance: BigNumber;
     buttonMessage: string;
     loadingSwap: boolean;
   }
@@ -79,7 +79,7 @@ export class SwapTab extends React.Component<
       spread: 0,
       commission: 0,
       priceImpact: 0,
-      slippageTolerance: 0.005,
+      slippageTolerance: new BigNumber(0.5 / 100),
       buttonMessage: BUTTON_MSG_ENTER_AMOUNT,
       loadingSwap: false,
     };
@@ -120,24 +120,30 @@ export class SwapTab extends React.Component<
       return;
     }
 
-    const offer_pool = Number(
-      this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`],
-    );
-    const ask_pool = Number(
-      this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`],
-    );
+    const fromDecimals = this.props.tokens[this.state.fromToken].decimals;
+    const toDecimals = this.props.tokens[this.state.toToken].decimals;
+
+    // we normalize offer_pool & ask_pool
+    // we could also canonicalize offer_amount & ask_amount
+    // but this way is less code because we get the results normilized
+    const offer_pool = (this.props.balances[
+      `${this.state.fromToken}-${selectedPairSymbol}`
+    ] as BigNumber).dividedBy(new BigNumber(`1e${fromDecimals}`));
+    const ask_pool = (this.props.balances[
+      `${this.state.toToken}-${selectedPairSymbol}`
+    ] as BigNumber).dividedBy(new BigNumber(`1e${toDecimals}`));
 
     if (
-      isNaN(offer_pool) ||
-      isNaN(ask_pool) ||
-      offer_pool === 0 ||
-      ask_pool === 0
+      offer_pool.isNaN() ||
+      ask_pool.isNaN() ||
+      offer_pool.isEqualTo(0) ||
+      ask_pool.isEqualTo(0)
     ) {
       return;
     }
 
     if (this.state.isToEstimated) {
-      const offer_amount = Number(this.state.fromInput);
+      const offer_amount = new BigNumber(this.state.fromInput);
 
       const { return_amount, spread_amount, commission_amount } = compute_swap(
         offer_pool,
@@ -145,7 +151,7 @@ export class SwapTab extends React.Component<
         offer_amount,
       );
 
-      if (isNaN(return_amount) || this.state.fromInput === '') {
+      if (return_amount.isNaN() || this.state.fromInput === '') {
         this.setState({
           isFromEstimated: false,
           toInput: '',
@@ -155,21 +161,19 @@ export class SwapTab extends React.Component<
           priceImpact: 0,
         });
       } else {
-        const nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: this.props.tokens[this.state.toToken].decimals,
-          useGrouping: false,
-        });
         this.setState({
           isFromEstimated: false,
-          toInput: return_amount < 0 ? '' : nf.format(return_amount),
-          isToEstimated: return_amount >= 0,
-          spread: spread_amount,
-          commission: commission_amount,
-          priceImpact: spread_amount / return_amount,
+          toInput: return_amount.isLessThan(0)
+            ? ''
+            : return_amount.toFixed(toDecimals),
+          isToEstimated: return_amount.isGreaterThanOrEqualTo(0),
+          spread: spread_amount.toNumber(),
+          commission: commission_amount.toNumber(),
+          priceImpact: spread_amount.dividedBy(return_amount).toNumber(),
         });
       }
     } else if (this.state.isFromEstimated) {
-      const ask_amount = Number(this.state.toInput);
+      const ask_amount = new BigNumber(this.state.toInput);
 
       const {
         offer_amount,
@@ -177,7 +181,7 @@ export class SwapTab extends React.Component<
         commission_amount,
       } = compute_offer_amount(offer_pool, ask_pool, ask_amount);
 
-      if (isNaN(offer_amount) || this.state.toInput === '') {
+      if (offer_amount.isNaN() || this.state.toInput === '') {
         this.setState({
           isToEstimated: false,
           fromInput: '',
@@ -194,11 +198,13 @@ export class SwapTab extends React.Component<
         });
         this.setState({
           isToEstimated: false,
-          fromInput: offer_amount < 0 ? '' : nf.format(offer_amount),
-          isFromEstimated: offer_amount >= 0,
-          spread: spread_amount,
-          commission: commission_amount,
-          priceImpact: spread_amount / offer_amount,
+          fromInput: offer_amount.isLessThan(0)
+            ? ''
+            : offer_amount.toFixed(fromDecimals),
+          isFromEstimated: offer_amount.isGreaterThanOrEqualTo(0),
+          spread: spread_amount.toNumber(),
+          commission: commission_amount.toNumber(),
+          priceImpact: spread_amount.dividedBy(offer_amount).toNumber(),
         });
       }
     }
@@ -207,30 +213,37 @@ export class SwapTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const offer_pool = Number(
-      this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`],
-    );
-    const ask_pool = Number(
-      this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`],
-    );
+    const offer_pool = this.props.balances[
+      `${this.state.fromToken}-${selectedPairSymbol}`
+    ] as BigNumber;
+    const ask_pool = this.props.balances[
+      `${this.state.toToken}-${selectedPairSymbol}`
+    ] as BigNumber;
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
       this.props.balances[this.state.toToken],
     ];
+
+    const canonFromInput = new BigNumber(this.state.fromInput).multipliedBy(
+      new BigNumber(`1e${this.props.tokens[this.state.fromToken]?.decimals}`),
+    );
+    const canonToInput = new BigNumber(this.state.toInput).multipliedBy(
+      new BigNumber(`1e${this.props.tokens[this.state.toToken]?.decimals}`),
+    );
 
     let buttonMessage: string;
     if (!pair) {
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
     } else if (this.state.fromInput === '' && this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
-    } else if (Number(fromBalance) < Number(this.state.fromInput)) {
+    } else if ((fromBalance as BigNumber).isLessThan(canonFromInput)) {
       buttonMessage = `Insufficient ${this.state.fromToken} balance`;
     } else if (
       this.state.priceImpact >= 1 ||
       this.state.priceImpact < 0 ||
-      offer_pool === 0 ||
-      ask_pool === 0 ||
-      Number(this.state.toInput) > ask_pool
+      offer_pool.isEqualTo(0) ||
+      ask_pool.isEqualTo(0) ||
+      ask_pool.isLessThan(canonToInput)
     ) {
       buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
@@ -453,17 +466,13 @@ export class SwapTab extends React.Component<
                 // offer_amount: exactly how much we're sending
                 // ask_amount: roughly how much we're getting
                 // expected_return: at least ask_amount minus some slippage
-                // belief_price: calculated from this line https://github.com/enigmampc/SecretSwap/blob/6135f0/contracts/secretswap_pair/src/contract.rs#L674
-                // max_spread: always zero, because we want this condition to always be true if `return_amount < expected_return` https://github.com/enigmampc/SecretSwap/blob/6135f0/contracts/secretswap_pair/src/contract.rs#L677-L678
 
-                const offer_amount = Number(this.state.fromInput);
-                const ask_amount = Number(this.state.toInput);
-                const expected_return =
-                  ask_amount * (1 - this.state.slippageTolerance);
-                const belief_price = beliefPriceNumberFormat.format(
-                  reverse_decimal(expected_return / offer_amount),
-                );
-                const max_spread = '0';
+                const ask_amount = canonToInput;
+                const expected_return = ask_amount
+                  .multipliedBy(
+                    new BigNumber(1).minus(this.state.slippageTolerance),
+                  )
+                  .toFormat(0, { groupSeparator: '' });
 
                 if (this.state.fromToken === 'SCRT') {
                   await this.props.secretjs.execute(
@@ -474,9 +483,9 @@ export class SwapTab extends React.Component<
                           info: { native_token: { denom: 'uscrt' } },
                           amount: amountInTokenDenom,
                         },
-                        belief_price: belief_price,
-                        max_spread: max_spread,
+                        expected_return,
                         // offer_asset: Asset,
+                        // expected_return: Option<Uint128>
                         // belief_price: Option<Decimal>,
                         // max_spread: Option<Decimal>,
                         // to: Option<HumanAddr>, // TODO
@@ -500,8 +509,8 @@ export class SwapTab extends React.Component<
                         msg: btoa(
                           JSON.stringify({
                             swap: {
-                              belief_price: belief_price,
-                              max_spread: max_spread,
+                              expected_return,
+                              // expected_return: Option<Uint128>
                               // belief_price: Option<Decimal>,
                               // max_spread: Option<Decimal>,
                               // to: Option<HumanAddr>, // TODO
@@ -538,15 +547,9 @@ export class SwapTab extends React.Component<
             toToken={this.state.toToken}
             liquidityProviderFee={this.state.commission}
             priceImpact={this.state.priceImpact}
-            minimumReceived={
-              Number(this.state.toInput) * (1 - this.state.slippageTolerance)
-              /*
-              this.state.isToEstimated
-                ? Number(this.state.toInput) *
-                  (1 - this.state.slippageTolerance)
-                : null
-              */
-            }
+            minimumReceived={new BigNumber(this.state.toInput).multipliedBy(
+              new BigNumber(1).minus(this.state.slippageTolerance),
+            )}
             /*
             maximumSold={
               this.state.isFromEstimated
