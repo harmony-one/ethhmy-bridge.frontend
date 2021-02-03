@@ -11,14 +11,14 @@ import {
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
-import { formatWithSixDecimals, moreThanZero } from 'utils';
+import { formatWithSixDecimals, moreThanZero, unlockToken } from 'utils';
 import { Spinner } from 'ui/Spinner';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
 import { autorun, computed } from 'mobx';
-import { TOKEN, EXCHANGE_MODE } from 'stores/interfaces';
+import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 
@@ -26,6 +26,22 @@ export interface ITokenInfo {
   label: string;
   maxAmount: string;
   minAmount: string;
+}
+
+function getLabel(
+  mode: EXCHANGE_MODE,
+  tokenType: TOKEN,
+  tokenInfo: ITokenInfo,
+) {
+  if (tokenInfo.label === 'WSCRT') {
+    return mode === EXCHANGE_MODE.SCRT_TO_ETH ? `SSCRT Amount` : `WSCRT Amount`;
+  } else {
+    return `${(mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+    tokenType === TOKEN.ERC20 &&
+    tokenInfo.label
+      ? 'secret'
+      : '') + tokenInfo.label} Amount`;
+  }
 }
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
@@ -109,7 +125,7 @@ export class Exchange extends React.Component<
           label: userMetamask.erc20TokenDetails.symbol,
           maxAmount:
             exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-              ? !user.snip20Balance || user.snip20Balance.includes('Unlock')
+              ? !user.snip20Balance || user.snip20Balance.includes(unlockToken)
                 ? '0'
                 : user.snip20Balance
               : userMetamask.erc20Balance,
@@ -125,7 +141,7 @@ export class Exchange extends React.Component<
             label: 'secretETH',
             maxAmount:
               !user.balanceToken['Ethereum'] ||
-              user.balanceToken['Ethereum'].includes('Unlock')
+              user.balanceToken['Ethereum'].includes(unlockToken)
                 ? '0'
                 : user.balanceToken['Ethereum'],
             minAmount: user.balanceTokenMin['Ethereum'] || '0',
@@ -281,11 +297,11 @@ export class Exchange extends React.Component<
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
                 <NumberInput
-                  label={`${(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                  exchange.token === TOKEN.ERC20 &&
-                  this.tokenInfo.label
-                    ? 'secret'
-                    : '') + this.tokenInfo.label} Amount`}
+                  label={getLabel(
+                    exchange.mode,
+                    exchange.token,
+                    this.tokenInfo,
+                  )}
                   name="amount"
                   type="decimal"
                   precision="6"

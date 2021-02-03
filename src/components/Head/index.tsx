@@ -32,12 +32,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
-
-    if (isSwap) {
-      document.title = '𝕊ecret Swap';
-    } else {
-      document.title = '𝕊ecret Bridge';
-    }
+    const isEarn = history.location.pathname === '/earn';
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
@@ -59,6 +54,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           top: 0,
           width: '100%',
           zIndex: 100,
+          minWidth,
           // boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.2)',
         }}
       >
@@ -102,22 +98,14 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                   !isExplorer &&
                   !isGetTokens &&
                   !isTokens &&
-                  !isSwap
+                  !isSwap &&
+                  !isEarn
                   ? styles.selected
                   : '',
               )}
               onClick={goToBridge}
             >
               <Text>Bridge</Text>
-            </Box>
-
-            <Box
-              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
-              onClick={() => {
-                routing.push(`/swap`);
-              }}
-            >
-              <Text>Swap</Text>
             </Box>
 
             <Box
@@ -140,7 +128,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Transactions</Text>
             </Box>
-            {/* 
+            {/*
             <Box
               className={cn(styles.itemToken, isInfo ? styles.selected : '')}
               onClick={() => routing.push('/info')}
@@ -149,32 +137,27 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box> */}
 
             <Box
+              className={cn(styles.itemToken, isEarn ? styles.selected : '')}
+              onClick={() => routing.push('/earn')}
+            >
+              <Text>Earn</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/swap`);
+              }}
+            >
+              <Text>Swap</Text>
+            </Box>
+
+            <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}
               onClick={() => routing.push('/faq')}
             >
               <Text>FAQ</Text>
             </Box>
-
-            {/*<Box*/}
-            {/*  direction="column"*/}
-            {/*  align="center"*/}
-            {/*  gap="10px"*/}
-            {/*  style={{ maxWidth: 300 }}*/}
-            {/*  margin={{ left: '50px' }}*/}
-            {/*>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total BUSD locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total LINK locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyLINKBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*</Box>*/}
           </Box>
         </Box>
       </Box>

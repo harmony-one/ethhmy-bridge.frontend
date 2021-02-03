@@ -24,7 +24,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
   },
   "exclude": [
     "node_modules",

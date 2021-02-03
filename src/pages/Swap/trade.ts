@@ -1,12 +1,12 @@
 export enum TradeType {
   EXACT_INPUT,
-  EXACT_OUTPUT
+  EXACT_OUTPUT,
 }
 
 export enum Rounding {
   ROUND_DOWN,
   ROUND_HALF_UP,
-  ROUND_UP
+  ROUND_UP,
 }
 
 export interface TokenInfo {
@@ -18,7 +18,7 @@ export interface TokenInfo {
 export interface Token {
   type: 'token';
   token: {
-    contract_addr: string
+    contract_addr: string;
     token_code_hash: string;
     viewing_key: string;
   };
@@ -27,18 +27,18 @@ export interface Token {
 export interface NativeToken {
   type: 'native_token';
   native_token: {
-    denom: string
+    denom: string;
   };
 }
 
 export class Currency {
-  public readonly amount: string
-  public readonly token: Asset  // todo: replace with bech32
+  public readonly amount: string;
+  public readonly token: Asset;
 
   isEqualToIdentifier(info: string) {
-    return this.token.info.type === 'native_token' ?
-      this.token.info.native_token.denom === info :
-      this.token.info.token.contract_addr === info;
+    return this.token.info.type === 'native_token'
+      ? this.token.info.native_token.denom === info
+      : this.token.info.token.contract_addr === info;
   }
 
   constructor(token: Asset, amount: string) {
@@ -48,12 +48,12 @@ export class Currency {
 }
 
 export class Asset {
-  public info: Token | NativeToken
+  public info: Token | NativeToken;
   public symbol: string;
 
   public isNative(): this is NativeToken {
-    return Asset._isNative(this.info)
-  };
+    return Asset._isNative(this.info);
+  }
 
   private static _isNative(info: any): info is NativeToken {
     return 'native_token' in info;
@@ -64,24 +64,23 @@ export class Asset {
       return new Asset(token.symbol, {
         type: 'token',
         token: {
-        contract_addr: token.address,
+          contract_addr: token.address,
           token_code_hash: token.token_code_hash,
-          viewing_key: ""
-      }});
+          viewing_key: '',
+        },
+      });
     } else {
       return new Asset(token.symbol, {
         type: 'native_token',
-        native_token: { denom: `u${token.symbol.toLowerCase()}`
-        }
+        native_token: { denom: `u${token.symbol.toLowerCase()}` },
       });
     }
-  };
+  }
 
   constructor(symbol: string, info: Token | NativeToken) {
     this.info = info;
     this.symbol = symbol;
   }
-
 }
 
 export class Trade {
@@ -92,15 +91,15 @@ export class Trade {
   /**
    * The type of the trade, either exact in or exact out.
    */
-  public readonly tradeType: TradeType
+  public readonly tradeType: TradeType;
   /**
    * The input amount for the trade assuming no slippage.
    */
-  public readonly inputAmount: Currency
+  public readonly inputAmount: Currency;
   /**
    * The output amount for the trade assuming no slippage.
    */
-  public readonly outputAmount: Currency
+  public readonly outputAmount: Currency;
   /**
    * The price expressed in terms of output amount/input amount.
    */
@@ -108,7 +107,7 @@ export class Trade {
   /**
    * The mid price after the trade executes assuming no slippage.
    */
-  public readonly price: number
+  public readonly price: number;
   /**
    * The percent difference between the mid price before the trade and the trade execution price.
    */
@@ -117,17 +116,24 @@ export class Trade {
   //public readonly pair: string
 
   getExactAmount(): string {
-    return this.tradeType === TradeType.EXACT_OUTPUT ? this.outputAmount.amount : this.inputAmount.amount ;
+    return this.tradeType === TradeType.EXACT_OUTPUT
+      ? this.outputAmount.amount
+      : this.inputAmount.amount;
   }
 
   getEstimatedAmount(): string {
-    return this.tradeType === TradeType.EXACT_OUTPUT ? this.inputAmount.amount : this.outputAmount.amount ;
+    return this.tradeType === TradeType.EXACT_OUTPUT
+      ? this.inputAmount.amount
+      : this.outputAmount.amount;
   }
 
-  constructor(inputAmount: Currency, outputAmount: Currency, price: number, tradeType: TradeType ) {
+  constructor(
+    inputAmount: Currency,
+    outputAmount: Currency,
+    tradeType: TradeType,
+  ) {
     this.inputAmount = inputAmount;
     this.outputAmount = outputAmount;
-    this.price = price;
     this.tradeType = tradeType;
     //this.executionPrice = Number(outputAmount.amount) / Number(inputAmount.amount);
     //this.priceImpact = calculatePriceImpact(this.midPrice, this.inputAmount, this.outputAmount)

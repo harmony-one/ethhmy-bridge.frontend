@@ -76,6 +76,8 @@ export interface ISwap {
 }
 
 export interface ITokenInfo {
+  dst_coin: any;
+  price: string;
   name: string;
   symbol: string;
   decimals: string;
@@ -93,5 +95,27 @@ export interface ITokenInfo {
     symbol: string;
     min_to_scrt: string;
     min_from_scrt: string;
+    hidden: boolean;
+    proxy?: string;
+    proxy_symbol?: string;
+    proxy_address?: string;
   };
+}
+
+export interface IRewardPool {
+  pool_address: string;
+  inc_token: {
+    symbol: string;
+    address: string;
+    decimals: number;
+  };
+  rewards_token: {
+    symbol: string;
+    address: string;
+    decimals: number;
+    price: number;
+  };
+  total_locked: string;
+  pending_rewards: string;
+  deadline: string;
 }

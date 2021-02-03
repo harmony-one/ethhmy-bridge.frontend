@@ -1,28 +1,14 @@
-import { IOperation, ISwap, ITokenInfo } from '../stores/interfaces';
+import {
+  IOperation,
+  IRewardPool,
+  ISwap,
+  ITokenInfo,
+} from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
-const servers = require('../../appengine-servers.json');
-
 const backendUrl = url => {
   return `${process.env.BACKEND_URL}${url}`;
-};
-
-const callAvailableServer = async (
-  func: (url: string) => Promise<any>,
-  server = 0,
-) => {
-  let error;
-
-  for (let i = server; i < servers.length; i++) {
-    try {
-      return await func(servers[i]);
-    } catch (e) {
-      error = e;
-    }
-  }
-
-  throw error;
 };
 
 export const createOperation = async params => {
@@ -36,11 +22,10 @@ export const createOperation = async params => {
 export const updateOperation = async (id: string, transactionHash: string) => {
   const url = backendUrl(`/operations/${id}`);
 
-  const res = await agent.post<IOperation>(url, {transactionHash});
+  const res = await agent.post<IOperation>(url, { transactionHash });
 
   return res.body;
 };
-
 
 export const getStatus = async (params): Promise<SwapStatus> => {
   const url = backendUrl(`/operations/${params.id}`);
@@ -93,7 +78,30 @@ export const getTokensInfo = async (
 
   const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
 
-  const content = res.body.tokens;
+  const content = res.body.tokens
+    .filter(t => (process.env.TEST_COINS ? t : !t.display_props.hidden))
+    .map(t => {
+      if (t.display_props.proxy) {
+        t.display_props.proxy_address = t.dst_address;
+        t.dst_address = process.env.SSCRT_CONTRACT;
+        t.display_props.proxy_symbol = 'WSCRT';
+        //t.display_props.symbol = t.name;
+      }
+
+      return t;
+    });
+
+  return { ...res.body, content };
+};
+
+export const getRewardsInfo = async (
+  params: any,
+): Promise<{ content: IRewardPool[] }> => {
+  const url = backendUrl('/rewards/');
+
+  const res = await agent.get<{ body: { tokens: IRewardPool[] } }>(url, params);
+
+  const content = res.body.pools;
 
   return { ...res.body, content };
 };

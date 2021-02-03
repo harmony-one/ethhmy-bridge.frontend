@@ -67,14 +67,15 @@ function getClientEnvironment(publicUrl) {
         CHAIN_NAME: process.env.CHAIN_NAME,
         SECRET_RPC: process.env.SECRET_RPC,
         SECRET_LCD: process.env.SECRET_LCD,
+        SECRET_WS: process.env.SECRET_WS,
+        SSCRT_CONTRACT: process.env.SSCRT_CONTRACT,
+        WSCRT_PROXY_CONTRACT: process.env.WSCRT_PROXY_CONTRACT,
 
         ETH_MANAGER_CONTRACT: process.env.ETH_MANAGER_CONTRACT,
         SCRT_SWAP_CONTRACT: process.env.SCRT_SWAP_CONTRACT,
 
         ETH_EXPLORER_URL: process.env.ETH_EXPLORER_URL,
         SCRT_EXPLORER_URL: process.env.SCRT_EXPLORER_URL,
-
-        ETH_GAS_API_KEY: process.env.ETH_GAS_API_KEY,
 
         ETH_NODE_URL: process.env.ETH_NODE_URL,
         ETH_GAS_PRICE: process.env.ETH_GAS_PRICE,
@@ -89,6 +90,7 @@ function getClientEnvironment(publicUrl) {
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
 
         AMM_FACTORY_CONTRACT: process.env.AMM_FACTORY_CONTRACT,
+        TEST_COINS: !!process.env.TEST_COINS,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin

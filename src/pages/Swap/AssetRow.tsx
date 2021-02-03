@@ -1,15 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
+import { TokenDisplay } from '.';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
-const balanceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
-  useGrouping: true,
-});
-
 export const AssetRow = ({
-  isMaxButton,
   tokens,
   token,
   setToken,
@@ -17,15 +12,28 @@ export const AssetRow = ({
   setAmount,
   isEstimated,
   balance,
+  label,
+  maxButton,
+}: {
+  tokens: {
+    [symbol: string]: TokenDisplay;
+  };
+  token: string;
+  setToken: (symbol: string) => void;
+  amount: string;
+  setAmount: (amount: string) => void;
+  isEstimated: boolean;
+  balance: number | JSX.Element;
+  label: string;
+  maxButton: boolean;
 }) => {
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-  const [myBalance, setMyBalance] = useState(balance);
+  const [dropdownBackground, setDropdownBackground] = useState<string>();
 
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
-
-  useEffect(() => {
-    setMyBalance(balance);
-  }, [balance]);
+  const font = {
+    fontWeight: 500,
+    fontSize: '14px',
+    color: 'rgb(86, 90, 105)',
+  };
 
   return (
     <Container
@@ -42,21 +50,25 @@ export const AssetRow = ({
           flexDirection: 'row',
         }}
       >
-        <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
+        <span style={font}>
+          {label}
+          {isEstimated ? ` (estimated)` : null}
+        </span>
         {flexRowSpace}
         {(() => {
-          if (myBalance == undefined) {
+          if (balance == undefined) {
             return '-';
           }
 
-          const label = `${token === 'SCRT' ? '' : 'Secret '}Balance: `;
+          const nf = new Intl.NumberFormat('en-US', {
+            maximumFractionDigits: Math.min(tokens[token].decimals, 6),
+            useGrouping: true,
+          });
 
           return (
             <>
-              {label}
-              {isNaN(Number(myBalance))
-                ? myBalance
-                : balanceNumberFormat.format(myBalance)}
+              {'Balance: '}
+              {isNaN(Number(balance)) ? balance : nf.format(Number(balance))}
             </>
           );
         })()}
@@ -76,7 +88,7 @@ export const AssetRow = ({
           size="massive"
           placeholder="0.0"
           value={amount}
-          onChange={(_, { value }) => {
+          onChange={(_, { value }: { value: string }) => {
             if (isNaN(Number(value))) {
               return;
             }
@@ -84,16 +96,18 @@ export const AssetRow = ({
           }}
         />
         {flexRowSpace}
-        {isMaxButton && (
+        {maxButton && (
           <Button
             primary
+            disabled={isNaN(Number(balance))}
             style={{
               borderRadius: '15px',
               fontSize: '1rem',
               fontWeight: 500,
               height: '30px',
-              padding: '0rem 0.3rem',
+              padding: '0rem 0.4rem',
             }}
+            onClick={() => setAmount(String(balance))}
           >
             MAX
           </Button>
@@ -103,6 +117,7 @@ export const AssetRow = ({
             border: 'none',
             borderRadius: '15px',
             background: dropdownBackground,
+            padding: 1,
           }}
           onMouseEnter={() => setDropdownBackground('whitesmoke')}
           onMouseLeave={() => setDropdownBackground(undefined)}
@@ -121,7 +136,7 @@ export const AssetRow = ({
             }),
           )}
           value={token}
-          onChange={(_, { value }) => setToken(value)}
+          onChange={(_, { value }: { value: string }) => setToken(value)}
         />
       </div>
     </Container>

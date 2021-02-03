@@ -96,7 +96,6 @@ export const Steps = observer(() => {
   }
 
   const status = exchange.operation.status;
-  console.log(exchange.txHash);
   return (
     <Box direction="column" className={styles.stepsContainer}>
       <StepRow

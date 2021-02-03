@@ -1,31 +1,45 @@
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
-import { formatWithSixDecimals } from '../../utils';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
-const additionaInfoNumberFormat = new Intl.NumberFormat('en-US', {
+const numberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
   useGrouping: true,
 });
 
 export const AdditionalInfo = ({
   minimumReceived,
+  maximumSold,
   liquidityProviderFee,
   priceImpact,
   fromToken,
   toToken,
+}: {
+  minimumReceived?: number;
+  maximumSold?: number;
+  liquidityProviderFee: number;
+  priceImpact: number;
+  fromToken: string;
+  toToken: string;
 }) => {
-  const [
-    minimumReceivedIconBackground,
-    setMinimumreceivedIconBackground,
-  ] = useState('whitesmoke');
-  const [
-    liquidityProviderFeeIconBackground,
-    setLiquidityProviderFeeIconBackground,
-  ] = useState('whitesmoke');
-  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState(
-    'whitesmoke',
-  );
+  const [minReceivedIconBackground, setMinReceivedIconBackground] = useState<
+    string
+  >('whitesmoke');
+  const [liqProvFeeIconBackground, setLiqProvFeeIconBackground] = useState<
+    string
+  >('whitesmoke');
+  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState<
+    string
+  >('whitesmoke');
+
+  let priceImpactColor = 'green'; // Less than 1% - Awesome
+  if (priceImpact > 0.05) {
+    priceImpactColor = 'red'; // High
+  } else if (priceImpact > 0.03) {
+    priceImpactColor = 'orange'; // Medium
+  } else if (priceImpact > 0.01) {
+    priceImpactColor = 'black'; // Low
+  }
 
   return (
     <div style={{ maxWidth: '400px', minWidth: '400px' }}>
@@ -48,7 +62,7 @@ export const AdditionalInfo = ({
           }}
         >
           <span>
-            Minimum received
+            {minimumReceived !== null ? 'Minimum Received' : 'Maximum Sold'}
             <Popup
               trigger={
                 <Icon
@@ -57,13 +71,14 @@ export const AdditionalInfo = ({
                   size="tiny"
                   style={{
                     marginLeft: '0.5rem',
-                    background: minimumReceivedIconBackground,
+                    background: minReceivedIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
-                    setMinimumreceivedIconBackground('rgb(237, 238, 242)')
+                    setMinReceivedIconBackground('rgb(237, 238, 242)')
                   }
                   onMouseLeave={() =>
-                    setMinimumreceivedIconBackground('whitesmoke')
+                    setMinReceivedIconBackground('whitesmoke')
                   }
                 />
               }
@@ -73,7 +88,9 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {formatWithSixDecimals(minimumReceived)} {toToken}
+            {minimumReceived !== null
+              ? `${numberFormat.format(minimumReceived)} ${toToken}`
+              : `${numberFormat.format(maximumSold)} ${fromToken}`}
           </strong>
         </div>
         <div
@@ -94,6 +111,7 @@ export const AdditionalInfo = ({
                   style={{
                     marginLeft: '0.5rem',
                     background: priceImpactIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
                     setPriceImpactIconBackground('rgb(237, 238, 242)')
@@ -108,7 +126,9 @@ export const AdditionalInfo = ({
             />
           </span>
           {flexRowSpace}
-          <strong>{`${(priceImpact * 100).toFixed(2)}%`}</strong>
+          <strong style={{ color: priceImpactColor }}>{`${(
+            priceImpact * 100
+          ).toFixed(2)}%`}</strong>
         </div>
         <div
           style={{
@@ -127,14 +147,13 @@ export const AdditionalInfo = ({
                   size="tiny"
                   style={{
                     marginLeft: '0.5rem',
-                    background: liquidityProviderFeeIconBackground,
+                    background: liqProvFeeIconBackground,
+                    verticalAlign: 'middle',
                   }}
                   onMouseEnter={() =>
-                    setLiquidityProviderFeeIconBackground('rgb(237, 238, 242)')
+                    setLiqProvFeeIconBackground('rgb(237, 238, 242)')
                   }
-                  onMouseLeave={() =>
-                    setLiquidityProviderFeeIconBackground('whitesmoke')
-                  }
+                  onMouseLeave={() => setLiqProvFeeIconBackground('whitesmoke')}
                 />
               }
               content="A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive."
@@ -143,9 +162,20 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {additionaInfoNumberFormat.format(liquidityProviderFee)} {fromToken}
+            {numberFormat.format(liquidityProviderFee)} {fromToken}
           </strong>
         </div>
+        {/*   <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            paddingTop: '0.2rem',
+          }}
+        >
+          {flexRowSpace}
+          <span>TODO link to pair analytics</span>
+          {flexRowSpace}
+        </div> */}
       </Container>
     </div>
   );

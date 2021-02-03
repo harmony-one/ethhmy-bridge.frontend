@@ -1,24 +1,30 @@
 import { action, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
-/*
-import {
-  getHmyBalance,
-  hmyMethodsERC20,
-  hmyMethodsBUSD,
-  hmyMethodsLINK,
-} from '../blockchain-bridge';
-*/
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, formatWithSixDecimals } from '../utils';
+import {
+  divDecimals,
+  formatWithSixDecimals,
+  sleep,
+  toFixedTrunc,
+  unlockToken,
+} from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
+import {
+  getViewingKey,
+  QueryDeposit,
+  QueryRewards,
+  Snip20GetBalance,
+} from '../blockchain-bridge/scrt';
 
-const defaults = {};
+export const rewardsDepositKey = key => `${key}RewardsDeposit`;
+
+export const rewardsKey = key => `${key}Rewards`;
 
 export class UserStoreEx extends StoreConstructor {
-  public stores: IStores;
+  public declare stores: IStores;
   @observable public isAuthorized: boolean;
   public status: statusFetching;
   redirectUrl: string;
@@ -36,6 +42,8 @@ export class UserStoreEx extends StoreConstructor {
   @observable public balanceToken: { [key: string]: string } = {};
   @observable public balanceTokenMin: { [key: string]: string } = {};
 
+  @observable public balanceRewards: { [key: string]: string } = {};
+
   @observable public scrtRate = 0;
   @observable public ethRate = 0;
 
@@ -46,11 +54,12 @@ export class UserStoreEx extends StoreConstructor {
   @observable public isInfoReading = false;
   @observable public chainId: string;
 
+  @observable public ws: WebSocket;
+
   constructor(stores) {
     super(stores);
 
-    this.getBalances();
-    setInterval(() => this.getBalances(), 5000);
+    // setInterval(() => this.getBalances(), 15000);
 
     this.getRates();
 
@@ -86,8 +95,148 @@ export class UserStoreEx extends StoreConstructor {
     if (sessionObj) {
       this.address = sessionObj.address;
       this.isInfoReading = sessionObj.isInfoReading;
-      keplrCheckPromise.then(() => this.signIn());
+      keplrCheckPromise.then(async () => {
+        await this.signIn();
+
+        this.getBalances();
+
+        this.websocketInit();
+      });
     }
+  }
+
+  @action public async websocketTerminate(waitToBeOpen?: boolean) {
+    if (waitToBeOpen) {
+      while (!this.ws && this.ws.readyState !== WebSocket.OPEN) {
+        await sleep(100);
+      }
+    }
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.close(1000 /* Normal Closure */, 'Ba bye');
+    }
+  }
+
+  @action public async websocketInit() {
+    if (this.ws) {
+      while (this.ws.readyState === WebSocket.CONNECTING) {
+        await sleep(100);
+      }
+
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close(1012 /* Service Restart */, 'Refreshing connection');
+      }
+    }
+
+    this.ws = new WebSocket(process.env.SECRET_WS);
+
+    const symbolUpdateHeightCache: { [symbol: string]: number } = {};
+
+    this.ws.onmessage = async event => {
+      try {
+        const data = JSON.parse(event.data);
+
+        const symbol = data.id;
+
+        if (!(symbol in symbolUpdateHeightCache)) {
+          console.error(
+            symbol,
+            'not in symbolUpdateHeightCache:',
+            symbolUpdateHeightCache,
+          );
+          return;
+        }
+
+        let height = 0;
+        try {
+          height = Number(data.result.data.value.TxResult.height);
+        } catch (error) {
+          // Not a tx
+          // Probably just the /subscribe ok event
+          return;
+        }
+
+        if (height <= symbolUpdateHeightCache[symbol]) {
+          console.log('Already updated', symbol, 'for height', height);
+          return;
+        }
+        symbolUpdateHeightCache[symbol] = height;
+        await this.updateBalanceForSymbol(symbol);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.ws.onopen = async () => {
+      while (this.stores.tokens.allData.length === 0) {
+        await sleep(100);
+      }
+
+      while (!this.address.startsWith('secret')) {
+        await sleep(100);
+      }
+
+      for (const token of this.stores.rewards.allData) {
+        // For any tx on this token's address or rewards pool => update my balance
+        const symbol = token.inc_token.symbol.replace('s', '');
+
+        symbolUpdateHeightCache[symbol] = 0;
+
+        const tokenQueries = [
+          `message.contract_address='${token.inc_token.address}'`,
+          `wasm.contract_address='${token.inc_token.address}'`,
+          `message.contract_address='${token.pool_address}'`,
+          `wasm.contract_address='${token.pool_address}'`,
+        ];
+
+        for (const query of tokenQueries) {
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: symbol, // jsonrpc id
+              method: 'subscribe',
+              params: { query },
+            }),
+          );
+        }
+      }
+
+      // Also hook sSCRT
+      symbolUpdateHeightCache['sSCRT'] = 0;
+      const secretScrtQueries = [
+        `message.contract_address='${process.env.SSCRT_CONTRACT}'`,
+        `wasm.contract_address='${process.env.SSCRT_CONTRACT}'`,
+      ];
+
+      for (const query of secretScrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'sSCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
+
+      symbolUpdateHeightCache['SCRT'] = 0;
+      const scrtQueries = [
+        `message.sender='${this.address}'` /* sent a tx (gas) */,
+        `message.signer='${this.address}'` /* executed a contract (gas) */,
+        `transfer.recipient='${this.address}'` /* received SCRT */,
+      ];
+
+      for (const query of scrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'SCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
+    };
   }
 
   @action public setInfoReading() {
@@ -95,8 +244,14 @@ export class UserStoreEx extends StoreConstructor {
     this.syncLocalStorage();
   }
 
-  @action public async signIn() {
+  @action public async signIn(wait?: boolean) {
     this.error = '';
+
+    console.log('Waiting for Keplr...');
+    while (wait && !this.keplrWallet) {
+      await sleep(100);
+    }
+    console.log('Found Keplr');
 
     this.chainId = process.env.CHAIN_ID;
     try {
@@ -146,6 +301,7 @@ export class UserStoreEx extends StoreConstructor {
           features: ['secretwasm'],
         });
       }
+
       // Ask the user for permission
       await this.keplrWallet.enable(this.chainId);
 
@@ -167,8 +323,8 @@ export class UserStoreEx extends StoreConstructor {
             gas: '300000',
           },
           exec: {
-            amount: [{ amount: '300000', denom: 'uscrt' }],
-            gas: '300000',
+            amount: [{ amount: '500000', denom: 'uscrt' }],
+            gas: '500000',
           },
         },
       );
@@ -177,54 +333,132 @@ export class UserStoreEx extends StoreConstructor {
     } catch (error) {
       this.error = error.message;
       this.isAuthorized = false;
+      console.error('keplr login error', error);
     }
   }
 
-  @action public getSnip20Balance = async snip20Address => {
+  @action public getSnip20Balance = async (
+    snip20Address: string,
+    decimals: string | number,
+  ): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
 
-    let balanceResponse;
-    try {
-      const viewingKey = await this.keplrWallet.getSecret20ViewingKey(
-        this.chainId,
-        snip20Address,
-      );
-
-      balanceResponse = await this.secretjs.queryContractSmart(snip20Address, {
-        balance: {
-          address: this.address,
-          key: viewingKey,
-        },
-      });
-    } catch (e) {
-      return 'Unlock';
+    const decimalsNum = Number(decimals);
+    if (!decimalsNum) {
+      throw new Error('Token not found');
     }
 
-    if (balanceResponse.viewing_key_error) {
-      return 'Fix Unlock';
-    }
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
 
-    if (Number(balanceResponse.balance.amount) === 0) {
+    return await Snip20GetBalance({
+      secretjs: this.secretjs,
+      token: snip20Address,
+      address: this.address,
+      key: viewingKey,
+      decimals: decimalsNum,
+    });
+  };
+
+  @action public getBridgeRewardsBalance = async (
+    snip20Address: string,
+  ): Promise<string> => {
+    if (!this.secretjs) {
       return '0';
     }
 
-    const decimalsResponse = await this.secretjs.queryContractSmart(
-      snip20Address,
-      {
-        token_info: {},
-      },
-    );
+    const height = await this.secretjs.getHeight();
 
-    return divDecimals(
-      balanceResponse.balance.amount,
-      decimalsResponse.token_info.decimals,
-    );
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    const result = await QueryRewards({
+      cosmJS: this.secretjs,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+      height: String(height),
+    });
+
+    return result;
+  };
+
+  @action public getBridgeDepositBalance = async (
+    snip20Address: string,
+  ): Promise<string> => {
+    if (!this.secretjs) {
+      return '0';
+    }
+
+    const viewingKey = await getViewingKey({
+      keplr: this.keplrWallet,
+      chainId: this.chainId,
+      address: snip20Address,
+    });
+
+    return await QueryDeposit({
+      cosmJS: this.secretjs,
+      contract: snip20Address,
+      address: this.address,
+      key: viewingKey,
+    });
   };
 
   @action public getBalances = async () => {
-    if (this.address) {
+    Promise.all([
+      this.updateBalanceForSymbol('SCRT'),
+      this.updateBalanceForSymbol('sSCRT'),
+    ]);
+    Promise.all(
+      this.stores.tokens.allData.map(token =>
+        this.updateBalanceForSymbol(token.display_props.symbol),
+      ),
+    );
+  };
+
+  @action public updateBalanceForSymbol = async (
+    symbol: string,
+    tokenAddress?: string,
+  ) => {
+    while (
+      !this.address &&
+      !this.secretjs &&
+      this.stores.tokens.allData.length === 0
+    ) {
+      await sleep(100);
+    }
+
+    if (!symbol && tokenAddress === process.env.SSCRT_CONTRACT) {
+      symbol = 'sSCRT';
+    }
+    if (!symbol && tokenAddress) {
+      try {
+        symbol = this.stores.tokens.allData.find(
+          t => t.dst_address === tokenAddress,
+        ).display_props.symbol;
+      } catch (error) {
+        console.error(
+          'Error finding symbol for SNIP20 address',
+          tokenAddress,
+          error,
+        );
+      }
+    }
+    if (!symbol) {
+      return;
+    }
+
+    console.log('updating', symbol, 'balance');
+
+    if (symbol === 'SCRT') {
       this.secretjs.getAccount(this.address).then(account => {
         try {
           this.balanceSCRT = formatWithSixDecimals(
@@ -234,33 +468,119 @@ export class UserStoreEx extends StoreConstructor {
           this.balanceSCRT = '0';
         }
       });
-
-      for (const token of this.stores.tokens.allData) {
-        if (
-          this.snip20Address !== token.dst_address &&
-          this.snip20Address !== '' &&
-          token.src_coin !== 'Ethereum'
-        ) {
-          continue;
+      return;
+    }
+    if (symbol === 'sSCRT') {
+      try {
+        const balance = await this.getSnip20Balance(
+          process.env.SSCRT_CONTRACT,
+          6,
+        );
+        if (balance.includes(unlockToken)) {
+          this.balanceToken['sSCRT'] = balance;
+        } else {
+          this.balanceToken['sSCRT'] = formatWithSixDecimals(
+            toFixedTrunc(balance, 6),
+          );
         }
-        try {
-          const balance = await this.getSnip20Balance(token.dst_address);
-          if (balance.includes('Unlock')) {
-            this.balanceToken[token.src_coin] = balance;
-          } else {
-            this.balanceToken[token.src_coin] = formatWithSixDecimals(balance);
-          }
-        } catch (err) {
-          this.balanceToken[token.src_coin] = 'Unlock';
-        }
-
-        try {
-          this.balanceTokenMin[token.src_coin] =
-            token.display_props.min_from_scrt;
-        } catch (e) {
-          // Ethereum?
-        }
+      } catch (err) {
+        this.balanceToken['sSCRT'] = unlockToken;
       }
+      return;
+    }
+
+    const token = this.stores.tokens.allData.find(
+      t => t.display_props.symbol === symbol,
+    );
+
+    try {
+      const balance = await this.getSnip20Balance(
+        token.dst_address,
+        token.decimals,
+      );
+      if (balance.includes(unlockToken)) {
+        this.balanceToken[token.src_coin] = balance;
+      } else {
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(
+          toFixedTrunc(balance, 6),
+        );
+      }
+    } catch (err) {
+      this.balanceToken[token.src_coin] = unlockToken;
+    }
+
+    try {
+      this.balanceTokenMin[token.src_coin] = token.display_props.min_from_scrt;
+    } catch (e) {
+      // Ethereum?
+    }
+
+    const rewradsToken = this.stores.rewards.allData.find(
+      t => t.inc_token.symbol === `s${symbol}`,
+    );
+
+    if (!rewradsToken) {
+      console.log('No rewards token for', symbol);
+      return;
+    }
+
+    try {
+      const balance = await this.getBridgeRewardsBalance(
+        rewradsToken.pool_address,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[
+          rewardsKey(rewradsToken.inc_token.symbol)
+        ] = balance;
+      } else {
+        // rewards are in the rewards_token decimals
+        this.balanceRewards[
+          rewardsKey(rewradsToken.inc_token.symbol)
+        ] = divDecimals(balance, rewradsToken.rewards_token.decimals); //divDecimals(balance, token.inc_token.decimals);
+      }
+    } catch (err) {
+      this.balanceRewards[
+        rewardsKey(rewradsToken.inc_token.symbol)
+      ] = unlockToken;
+    }
+
+    try {
+      const balance = await this.getBridgeDepositBalance(
+        rewradsToken.pool_address,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[
+          rewardsDepositKey(rewradsToken.inc_token.symbol)
+        ] = balance;
+      } else {
+        this.balanceRewards[
+          rewardsDepositKey(rewradsToken.inc_token.symbol)
+        ] = divDecimals(balance, rewradsToken.inc_token.decimals);
+      }
+    } catch (err) {
+      this.balanceRewards[
+        rewardsDepositKey(rewradsToken.inc_token.symbol)
+      ] = unlockToken;
+    }
+
+    try {
+      const balance = await this.getSnip20Balance(
+        rewradsToken.rewards_token.address,
+        rewradsToken.rewards_token.decimals,
+      );
+
+      if (balance.includes(unlockToken)) {
+        this.balanceRewards[rewradsToken.rewards_token.symbol] = balance;
+      } else {
+        this.balanceRewards[rewradsToken.rewards_token.symbol] = divDecimals(
+          balance,
+          rewradsToken.rewards_token.decimals,
+        );
+      }
+    } catch (err) {
+      this.balanceRewards[rewradsToken.rewards_token.symbol] = unlockToken;
     }
   };
 

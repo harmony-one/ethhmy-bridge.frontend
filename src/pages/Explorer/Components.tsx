@@ -83,7 +83,6 @@ interface ITokenParams {
   address?: string;
 }
 
-
 export const FormatWithDecimals = observer((props: ITokenParams) => {
   const { tokens } = useStores();
   const { type, amount, address } = props;
@@ -113,7 +112,11 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
     );
 
     if (token && token.display_props) {
-      return <Box>{token.display_props.symbol}</Box>;
+      return token.display_props.proxy_symbol ? (
+        <Box>{token.display_props.proxy_symbol}</Box>
+      ) : (
+        <Box>{token.display_props.symbol}</Box>
+      );
     }
   } else if (value === TOKEN.ETH) {
     return <Box>ETH</Box>;
@@ -128,11 +131,18 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
 
   if (value === TOKEN.ERC20 || value === TOKEN.S20) {
     const token = tokens.data.find(
-      t => t.dst_address.toLowerCase() === secretAddress.toLowerCase(),
+      t =>
+        t.dst_address.toLowerCase() === secretAddress.toLowerCase() ||
+        t.dst_coin?.toLowerCase() === secretAddress.toLowerCase() ||
+        t.display_props.proxy_address === secretAddress.toLowerCase(),
     );
 
     if (token && token.display_props) {
-      return <Box>secret{token.display_props.symbol}</Box>;
+      return token.display_props.proxy_symbol ? (
+        <Box>{token.display_props.symbol}</Box>
+      ) : (
+        <Box>secret{token.display_props.symbol}</Box>
+      );
     }
   } else if (value === TOKEN.ETH) {
     return <Box>secretETH</Box>;
