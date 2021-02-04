@@ -654,7 +654,7 @@ export class SwapRouter extends React.Component<
                 <a href="https://faucet.secrettestnet.io" target="_blank">
                   holodeck-2 faucet
                 </a>
-                {/* , then{' '}
+                , then{' '}
                 <a
                   style={{ cursor: 'pointer' }}
                   onClick={() => {
@@ -668,13 +668,11 @@ export class SwapRouter extends React.Component<
                 >
                   click here
                 </a>{' '}
-                to convert to sSCRT */}
+                to convert to sSCRT
               </p>
               <p>
-                <strong>Getting sETH:</strong>{' '}
-                {/* Via the bridge from the ETH
-                rinkeby testnet, or just  */}
-                Swap SCRT for it 👆😋
+                <strong>Getting sETH:</strong> Via the bridge from the ETH
+                rinkeby testnet, or just Swap SCRT for it 👆😋
               </p>
               <strong>Feedback channels:</strong>
               <ul>
