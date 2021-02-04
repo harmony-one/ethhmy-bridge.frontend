@@ -334,9 +334,17 @@ export class ProvideTab extends React.Component<
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
     } else if (this.state.inputA === '' && this.state.inputB === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
-    } else if (Number(balanceA) < Number(this.state.inputA)) {
+    } else if (
+      new BigNumber(balanceA as BigNumber)
+        .dividedBy(new BigNumber(`1e${decimalsA}`))
+        .toNumber() < Number(this.state.inputA)
+    ) {
       buttonMessage = `Insufficient ${this.state.tokenA} balance`;
-    } else if (Number(balanceB) < Number(this.state.inputB)) {
+    } else if (
+      new BigNumber(balanceB as BigNumber)
+        .dividedBy(new BigNumber(`1e${decimalsB}`))
+        .toNumber() < Number(this.state.inputB)
+    ) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
     } else if (price.isNaN()) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
