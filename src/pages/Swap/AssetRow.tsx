@@ -70,7 +70,8 @@ export const AssetRow = ({
                 ? balance
                 : (balance as BigNumber)
                     .dividedBy(new BigNumber(`1e${decimals}`))
-                    .toFormat(6)}
+                    .toFormat(6)
+                    .replace(/.?0+$/, '')}
             </>
           );
         })()}

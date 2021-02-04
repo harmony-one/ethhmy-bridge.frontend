@@ -14,7 +14,7 @@ import { TabsHeader } from './TabsHeader';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { BigNumber } from 'bignumber.js';
 
-const downArrow = (
+export const downArrow = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="16"

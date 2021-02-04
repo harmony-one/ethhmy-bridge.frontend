@@ -4,7 +4,7 @@ import { SigningCosmWasmClient } from 'secretjs';
 import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
 import { Pair, swapContainerStyle, TokenDisplay } from '.';
-import { LiquidityRow } from './LiqudityRow';
+import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
 
 export class WithdrawTab extends React.Component<{
@@ -37,7 +37,7 @@ export class WithdrawTab extends React.Component<{
           )
           .map(lpTokenSymbol => (
             <span key={lpTokenSymbol}>
-              <LiquidityRow
+              <WithdrawLiquidityPanel
                 lpTokenSymbol={lpTokenSymbol}
                 tokens={this.props.tokens}
                 balances={this.props.balances}

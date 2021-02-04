@@ -38,6 +38,7 @@ const buttonStyle = {
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
 const BUTTON_MSG_LOADING_PRICE = 'Loading price data';
+const BUTTON_MSG_PROVIDE_CREATE_PRICE = 'Provide and set price';
 const BUTTON_MSG_PROVIDE = 'Provide';
 
 export class ProvideTab extends React.Component<
@@ -332,7 +333,7 @@ export class ProvideTab extends React.Component<
     let buttonMessage: string;
     if (!pair) {
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
-    } else if (this.state.inputA === '' && this.state.inputB === '') {
+    } else if (this.state.inputA === '' || this.state.inputB === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
     } else if (
       new BigNumber(balanceA as BigNumber)
@@ -346,6 +347,8 @@ export class ProvideTab extends React.Component<
         .toNumber() < Number(this.state.inputB)
     ) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
+    } else if (poolA.isZero() || poolB.isZero()) {
+      buttonMessage = BUTTON_MSG_PROVIDE_CREATE_PRICE;
     } else if (price.isNaN()) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else {
@@ -359,16 +362,13 @@ export class ProvideTab extends React.Component<
       new BigNumber(`1e${decimalsB}`),
     );
 
+    const allowanceA = new BigNumber(this.state.allowanceA);
+    const allowanceB = new BigNumber(this.state.allowanceB);
+
     const showApproveAButton: boolean =
-      this.state.tokenA !== 'SCRT' &&
-      pair &&
-      !new BigNumber(this.state.allowanceA).isNaN() &&
-      this.state.allowanceA.lt(amountA);
+      this.state.tokenA !== 'SCRT' && pair && allowanceA.lt(amountA);
     const showApproveBButton: boolean =
-      this.state.tokenB !== 'SCRT' &&
-      pair &&
-      !new BigNumber(this.state.allowanceB).isNaN() &&
-      this.state.allowanceB.lt(amountB);
+      this.state.tokenB !== 'SCRT' && pair && allowanceB.lt(amountB);
 
     const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
     const lpTokenTotalSupply = new BigNumber(
@@ -605,14 +605,14 @@ export class ProvideTab extends React.Component<
         )}
         <Button
           disabled={
-            buttonMessage !== BUTTON_MSG_PROVIDE ||
+            buttonMessage !== BUTTON_MSG_PROVIDE_CREATE_PRICE ||
             this.state.loadingProvide ||
             showApproveAButton ||
             showApproveBButton
           }
           loading={this.state.loadingProvide}
           primary={
-            buttonMessage === BUTTON_MSG_PROVIDE &&
+            buttonMessage === BUTTON_MSG_PROVIDE_CREATE_PRICE &&
             !showApproveAButton &&
             !showApproveBButton
           }
