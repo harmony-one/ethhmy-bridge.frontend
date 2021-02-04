@@ -110,7 +110,15 @@ export const AssetRow = ({
               height: '30px',
               padding: '0rem 0.4rem',
             }}
-            onClick={() => setAmount(new BigNumber(balance as any).toFixed())}
+            onClick={() => {
+              const { decimals } = tokens[token];
+              setAmount(
+                new BigNumber(balance as any)
+                  .dividedBy(new BigNumber(`1e${decimals}`))
+                  .toFormat(decimals)
+                  .replace(/.?0+$/, ''),
+              );
+            }}
           >
             MAX
           </Button>
