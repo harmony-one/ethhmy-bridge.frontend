@@ -199,7 +199,9 @@ export class Exchange extends React.Component<
         justify="center"
         fill={true}
         pad="medium"
+        style={{ background: '#dedede40' }}
       >
+        {icon()}
         <Box
           className={styles.description}
           margin={{ top: 'medium' }}
