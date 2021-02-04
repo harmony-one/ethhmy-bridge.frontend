@@ -115,7 +115,10 @@ export const AssetRow = ({
               setAmount(
                 new BigNumber(balance as any)
                   .dividedBy(new BigNumber(`1e${decimals}`))
-                  .toFormat(decimals)
+                  .toFormat(decimals, {
+                    groupSeparator: '',
+                    decimalSeparator: '.',
+                  })
                   .replace(/.?0+$/, ''),
               );
             }}
