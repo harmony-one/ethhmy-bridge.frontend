@@ -16,6 +16,7 @@ import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
 import { Icon, Message, Popup } from 'semantic-ui-react';
 import SwapHeader from '../../components/Swap/Header';
+import { PoolsTab } from './Pool';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -565,8 +566,9 @@ export class SwapRouter extends React.Component<
     const isSwap = window.location.hash === '#Swap';
     const isProvide = window.location.hash === '#Provide';
     const isWithdraw = window.location.hash === '#Withdraw';
+    const isPools = window.location.hash === '#Pool';
 
-    if (!isSwap && !isProvide && !isWithdraw) {
+    if (!isSwap && !isProvide && !isWithdraw && !isPools) {
       window.location.hash = 'Swap';
       return <></>;
     }
@@ -590,6 +592,7 @@ export class SwapRouter extends React.Component<
               }}
               pad={{ bottom: 'medium' }}
             >
+              {isPools && <PoolsTab />}
               {isSwap && (
                 <SwapTab
                   secretjs={this.props.user.secretjs}
