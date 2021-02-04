@@ -8,6 +8,31 @@ import { useStores } from 'stores';
 import { EXCHANGE_MODE } from 'stores/interfaces';
 import { SwapStatus } from '../../constants';
 
+console.log(styles);
+
+const ProgressBar = ({ status }) => {
+  const statusProgress = {
+    [SwapStatus.SWAP_WAIT_SEND]: 33,
+    [SwapStatus.SWAP_SENT]: 66,
+    [SwapStatus.SWAP_CONFIRMED]: 100
+  }
+  return (
+    <>
+      <div className={styles.progress}>
+        <div className={styles.bar} style={{ width: `${statusProgress[status]}%` }}></div>
+      </div>
+    </>
+  )
+}
+
+const StepNumber = ({ step, isActive }) => {
+  return (
+    <>
+      <div className={ isActive ? [styles.stepNumber, styles.stepNumberActive].join(' ') : styles.stepNumber }>{step}</div>
+    </>
+  )
+}
+
 const StepRow = ({
   status,
   srcTransactionHash,
@@ -21,7 +46,7 @@ const StepRow = ({
   type: EXCHANGE_MODE;
   txId?: string;
 }) => {
-  const label = StatusDescription[status]; //STEPS_TITLE[status];
+  const label = StatusDescription[status];
 
   const textStyle =
     status === SwapStatus.SWAP_FAILED ? styles.failed : styles.active;
@@ -31,38 +56,23 @@ const StepRow = ({
   return (
     <Box
       direction="column"
-      style={{ borderBottom: '1px solid #dedede' }}
       margin={{ bottom: 'medium' }}
     >
-      <Text className={textClassName}>
-        {status !== SwapStatus.SWAP_FAILED &&
-        status !== SwapStatus.SWAP_CONFIRMED
-          ? `Your transaction is in progress. This process may take a few minutes...`
-          : null}
-      </Text>
+      <h3>Loading your bridge transaction...</h3>
 
-      <Box direction="row" justify="between">
-        {' '}
-      </Box>
+      <ProgressBar status={status}/>
 
-      <Text className={textClassName}>
-        {label}{' '}
-        {status === SwapStatus.SWAP_WAIT_SEND
-          ? `from ${WalletType[type]}`
-          : null}
-      </Text>
-      <Text className={textClassName}>
-        {txId ? `Your transaction ID is: ${txId}` : null}
-      </Text>
-      {/*     {srcTransactionHash && (*/}
-      {/*          <Box direction="row" justify="between">*/}
-      {/*            <Text className={textClassName}>Tx hash: </Text>*/}
-      {/*            <a href={srcExplorerUrl + srcTransactionHash} target="_blank">*/}
-      {/*              {truncateAddressString(srcTransactionHash, 10)}*/}
-      {/*            </a>*/}
-      {/*          </Box>*/}
-      {/*  )}*/}
-      {/*</Box>*/}
+      <StepNumber step={1} isActive={status === SwapStatus.SWAP_WAIT_SEND}></StepNumber>
+
+      <h4>{WalletTypeMessages[type].firstStep}</h4>
+      <p>{srcTransactionHash ? `Your TX ID is: ${srcTransactionHash}` : null}</p>
+
+      <StepNumber step={2} isActive={status === SwapStatus.SWAP_SENT}></StepNumber>
+      <h4>Wait for 6 blocks</h4>
+      <p>The waiting period is required to ensure finality</p>
+
+      <StepNumber step={3} isActive={status === SwapStatus.SWAP_CONFIRMED}></StepNumber>
+      <h4>{WalletTypeMessages[type].lastStep}</h4>
     </Box>
   );
 };
@@ -70,6 +80,17 @@ const StepRow = ({
 const WalletType: Record<EXCHANGE_MODE, string> = {
   [EXCHANGE_MODE.ETH_TO_SCRT]: 'Metamask',
   [EXCHANGE_MODE.SCRT_TO_ETH]: 'Keplr',
+};
+
+const WalletTypeMessages: Record<EXCHANGE_MODE, any> = {
+  [EXCHANGE_MODE.ETH_TO_SCRT]: {
+    firstStep: 'Ethereum transaction [pending / confirmed]',
+    lastStep: 'Secret Network transaction [pending / confirmed]'
+  },
+  [EXCHANGE_MODE.SCRT_TO_ETH]: {
+    firstStep: 'Secret Network transaction [pending / confirmed]',
+    lastStep: 'Ethereum multisig transaction [broadcasted/ pending / confirmed]'
+  },
 };
 
 const StatusDescription: Record<SwapStatus, string> = {
