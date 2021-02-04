@@ -354,11 +354,15 @@ export class ProvideTab extends React.Component<
     const showApproveAButton: boolean =
       this.state.tokenA !== 'SCRT' &&
       pair &&
-      this.state.allowanceA?.lt(amountA);
+      this.state.allowanceA &&
+      !this.state.allowanceA.isNaN() &&
+      this.state.allowanceA.lt(amountA);
     const showApproveBButton: boolean =
       this.state.tokenB !== 'SCRT' &&
       pair &&
-      this.state.allowanceB?.lt(amountB);
+      this.state.allowanceB &&
+      !this.state.allowanceB.isNaN() &&
+      this.state.allowanceB.lt(amountB);
 
     const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
     const lpTokenTotalSupply = this.props.balances[
