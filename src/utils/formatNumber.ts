@@ -94,3 +94,19 @@ export const divDecimals = (
 };
 
 export const UINT128_MAX = '340282366920938463463374607431768211454';
+
+export const displayHumanizedBalance = (balance: BigNumber): string =>
+  new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 6,
+    useGrouping: true,
+  }).format(balance.toNumber());
+
+export const humanizeBalance = (
+  balance: BigNumber,
+  decimals: number,
+): BigNumber => balance.dividedBy(new BigNumber(`1e${decimals}`));
+
+export const canonicalizeBalance = (
+  balance: BigNumber,
+  decimals: number,
+): BigNumber => balance.multipliedBy(new BigNumber(`1e${decimals}`));

@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
+import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { TokenDisplay } from '.';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
@@ -56,25 +57,24 @@ export const AssetRow = ({
           {isEstimated ? ` (estimated)` : null}
         </span>
         {flexRowSpace}
-        {(() => {
-          if (balance == undefined) {
-            return '-';
-          }
+        <>
+          {'Balance: '}
+          {(() => {
+            if (balance == undefined) {
+              return '-';
+            }
 
-          const { decimals } = tokens[token];
+            if (JSON.stringify(balance).includes('View')) {
+              return balance;
+            }
 
-          return (
-            <>
-              {'Balance: '}
-              {new BigNumber(balance as any).isNaN()
-                ? balance
-                : (balance as BigNumber)
-                    .dividedBy(new BigNumber(`1e${decimals}`))
-                    .toFormat(6)
-                    .replace(/.?0+$/, '')}
-            </>
-          );
-        })()}
+            const { decimals } = tokens[token];
+
+            return displayHumanizedBalance(
+              humanizeBalance(new BigNumber(balance as BigNumber), decimals),
+            );
+          })()}
+        </>
       </div>
       <div
         style={{
@@ -112,13 +112,12 @@ export const AssetRow = ({
             }}
             onClick={() => {
               const { decimals } = tokens[token];
+
               setAmount(
-                new BigNumber(balance as any)
-                  .dividedBy(new BigNumber(`1e${decimals}`))
-                  .toFormat(decimals, {
-                    groupSeparator: '',
-                    decimalSeparator: '.',
-                  }),
+                humanizeBalance(
+                  new BigNumber(balance as any),
+                  decimals,
+                ).toFixed(decimals),
               );
             }}
           >

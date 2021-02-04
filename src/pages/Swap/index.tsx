@@ -650,7 +650,7 @@ export class SwapRouter extends React.Component<
             <Message warning>
               <Message.Header>Hello beta testers! 👋</Message.Header>
               <p>
-                <strong>Getting sSCRT:</strong> get SCRT from the{' '}
+                <strong>Getting sSCRT:</strong> Get SCRT from the{' '}
                 <a href="https://faucet.secrettestnet.io" target="_blank">
                   holodeck-2 faucet
                 </a>
@@ -671,8 +671,8 @@ export class SwapRouter extends React.Component<
                 to convert to sSCRT
               </p>
               <p>
-                <strong>Getting sETH:</strong> Via the bridge from the ETH
-                rinkeby testnet, or just Swap SCRT for it 👆😋
+                <strong>Getting sETH:</strong> Use the bridge from the ETH
+                rinkeby testnet, or just swap for it from sSCRT 👆😋
               </p>
               <strong>Feedback channels:</strong>
               <ul>

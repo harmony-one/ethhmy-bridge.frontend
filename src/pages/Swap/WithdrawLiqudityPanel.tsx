@@ -3,6 +3,7 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Container, Image, Button, Divider, Header } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
+import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { flexRowSpace, Pair, TokenDisplay } from '.';
 import { PriceRow } from './PriceRow';
 import { downArrow } from './SwapTab';
@@ -59,21 +60,23 @@ export class WithdrawLiquidityPanel extends React.Component<
       if (lpTokenTotalSupply.isGreaterThan(0)) {
         lpShare = lpTokenBalanceNum.dividedBy(lpTokenTotalSupply);
 
-        pooledTokenA = lpShare
-          .multipliedBy(
-            this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber,
-          )
-          .dividedBy(new BigNumber(`1e${decimalsA}`))
-          .toFormat(6)
-          .replace(/.?0+$/, '');
+        pooledTokenA = displayHumanizedBalance(
+          humanizeBalance(
+            lpShare.multipliedBy(
+              this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber,
+            ),
+            decimalsA,
+          ),
+        );
 
-        pooledTokenB = lpShare
-          .multipliedBy(
-            this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber,
-          )
-          .dividedBy(new BigNumber(`1e${decimalsB}`))
-          .toFormat(6)
-          .replace(/.?0+$/, '');
+        pooledTokenB = displayHumanizedBalance(
+          humanizeBalance(
+            lpShare.multipliedBy(
+              this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber,
+            ),
+            decimalsB,
+          ),
+        );
 
         lpShareJsxElement = (
           <span>{`${lpTokenBalanceNum
@@ -108,15 +111,15 @@ export class WithdrawLiquidityPanel extends React.Component<
     };
 
     const poolA = new BigNumber(
-      this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber,
+      this.props.balances[`${tokenA}-${pairSymbol}`] as any,
     );
     const poolB = new BigNumber(
-      this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber,
+      this.props.balances[`${tokenB}-${pairSymbol}`] as any,
     );
 
-    const price = poolA
-      .dividedBy(new BigNumber(`1e${decimalsA}`))
-      .dividedBy(poolB.dividedBy(new BigNumber(`1e${decimalsB}`)));
+    const price = humanizeBalance(poolA, decimalsA).dividedBy(
+      humanizeBalance(poolB, decimalsB),
+    );
 
     const lpTokenBalanceString = lpTokenBalanceNum.toFormat(0, {
       groupSeparator: '',
@@ -163,10 +166,7 @@ export class WithdrawLiquidityPanel extends React.Component<
           {flexRowSpace}
           {lpTokenBalanceNum.isNaN()
             ? lpTokenBalance
-            : lpTokenBalanceNum
-                .dividedBy(new BigNumber(`1e6`))
-                .toFormat(6)
-                .replace(/.?0+$/, '')}
+            : displayHumanizedBalance(humanizeBalance(lpTokenBalanceNum, 6))}
         </div>
         {!lpTokenBalanceNum.isNaN() && (
           <>

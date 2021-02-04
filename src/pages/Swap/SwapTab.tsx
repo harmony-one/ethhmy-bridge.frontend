@@ -1,7 +1,12 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
-import { mulDecimals, sortedStringify } from 'utils';
+import {
+  canonicalizeBalance,
+  humanizeBalance,
+  mulDecimals,
+  sortedStringify,
+} from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
@@ -126,12 +131,22 @@ export class SwapTab extends React.Component<
     // we normalize offer_pool & ask_pool
     // we could also canonicalize offer_amount & ask_amount
     // but this way is less code because we get the results normilized
-    const offer_pool = (this.props.balances[
-      `${this.state.fromToken}-${selectedPairSymbol}`
-    ] as BigNumber).dividedBy(new BigNumber(`1e${fromDecimals}`));
-    const ask_pool = (this.props.balances[
-      `${this.state.toToken}-${selectedPairSymbol}`
-    ] as BigNumber).dividedBy(new BigNumber(`1e${toDecimals}`));
+    const offer_pool = humanizeBalance(
+      new BigNumber(
+        this.props.balances[
+          `${this.state.fromToken}-${selectedPairSymbol}`
+        ] as any,
+      ),
+      fromDecimals,
+    );
+    const ask_pool = humanizeBalance(
+      new BigNumber(
+        this.props.balances[
+          `${this.state.toToken}-${selectedPairSymbol}`
+        ] as any,
+      ),
+      toDecimals,
+    );
 
     if (
       offer_pool.isNaN() ||
@@ -213,22 +228,33 @@ export class SwapTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const offer_pool = this.props.balances[
-      `${this.state.fromToken}-${selectedPairSymbol}`
-    ] as BigNumber;
-    const ask_pool = this.props.balances[
-      `${this.state.toToken}-${selectedPairSymbol}`
-    ] as BigNumber;
+    const offer_pool = new BigNumber(
+      this.props.balances[
+        `${this.state.fromToken}-${selectedPairSymbol}`
+      ] as BigNumber,
+    );
+    const ask_pool = new BigNumber(
+      this.props.balances[
+        `${this.state.toToken}-${selectedPairSymbol}`
+      ] as BigNumber,
+    );
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
       this.props.balances[this.state.toToken],
     ];
 
-    const canonFromInput = new BigNumber(this.state.fromInput).multipliedBy(
-      new BigNumber(`1e${this.props.tokens[this.state.fromToken]?.decimals}`),
+    const [fromDecimals, toDecimals] = [
+      this.props.tokens[this.state.fromToken]?.decimals,
+      this.props.tokens[this.state.toToken]?.decimals,
+    ];
+
+    const canonFromInput = canonicalizeBalance(
+      new BigNumber(this.state.fromInput),
+      fromDecimals,
     );
-    const canonToInput = new BigNumber(this.state.toInput).multipliedBy(
-      new BigNumber(`1e${this.props.tokens[this.state.toToken]?.decimals}`),
+    const canonToInput = canonicalizeBalance(
+      new BigNumber(this.state.toInput),
+      toDecimals,
     );
 
     let buttonMessage: string;
@@ -236,15 +262,11 @@ export class SwapTab extends React.Component<
       buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
     } else if (this.state.fromInput === '' && this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
-    } else if ((fromBalance as BigNumber).isLessThan(canonFromInput)) {
-      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
     } else if (
-      this.state.priceImpact >= 1 ||
-      this.state.priceImpact < 0 ||
-      offer_pool.isEqualTo(0) ||
-      ask_pool.isEqualTo(0) ||
-      ask_pool.isLessThan(canonToInput)
+      new BigNumber(fromBalance as BigNumber).isLessThan(canonFromInput)
     ) {
+      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
+    } else if (ask_pool.isLessThan(canonToInput)) {
       buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;

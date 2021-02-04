@@ -1,7 +1,14 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import { Button, Container } from 'semantic-ui-react';
-import { divDecimals, mulDecimals, UINT128_MAX, sortedStringify } from 'utils';
+import { Button, Container, Message } from 'semantic-ui-react';
+import {
+  mulDecimals,
+  UINT128_MAX,
+  sortedStringify,
+  humanizeBalance,
+  displayHumanizedBalance,
+  canonicalizeBalance,
+} from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
@@ -199,22 +206,28 @@ export class ProvideTab extends React.Component<
     const decimalsA = this.props.tokens[this.state.tokenA].decimals;
     const decimalsB = this.props.tokens[this.state.tokenB].decimals;
 
-    const poolA = new BigNumber(
-      this.props.balances[
-        `${this.state.tokenA}-${selectedPairSymbol}`
-      ] as BigNumber,
-    ).dividedBy(new BigNumber(`1e${decimalsA}`));
-    const poolB = new BigNumber(
-      this.props.balances[
-        `${this.state.tokenB}-${selectedPairSymbol}`
-      ] as BigNumber,
-    ).dividedBy(new BigNumber(`1e${decimalsB}`));
+    const humanPoolA = humanizeBalance(
+      new BigNumber(
+        this.props.balances[
+          `${this.state.tokenA}-${selectedPairSymbol}`
+        ] as any,
+      ),
+      decimalsA,
+    );
+    const humanPoolB = humanizeBalance(
+      new BigNumber(
+        this.props.balances[
+          `${this.state.tokenB}-${selectedPairSymbol}`
+        ] as any,
+      ),
+      decimalsB,
+    );
 
     if (
-      poolA.isNaN() ||
-      poolB.isNaN() ||
-      poolA.isEqualTo(0) ||
-      poolB.isEqualTo(0)
+      humanPoolA.isNaN() ||
+      humanPoolB.isNaN() ||
+      humanPoolA.isEqualTo(0) ||
+      humanPoolB.isEqualTo(0)
     ) {
       return;
     }
@@ -224,7 +237,7 @@ export class ProvideTab extends React.Component<
       // =>
       // inputB = inputA*(poolB/poolA)
       const inputB =
-        Number(this.state.inputA) * poolB.dividedBy(poolA).toNumber();
+        Number(this.state.inputA) * humanPoolB.dividedBy(humanPoolA).toNumber();
 
       if (isNaN(inputB) || this.state.inputA === '') {
         this.setState({
@@ -247,7 +260,7 @@ export class ProvideTab extends React.Component<
       // =>
       // inputA = inputB*(poolA/poolB)
       const inputA =
-        Number(this.state.inputB) * poolA.dividedBy(poolB).toNumber();
+        Number(this.state.inputB) * humanPoolA.dividedBy(humanPoolB).toNumber();
 
       if (isNaN(inputA) || this.state.inputB === '') {
         this.setState({
@@ -326,9 +339,9 @@ export class ProvideTab extends React.Component<
       ] as BigNumber,
     );
 
-    const price = poolA
-      .dividedBy(new BigNumber(`1e${decimalsA}`))
-      .dividedBy(poolB.dividedBy(new BigNumber(`1e${decimalsB}`)));
+    const price = humanizeBalance(poolA, decimalsA).dividedBy(
+      humanizeBalance(poolB, decimalsB),
+    );
 
     let buttonMessage: string;
     if (!pair) {
@@ -336,15 +349,13 @@ export class ProvideTab extends React.Component<
     } else if (this.state.inputA === '' || this.state.inputB === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
     } else if (
-      new BigNumber(balanceA as BigNumber)
-        .dividedBy(new BigNumber(`1e${decimalsA}`))
-        .toNumber() < Number(this.state.inputA)
+      humanizeBalance(new BigNumber(balanceA as any), decimalsA).toNumber() <
+      Number(this.state.inputA)
     ) {
       buttonMessage = `Insufficient ${this.state.tokenA} balance`;
     } else if (
-      new BigNumber(balanceB as BigNumber)
-        .dividedBy(new BigNumber(`1e${decimalsB}`))
-        .toNumber() < Number(this.state.inputB)
+      humanizeBalance(new BigNumber(balanceB as any), decimalsB).toNumber() <
+      Number(this.state.inputB)
     ) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
     } else if (poolA.isZero() || poolB.isZero()) {
@@ -355,11 +366,13 @@ export class ProvideTab extends React.Component<
       buttonMessage = BUTTON_MSG_PROVIDE;
     }
 
-    const amountA = new BigNumber(this.state.inputA).multipliedBy(
-      new BigNumber(`1e${decimalsA}`),
+    const amountA = canonicalizeBalance(
+      new BigNumber(this.state.inputA),
+      decimalsA,
     );
-    const amountB = new BigNumber(this.state.inputB).multipliedBy(
-      new BigNumber(`1e${decimalsB}`),
+    const amountB = canonicalizeBalance(
+      new BigNumber(this.state.inputB),
+      decimalsB,
     );
 
     const allowanceA = new BigNumber(this.state.allowanceA);
@@ -530,6 +543,51 @@ export class ProvideTab extends React.Component<
             );
           }}
         />
+        {(poolA.isZero() || poolB.isZero()) &&
+          !poolA.isNaN() &&
+          !poolB.isNaN() && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                paddingTop: '0.5rem',
+              }}
+            >
+              <Message warning style={{ borderRadius: '20px' }}>
+                <Message.Header>Pair without liquidiy!</Message.Header>
+                <p>
+                  This trading pair has no liquidiy. By providing liquidity you
+                  are setting the price.
+                </p>
+                <p>
+                  Current liquidity in {this.state.tokenA} Pool:{' '}
+                  {displayHumanizedBalance(humanizeBalance(poolA, decimalsA))}
+                </p>
+                <p>
+                  Current liquidity in {this.state.tokenB} Pool:{' '}
+                  {displayHumanizedBalance(humanizeBalance(poolB, decimalsB))}
+                </p>
+                {(() => {
+                  const newPrice = new BigNumber(this.state.inputA)
+                    .plus(humanizeBalance(poolA, decimalsA))
+                    .dividedBy(
+                      new BigNumber(this.state.inputB).plus(
+                        humanizeBalance(poolB, decimalsB),
+                      ),
+                    );
+
+                  return newPrice.isNaN() ? null : (
+                    <PriceRow
+                      fromToken={this.state.tokenA}
+                      toToken={this.state.tokenB}
+                      price={newPrice.toNumber()}
+                      labelPrefix="New "
+                    />
+                  );
+                })()}
+              </Message>
+            </div>
+          )}
         {!price.isNaN() && (
           <PriceRow
             fromToken={this.state.tokenA}
@@ -551,10 +609,7 @@ export class ProvideTab extends React.Component<
               if (JSON.stringify(lpTokenBalance).includes('View')) {
                 return lpTokenBalance;
               } else {
-                return `${currentShareOfPool
-                  .multipliedBy(100)
-                  .toFixed(2)
-                  .replace(/.?0+$/, '')}%`;
+                return `${currentShareOfPool.multipliedBy(100).toFixed(2)}%`;
               }
             })()}
           </div>
@@ -569,10 +624,7 @@ export class ProvideTab extends React.Component<
           >
             Expected Gain in Your Share of Pool
             {flexRowSpace}
-            {`~${gainedShareOfPool
-              .multipliedBy(100)
-              .toFixed(2)
-              .replace(/.?0+$/, '')}%`}
+            {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
           </div>
         )}
         {showApproveAButton && (

@@ -12,10 +12,12 @@ export const PriceRow = ({
   price,
   fromToken,
   toToken,
+  labelPrefix,
 }: {
   price: number;
   fromToken: string;
   toToken: string;
+  labelPrefix?: string;
 }) => {
   const [tokens, setTokens] = useState({
     from: fromToken,
@@ -44,8 +46,7 @@ export const PriceRow = ({
           alignContent: 'center',
         }}
       >
-        {' '}
-        Price
+        {labelPrefix}Price
         {flexRowSpace}
         {`${tokens.price} ${tokens.from} per ${tokens.to}`}
         <Icon
