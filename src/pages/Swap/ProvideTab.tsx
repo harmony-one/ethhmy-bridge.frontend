@@ -362,23 +362,23 @@ export class ProvideTab extends React.Component<
     const showApproveAButton: boolean =
       this.state.tokenA !== 'SCRT' &&
       pair &&
-      this.state.allowanceA &&
-      !this.state.allowanceA.isNaN() &&
+      !new BigNumber(this.state.allowanceA).isNaN() &&
       this.state.allowanceA.lt(amountA);
     const showApproveBButton: boolean =
       this.state.tokenB !== 'SCRT' &&
       pair &&
-      this.state.allowanceB &&
-      !this.state.allowanceB.isNaN() &&
+      !new BigNumber(this.state.allowanceB).isNaN() &&
       this.state.allowanceB.lt(amountB);
 
     const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
-    const lpTokenTotalSupply = this.props.balances[
-      `LP-${selectedPairSymbol}-total-supply`
-    ] as BigNumber;
-    const currentShareOfPool = new BigNumber(
-      lpTokenBalance as BigNumber,
-    ).dividedBy(lpTokenTotalSupply);
+    const lpTokenTotalSupply = new BigNumber(
+      this.props.balances[`LP-${selectedPairSymbol}-total-supply`] as BigNumber,
+    );
+    const currentShareOfPool = lpTokenTotalSupply.isZero()
+      ? lpTokenTotalSupply
+      : new BigNumber(lpTokenBalance as BigNumber).dividedBy(
+          lpTokenTotalSupply,
+        );
 
     const gainedShareOfPool = BigNumber.minimum(
       amountA.dividedBy(poolA.plus(amountA)),
@@ -547,12 +547,16 @@ export class ProvideTab extends React.Component<
           >
             Your Current Share of Pool
             {flexRowSpace}
-            {currentShareOfPool.isNaN()
-              ? lpTokenBalance
-              : `${currentShareOfPool
+            {(() => {
+              if (JSON.stringify(lpTokenBalance).includes('View')) {
+                return lpTokenBalance;
+              } else {
+                return `${currentShareOfPool
                   .multipliedBy(100)
                   .toFixed(2)
-                  .replace(/.?0+$/, '')}%`}
+                  .replace(/.?0+$/, '')}%`;
+              }
+            })()}
           </div>
         )}
         {gainedShareOfPool.gt(0) && (

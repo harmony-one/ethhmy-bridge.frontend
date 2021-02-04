@@ -41,6 +41,8 @@ export class WithdrawTab extends React.Component<{
                 lpTokenSymbol={lpTokenSymbol}
                 tokens={this.props.tokens}
                 balances={this.props.balances}
+                secretjs={this.props.secretjs}
+                pairFromSymbol={this.props.pairFromSymbol}
               />
               <div style={{ minHeight: '1em' }} />
             </span>
