@@ -170,19 +170,19 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         />
         {getAmount()}
 
-        {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
-          <AssetRow label="Deposit amount" value="">
-            {!exchange.isDepositAmountLoading ? (
-              <Price
-                value={Number(exchange.depositAmount.toFixed(2))}
-                isEth={false}
-                boxProps={{ pad: {} }}
-              />
-            ) : (
-              <Text>...loading</Text>
-            )}
-          </AssetRow>
-        ) : null}
+        {/*{exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (*/}
+        {/*  <AssetRow label="Deposit amount" value="">*/}
+        {/*    {!exchange.isDepositAmountLoading ? (*/}
+        {/*      <Price*/}
+        {/*        value={Number(exchange.depositAmount.toFixed(2))}*/}
+        {/*        isEth={false}*/}
+        {/*        boxProps={{ pad: {} }}*/}
+        {/*      />*/}
+        {/*    ) : (*/}
+        {/*      <Text>...loading</Text>*/}
+        {/*    )}*/}
+        {/*  </AssetRow>*/}
+        {/*) : null}*/}
 
         {/*<DataItem*/}
         {/*  icon="User"*/}
@@ -212,7 +212,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               )}
             </AssetRow>
 
-            {!isShowDetail && isETH && !exchange.isFeeLoading ? (
+            {!isShowDetail && !exchange.isFeeLoading ? (
               <Box
                 direction="row"
                 justify="end"
@@ -226,6 +226,34 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 />
                 <Text size="small">Show more details</Text>
               </Box>
+            ) : null}
+
+            {!exchange.isFeeLoading &&
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+            isShowDetail ? (
+              <div style={{ opacity: 1 }}>
+                <AssetRow label="Approve" value="">
+                  <Price
+                    value={0.0067219}
+                    isEth={false}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+                <AssetRow label="Burn" value="">
+                  <Price
+                    value={0.0067219}
+                    isEth={false}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+                <AssetRow label="Ethereum gas" value="">
+                  <Price
+                    value={Number(exchange.depositAmount.toFixed(2))}
+                    isEth={false}
+                    boxProps={{ pad: {} }}
+                  />
+                </AssetRow>
+              </div>
             ) : null}
 
             {!exchange.isFeeLoading &&
@@ -249,7 +277,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               </div>
             ) : null}
 
-            {isShowDetail && isETH ? (
+            {isShowDetail ? (
               <Box
                 direction="row"
                 justify="end"

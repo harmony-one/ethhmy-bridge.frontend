@@ -96,7 +96,7 @@ export class Exchange extends StoreConstructor {
   get networkFee() {
     return this.mode === EXCHANGE_MODE.ETH_TO_ONE
       ? this.ethNetworkFee
-      : 0.0134438;
+      : this.depositAmount + 0.0134438;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -126,9 +126,9 @@ export class Exchange extends StoreConstructor {
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
-                this.isDepositAmountLoading = true;
+                this.isFeeLoading = true;
                 this.depositAmount = await getDepositAmount();
-                this.isDepositAmountLoading = false;
+                this.isFeeLoading = false;
 
                 this.transaction.oneAddress = this.stores.user.address;
                 break;
