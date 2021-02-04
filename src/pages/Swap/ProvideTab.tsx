@@ -45,7 +45,6 @@ const buttonStyle = {
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
 const BUTTON_MSG_LOADING_PRICE = 'Loading price data';
-const BUTTON_MSG_PROVIDE_CREATE_PRICE = 'Provide and set price';
 const BUTTON_MSG_PROVIDE = 'Provide';
 
 export class ProvideTab extends React.Component<
@@ -359,7 +358,7 @@ export class ProvideTab extends React.Component<
     ) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
     } else if (poolA.isZero() || poolB.isZero()) {
-      buttonMessage = BUTTON_MSG_PROVIDE_CREATE_PRICE;
+      buttonMessage = BUTTON_MSG_PROVIDE;
     } else if (price.isNaN()) {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
     } else {
@@ -657,14 +656,14 @@ export class ProvideTab extends React.Component<
         )}
         <Button
           disabled={
-            buttonMessage !== BUTTON_MSG_PROVIDE_CREATE_PRICE ||
+            buttonMessage !== BUTTON_MSG_PROVIDE ||
             this.state.loadingProvide ||
             showApproveAButton ||
             showApproveBButton
           }
           loading={this.state.loadingProvide}
           primary={
-            buttonMessage === BUTTON_MSG_PROVIDE_CREATE_PRICE &&
+            buttonMessage === BUTTON_MSG_PROVIDE &&
             !showApproveAButton &&
             !showApproveBButton
           }
