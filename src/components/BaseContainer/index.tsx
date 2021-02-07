@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Box, BoxProps } from 'grommet';
 import { Head } from 'components';
-import { Footer } from 'components';
+import { MainFooter } from 'components';
 import { withTheme } from 'styled-components';
 import { IStyledChildrenProps } from 'interfaces';
-// import * as styles from './styles.styl';
+//import * as styles from './styles.styl';
 import { Disclaimer } from '../DisclaimerWarning';
 
 export const BaseContainer: React.FC<IStyledChildrenProps<
@@ -45,7 +45,7 @@ export const BaseContainer: React.FC<IStyledChildrenProps<
             {process.env.NODE_ENV === 'testnet' ? <Disclaimer /> : null}
             {children}
           </Box>
-          <Footer />
+          <MainFooter />
         </div>
       </>
     );

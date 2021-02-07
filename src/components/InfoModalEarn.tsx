@@ -14,7 +14,7 @@ export const InfoModalEarn = observer(() => {
       return;
     }
 
-    if (!user.isInfoReading) {
+    if (!user.isInfoEarnReading) {
       actionModals.open(
         () => <InfoEarn title="Improve privacy guarantees and earn SCRT rewards" />,
         {
@@ -24,13 +24,13 @@ export const InfoModalEarn = observer(() => {
           noValidation: true,
           showOther: true,
           onApply: () => {
-            user.setInfoReading();
+            user.setInfoEarnReading();
             return Promise.resolve();
           },
         },
       );
     }
-  }, [user.isInfoReading]);
+  }, [user.isInfoEarnReading]);
 
   return <></>;
 });
