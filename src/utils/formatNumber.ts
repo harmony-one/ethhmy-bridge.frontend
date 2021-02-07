@@ -95,11 +95,14 @@ export const divDecimals = (
 
 export const UINT128_MAX = '340282366920938463463374607431768211454';
 
-export const displayHumanizedBalance = (balance: BigNumber): string =>
+export const displayHumanizedBalance = (
+  balance: BigNumber,
+  decimals: number = 6,
+): string =>
   new Intl.NumberFormat('en-US', {
-    maximumFractionDigits: 6,
+    maximumFractionDigits: decimals,
     useGrouping: true,
-  }).format(balance.toNumber());
+  }).format(Number(balance.toFixed(decimals, BigNumber.ROUND_DOWN)));
 
 export const humanizeBalance = (
   balance: BigNumber,
