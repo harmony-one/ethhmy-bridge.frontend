@@ -118,7 +118,7 @@ export class Exchange extends StoreConstructor {
 
                 this.isFeeLoading = true;
                 this.ethNetworkFee = await getNetworkFee(
-                  process.env.ETH_GAS_LIMIT,
+                  Number(process.env.ETH_GAS_LIMIT) * 2,
                 );
                 this.isFeeLoading = false;
                 break;
