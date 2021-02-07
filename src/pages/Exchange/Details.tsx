@@ -136,7 +136,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                   <Price
                     value={exchange.swapFee}
                     valueUsd={exchange.swapFeeUSD}
-                    token={userMetamask.erc20TokenDetails.symbol}
+                    token={userMetamask.erc20TokenDetails?.symbol || 'ETH'}
                     boxProps={{ pad: {} }}
                   />
                 ) : (
@@ -181,7 +181,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                 <AssetRow label="Lock token (~50000 gas)" value="">
                   <Price
                     value={
-                      exchange.token == TOKEN.ETH
+                      exchange.token === TOKEN.ETH
                         ? exchange.networkFee
                         : exchange.networkFee / 2
                     }

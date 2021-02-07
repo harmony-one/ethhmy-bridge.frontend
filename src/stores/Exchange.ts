@@ -1,7 +1,13 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching, SwapStatus } from '../constants';
-import { ACTION_TYPE, EXCHANGE_MODE, IOperation, TOKEN } from './interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IOperation,
+  ITokenInfo,
+  TOKEN,
+} from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
@@ -133,6 +139,7 @@ export class Exchange extends StoreConstructor {
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
+                // todo: add check for approve
                 this.ethNetworkFee = await getNetworkFee(
                   Number(process.env.ETH_GAS_LIMIT) * 2,
                 );
@@ -142,15 +149,18 @@ export class Exchange extends StoreConstructor {
                 this.transaction.scrtAddress = this.stores.user.address;
                 this.isFeeLoading = true;
                 this.ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
-
-                const token = this.stores.tokens.allData.find(
-                  t => t.dst_address === this.transaction.snip20Address,
-                );
+                let token: ITokenInfo;
+                if (this.token === TOKEN.ETH) {
+                  token = this.stores.tokens.allData.find(
+                    t => t.name === 'Ethereum',
+                  );
+                } else {
+                  token = this.stores.tokens.allData.find(
+                    t => t.dst_address === this.transaction.snip20Address,
+                  );
+                }
                 this.swapFeeUsd = this.ethSwapFee * this.stores.user.ethRate;
-                this.swapFeeToken =
-                  (this.ethSwapFee * this.stores.user.ethRate) /
-                  Number(token.price);
-
+                this.swapFeeToken = this.swapFeeUsd / Number(token.price);
                 this.isFeeLoading = false;
                 break;
             }
@@ -517,9 +527,9 @@ export class Exchange extends StoreConstructor {
       if (
         // eslint-disable-next-line no-restricted-globals
         !confirm(
-          `Swap fee is expected to be a large percentage of your funds (${swapFeeUSD.toFixed(
+          `Swap fee is expected to be a large percentage of your funds ($${swapFeeUSD.toFixed(
             2,
-          )} out of ${swappedAmountUSD.toFixed(
+          )} out of $${swappedAmountUSD.toFixed(
             2,
           )}). Are you sure you wish to continue?`,
         )
