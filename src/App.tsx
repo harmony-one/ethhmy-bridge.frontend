@@ -9,7 +9,6 @@ import { Explorer } from './pages/Explorer';
 import { Tokens } from './pages/Tokens';
 import { SwapPage } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
-import { InfoModalEarn } from './components/InfoModalEarn';
 import { EarnRewards } from './pages/Earn';
 import { FAQPage } from './pages/FAQ';
 
@@ -36,7 +35,6 @@ export const App: React.FC = () => (
     </Suspense>
     <ActionModals />
     <InfoModal />
-    {/*<InfoModalEarn/>*/}
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>
 );

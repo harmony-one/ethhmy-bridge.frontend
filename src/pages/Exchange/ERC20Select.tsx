@@ -49,6 +49,10 @@ export const ERC20Select = observer(() => {
               .filter(
                 token => token.display_props && token.src_coin !== 'Ethereum',
               )
+              .sort((a, b) =>
+                /* SCRT first */
+                a.display_props.symbol.toLowerCase().includes('scrt') ? -1 : 1,
+              )
               .map(token => ({
                 ...token,
                 image: token.display_props.image,

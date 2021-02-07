@@ -10,6 +10,7 @@ import * as styles from '../EthBridge/styles.styl';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
 import { divDecimals } from '../../utils';
+import { InfoModalEarn } from './../../components/InfoModalEarn';
 import { Icon } from 'components/Base/components/Icons';
 
 export const EarnRewards = observer((props: any) => {
@@ -130,6 +131,7 @@ export const EarnRewards = observer((props: any) => {
             })}
           </Box>
         </Box>
+        <InfoModalEarn/>
       </PageContainer>
     </BaseContainer>
   );
