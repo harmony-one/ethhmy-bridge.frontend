@@ -131,11 +131,12 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
               )}
             </AssetRow>
             {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? (
-              <AssetRow label="Swap Fee" value="">
+              <AssetRow label="Swap Fee (estimated)" value="">
                 {!exchange.isFeeLoading ? (
                   <Price
                     value={exchange.swapFee}
-                    isEth={true}
+                    valueUsd={exchange.swapFeeUSD}
+                    token={userMetamask.erc20TokenDetails.symbol}
                     boxProps={{ pad: {} }}
                   />
                 ) : (

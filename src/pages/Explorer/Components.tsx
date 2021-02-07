@@ -42,9 +42,19 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
 };
 
 export const Price = observer(
-  (props: { value: number; isEth: boolean; boxProps?: BoxProps }) => {
+  (props: {
+    value: number;
+    valueUsd?: number;
+    isEth?: boolean;
+    boxProps?: BoxProps;
+    token?: string;
+  }) => {
     const { user } = useStores();
 
+    const tokenName = props.token || (props.isEth ? 'ETH' : 'SCRT');
+    const valueUsd = props.valueUsd
+      ? props.valueUsd
+      : props.value * (props.isEth ? user.ethRate : user.scrtRate);
     return (
       <Box
         direction="column"
@@ -53,14 +63,9 @@ export const Price = observer(
         pad={{ right: 'medium' }}
         {...props.boxProps}
       >
-        <Text style={{ fontSize: 14 }}>{`${props.value} ${
-          props.isEth ? 'ETH' : 'SCRT'
-        }`}</Text>
+        <Text style={{ fontSize: 14 }}>{`${props.value} ${tokenName}`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
-          $
-          {formatWithSixDecimals(
-            props.value * (props.isEth ? user.ethRate : user.scrtRate),
-          )}
+          ${formatWithSixDecimals(valueUsd)}
         </Text>
       </Box>
     );
