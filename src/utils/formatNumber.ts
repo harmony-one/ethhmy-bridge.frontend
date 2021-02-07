@@ -97,12 +97,13 @@ export const UINT128_MAX = '340282366920938463463374607431768211454';
 
 export const displayHumanizedBalance = (
   balance: BigNumber,
+  roundingMode: BigNumber.RoundingMode = BigNumber.ROUND_HALF_UP,
   decimals: number = 6,
 ): string =>
   new Intl.NumberFormat('en-US', {
     maximumFractionDigits: decimals,
     useGrouping: true,
-  }).format(Number(balance.toFixed(decimals, BigNumber.ROUND_DOWN)));
+  }).format(Number(balance.toFixed(decimals, roundingMode)));
 
 export const humanizeBalance = (
   balance: BigNumber,

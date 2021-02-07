@@ -16,7 +16,6 @@ import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
-import ScrtTokenBalanceSingleLine from 'components/Earn/EarnRow/ScrtTokenBalanceSingleLine';
 
 const plus = (
   <svg

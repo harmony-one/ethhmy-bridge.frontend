@@ -72,6 +72,7 @@ export const AssetRow = ({
 
             return displayHumanizedBalance(
               humanizeBalance(new BigNumber(balance as BigNumber), decimals),
+              BigNumber.ROUND_DOWN,
             );
           })()}
         </>
