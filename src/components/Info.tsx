@@ -39,8 +39,8 @@ export const Info = ({ title }: { title: string }) => (
         </ul>
       </p>
       <p>
-        Each of these two ETH transactions may cost you: 0.0001 to 0.0075 Ether
-        (or $1 to $2.6 at $350/ether)
+        Each of these two ETH transactions may cost you: 0.001 to 0.0075 Ether
+        (totaling $3 to $22.50 at $1500/ether)
       </p>
 
       <p>
