@@ -5,7 +5,7 @@ import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
 import './override.css';
-import { divDecimals, sleep } from 'utils';
+import { sleep } from 'utils';
 import { NativeToken, Token } from './trade';
 import Style from 'style-it';
 import { UserStoreEx } from 'stores/UserStore';
@@ -703,13 +703,10 @@ export class SwapRouter extends React.Component<
               </ul>
               <strong>In the works (will be available for mainnet):</strong>
               <ul>
-                <li>Withdraw liquidity button</li>
                 <li>View pair analytics</li>
                 <li>Create a new pair</li>
                 <li>Route swapping</li>
-                <li>
-                  Expert mode (customize slippage, skip approval screens, etc.)
-                </li>
+                <li>Expert mode (customize slippage, etc.)</li>
               </ul>
             </Message>
           </Box>
