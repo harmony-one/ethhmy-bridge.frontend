@@ -228,11 +228,7 @@ export class SwapTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const offer_pool = new BigNumber(
-      this.props.balances[
-        `${this.state.fromToken}-${selectedPairSymbol}`
-      ] as BigNumber,
-    );
+
     const ask_pool = new BigNumber(
       this.props.balances[
         `${this.state.toToken}-${selectedPairSymbol}`

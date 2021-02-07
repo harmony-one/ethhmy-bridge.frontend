@@ -348,13 +348,15 @@ export class ProvideTab extends React.Component<
     } else if (this.state.inputA === '' || this.state.inputB === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
     } else if (
-      humanizeBalance(new BigNumber(balanceA as any), decimalsA).toNumber() <
-      Number(this.state.inputA)
+      humanizeBalance(new BigNumber(balanceA as any), decimalsA).isLessThan(
+        new BigNumber(this.state.inputA),
+      )
     ) {
       buttonMessage = `Insufficient ${this.state.tokenA} balance`;
     } else if (
-      humanizeBalance(new BigNumber(balanceB as any), decimalsB).toNumber() <
-      Number(this.state.inputB)
+      humanizeBalance(new BigNumber(balanceB as any), decimalsB).isLessThan(
+        new BigNumber(this.state.inputB),
+      )
     ) {
       buttonMessage = `Insufficient ${this.state.tokenB} balance`;
     } else if (poolA.isZero() || poolB.isZero()) {
@@ -613,7 +615,7 @@ export class ProvideTab extends React.Component<
             })()}
           </div>
         )}
-        {gainedShareOfPool.gt(0) && (
+        {gainedShareOfPool.isGreaterThan(0) && (
           <div
             style={{
               display: 'flex',
