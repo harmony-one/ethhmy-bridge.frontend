@@ -301,9 +301,11 @@ export class WithdrawLiquidityPanel extends React.Component<
                     this.state.withdrawPercentage === 1
                       ? null
                       : '~'}
-                    {new BigNumber(pooledTokenA.replace(/,/g, ''))
-                      .multipliedBy(this.state.withdrawPercentage)
-                      .toFormat()}
+                    {displayHumanizedBalance(
+                      new BigNumber(
+                        pooledTokenA.replace(/,/g, ''),
+                      ).multipliedBy(this.state.withdrawPercentage),
+                    )}
                   </span>
                   {getLogo(tokenA)}
                 </div>
@@ -315,9 +317,11 @@ export class WithdrawLiquidityPanel extends React.Component<
                     this.state.withdrawPercentage === 1
                       ? null
                       : '~'}
-                    {new BigNumber(pooledTokenB.replace(/,/g, ''))
-                      .multipliedBy(this.state.withdrawPercentage)
-                      .toFormat()}
+                    {displayHumanizedBalance(
+                      new BigNumber(
+                        pooledTokenB.replace(/,/g, ''),
+                      ).multipliedBy(this.state.withdrawPercentage),
+                    )}
                   </span>
                   {getLogo(tokenB)}
                 </div>
