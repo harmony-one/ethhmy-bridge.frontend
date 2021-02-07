@@ -374,13 +374,18 @@ export class WithdrawLiquidityPanel extends React.Component<
                                   ),
                                 },
                               },
+                              '',
+                              [],
+                              {
+                                gas: '500000',
+                                amount: [{ denom: 'uscrt', amount: '500000' }],
+                              },
                             );
                             this.setState({
                               withdrawPercentage: 0,
                             });
                           } catch (error) {
                             console.error(error);
-                            return;
                           }
 
                           this.setState({

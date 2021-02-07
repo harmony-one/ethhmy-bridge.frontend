@@ -296,12 +296,21 @@ export class ProvideTab extends React.Component<
     });
 
     try {
-      await this.props.secretjs.execute(this.props.tokens[symbol].address, {
-        increase_allowance: {
-          spender: pair.contract_addr,
-          amount: UINT128_MAX,
+      await this.props.secretjs.execute(
+        this.props.tokens[symbol].address,
+        {
+          increase_allowance: {
+            spender: pair.contract_addr,
+            amount: UINT128_MAX,
+          },
         },
-      });
+        '',
+        [],
+        {
+          amount: [{ amount: '150000', denom: 'uscrt' }],
+          gas: '150000',
+        },
+      );
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: Infinity,
       });
