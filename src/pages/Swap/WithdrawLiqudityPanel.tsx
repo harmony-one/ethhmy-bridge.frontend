@@ -14,6 +14,7 @@ import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { flexRowSpace, Pair, TokenDisplay } from '.';
 import { PriceRow } from './PriceRow';
 import { downArrow } from './SwapTab';
+import { getFeeForExecute } from './utils';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
@@ -385,10 +386,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                               },
                               '',
                               [],
-                              {
-                                gas: '500000',
-                                amount: [{ denom: 'uscrt', amount: '500000' }],
-                              },
+                              getFeeForExecute(500_000),
                             );
 
                             this.props.notify(
@@ -400,10 +398,6 @@ export class WithdrawLiquidityPanel extends React.Component<
                             this.setState({
                               withdrawPercentage: 0,
                             });
-                            this.props.notify(
-                              'success',
-                              `Withdrawn ${pairSymbol}`,
-                            );
                           } catch (error) {
                             this.props.notify(
                               'error',

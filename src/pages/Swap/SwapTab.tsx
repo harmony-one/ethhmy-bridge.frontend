@@ -16,14 +16,9 @@ import {
 } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
-import {
-  extractValueFromLogs,
-  flexRowSpace,
-  Pair,
-  swapContainerStyle,
-  TokenDisplay,
-} from '.';
+import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { BigNumber } from 'bignumber.js';
+import { extractValueFromLogs, getFeeForExecute } from './utils';
 
 export const downArrow = (
   <svg
@@ -529,6 +524,7 @@ export class SwapTab extends React.Component<
                         denom: 'uscrt',
                       },
                     ],
+                    getFeeForExecute(350_000),
                   );
 
                   const sent = displayHumanizedBalance(
@@ -572,6 +568,9 @@ export class SwapTab extends React.Component<
                         ),
                       },
                     },
+                    '',
+                    [],
+                    getFeeForExecute(350_000),
                   );
                   const sent = displayHumanizedBalance(
                     humanizeBalance(

@@ -15,6 +15,7 @@ import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
+import { getFeeForExecute } from './utils';
 
 const plus = (
   <svg
@@ -310,10 +311,7 @@ export class ProvideTab extends React.Component<
         },
         '',
         [],
-        {
-          amount: [{ amount: '150000', denom: 'uscrt' }],
-          gas: '150000',
-        },
+        getFeeForExecute(150_000),
       );
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
@@ -448,12 +446,12 @@ export class ProvideTab extends React.Component<
                 },
                 () => {
                   this.updateInputs();
-                  this.updateAllowance(
-                    this.props.pairFromSymbol[
-                      `${this.state.tokenA}/${this.state.tokenB}`
-                    ],
-                    symbol,
-                  );
+
+                  const pair = this.props.pairFromSymbol[
+                    `${this.state.tokenA}/${this.state.tokenB}`
+                  ];
+                  this.updateAllowance(pair, this.state.tokenA);
+                  this.updateAllowance(pair, this.state.tokenB);
                 },
               );
             }
@@ -525,12 +523,12 @@ export class ProvideTab extends React.Component<
                 },
                 () => {
                   this.updateInputs();
-                  this.updateAllowance(
-                    this.props.pairFromSymbol[
-                      `${this.state.tokenA}/${this.state.tokenB}`
-                    ],
-                    symbol,
-                  );
+
+                  const pair = this.props.pairFromSymbol[
+                    `${this.state.tokenA}/${this.state.tokenB}`
+                  ];
+                  this.updateAllowance(pair, this.state.tokenA);
+                  this.updateAllowance(pair, this.state.tokenB);
                 },
               );
             }
@@ -696,7 +694,7 @@ export class ProvideTab extends React.Component<
               },
             };
 
-            let transferAmount: Array<Coin> = undefined;
+            let transferAmount: Array<Coin> = [];
             for (const i of ['A', 'B']) {
               const { decimals } = this.props.tokens[this.state['token' + i]];
 
@@ -736,7 +734,6 @@ export class ProvideTab extends React.Component<
                 });
               }
             }
-
             const { inputA, inputB, tokenA, tokenB } = this.state;
 
             try {
@@ -745,6 +742,7 @@ export class ProvideTab extends React.Component<
                 msg,
                 '',
                 transferAmount,
+                getFeeForExecute(500_000),
               );
 
               this.props.notify(
