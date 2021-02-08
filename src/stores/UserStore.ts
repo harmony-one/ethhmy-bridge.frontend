@@ -56,6 +56,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public hrc20Balance = '';
 
   @observable public isInfoReading = false;
+  @observable public isInfoNewReading = false;
 
   @observable metamaskChainId = 0;
 
@@ -87,6 +88,10 @@ export class UserStoreEx extends StoreConstructor {
 
     if (sessionObj && sessionObj.isInfoReading) {
       this.isInfoReading = sessionObj.isInfoReading;
+    }
+
+    if (sessionObj && sessionObj.isInfoNewReading) {
+      this.isInfoNewReading = sessionObj.isInfoNewReading;
     }
 
     if (sessionObj && sessionObj.address) {
@@ -125,6 +130,11 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public setInfoReading() {
     this.isInfoReading = true;
+    this.syncLocalStorage();
+  }
+
+  @action public setInfoNewReading() {
+    this.isInfoNewReading = true;
     this.syncLocalStorage();
   }
 
@@ -320,6 +330,7 @@ export class UserStoreEx extends StoreConstructor {
         address: this.address,
         sessionType: this.sessionType,
         isInfoReading: this.isInfoReading,
+        isInfoNewReading: this.isInfoNewReading,
       }),
     );
   }

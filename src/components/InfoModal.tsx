@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from '../stores';
 import { useEffect } from 'react';
 import { Info } from './Info';
+import { InfoNew } from './InfoNew';
 
 export const InfoModal = observer(() => {
   const { user, actionModals } = useStores();
@@ -26,6 +27,26 @@ export const InfoModal = observer(() => {
       );
     }
   }, [user.isInfoReading]);
+
+  useEffect(() => {
+    if (!user.isInfoNewReading) {
+      actionModals.open(
+        () => <InfoNew title="Bridge usage cost was changed" />,
+        {
+          title: 'Bridge usage cost changed',
+          applyText: 'Got it',
+          closeText: '',
+          noValidation: true,
+          width: '800px',
+          showOther: true,
+          onApply: () => {
+            user.setInfoNewReading();
+            return Promise.resolve();
+          },
+        },
+      );
+    }
+  }, [user.isInfoNewReading]);
 
   return <></>;
 });
