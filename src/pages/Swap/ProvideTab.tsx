@@ -312,7 +312,7 @@ export class ProvideTab extends React.Component<
         },
       );
       this.setState<never>({
-        [`allowance${stateFieldSuffix}`]: Infinity,
+        [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
       });
     } catch (error) {
       console.error('Error while trying to approve', symbol, error);
