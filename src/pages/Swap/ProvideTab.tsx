@@ -345,6 +345,7 @@ export class ProvideTab extends React.Component<
       <Container style={swapContainerStyle}>
         <TabsHeader />
         <AssetRow
+          secretjs={this.props.secretjs}
           label="Input"
           maxButton={true}
           balance={balanceA}
@@ -422,6 +423,7 @@ export class ProvideTab extends React.Component<
           {flexRowSpace}
         </div>
         <AssetRow
+          secretjs={this.props.secretjs}
           label="Input"
           maxButton={true}
           balance={balanceB}

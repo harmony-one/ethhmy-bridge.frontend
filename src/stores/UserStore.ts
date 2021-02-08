@@ -413,15 +413,13 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    Promise.all([
+    await Promise.all([
+      ...this.stores.tokens.allData.map(token =>
+        this.updateBalanceForSymbol(token.display_props.symbol),
+      ),
       this.updateBalanceForSymbol('SCRT'),
       this.updateBalanceForSymbol('sSCRT'),
     ]);
-    Promise.all(
-      this.stores.tokens.allData.map(token =>
-        this.updateBalanceForSymbol(token.display_props.symbol),
-      ),
-    );
   };
 
   @action public updateBalanceForSymbol = async (

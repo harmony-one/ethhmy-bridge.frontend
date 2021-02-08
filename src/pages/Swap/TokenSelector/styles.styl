@@ -1,0 +1,50 @@
+.tokenButton {
+  align-items center
+  display flex
+  borderRadius 15px
+  fontSize 1rem
+  height 30px
+  padding 0 0.4rem
+  //box-shadow rgba(0, 0, 0, 0.075) 0px 6px 10px
+  border-radius 24px
+  padding-right 10px
+  * {
+    margin-right 10px
+  }
+
+  background-color transparent
+  -webkit-font-smoothing antialiased
+  -webkit-tap-highlight-color transparent
+
+  cursor pointer;
+  transition all 0.4s ease;
+  outline none;
+  &:hover {
+    background-color rgba(47, 128, 237, 0.1)
+  }
+}
+
+.selectATokenButton {
+  border-radius 15px
+  height 32px
+  font-weight 400
+  width 200px
+  background-color #2F80ED
+  -webkit-font-smoothing antialiased
+  -webkit-tap-highlight-color transparent
+  // border 1px solid rgba(47, 128, 237, 0.5)
+  box-shadow 0 0 0.2rem rgba(0, 0, 0, 0.3)
+  cursor pointer;
+  transition all 0.8s ease;
+  outline none;
+  &:hover {
+    background-color rgba(47, 128, 237, 0.2)
+  }
+
+  &:disabled {
+    color #848484;
+    // border 1px solid #848484
+    background-color transparent
+    cursor default
+  }
+}

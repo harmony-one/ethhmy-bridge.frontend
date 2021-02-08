@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
+import { Button, Container, Input, Dropdown, Modal } from 'semantic-ui-react';
 import { TokenDisplay } from '.';
+import { TokenSelector } from './TokenSelector';
+import { SwapInput } from '../../components/Swap/SwapInput';
+import { SigningCosmWasmClient } from 'secretjs';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
@@ -14,6 +17,7 @@ export const AssetRow = ({
   balance,
   label,
   maxButton,
+  secretjs,
 }: {
   tokens: {
     [symbol: string]: TokenDisplay;
@@ -26,9 +30,8 @@ export const AssetRow = ({
   balance: number | JSX.Element;
   label: string;
   maxButton: boolean;
+  secretjs: SigningCosmWasmClient;
 }) => {
-  const [dropdownBackground, setDropdownBackground] = useState<string>();
-
   const font = {
     fontWeight: 500,
     fontSize: '14px',
@@ -56,7 +59,7 @@ export const AssetRow = ({
         </span>
         {flexRowSpace}
         {(() => {
-          if (balance == undefined) {
+          if (balance === undefined) {
             return '-';
           }
 
@@ -79,16 +82,9 @@ export const AssetRow = ({
           flexDirection: 'row',
         }}
       >
-        <Input
-          style={{
-            padding: 0,
-            width: '180px',
-          }}
-          transparent
-          size="massive"
-          placeholder="0.0"
+        <SwapInput
           value={amount}
-          onChange={(_, { value }: { value: string }) => {
+          setValue={value => {
             if (isNaN(Number(value))) {
               return;
             }
@@ -96,7 +92,7 @@ export const AssetRow = ({
           }}
         />
         {flexRowSpace}
-        {maxButton && (
+        {maxButton && token && (
           <Button
             primary
             disabled={isNaN(Number(balance))}
@@ -112,31 +108,13 @@ export const AssetRow = ({
             MAX
           </Button>
         )}
-        <Dropdown
-          style={{
-            border: 'none',
-            borderRadius: '15px',
-            background: dropdownBackground,
-            padding: 1,
+        <TokenSelector
+          secretjs={secretjs}
+          tokens={Object.values(tokens)}
+          token={token ? tokens[token] : undefined}
+          onClick={token => {
+            setToken(token);
           }}
-          onMouseEnter={() => setDropdownBackground('whitesmoke')}
-          onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(
-            (t: { symbol: string; logo: string }) => ({
-              key: t.symbol,
-              text: t.symbol,
-              value: t.symbol,
-              image: {
-                src: t.logo,
-                style: {
-                  boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px',
-                  borderRadius: '24px',
-                },
-              },
-            }),
-          )}
-          value={token}
-          onChange={(_, { value }: { value: string }) => setToken(value)}
         />
       </div>
     </Container>

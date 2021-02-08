@@ -14,9 +14,12 @@ import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
-import { Icon, Message, Popup } from 'semantic-ui-react';
-import SwapHeader from '../../components/Swap/Header';
-import { PoolsTab } from './Pool';
+import { BetaWarning } from './BetaWarning';
+import { SwapFooter } from './Footer';
+import { GetSnip20Params } from '../../blockchain-bridge/scrt';
+import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+
+type DisplayTokenRecord = Record<string, TokenDisplay>;
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -58,9 +61,7 @@ export async function getBalance(
   if (symbol === 'SCRT') {
     return userStore.secretjs.getAccount(walletAddress).then(account => {
       try {
-        return Number(
-          divDecimals(account.balance[0].amount, tokens[symbol].decimals),
-        );
+        return Number(divDecimals(account.balance[0].amount, tokens[symbol].decimals));
       } catch (error) {
         return 0;
       }
@@ -83,10 +84,7 @@ export async function getBalance(
     <span
       className="view-token-button"
       onClick={async e => {
-        await userStore.keplrWallet.suggestToken(
-          userStore.chainId,
-          tokens[symbol].address,
-        );
+        await userStore.keplrWallet.suggestToken(userStore.chainId, tokens[symbol].address);
         // TODO trigger balance refresh if this was an "advanced set" that didn't
         // result in an on-chain transaction
       }}
@@ -99,15 +97,12 @@ export async function getBalance(
     return unlockJsx;
   }
 
-  const result = await userStore.secretjs.queryContractSmart(
-    tokens[symbol].address,
-    {
-      balance: {
-        address: walletAddress,
-        key: viewingKey,
-      },
+  const result = await userStore.secretjs.queryContractSmart(tokens[symbol].address, {
+    balance: {
+      address: walletAddress,
+      key: viewingKey,
     },
-  );
+  });
 
   if (viewingKey && 'viewing_key_error' in result) {
     // TODO handle this
@@ -155,7 +150,7 @@ export class SwapRouter extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
-    securedByIconBackground: string;
+    //securedByIconBackground: string;
   }
 > {
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
@@ -165,7 +160,7 @@ export class SwapRouter extends React.Component<
     balances: {},
     pairs: [],
     pairFromSymbol: {},
-    securedByIconBackground: 'whitesmoke',
+    //securedByIconBackground: 'whitesmoke',
   };
 
   constructor(props: Readonly<{ user: UserStoreEx }>) {
@@ -178,6 +173,8 @@ export class SwapRouter extends React.Component<
   }
 
   async componentDidMount() {
+    window.addEventListener('storage', this.updateTokens);
+
     await this.props.user.signIn(true);
 
     while (!this.props.user.secretjs) {
@@ -188,29 +185,17 @@ export class SwapRouter extends React.Component<
       pairs,
     }: {
       pairs: Array<Pair>;
-    } = await this.props.user.secretjs.queryContractSmart(
-      process.env.AMM_FACTORY_CONTRACT,
-      {
-        pairs: {},
-      },
-    );
+    } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+      pairs: {},
+    });
 
-    const pairFromSymbol: {
-      [symbol: string]: Pair;
-    } = {};
+    const pairFromSymbol: { [symbol: string]: Pair } = {};
 
     const tokens: {
       [symbol: string]: TokenDisplay;
-    } = await pairs.reduce(
-      async (
-        tokensFromPairs: Promise<{
-          [symbol: string]: TokenDisplay;
-        }>,
-        pair: Pair,
-      ) => {
-        let unwrapedTokensFromPairs: {
-          [symbol: string]: TokenDisplay;
-        } = await tokensFromPairs; // reduce with async/await
+    } = {
+      ...(await pairs.reduce(async (tokensFromPairs: Promise<DisplayTokenRecord>, pair: Pair) => {
+        let unwrapedTokensFromPairs: DisplayTokenRecord = await tokensFromPairs; // reduce with async/await
 
         const symbols = [];
         for (const t of pair.asset_infos) {
@@ -220,23 +205,19 @@ export class SwapRouter extends React.Component<
             continue;
           }
 
-          const tokenInfoResponse = await this.props.user.secretjs.queryContractSmart(
-            t.token.contract_addr,
-            {
-              token_info: {},
-            },
-          );
+          const tokenInfoResponse = await GetSnip20Params({
+            secretjs: this.props.user.secretjs,
+            address: t.token.contract_addr,
+          });
 
-          const symbol = tokenInfoResponse.token_info.symbol;
+          const symbol = tokenInfoResponse.symbol;
 
           const displaySymbol = preloadedTokens[symbol]?.symbol || symbol;
           if (!(symbol in unwrapedTokensFromPairs)) {
             unwrapedTokensFromPairs[displaySymbol] = {
               symbol: displaySymbol,
-              decimals: tokenInfoResponse.token_info.decimals,
-              logo: preloadedTokens[symbol]
-                ? preloadedTokens[symbol].logo
-                : '/unknown.png',
+              decimals: tokenInfoResponse.decimals,
+              logo: preloadedTokens[symbol] ? preloadedTokens[symbol].logo : '/unknown.png',
               address: t.token.contract_addr,
               token_code_hash: t.token.token_code_hash,
             };
@@ -247,9 +228,9 @@ export class SwapRouter extends React.Component<
         pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
 
         return unwrapedTokensFromPairs;
-      },
-      Promise.resolve({}) /* reduce with async/await */,
-    );
+      }, Promise.resolve({}) /* reduce with async/await */)),
+      ...LocalStorageTokens.get(),
+    };
 
     this.props.user.websocketTerminate(true);
 
@@ -262,9 +243,7 @@ export class SwapRouter extends React.Component<
         const symbols: Array<string> = data.id.split('/');
 
         const heightFromEvent =
-          data?.result?.data?.value?.TxResult?.height ||
-          data?.result?.data?.value?.block?.header?.height ||
-          0;
+          data?.result?.data?.value?.TxResult?.height || data?.result?.data?.value?.block?.header?.height || 0;
         const height = Number(heightFromEvent);
 
         if (isNaN(height)) {
@@ -277,14 +256,9 @@ export class SwapRouter extends React.Component<
 
         const getViewingKey = async (symbol: string, tokenAddress: string) => {
           let viewingKey: string;
-          const currentBalance: string = JSON.stringify(
-            this.state.balances[symbol],
-          );
+          const currentBalance: string = JSON.stringify(this.state.balances[symbol]);
 
-          if (
-            typeof currentBalance === 'string' &&
-            currentBalance.includes(ERROR_WRONG_VIEWING_KEY)
-          ) {
+          if (typeof currentBalance === 'string' && currentBalance.includes(ERROR_WRONG_VIEWING_KEY)) {
             // In case this tx was set_viewing_key in order to correct the wrong viewing key error
             // Allow Keplr time to locally save the new viewing key
             await sleep(1000);
@@ -315,10 +289,7 @@ export class SwapRouter extends React.Component<
           console.log('Refresh LP token for', pairSymbol);
           // update my LP token balance
           const lpTokenSymbol = `LP-${pairSymbol}`;
-          const viewingKey = await getViewingKey(
-            lpTokenSymbol,
-            pair.liquidity_token,
-          );
+          const viewingKey = await getViewingKey(lpTokenSymbol, pair.liquidity_token);
           const lpBalance = await getBalance(
             lpTokenSymbol,
             this.props.user.address,
@@ -344,22 +315,13 @@ export class SwapRouter extends React.Component<
                 decimals: number;
                 total_supply: string;
               };
-            } = await this.props.user.secretjs.queryContractSmart(
-              pair.liquidity_token,
-              {
-                token_info: {},
-              },
-            );
+            } = await this.props.user.secretjs.queryContractSmart(pair.liquidity_token, {
+              token_info: {},
+            });
 
-            lpTotalSupply = Number(
-              divDecimals(result.token_info.total_supply, 6),
-            );
+            lpTotalSupply = Number(divDecimals(result.token_info.total_supply, 6));
           } catch (error) {
-            console.error(
-              `Error trying to get LP token total supply of ${pairSymbol}`,
-              pair,
-              error,
-            );
+            console.error(`Error trying to get LP token total supply of ${pairSymbol}`, pair, error);
           }
 
           // Using a callbak to setState prevents a race condition
@@ -385,10 +347,7 @@ export class SwapRouter extends React.Component<
 
           let viewingKey: string;
           if (tokenSymbol !== 'SCRT') {
-            viewingKey = await getViewingKey(
-              tokenSymbol,
-              tokens[tokenSymbol].address,
-            );
+            viewingKey = await getViewingKey(tokenSymbol, tokens[tokenSymbol].address);
           }
 
           const userBalancePromise = getBalance(
@@ -400,24 +359,14 @@ export class SwapRouter extends React.Component<
           );
 
           // get all pairs with this token
-          const pairs = Object.keys(pairFromSymbol).filter(pairSymbol =>
-            pairSymbol.startsWith(`${tokenSymbol}/`),
-          );
+          const pairs = Object.keys(pairFromSymbol).filter(pairSymbol => pairSymbol.startsWith(`${tokenSymbol}/`));
 
           // for each pair, update the pool balance of this token
           const poolsBalancesPromises = pairs.map(pairSymbol =>
-            getBalance(
-              tokenSymbol,
-              pairFromSymbol[pairSymbol].contract_addr,
-              tokens,
-              'SecretSwap',
-              this.props.user,
-            ),
+            getBalance(tokenSymbol, pairFromSymbol[pairSymbol].contract_addr, tokens, 'SecretSwap', this.props.user),
           );
 
-          const freshBalances = await Promise.all(
-            [userBalancePromise].concat(poolsBalancesPromises),
-          );
+          const freshBalances = await Promise.all([userBalancePromise].concat(poolsBalancesPromises));
 
           const pairSymbolToFreshBalances: {
             [symbol: string]: number | JSX.Element;
@@ -427,10 +376,8 @@ export class SwapRouter extends React.Component<
             const [a, b] = pairSymbol.split('/');
             const invertedPairSymbol = `${b}/${a}`;
 
-            pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] =
-              freshBalances[i + 1];
-            pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] =
-              freshBalances[i + 1];
+            pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] = freshBalances[i + 1];
+            pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] = freshBalances[i + 1];
           }
 
           // Using a callbak to setState prevents a race condition
@@ -560,7 +507,23 @@ export class SwapRouter extends React.Component<
         this.ws.close(1000 /* Normal Closure */, 'See ya');
       }
     }
+
+    window.removeEventListener('storage', this.updateTokens);
   }
+
+  updateTokens = () => {
+    const tokens: DisplayTokenRecord = LocalStorageTokens.get();
+
+    this.setState(currentState => {
+      return {
+        ...currentState,
+        tokens: {
+          ...currentState.tokens,
+          ...tokens,
+        },
+      };
+    });
+  };
 
   render() {
     const isSwap = window.location.hash === '#Swap';
@@ -581,7 +544,7 @@ export class SwapRouter extends React.Component<
             pad={{ horizontal: 'large', top: 'large' }}
             style={{ alignItems: 'center' }}
           >
-            <SwapHeader />
+            {/*<SwapHeader />*/}
             <Box
               style={{
                 maxWidth: '420px',
@@ -592,7 +555,7 @@ export class SwapRouter extends React.Component<
               }}
               pad={{ bottom: 'medium' }}
             >
-              {isPools && <PoolsTab />}
+              {/*{isPools && <PoolsTab />}*/}
               {isSwap && (
                 <SwapTab
                   secretjs={this.props.user.secretjs}
@@ -623,105 +586,8 @@ export class SwapRouter extends React.Component<
                 />
               )}
             </Box>
-            <div>
-              Secured by{' '}
-              <a href="https://scrt.network" target="_blank">
-                Secret Network
-              </a>
-              <Popup
-                trigger={
-                  <Icon
-                    name="help"
-                    circular
-                    size="tiny"
-                    style={{
-                      marginLeft: '0.5rem',
-                      background: this.state.securedByIconBackground,
-                      verticalAlign: 'middle',
-                    }}
-                    onMouseEnter={() =>
-                      this.setState({
-                        securedByIconBackground: 'rgb(237, 238, 242)',
-                      })
-                    }
-                    onMouseLeave={() =>
-                      this.setState({
-                        securedByIconBackground: 'whitesmoke',
-                      })
-                    }
-                  />
-                }
-                content="Secret Network's privacy-by-default design protects your swaps from front-running attacks and helps secure your trading and transactions."
-                position="top center"
-              />
-            </div>
-            <Message warning>
-              <Message.Header>Hello beta testers! 👋</Message.Header>
-              <p>
-                <strong>Getting sSCRT:</strong> get SCRT from the{' '}
-                <a href="https://faucet.secrettestnet.io" target="_blank">
-                  holodeck-2 faucet
-                </a>
-                {/* , then{' '}
-                <a
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    this.props.user.secretjs.execute(
-                      process.env.SSCRT_CONTRACT,
-                      { deposit: {} },
-                      '',
-                      [{ amount: '2000000', denom: 'uscrt' }],
-                    );
-                  }}
-                >
-                  click here
-                </a>{' '}
-                to convert to sSCRT */}
-              </p>
-              <p>
-                <strong>Getting sETH:</strong>{' '}
-                {/* Via the bridge from the ETH
-                rinkeby testnet, or just  */}
-                Swap SCRT for it 👆😋
-              </p>
-              <strong>Feedback channels:</strong>
-              <ul>
-                <li>
-                  Open a{' '}
-                  <a
-                    href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new"
-                    target="_blank"
-                  >
-                    GitHub issue
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://discord.com/channels/360051864110235648/805840792303960155"
-                    target="_blank"
-                  >
-                    #🔀amm-support
-                  </a>{' '}
-                  on Discord
-                </li>
-                <li>
-                  Tag @assafmo on{' '}
-                  <a href="https://t.me/SCRTCommunity" target="_blank">
-                    Telegram
-                  </a>
-                </li>
-              </ul>
-              <strong>In the works (will be available for mainnet):</strong>
-              <ul>
-                <li>Withdraw liquidity button</li>
-                <li>View pair analytics</li>
-                <li>Create a new pair</li>
-                <li>Route swapping</li>
-                <li>
-                  Expert mode (customize slippage, skip approval screens, etc.)
-                </li>
-              </ul>
-            </Message>
+            <SwapFooter />
+            <BetaWarning />
           </Box>
         </PageContainer>
       </BaseContainer>

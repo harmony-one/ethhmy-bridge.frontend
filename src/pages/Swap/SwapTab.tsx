@@ -252,6 +252,7 @@ export class SwapTab extends React.Component<
         <Container style={swapContainerStyle}>
           <TabsHeader />
           <AssetRow
+            secretjs={this.props.secretjs}
             label="From"
             maxButton={true}
             balance={fromBalance}
@@ -342,6 +343,7 @@ export class SwapTab extends React.Component<
             {flexRowSpace}
           </div>
           <AssetRow
+            secretjs={this.props.secretjs}
             label="To"
             maxButton={false}
             balance={toBalance}
