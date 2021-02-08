@@ -202,28 +202,31 @@ const faqConfig = [
   },
 
   {
-    label: 'What are the fees for using Horizon?',
+    label: 'What’s the cost of using the bridge?',
     text: () => (
       <>
-        <li>Horizon service fee: 0</li>
-        <ul>
-          <li>There is no fees for using the Horizon bridge service itself</li>
-        </ul>
-        <li>From Ethereum to Harmony</li>
-        <ul>
-          <li>
-            User will pay the Ethereum transaction fee for 2 transactions
-            (approve and lock token), which is normally $1-3 in total
-          </li>
-        </ul>
-        <li>From Harmony to Ethereum</li>
-        <ul>
-          <li>
-            You will pay the Harmony transaction fee for 2 transactions (approve
-            and burn token), which is normally under a fraction of the cent
-            (negligible)
-          </li>
-        </ul>
+        <p>
+          <b>Sending ERC20/ETH to Harmony</b>
+          <br />
+          Involves two transactions (approve and lock) that requires
+          approximately 100,000 Ethereum gas in total and the cost will be paid
+          by the user. The multisig confirmation cost on the Harmony network is
+          taken care by the validators.
+        </p>
+        <br />
+        <p>
+          <b>
+            Sending HRC20/ONE to Ethereum or redeeming the bridged tokens back
+            to Ethereum
+          </b>{' '}
+          <br />
+          Any bridge transfers from Harmony to Ethereum involves multisig
+          confirmations by the validators, which is approximately 400,000
+          Ethereum gas. To cover this operating cost of the validators
+          (especially during the volatility of Ethereum gas price), we require
+          users to deposit an approximate network fee in ONE tokens, which is
+          equivalent to 400,000 Ethereum gas.
+        </p>
       </>
     ),
   },
@@ -263,36 +266,6 @@ const faqConfig = [
           https://github.com/harmony-one/ethhmy-bridge
         </a>
       </p>
-    ),
-  },
-
-  {
-    label: 'What’s the cost of using the bridge?',
-    text: () => (
-      <>
-        <p>
-          <b>Sending ERC20/ETH to Harmony</b>
-          <br />
-          Involves two transactions (approve and lock) that requires
-          approximately 100,000 Ethereum gas in total and the cost will be paid
-          by the user. The multisig confirmation cost on the Harmony network is
-          taken care by the validators.
-        </p>
-        <br />
-        <p>
-          <b>
-            Sending HRC20/ONE to Ethereum or redeeming the bridged tokens back
-            to Ethereum
-          </b>{' '}
-          <br />
-          Any bridge transfers from Harmony to Ethereum involves multisig
-          confirmations by the validators, which is approximately 400,000
-          Ethereum gas. To cover this operating cost of the validators
-          (especially during the volatility of Ethereum gas price), we require
-          users to deposit an approximate network fee in ONE tokens, which is
-          equivalent to 400,000 Ethereum gas.
-        </p>
-      </>
     ),
   },
 ];
