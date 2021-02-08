@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button, Container, Input, Dropdown } from 'semantic-ui-react';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { TokenDisplay } from '.';
+import Loader from 'react-loader-spinner';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
@@ -61,7 +62,18 @@ export const AssetRow = ({
           {'Balance: '}
           {(() => {
             if (balance == undefined) {
-              return '-';
+              return (
+                <>
+                  <span style={{ marginRight: '0.5em' }} />
+                  <Loader
+                    type="ThreeDots"
+                    color="#00BFFF"
+                    height="1em"
+                    width="1em"
+                    style={{ margin: 'auto' }}
+                  />
+                </>
+              );
             }
 
             if (JSON.stringify(balance).includes('View')) {

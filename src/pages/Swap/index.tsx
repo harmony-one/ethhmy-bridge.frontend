@@ -16,6 +16,12 @@ import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
 import { Icon, Message, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
+import {
+  NotificationContainer,
+  NotificationManager,
+} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+import { ExecuteResult } from 'secretjs';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -130,6 +136,15 @@ export async function getBalance(
     );
     return unlockJsx;
   }
+}
+
+export function extractValueFromLogs(
+  txResult: ExecuteResult,
+  key: string,
+): string {
+  return txResult.logs[0].events
+    .find(e => e.type === 'wasm')
+    .attributes.find(a => a.key === key).value;
 }
 
 export const SwapPageWrapper = observer(() => {
@@ -557,6 +572,14 @@ export class SwapRouter extends React.Component<
     }
   }
 
+  notify(
+    type: 'success' | 'error',
+    msg: string,
+    closesAfterMs: number = 120000,
+  ) {
+    NotificationManager[type](undefined, msg, closesAfterMs);
+  }
+
   render() {
     const isSwap = window.location.hash === '#Swap';
     const isProvide = window.location.hash === '#Provide';
@@ -568,150 +591,149 @@ export class SwapRouter extends React.Component<
     }
 
     return (
-      <BaseContainer>
-        <PageContainer>
-          <Box
-            className={styles.faqContainer}
-            pad={{ horizontal: 'large', top: 'large' }}
-            style={{ alignItems: 'center' }}
-          >
+      <>
+        <BaseContainer>
+          <PageContainer>
             <Box
-              style={{
-                maxWidth: '420px',
-                minWidth: '420px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-              pad={{ bottom: 'medium' }}
+              className={styles.faqContainer}
+              pad={{ horizontal: 'large', top: 'large' }}
+              style={{ alignItems: 'center' }}
             >
-              {isSwap && (
-                <SwapTab
-                  secretjs={this.props.user.secretjs}
-                  tokens={this.state.tokens}
-                  balances={this.state.balances}
-                  pairs={this.state.pairs}
-                  pairFromSymbol={this.state.pairFromSymbol}
-                />
-              )}
-              {isProvide && (
-                <ProvideTab
-                  user={this.props.user}
-                  secretjs={this.props.user.secretjs}
-                  tokens={this.state.tokens}
-                  balances={this.state.balances}
-                  pairs={this.state.pairs}
-                  pairFromSymbol={this.state.pairFromSymbol}
-                />
-              )}
-              {isWithdraw && (
-                <WithdrawTab
-                  user={this.props.user}
-                  secretjs={this.props.user.secretjs}
-                  tokens={this.state.tokens}
-                  balances={this.state.balances}
-                  pairs={this.state.pairs}
-                  pairFromSymbol={this.state.pairFromSymbol}
-                />
-              )}
-            </Box>
-            <div>
-              Secured by{' '}
-              <a href="https://scrt.network" target="_blank">
-                Secret Network
-              </a>
-              <Popup
-                trigger={
-                  <Icon
-                    name="help"
-                    circular
-                    size="tiny"
-                    style={{
-                      marginLeft: '0.5rem',
-                      background: this.state.securedByIconBackground,
-                      verticalAlign: 'middle',
-                    }}
-                    onMouseEnter={() =>
-                      this.setState({
-                        securedByIconBackground: 'rgb(237, 238, 242)',
-                      })
-                    }
-                    onMouseLeave={() =>
-                      this.setState({
-                        securedByIconBackground: 'whitesmoke',
-                      })
-                    }
+              <Box
+                style={{
+                  maxWidth: '420px',
+                  minWidth: '420px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+                pad={{ bottom: 'medium' }}
+              >
+                {isSwap && (
+                  <SwapTab
+                    secretjs={this.props.user.secretjs}
+                    tokens={this.state.tokens}
+                    balances={this.state.balances}
+                    pairs={this.state.pairs}
+                    pairFromSymbol={this.state.pairFromSymbol}
+                    notify={this.notify}
                   />
-                }
-                content="Secret Network's privacy-by-default design protects your swaps from front-running attacks and helps secure your trading and transactions."
-                position="top center"
-              />
-            </div>
-            <Message warning>
-              <Message.Header>Hello beta testers! 👋</Message.Header>
-              <p>
-                <strong>Getting sSCRT:</strong> Get SCRT from the{' '}
-                <a href="https://faucet.secrettestnet.io" target="_blank">
-                  holodeck-2 faucet
+                )}
+                {isProvide && (
+                  <ProvideTab
+                    user={this.props.user}
+                    secretjs={this.props.user.secretjs}
+                    tokens={this.state.tokens}
+                    balances={this.state.balances}
+                    pairs={this.state.pairs}
+                    pairFromSymbol={this.state.pairFromSymbol}
+                    notify={this.notify}
+                  />
+                )}
+                {isWithdraw && (
+                  <WithdrawTab
+                    user={this.props.user}
+                    secretjs={this.props.user.secretjs}
+                    tokens={this.state.tokens}
+                    balances={this.state.balances}
+                    pairs={this.state.pairs}
+                    pairFromSymbol={this.state.pairFromSymbol}
+                    notify={this.notify}
+                  />
+                )}
+              </Box>
+              <div>
+                Secured by{' '}
+                <a href="https://scrt.network" target="_blank">
+                  Secret Network
                 </a>
-                , then{' '}
-                <a
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    this.props.user.secretjs.execute(
-                      process.env.SSCRT_CONTRACT,
-                      { deposit: {} },
-                      '',
-                      [{ amount: '2000000', denom: 'uscrt' }],
-                    );
-                  }}
-                >
-                  click here
-                </a>{' '}
-                to convert to sSCRT
-              </p>
-              <p>
-                <strong>Getting sETH:</strong> Use the bridge from the ETH
-                rinkeby testnet, or just swap for it from sSCRT 👆😋
-              </p>
-              <strong>Feedback channels:</strong>
-              <ul>
-                <li>
-                  Open a{' '}
-                  <a
-                    href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new"
-                    target="_blank"
-                  >
-                    GitHub issue
+                <Popup
+                  trigger={
+                    <Icon
+                      name="help"
+                      circular
+                      size="tiny"
+                      style={{
+                        marginLeft: '0.5rem',
+                        background: this.state.securedByIconBackground,
+                        verticalAlign: 'middle',
+                      }}
+                      onMouseEnter={() =>
+                        this.setState({
+                          securedByIconBackground: 'rgb(237, 238, 242)',
+                        })
+                      }
+                      onMouseLeave={() =>
+                        this.setState({
+                          securedByIconBackground: 'whitesmoke',
+                        })
+                      }
+                    />
+                  }
+                  content="Secret Network's privacy-by-default design protects your swaps from front-running attacks and helps secure your trading and transactions."
+                  position="top center"
+                />
+              </div>
+              <Message warning>
+                <Message.Header>Hello beta testers! 👋</Message.Header>
+                <p>
+                  <strong>Getting sSCRT:</strong> Get SCRT from the{' '}
+                  <a href="https://faucet.secrettestnet.io" target="_blank">
+                    holodeck-2 faucet
                   </a>
-                </li>
-                <li>
+                  , then{' '}
                   <a
-                    href="https://discord.com/channels/360051864110235648/805840792303960155"
-                    target="_blank"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      this.props.user.secretjs.execute(
+                        process.env.SSCRT_CONTRACT,
+                        { deposit: {} },
+                        '',
+                        [{ amount: '2000000', denom: 'uscrt' }],
+                      );
+                    }}
                   >
-                    #🔀amm-support
+                    click here
                   </a>{' '}
-                  on Discord
-                </li>
-                <li>
-                  Tag @assafmo on{' '}
-                  <a href="https://t.me/SCRTCommunity" target="_blank">
-                    Telegram
-                  </a>
-                </li>
-              </ul>
-              <strong>In the works (will be available for mainnet):</strong>
-              <ul>
-                <li>View pair analytics</li>
-                <li>Create a new pair</li>
-                <li>Route swapping</li>
-                <li>Expert mode (customize slippage, etc.)</li>
-              </ul>
-            </Message>
-          </Box>
-        </PageContainer>
-      </BaseContainer>
+                  to convert to sSCRT
+                </p>
+                <p>
+                  <strong>Getting sETH:</strong> Use the bridge from the ETH
+                  rinkeby testnet, or just swap for it from sSCRT 👆😋
+                </p>
+                <strong>Feedback channels:</strong>
+                <ul>
+                  <li>
+                    Open a{' '}
+                    <a
+                      href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new"
+                      target="_blank"
+                    >
+                      GitHub issue
+                    </a>
+                  </li>
+                  <li>
+                    <a
+                      href="https://discord.com/channels/360051864110235648/805840792303960155"
+                      target="_blank"
+                    >
+                      #🔀amm-support
+                    </a>{' '}
+                    on Discord
+                  </li>
+                  <li>
+                    Tag @assafmo on{' '}
+                    <a href="https://t.me/SCRTCommunity" target="_blank">
+                      Telegram
+                    </a>
+                  </li>
+                </ul>
+              </Message>
+            </Box>
+          </PageContainer>
+        </BaseContainer>
+        <NotificationContainer />
+      </>
     );
   }
 }

@@ -28,6 +28,11 @@ export class WithdrawLiquidityPanel extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
+    notify: (
+      type: 'success' | 'error',
+      msg: string,
+      closesAfterMs?: number,
+    ) => void;
   },
   {
     isLoading: boolean;
@@ -362,15 +367,19 @@ export class WithdrawLiquidityPanel extends React.Component<
                         onClick={async () => {
                           this.setState({ isLoading: true });
 
+                          const { withdrawPercentage } = this.state;
+
                           try {
-                            await this.props.secretjs.execute(
+                            const result = await this.props.secretjs.execute(
                               pair.liquidity_token,
                               {
                                 send: {
                                   recipient: pair.contract_addr,
                                   amount: amountInTokenDenom,
                                   msg: btoa(
-                                    JSON.stringify({ withdraw_liquidity: {} }),
+                                    JSON.stringify({
+                                      withdraw_liquidity: {},
+                                    }),
                                   ),
                                 },
                               },
@@ -381,10 +390,28 @@ export class WithdrawLiquidityPanel extends React.Component<
                                 amount: [{ denom: 'uscrt', amount: '500000' }],
                               },
                             );
+
+                            this.props.notify(
+                              'success',
+                              `Withdrawn ${100 *
+                                withdrawPercentage}% from your pooled ${pairSymbol}`,
+                            );
+
                             this.setState({
                               withdrawPercentage: 0,
                             });
+                            this.props.notify(
+                              'success',
+                              `Withdrawn ${pairSymbol}`,
+                            );
                           } catch (error) {
+                            this.props.notify(
+                              'error',
+                              `Error withdrawing ${100 *
+                                withdrawPercentage}% from your pooled ${pairSymbol}: ${
+                                error.message
+                              }`,
+                            );
                             console.error(error);
                           }
 

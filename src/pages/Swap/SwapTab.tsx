@@ -3,8 +3,8 @@ import { Button, Container } from 'semantic-ui-react';
 import './override.css';
 import {
   canonicalizeBalance,
+  displayHumanizedBalance,
   humanizeBalance,
-  mulDecimals,
   sortedStringify,
 } from 'utils';
 import { AssetRow } from './AssetRow';
@@ -16,7 +16,13 @@ import {
 } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
+import {
+  extractValueFromLogs,
+  flexRowSpace,
+  Pair,
+  swapContainerStyle,
+  TokenDisplay,
+} from '.';
 import { BigNumber } from 'bignumber.js';
 
 export const downArrow = (
@@ -55,6 +61,11 @@ export class SwapTab extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
+    notify: (
+      type: 'success' | 'error',
+      msg: string,
+      closesAfterMs?: number,
+    ) => void;
   },
   {
     fromToken: string;
@@ -464,22 +475,24 @@ export class SwapTab extends React.Component<
               }
 
               this.setState({ loadingSwap: true });
+              const { fromInput, toInput, fromToken, toToken } = this.state;
+              const pair = this.props.pairFromSymbol[
+                `${this.state.fromToken}/${this.state.toToken}`
+              ];
 
               try {
-                const pair = this.props.pairFromSymbol[
-                  `${this.state.fromToken}/${this.state.toToken}`
-                ];
-
                 const { decimals } = this.props.tokens[this.state.fromToken];
-                const nf = new Intl.NumberFormat('en-US', {
-                  maximumFractionDigits: decimals,
-                  useGrouping: false,
-                });
-
-                const amountInTokenDenom = mulDecimals(
-                  nf.format(Number(this.state.fromInput)),
+                const fromAmount = canonicalizeBalance(
+                  new BigNumber(this.state.fromInput),
                   decimals,
-                ).toString();
+                ).toFixed(
+                  0,
+                  BigNumber.ROUND_DOWN,
+                  /*
+                  should be 0 fraction digits because of canonicalizeBalance,
+                  but to be sure we're rounding down to prevent over-spending
+                  */
+                );
 
                 // offer_amount: exactly how much we're sending
                 // ask_amount: roughly how much we're getting
@@ -493,13 +506,13 @@ export class SwapTab extends React.Component<
                   .toFormat(0, { groupSeparator: '' });
 
                 if (this.state.fromToken === 'SCRT') {
-                  await this.props.secretjs.execute(
+                  const result = await this.props.secretjs.execute(
                     pair.contract_addr,
                     {
                       swap: {
                         offer_asset: {
                           info: { native_token: { denom: 'uscrt' } },
-                          amount: amountInTokenDenom,
+                          amount: fromAmount,
                         },
                         expected_return,
                         // offer_asset: Asset,
@@ -512,18 +525,40 @@ export class SwapTab extends React.Component<
                     '',
                     [
                       {
-                        amount: amountInTokenDenom,
+                        amount: fromAmount,
                         denom: 'uscrt',
                       },
                     ],
                   );
+
+                  const sent = displayHumanizedBalance(
+                    humanizeBalance(
+                      new BigNumber(
+                        extractValueFromLogs(result, 'offer_amount'),
+                      ),
+                      fromDecimals,
+                    ),
+                  );
+                  const received = displayHumanizedBalance(
+                    humanizeBalance(
+                      new BigNumber(
+                        extractValueFromLogs(result, 'return_amount'),
+                      ),
+                      toDecimals,
+                    ),
+                  );
+
+                  this.props.notify(
+                    'success',
+                    `Swapped ${sent} ${fromToken} for ${received} ${toToken}`,
+                  );
                 } else {
-                  await this.props.secretjs.execute(
+                  const result = await this.props.secretjs.execute(
                     this.props.tokens[this.state.fromToken].address,
                     {
                       send: {
                         recipient: pair.contract_addr,
-                        amount: amountInTokenDenom,
+                        amount: fromAmount,
                         msg: btoa(
                           JSON.stringify({
                             swap: {
@@ -538,9 +573,34 @@ export class SwapTab extends React.Component<
                       },
                     },
                   );
+                  const sent = displayHumanizedBalance(
+                    humanizeBalance(
+                      new BigNumber(
+                        extractValueFromLogs(result, 'offer_amount'),
+                      ),
+                      fromDecimals,
+                    ),
+                  );
+                  const recived = displayHumanizedBalance(
+                    humanizeBalance(
+                      new BigNumber(
+                        extractValueFromLogs(result, 'return_amount'),
+                      ),
+                      toDecimals,
+                    ),
+                  );
+
+                  this.props.notify(
+                    'success',
+                    `Swapped ${sent} ${fromToken} for ${recived} ${toToken}`,
+                  );
                 }
               } catch (error) {
                 console.error('Swap error', error);
+                this.props.notify(
+                  'error',
+                  `Error swapping ${fromInput} ${fromToken} for ${toToken}: ${error.message}`,
+                );
                 this.setState({
                   loadingSwap: false,
                 });

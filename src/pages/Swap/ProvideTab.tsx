@@ -2,7 +2,6 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
 import {
-  mulDecimals,
   UINT128_MAX,
   sortedStringify,
   humanizeBalance,
@@ -60,6 +59,11 @@ export class ProvideTab extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
+    notify: (
+      type: 'success' | 'error',
+      msg: string,
+      closesAfterMs?: number,
+    ) => void;
   },
   {
     tokenA: string;
@@ -314,8 +318,10 @@ export class ProvideTab extends React.Component<
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
       });
+      this.props.notify('success', `${symbol} approved`);
     } catch (error) {
       console.error('Error while trying to approve', symbol, error);
+      this.props.notify('error', `Error approving ${symbol}: ${error.message}`);
     }
 
     this.setState<never>({
@@ -693,15 +699,18 @@ export class ProvideTab extends React.Component<
             let transferAmount: Array<Coin> = undefined;
             for (const i of ['A', 'B']) {
               const { decimals } = this.props.tokens[this.state['token' + i]];
-              const nf = new Intl.NumberFormat('en-US', {
-                maximumFractionDigits: decimals,
-                useGrouping: false,
-              });
 
-              const amount: string = mulDecimals(
-                nf.format(this.state['input' + i]),
+              const amount: string = canonicalizeBalance(
+                new BigNumber(this.state['input' + i]),
                 decimals,
-              ).toString();
+              ).toFixed(
+                0,
+                BigNumber.ROUND_DOWN,
+                /*
+                should be 0 fraction digits because of canonicalizeBalance,
+                but to be sure we're rounding down to prevent over-spending
+                */
+              );
 
               if (this.state['token' + i] === 'SCRT') {
                 msg.provide_liquidity.assets.push({
@@ -728,13 +737,21 @@ export class ProvideTab extends React.Component<
               }
             }
 
+            const { inputA, inputB, tokenA, tokenB } = this.state;
+
             try {
-              const x = await this.props.secretjs.execute(
+              await this.props.secretjs.execute(
                 pair.contract_addr,
                 msg,
                 '',
                 transferAmount,
               );
+
+              this.props.notify(
+                'success',
+                `Provided ${inputA} ${tokenA} + ${inputB} ${tokenB}`,
+              );
+
               this.setState({
                 inputA: '',
                 inputB: '',
@@ -743,6 +760,10 @@ export class ProvideTab extends React.Component<
               });
             } catch (error) {
               console.error('Error while trying to add liquidity', error);
+              this.props.notify(
+                'error',
+                `Error providing to ${tokenA}/${tokenB}: ${error.message}`,
+              );
             }
 
             this.setState({
