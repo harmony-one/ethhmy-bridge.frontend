@@ -484,7 +484,6 @@ export class ProvideTab extends React.Component<
           style={{
             padding: '1em',
             display: 'flex',
-            flexDirection: 'row',
             alignContent: 'center',
           }}
         >
@@ -564,7 +563,6 @@ export class ProvideTab extends React.Component<
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'row',
                 paddingTop: '0.5rem',
               }}
             >
@@ -614,7 +612,6 @@ export class ProvideTab extends React.Component<
           <div
             style={{
               display: 'flex',
-              flexDirection: 'row',
               paddingTop: '0.5rem',
             }}
           >
@@ -633,7 +630,6 @@ export class ProvideTab extends React.Component<
           <div
             style={{
               display: 'flex',
-              flexDirection: 'row',
               paddingTop: '0.5rem',
             }}
           >

@@ -54,7 +54,7 @@ export const AdditionalInfo = ({
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            justifyContent: 'space-between',
             paddingTop: '0.2rem',
           }}
         >
@@ -83,7 +83,6 @@ export const AdditionalInfo = ({
               position="top center"
             />
           </span>
-          {flexRowSpace}
           <strong>
             {minimumReceived !== null
               ? `${minimumReceived.toFormat(6)} ${toToken}`
@@ -93,7 +92,7 @@ export const AdditionalInfo = ({
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            justifyContent: 'space-between',
             paddingTop: '0.2rem',
           }}
         >
@@ -122,7 +121,6 @@ export const AdditionalInfo = ({
               position="top center"
             />
           </span>
-          {flexRowSpace}
           <strong style={{ color: priceImpactColor }}>{`${new Intl.NumberFormat(
             'en-US',
             {
@@ -135,7 +133,7 @@ export const AdditionalInfo = ({
         <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            justifyContent: 'space-between',
             paddingTop: '0.2rem',
           }}
         >
@@ -162,7 +160,6 @@ export const AdditionalInfo = ({
               position="top center"
             />
           </span>
-          {flexRowSpace}
           <strong>
             {new Intl.NumberFormat('en-US', {
               maximumFractionDigits: 6,
@@ -174,13 +171,11 @@ export const AdditionalInfo = ({
         {/*   <div
           style={{
             display: 'flex',
-            flexDirection: 'row',
+            justifyContent: 'center',
             paddingTop: '0.2rem',
           }}
         >
-          {flexRowSpace}
           <span>TODO link to pair analytics</span>
-          {flexRowSpace}
         </div> */}
       </Container>
     </div>

@@ -42,7 +42,6 @@ export const PriceRow = ({
         style={{
           padding: '1em 0 0 0',
           display: 'flex',
-          flexDirection: 'row',
           alignContent: 'center',
         }}
       >

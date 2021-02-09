@@ -56,7 +56,7 @@ export class WithdrawTab extends React.Component<{
       return (
         <Container style={swapContainerStyle}>
           <TabsHeader />
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div style={{ display: 'flex' }}>
             {flexRowSpace}
             <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
             {flexRowSpace}
