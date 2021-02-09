@@ -63,7 +63,7 @@ export const AssetRow = ({
         <>
           {'Balance: '}
           {(() => {
-            if (balance == undefined) {
+            if (balance === undefined) {
               return (
                 <>
                   <span style={{ marginRight: '0.5em' }} />

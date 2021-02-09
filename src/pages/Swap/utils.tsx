@@ -5,6 +5,7 @@ import { UserStoreEx } from 'stores/UserStore';
 import { ERROR_WRONG_VIEWING_KEY, TokenDisplay } from '.';
 import React from 'react';
 import Style from 'style-it';
+import { humanizeBalance } from '../../utils';
 
 export async function getBalance(
   symbol: string,
@@ -107,4 +108,10 @@ export function getFeeForExecute(gas: number): StdFee {
     amount: [{ amount: String(gas), denom: 'uscrt' }],
     gas: String(gas),
   };
+}
+
+export function compareNormalize(number1: BigNumber.Value, number2: {amount: BigNumber.Value, decimals: number}): boolean {
+  return humanizeBalance(new BigNumber(number2.amount as any), number2.decimals).isLessThan(
+    new BigNumber(number1),
+  )
 }

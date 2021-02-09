@@ -212,11 +212,6 @@ export class SwapTab extends React.Component<
           priceImpact: 0,
         });
       } else {
-        const nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: this.props.tokens[this.state.fromToken]
-            .decimals,
-          useGrouping: false,
-        });
         this.setState({
           isToEstimated: false,
           fromInput: offer_amount.isLessThan(0)

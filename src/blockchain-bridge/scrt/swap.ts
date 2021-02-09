@@ -1,6 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Currency, Trade, Asset, TradeType } from '../../pages/Swap/trade';
+import { TokenDisplay } from '../../pages/Swap';
+import { Snip20TokenInfo } from './snip20';
 
 export const buildAssetInfo = (currency: Currency) => {
   if (currency.token.info.type === 'native_token') {
@@ -241,3 +243,20 @@ export const reverse_decimal = (decimal: BigNumber): BigNumber => {
 
   return DECIMAL_FRACTIONAL.dividedBy(decimal.multipliedBy(DECIMAL_FRACTIONAL));
 };
+
+export const CreateNewPair = async (params: { secretjs: SigningCosmWasmClient, address: string, tokenA: TokenDisplay, tokenB: TokenDisplay}) : Promise<Snip20TokenInfo> => {
+  const { secretjs, address } = params;
+
+  try {
+    const paramsResponse = await secretjs.execute(address, { token_info: {} });
+
+    return {
+      name: paramsResponse.token_info.name,
+      symbol: paramsResponse.token_info.symbol,
+      decimals: paramsResponse.token_info.decimals,
+      total_supply: paramsResponse.token_info?.total_supply,
+    };
+  } catch (e) {
+    throw Error('Failed to get info');
+  }
+}
