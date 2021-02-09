@@ -121,7 +121,6 @@ export class WithdrawLiquidityPanel extends React.Component<
 
     const rowStyle: CSSProperties = {
       display: 'flex',
-      flexDirection: 'row',
       padding: '0.5em 0 0 0',
     };
 
@@ -162,7 +161,6 @@ export class WithdrawLiquidityPanel extends React.Component<
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'row',
               }}
             >
               {getLogo(tokenA)}

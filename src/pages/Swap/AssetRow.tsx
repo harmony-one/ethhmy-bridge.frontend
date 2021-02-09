@@ -50,7 +50,6 @@ export const AssetRow = ({
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row',
         }}
       >
         <span style={font}>
@@ -80,10 +79,11 @@ export const AssetRow = ({
               return balance;
             }
 
-            const { decimals } = tokens[token];
-
             return displayHumanizedBalance(
-              humanizeBalance(new BigNumber(balance as BigNumber), decimals),
+              humanizeBalance(
+                new BigNumber(balance as BigNumber),
+                tokens[token].decimals,
+              ),
               BigNumber.ROUND_DOWN,
             );
           })()}
@@ -92,7 +92,6 @@ export const AssetRow = ({
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row',
         }}
       >
         <Input

@@ -1,7 +1,5 @@
 import React from 'react';
 
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
-
 const Tab: React.FC<{ name: string }> = ({ name }) => {
   const isSelected = window.location.hash === `#${name}`;
 
@@ -36,14 +34,12 @@ export class TabsHeader extends React.Component {
       <div
         style={{
           display: 'flex',
-          flexDirection: 'row',
           paddingBottom: '1em',
         }}
       >
         <Tab name="Swap" />
         <Tab name="Provide" />
         <Tab name="Withdraw" />
-        {flexRowSpace}
       </div>
     );
   }

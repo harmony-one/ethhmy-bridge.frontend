@@ -352,7 +352,6 @@ export class SwapTab extends React.Component<
             style={{
               padding: '1em',
               display: 'flex',
-              flexDirection: 'row',
               alignContent: 'center',
             }}
           >
