@@ -75,7 +75,7 @@ const apyString = (token: RewardsToken) => {
   const apy = Number(
     calculateAPY(token, Number(token.rewardsPrice), Number(token.price)),
   );
-  if (isNaN(apy)) {
+  if (isNaN(apy) || 0 > apy) {
     return `0%`;
   }
 
@@ -143,10 +143,11 @@ class EarnRow extends Component<
     //this.props.userStore.keplrWallet.suggestToken(this.props.userStore.chainId, );
     const { activeIndex } = this.state;
     return (
-      <Accordion className={cn(style)}
-      style={{
-        marginTop: '62px',
-      }}
+      <Accordion
+        className={cn(style)}
+        style={{
+          marginTop: '62px',
+        }}
       >
         <Accordion.Title
           active={activeIndex === 0}
@@ -226,7 +227,7 @@ class EarnRow extends Component<
                     balance={this.props.token.balance}
                     currency={this.props.token.lockedAsset}
                     balanceText="Available"
-                    unlockPopupText='In order to view your available assets, , click on "View Balance" above'
+                    unlockPopupText='In order to view your available assets, click on "View Balance" above'
                   />
                 </Grid.Column>
                 <Grid.Column>

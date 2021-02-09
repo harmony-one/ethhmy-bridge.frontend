@@ -9,7 +9,6 @@ import { Explorer } from './pages/Explorer';
 import { Tokens } from './pages/Tokens';
 import { SwapPageWrapper } from './pages/Swap';
 import { InfoModal } from './components/InfoModal';
-import { InfoModalEarn } from './components/InfoModalEarn';
 import { EarnRewards } from './pages/Earn';
 import { FAQPage } from './pages/FAQ';
 import { useStores } from 'stores';
