@@ -125,9 +125,24 @@ export const getTokensInfo = async (
     params,
   );
 
-  const content = _.uniqWith(
-    res.body.content,
-    (a: any, b: any) => a.erc20Address === b.erc20Address,
+  let content = res.body.content;
+
+  content = content.filter(t => {
+    if (
+      t.symbol === '1ONE' &&
+      String(t.hrc20Address).toLowerCase() !==
+        String(process.env.ONE_HRC20).toLowerCase()
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  content = _.uniqWith(
+    content,
+    (a: any, b: any) =>
+      a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
   );
 
   return { ...res.body, content };

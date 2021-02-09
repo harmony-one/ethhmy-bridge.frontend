@@ -6,14 +6,11 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo } from 'stores/interfaces';
-import {
-  formatWithTwoDecimals,
-  truncateAddressString,
-} from 'utils';
+import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
-import { getBech32Address } from '../../blockchain-bridge';
+import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -72,7 +69,15 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
     width: 300,
-    render: value => oneAddress(getBech32Address(value)),
+    render: value => {
+      const address =
+        String(value).toLowerCase() ===
+        String(process.env.ONE_HRC20).toLowerCase()
+          ? String(value).toLowerCase()
+          : getChecksumAddress(value);
+
+      return oneAddress(address);
+    },
   },
   // {
   //   title: 'Decimals',
