@@ -622,7 +622,10 @@ export class SwapRouter extends React.Component<
                     >
                       #🔀amm-support
                     </a>{' '}
-                    on Discord
+                    on{' '}
+                    <a href="https://chat.scrt.network" target="_blank">
+                      Discord
+                    </a>
                   </li>
                   <li>
                     Tag @assafmo on{' '}
