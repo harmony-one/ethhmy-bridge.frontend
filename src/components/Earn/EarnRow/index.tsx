@@ -227,7 +227,7 @@ class EarnRow extends Component<
                     balance={this.props.token.balance}
                     currency={this.props.token.lockedAsset}
                     balanceText="Available"
-                    unlockPopupText='In order to view your available assets, , click on "View Balance" above'
+                    unlockPopupText='In order to view your available assets, click on "View Balance" above'
                   />
                 </Grid.Column>
                 <Grid.Column>

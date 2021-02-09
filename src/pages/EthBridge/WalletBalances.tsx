@@ -74,7 +74,7 @@ const AssetRow = observer<any>(props => {
   } else if (props.value === 'Fix Unlock') {
     value = (
       <Box direction="column">
-        <Text color="red">Fix Token Viewing Key</Text>
+        <Text color="red">Fix Viewing Key</Text>
         <Text color="red" style={{ fontSize: '0.75em' }}>
           Keplr -{'>'}
         </Text>
@@ -82,21 +82,8 @@ const AssetRow = observer<any>(props => {
           Secret Network -{'>'}
         </Text>
         <Text color="red" style={{ fontSize: '0.75em' }}>
-          Add Token -{'>'}
+          Token List
         </Text>
-        <Box direction="row">
-          <Text color="red" style={{ fontSize: '0.75em' }}>
-            {props.token.dst_address}
-          </Text>
-          <CopyToClipboard text={props.token.dst_address}>
-            <Icon
-              glyph="PrintFormCopy"
-              size="0.75em"
-              color="red"
-              style={{ marginLeft: 5 }}
-            />
-          </CopyToClipboard>
-        </Box>
       </Box>
     );
   }
