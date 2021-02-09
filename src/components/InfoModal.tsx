@@ -31,9 +31,9 @@ export const InfoModal = observer(() => {
   useEffect(() => {
     if (!user.isInfoNewReading) {
       actionModals.open(
-        () => <InfoNew title="Bridge usage cost was changed" />,
+        () => <InfoNew title="Important Notice" />,
         {
-          title: 'Bridge usage cost changed',
+          title: 'Important Notice',
           applyText: 'Got it',
           closeText: '',
           noValidation: true,
