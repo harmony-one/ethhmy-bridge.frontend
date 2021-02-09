@@ -1,11 +1,8 @@
+import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
-const numberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 6,
-  useGrouping: true,
-});
 
 export const AdditionalInfo = ({
   minimumReceived,
@@ -15,8 +12,8 @@ export const AdditionalInfo = ({
   fromToken,
   toToken,
 }: {
-  minimumReceived?: number;
-  maximumSold?: number;
+  minimumReceived?: BigNumber;
+  maximumSold?: BigNumber;
   liquidityProviderFee: number;
   priceImpact: number;
   fromToken: string;
@@ -89,8 +86,8 @@ export const AdditionalInfo = ({
           {flexRowSpace}
           <strong>
             {minimumReceived !== null
-              ? `${numberFormat.format(minimumReceived)} ${toToken}`
-              : `${numberFormat.format(maximumSold)} ${fromToken}`}
+              ? `${minimumReceived.toFormat(6)} ${toToken}`
+              : `${maximumSold.toFormat(6)} ${fromToken}`}
           </strong>
         </div>
         <div
@@ -126,9 +123,14 @@ export const AdditionalInfo = ({
             />
           </span>
           {flexRowSpace}
-          <strong style={{ color: priceImpactColor }}>{`${(
-            priceImpact * 100
-          ).toFixed(2)}%`}</strong>
+          <strong style={{ color: priceImpactColor }}>{`${new Intl.NumberFormat(
+            'en-US',
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+              useGrouping: true,
+            },
+          ).format(priceImpact * 100)}%`}</strong>
         </div>
         <div
           style={{
@@ -162,7 +164,11 @@ export const AdditionalInfo = ({
           </span>
           {flexRowSpace}
           <strong>
-            {numberFormat.format(liquidityProviderFee)} {fromToken}
+            {new Intl.NumberFormat('en-US', {
+              maximumFractionDigits: 6,
+              useGrouping: true,
+            }).format(liquidityProviderFee)}{' '}
+            {fromToken}
           </strong>
         </div>
         {/*   <div

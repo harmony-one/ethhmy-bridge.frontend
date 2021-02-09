@@ -15,12 +15,6 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
   useGrouping: true,
 });
 
-// https://docs.rs/cosmwasm-std/0.13.2/cosmwasm_std/struct.Decimal.html
-export const beliefPriceNumberFormat = new Intl.NumberFormat('en-US', {
-  maximumFractionDigits: 18,
-  useGrouping: false,
-});
-
 export const valueToDecimals = (value: string, decimals: string): string => {
   return BigInt(
     parseFloat(value) * Math.pow(10, parseInt(decimals)),
@@ -100,3 +94,23 @@ export const divDecimals = (
 };
 
 export const UINT128_MAX = '340282366920938463463374607431768211454';
+
+export const displayHumanizedBalance = (
+  balance: BigNumber,
+  roundingMode: BigNumber.RoundingMode = BigNumber.ROUND_HALF_UP,
+  decimals: number = 6,
+): string =>
+  new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: decimals,
+    useGrouping: true,
+  }).format(Number(balance.toFixed(decimals, roundingMode)));
+
+export const humanizeBalance = (
+  balance: BigNumber,
+  decimals: number,
+): BigNumber => balance.dividedBy(new BigNumber(`1e${decimals}`));
+
+export const canonicalizeBalance = (
+  balance: BigNumber,
+  decimals: number,
+): BigNumber => balance.multipliedBy(new BigNumber(`1e${decimals}`));

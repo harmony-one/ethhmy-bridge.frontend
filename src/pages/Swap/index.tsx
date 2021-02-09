@@ -5,15 +5,22 @@ import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
 import './override.css';
-import { divDecimals, sleep } from 'utils';
+import { sleep } from 'utils';
 import { NativeToken, Token } from './trade';
-import Style from 'style-it';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
+import { Icon, Message, Popup } from 'semantic-ui-react';
+import { BigNumber } from 'bignumber.js';
+import {
+  NotificationContainer,
+  NotificationManager,
+} from 'react-notifications';
+import 'react-notifications/lib/notifications.css';
+import { getBalance } from './utils';
 import { BetaWarning } from './BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge/scrt';
@@ -49,87 +56,6 @@ export const swapContainerStyle = {
     'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
 };
 
-export async function getBalance(
-  symbol: string,
-  walletAddress: string,
-  tokens: {
-    [symbol: string]: TokenDisplay;
-  },
-  viewingKey: string,
-  userStore: UserStoreEx,
-): Promise<number | JSX.Element> {
-  if (symbol === 'SCRT') {
-    return userStore.secretjs.getAccount(walletAddress).then(account => {
-      try {
-        return Number(divDecimals(account.balance[0].amount, tokens[symbol].decimals));
-      } catch (error) {
-        return 0;
-      }
-    });
-  }
-
-  const unlockJsx = Style.it(
-    `.view-token-button {
-      cursor: pointer;
-      border-radius: 30px;
-      padding: 0 0.6em 0 0.3em;
-      border: solid;
-      border-width: thin;
-      border-color: whitesmoke;
-    }
-
-    .view-token-button:hover {
-      background: whitesmoke;
-    }`,
-    <span
-      className="view-token-button"
-      onClick={async e => {
-        await userStore.keplrWallet.suggestToken(userStore.chainId, tokens[symbol].address);
-        // TODO trigger balance refresh if this was an "advanced set" that didn't
-        // result in an on-chain transaction
-      }}
-    >
-      🔍 View
-    </span>,
-  );
-
-  if (!viewingKey) {
-    return unlockJsx;
-  }
-
-  const result = await userStore.secretjs.queryContractSmart(tokens[symbol].address, {
-    balance: {
-      address: walletAddress,
-      key: viewingKey,
-    },
-  });
-
-  if (viewingKey && 'viewing_key_error' in result) {
-    // TODO handle this
-    return (
-      <strong
-        style={{
-          marginLeft: '0.2em',
-          color: 'red',
-        }}
-      >
-        {ERROR_WRONG_VIEWING_KEY}
-      </strong>
-    );
-  }
-
-  try {
-    return Number(divDecimals(result.balance.amount, tokens[symbol].decimals));
-  } catch (error) {
-    console.log(
-      `Got an error while trying to query ${symbol} token balance for address ${walletAddress}:`,
-      result,
-      error,
-    );
-    return unlockJsx;
-  }
-}
-
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   const { user } = useStores();
@@ -138,13 +64,13 @@ export const SwapPageWrapper = observer(() => {
 });
 
 export class SwapRouter extends React.Component<
-  Readonly<{ user: UserStoreEx }>,
+  { user: UserStoreEx },
   {
     tokens: {
       [symbol: string]: TokenDisplay;
     };
     balances: {
-      [symbol: string]: number | JSX.Element;
+      [symbol: string]: bigint | JSX.Element;
     };
     pairs: Array<Pair>;
     pairFromSymbol: {
@@ -163,7 +89,7 @@ export class SwapRouter extends React.Component<
     //securedByIconBackground: 'whitesmoke',
   };
 
-  constructor(props: Readonly<{ user: UserStoreEx }>) {
+  constructor(props: { user: UserStoreEx }) {
     super(props);
     window.onhashchange = this.onHashChange.bind(this);
   }
@@ -306,7 +232,7 @@ export class SwapRouter extends React.Component<
           );
 
           // update LP token total supply
-          let lpTotalSupply = 0;
+          let lpTotalSupply = new BigNumber(0);
           try {
             const result: {
               token_info: {
@@ -319,7 +245,7 @@ export class SwapRouter extends React.Component<
               token_info: {},
             });
 
-            lpTotalSupply = Number(divDecimals(result.token_info.total_supply, 6));
+            lpTotalSupply = new BigNumber(result.token_info.total_supply);
           } catch (error) {
             console.error(`Error trying to get LP token total supply of ${pairSymbol}`, pair, error);
           }
@@ -369,7 +295,7 @@ export class SwapRouter extends React.Component<
           const freshBalances = await Promise.all([userBalancePromise].concat(poolsBalancesPromises));
 
           const pairSymbolToFreshBalances: {
-            [symbol: string]: number | JSX.Element;
+            [symbol: string]: BigNumber | JSX.Element;
           } = {};
           for (let i = 0; i < pairs.length; i++) {
             const pairSymbol = pairs[i];
@@ -525,6 +451,14 @@ export class SwapRouter extends React.Component<
     });
   };
 
+  notify(
+    type: 'success' | 'error',
+    msg: string,
+    closesAfterMs: number = 120000,
+  ) {
+    NotificationManager[type](undefined, msg, closesAfterMs);
+  }
+
   render() {
     const isSwap = window.location.hash === '#Swap';
     const isProvide = window.location.hash === '#Provide';
@@ -544,7 +478,6 @@ export class SwapRouter extends React.Component<
             pad={{ horizontal: 'large', top: 'large' }}
             style={{ alignItems: 'center' }}
           >
-            {/*<SwapHeader />*/}
             <Box
               style={{
                 maxWidth: '420px',
@@ -555,7 +488,6 @@ export class SwapRouter extends React.Component<
               }}
               pad={{ bottom: 'medium' }}
             >
-              {/*{isPools && <PoolsTab />}*/}
               {isSwap && (
                 <SwapTab
                   secretjs={this.props.user.secretjs}
@@ -563,6 +495,7 @@ export class SwapRouter extends React.Component<
                   balances={this.state.balances}
                   pairs={this.state.pairs}
                   pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
                 />
               )}
               {isProvide && (
@@ -573,6 +506,7 @@ export class SwapRouter extends React.Component<
                   balances={this.state.balances}
                   pairs={this.state.pairs}
                   pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
                 />
               )}
               {isWithdraw && (
@@ -583,6 +517,7 @@ export class SwapRouter extends React.Component<
                   balances={this.state.balances}
                   pairs={this.state.pairs}
                   pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
                 />
               )}
             </Box>

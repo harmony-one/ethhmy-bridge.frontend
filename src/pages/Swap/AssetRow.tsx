@@ -1,6 +1,9 @@
+import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
+import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { Button, Container, Input, Dropdown, Modal } from 'semantic-ui-react';
 import { TokenDisplay } from '.';
+import Loader from 'react-loader-spinner';
 import { TokenSelector } from './TokenSelector';
 import { SwapInput } from '../../components/Swap/SwapInput';
 import { SigningCosmWasmClient } from 'secretjs';
@@ -27,7 +30,7 @@ export const AssetRow = ({
   amount: string;
   setAmount: (amount: string) => void;
   isEstimated: boolean;
-  balance: number | JSX.Element;
+  balance: BigNumber | JSX.Element;
   label: string;
   maxButton: boolean;
   secretjs: SigningCosmWasmClient;
@@ -58,23 +61,36 @@ export const AssetRow = ({
           {isEstimated ? ` (estimated)` : null}
         </span>
         {flexRowSpace}
-        {(() => {
-          if (balance === undefined) {
-            return '-';
-          }
+        <>
+          {'Balance: '}
+          {(() => {
+            if (balance == undefined) {
+              return (
+                <>
+                  <span style={{ marginRight: '0.5em' }} />
+                  <Loader
+                    type="ThreeDots"
+                    color="#00BFFF"
+                    height="1em"
+                    width="1em"
+                    style={{ margin: 'auto' }}
+                  />
+                </>
+              );
+            }
 
-          const nf = new Intl.NumberFormat('en-US', {
-            maximumFractionDigits: Math.min(tokens[token].decimals, 6),
-            useGrouping: true,
-          });
+            if (JSON.stringify(balance).includes('View')) {
+              return balance;
+            }
 
-          return (
-            <>
-              {'Balance: '}
-              {isNaN(Number(balance)) ? balance : nf.format(Number(balance))}
-            </>
-          );
-        })()}
+            const { decimals } = tokens[token];
+
+            return displayHumanizedBalance(
+              humanizeBalance(new BigNumber(balance as BigNumber), decimals),
+              BigNumber.ROUND_DOWN,
+            );
+          })()}
+        </>
       </div>
       <div
         style={{
@@ -95,7 +111,7 @@ export const AssetRow = ({
         {maxButton && token && (
           <Button
             primary
-            disabled={isNaN(Number(balance))}
+            disabled={new BigNumber(balance as any).isNaN()}
             style={{
               borderRadius: '15px',
               fontSize: '1rem',
@@ -103,7 +119,16 @@ export const AssetRow = ({
               height: '30px',
               padding: '0rem 0.4rem',
             }}
-            onClick={() => setAmount(String(balance))}
+            onClick={() => {
+              const { decimals } = tokens[token];
+
+              setAmount(
+                humanizeBalance(
+                  new BigNumber(balance as any),
+                  decimals,
+                ).toFixed(decimals),
+              );
+            }}
           >
             MAX
           </Button>

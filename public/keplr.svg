@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256px" height="256px" viewBox="0 0 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>k</title>
+    <defs>
+        <linearGradient x1="7.27233149%" y1="5.60080287%" x2="93.8862913%" y2="92.9848946%" id="linearGradient-1">
+            <stop stop-color="#3BA4CE" offset="0%"></stop>
+            <stop stop-color="#7868C8" offset="52.0850929%"></stop>
+            <stop stop-color="#B54BC1" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="k">
+            <rect id="Rectangle" fill="url(#linearGradient-1)" x="0" y="0" width="256" height="256" rx="64"></rect>
+            <polygon id="Path" fill="#FFFFFF" points="67 54.75 95.4172414 54.75 95.4172414 119.496204 152.675862 54.75 190 54.75 123.18131 127.75 190 200.75 152.675862 200.75 95.4172414 136.003796 95.4172414 200.75 67 200.75"></polygon>
+        </g>
+    </g>
+</svg>

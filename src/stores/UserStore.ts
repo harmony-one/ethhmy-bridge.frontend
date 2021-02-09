@@ -52,6 +52,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public snip20BalanceMin = '';
 
   @observable public isInfoReading = false;
+  @observable public isInfoEarnReading = false;
   @observable public chainId: string;
 
   @observable public ws: WebSocket;
@@ -95,6 +96,7 @@ export class UserStoreEx extends StoreConstructor {
     if (sessionObj) {
       this.address = sessionObj.address;
       this.isInfoReading = sessionObj.isInfoReading;
+      this.isInfoEarnReading = sessionObj.isInfoEarnReading;
       keplrCheckPromise.then(async () => {
         await this.signIn();
 
@@ -243,6 +245,11 @@ export class UserStoreEx extends StoreConstructor {
     this.isInfoReading = true;
     this.syncLocalStorage();
   }
+  
+  @action public setInfoEarnReading() {
+    this.isInfoEarnReading = true;
+    this.syncLocalStorage();
+  }
 
   @action public async signIn(wait?: boolean) {
     this.error = '';
@@ -323,8 +330,8 @@ export class UserStoreEx extends StoreConstructor {
             gas: '300000',
           },
           exec: {
-            amount: [{ amount: '500000', denom: 'uscrt' }],
-            gas: '500000',
+            amount: [{ amount: '350000', denom: 'uscrt' }],
+            gas: '350000',
           },
         },
       );
@@ -594,6 +601,7 @@ export class UserStoreEx extends StoreConstructor {
       JSON.stringify({
         address: this.address,
         isInfoReading: this.isInfoReading,
+        isInfoEarnReading: this.isInfoEarnReading,
       }),
     );
   }

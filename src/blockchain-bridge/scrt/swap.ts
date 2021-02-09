@@ -1,12 +1,6 @@
+import BigNumber from 'bignumber.js';
 import { SigningCosmWasmClient } from 'secretjs';
-import {
-  Currency,
-  NativeToken,
-  Trade,
-  Token,
-  Asset,
-  TradeType,
-} from '../../pages/Swap/trade';
+import { Currency, Trade, Asset, TradeType } from '../../pages/Swap/trade';
 
 export const buildAssetInfo = (currency: Currency) => {
   if (currency.token.info.type === 'native_token') {
@@ -163,73 +157,87 @@ export const handleSimulation = async (
 };
 
 // Commission rate == 0.3%
-const COMMISSION_RATE = 0.003;
+const COMMISSION_RATE = new BigNumber(0.3 / 100);
 
 // To reduce unnecessary queries, compute_swap is ported from here https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/contract.rs#L616-L636
 export const compute_swap = (
-  offer_pool: number,
-  ask_pool: number,
-  offer_amount: number,
+  offer_pool: BigNumber,
+  ask_pool: BigNumber,
+  offer_amount: BigNumber,
 ): {
-  return_amount: number;
-  spread_amount: number;
-  commission_amount: number;
+  return_amount: BigNumber;
+  spread_amount: BigNumber;
+  commission_amount: BigNumber;
 } => {
   // offer => ask
   // ask_amount = (ask_pool - cp / (offer_pool + offer_amount)) * (1 - commission_rate)
-  const cp = offer_pool * ask_pool;
-  let return_amount = ask_pool - cp * (1 / (offer_pool + offer_amount));
+  const cp = offer_pool.multipliedBy(ask_pool);
+  let return_amount = ask_pool.minus(
+    cp.multipliedBy(new BigNumber(1).dividedBy(offer_pool.plus(offer_amount))),
+  );
 
   // calculate spread & commission
-  const spread_amount = offer_amount * (ask_pool / offer_pool) - return_amount;
-  const commission_amount = return_amount * COMMISSION_RATE;
+  const spread_amount = offer_amount
+    .multipliedBy(ask_pool.dividedBy(offer_pool))
+    .minus(return_amount);
+  const commission_amount = return_amount.multipliedBy(COMMISSION_RATE);
 
   // commission will be absorbed to pool
-  return_amount = return_amount - commission_amount;
+  return_amount = return_amount.minus(commission_amount);
 
   return { return_amount, spread_amount, commission_amount };
 };
 
 // To reduce unnecessary queries, cumpute_offer_amount is ported from here https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/contract.rs#L638-L661
 export const compute_offer_amount = (
-  offer_pool: number,
-  ask_pool: number,
-  ask_amount: number,
+  offer_pool: BigNumber,
+  ask_pool: BigNumber,
+  ask_amount: BigNumber,
 ): {
-  offer_amount: number;
-  spread_amount: number;
-  commission_amount: number;
+  offer_amount: BigNumber;
+  spread_amount: BigNumber;
+  commission_amount: BigNumber;
 } => {
   // ask => offer
   // offer_amount = cp / (ask_pool - ask_amount / (1 - commission_rate)) - offer_pool
-  const cp = offer_pool * ask_pool;
-  const one_minus_commission = 1 - COMMISSION_RATE;
+  const cp = offer_pool.multipliedBy(ask_pool);
+  const one_minus_commission = new BigNumber(1).minus(COMMISSION_RATE);
 
-  const offer_amount =
-    cp * (1 / (ask_pool - ask_amount * reverse_decimal(one_minus_commission))) -
-    offer_pool;
+  const offer_amount = cp
+    .multipliedBy(
+      new BigNumber(1).dividedBy(
+        ask_pool.minus(
+          ask_amount.multipliedBy(reverse_decimal(one_minus_commission)),
+        ),
+      ),
+    )
+    .minus(offer_pool);
 
-  const before_commission_deduction =
-    ask_amount * reverse_decimal(one_minus_commission);
+  const before_commission_deduction = ask_amount.multipliedBy(
+    reverse_decimal(one_minus_commission),
+  );
 
-  let spread_amount = 0;
+  let spread_amount = new BigNumber(0);
   try {
-    spread_amount =
-      offer_amount * (ask_pool / offer_pool) - before_commission_deduction;
+    spread_amount = offer_amount
+      .multipliedBy(ask_pool.dividedBy(offer_pool))
+      .minus(before_commission_deduction);
   } catch (e) {}
 
-  const commission_amount = before_commission_deduction * COMMISSION_RATE;
+  const commission_amount = before_commission_deduction.multipliedBy(
+    COMMISSION_RATE,
+  );
   return { offer_amount, spread_amount, commission_amount };
 };
 
 // reverse_decimal ported over from rust
 // https://github.com/enigmampc/SecretSwap/blob/6135f0ad74a17cefacf4ac0e48497983b88dae91/contracts/secretswap_pair/src/math.rs#L4-L12
-const DECIMAL_FRACTIONAL: number = 1_000_000_000;
+const DECIMAL_FRACTIONAL = new BigNumber(1_000_000_000);
 
-export const reverse_decimal = (decimal: number): number => {
-  if (decimal === 0) {
-    return 0;
+export const reverse_decimal = (decimal: BigNumber): BigNumber => {
+  if (decimal.isEqualTo(0)) {
+    return new BigNumber(0);
   }
 
-  return DECIMAL_FRACTIONAL / (decimal * DECIMAL_FRACTIONAL);
+  return DECIMAL_FRACTIONAL.dividedBy(decimal.multipliedBy(DECIMAL_FRACTIONAL));
 };

@@ -1,18 +1,25 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching, SwapStatus } from '../constants';
-import { ACTION_TYPE, EXCHANGE_MODE, IOperation, TOKEN } from './interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IOperation,
+  ITokenInfo,
+  TOKEN,
+} from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import { divDecimals, mulDecimals, sleep, uuid } from '../utils';
-import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import {
-  Snip20Send,
-  Snip20SendToBridge,
-  Snip20SwapHash,
-} from '../blockchain-bridge';
-import { getStatus } from 'services';
+  balanceNumberFormat,
+  divDecimals,
+  mulDecimals,
+  sleep,
+  uuid,
+} from '../utils';
+import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -88,6 +95,8 @@ export class Exchange extends StoreConstructor {
 
   @observable ethNetworkFee = 0;
   @observable ethSwapFee = 0;
+  @observable swapFeeToken = 0;
+  @observable swapFeeUsd = 0;
 
   @computed
   get networkFee() {
@@ -98,7 +107,14 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get swapFee() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? this.ethSwapFee : 0;
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH
+      ? Number(balanceNumberFormat.format(this.swapFeeToken))
+      : 0;
+  }
+
+  @computed
+  get swapFeeUSD() {
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? this.swapFeeUsd : 0;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -117,8 +133,9 @@ export class Exchange extends StoreConstructor {
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
 
                 this.isFeeLoading = true;
+                // todo: add check for approve
                 this.ethNetworkFee = await getNetworkFee(
-                  process.env.ETH_GAS_LIMIT,
+                  Number(process.env.ETH_GAS_LIMIT) * 2,
                 );
                 this.isFeeLoading = false;
                 break;
@@ -126,6 +143,18 @@ export class Exchange extends StoreConstructor {
                 this.transaction.scrtAddress = this.stores.user.address;
                 this.isFeeLoading = true;
                 this.ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
+                let token: ITokenInfo;
+                if (this.token === TOKEN.ETH) {
+                  token = this.stores.tokens.allData.find(
+                    t => t.name === 'Ethereum',
+                  );
+                } else {
+                  token = this.stores.tokens.allData.find(
+                    t => t.dst_address === this.transaction.snip20Address,
+                  );
+                }
+                this.swapFeeUsd = this.ethSwapFee * this.stores.user.ethRate;
+                this.swapFeeToken = this.swapFeeUsd / Number(token.price);
                 this.isFeeLoading = false;
                 break;
             }
@@ -451,17 +480,22 @@ export class Exchange extends StoreConstructor {
     let proxyContract: string;
     let decimals: number | string;
     let recipient = process.env.SCRT_SWAP_CONTRACT;
+    let price: string;
     if (isEth) {
       decimals = 18;
-      this.transaction.snip20Address = this.stores.tokens.allData.find(
+      const token = this.stores.tokens.allData.find(
         t => t.src_coin === 'Ethereum',
-      ).dst_address;
+      );
+      price = token.price;
+      this.transaction.snip20Address = token.dst_address;
     } else {
       const token = this.stores.tokens.allData.find(
         t => t.dst_address === this.transaction.snip20Address,
       );
-      decimals = token.decimals;
       if (token) {
+        decimals = token.decimals;
+        price = token.price;
+        this.transaction.snip20Address = token.dst_address;
         if (token.display_props.proxy) {
           proxyContract = process.env.WSCRT_PROXY_CONTRACT;
           recipient = process.env.WSCRT_PROXY_CONTRACT;
@@ -469,12 +503,36 @@ export class Exchange extends StoreConstructor {
         }
       }
     }
+
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     await this.createOperation();
     this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     let tx_id = '';
+
+    const swappedAmountUSD = Number(this.transaction.amount) * Number(price);
+    const swapFeeUSD = this.swapFeeUSD;
+
+    console.log(swappedAmountUSD);
+    console.log(swapFeeUSD);
+
+    if (swapFeeUSD > swappedAmountUSD * 0.4) {
+      if (
+        // eslint-disable-next-line no-restricted-globals
+        !confirm(
+          `Swap fee is expected to be a large percentage of your funds ($${swapFeeUSD.toFixed(
+            2,
+          )} out of $${swappedAmountUSD.toFixed(
+            2,
+          )}). Are you sure you wish to continue?`,
+        )
+      ) {
+        this.operation.status = SwapStatus.SWAP_FAILED;
+        this.setStatus();
+        throw Error('Swap canceled');
+      }
+    }
 
     try {
       tx_id = await Snip20SendToBridge({
