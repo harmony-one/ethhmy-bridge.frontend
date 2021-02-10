@@ -478,7 +478,7 @@ export class SwapRouter extends React.Component<
   notify(
     type: 'success' | 'error',
     msg: string,
-    closesAfterMs: number = 120000,
+    closesAfterMs: number = 120_000,
   ) {
     NotificationManager[type](undefined, msg, closesAfterMs);
   }
