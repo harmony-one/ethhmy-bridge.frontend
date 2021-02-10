@@ -66,19 +66,10 @@ export const TokenSelector = (props: {
             />
           );
         })}
-
-        {/*{localStorageToken ? (*/}
-        {/*  <TokenInfoRow*/}
-        {/*    token={localStorageToken}*/}
-        {/*    onClick={() => {*/}
-        {/*      props?.onClick ? props.onClick(localStorageToken.symbol) : (() => {})();*/}
-        {/*      setOpen(false);*/}
-        {/*    }}*/}
-        {/*  />*/}
-        {/*) : null}*/}
-
-        <AddTokenModal tokens={props.tokens} token={props.token} addToken={address => setLocalToken(address)} />
       </Modal.Content>
+      <Modal.Actions>
+        <AddTokenModal tokens={props.tokens} token={props.token} addToken={address => setLocalToken(address)} />
+      </Modal.Actions>
     </Modal>
   );
 };
