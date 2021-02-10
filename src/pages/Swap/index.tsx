@@ -22,6 +22,7 @@ import { BetaWarning } from './BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge/scrt';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import { takeRightWhile } from 'lodash';
 
 type DisplayTokenRecord = Record<string, TokenDisplay>;
 
@@ -97,63 +98,14 @@ export class SwapRouter extends React.Component<
 
   async componentDidMount() {
     window.addEventListener('storage', this.updateTokens);
-    window.addEventListener('updatePairs', this.updatePairs);
+    window.addEventListener('updatePairsAndTokens', this.updatePairsAndTokens);
     await this.props.user.signIn(true);
 
     while (!this.props.user.secretjs) {
       await sleep(100);
     }
 
-    const {
-      pairs,
-    }: {
-      pairs: Array<Pair>;
-    } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
-      pairs: {},
-    });
-
-    const pairFromSymbol: { [symbol: string]: Pair } = {};
-
-    const tokens: {
-      [symbol: string]: TokenDisplay;
-    } = {
-      ...(await pairs.reduce(async (tokensFromPairs: Promise<DisplayTokenRecord>, pair: Pair) => {
-        let unwrapedTokensFromPairs: DisplayTokenRecord = await tokensFromPairs; // reduce with async/await
-
-        const symbols = [];
-        for (const t of pair.asset_infos) {
-          if ('native_token' in t) {
-            unwrapedTokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
-            symbols.push('SCRT');
-            continue;
-          }
-
-          const tokenInfoResponse = await GetSnip20Params({
-            secretjs: this.props.user.secretjs,
-            address: t.token.contract_addr,
-          });
-
-          const symbol = tokenInfoResponse.symbol;
-
-          const displaySymbol = preloadedTokens[symbol]?.symbol || symbol;
-          if (!(symbol in unwrapedTokensFromPairs)) {
-            unwrapedTokensFromPairs[displaySymbol] = {
-              symbol: displaySymbol,
-              decimals: tokenInfoResponse.decimals,
-              logo: preloadedTokens[symbol] ? preloadedTokens[symbol].logo : '/unknown.png',
-              address: t.token.contract_addr,
-              token_code_hash: t.token.token_code_hash,
-            };
-          }
-          symbols.push(displaySymbol);
-        }
-        pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
-        pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
-
-        return unwrapedTokensFromPairs;
-      }, Promise.resolve({}) /* reduce with async/await */)),
-      ...LocalStorageTokens.get(),
-    };
+    const { pairs, tokens, pairFromSymbol } = await this.updatePairsAndTokens();
 
     this.props.user.websocketTerminate(true);
 
@@ -432,7 +384,7 @@ export class SwapRouter extends React.Component<
     }
 
     window.removeEventListener('storage', this.updateTokens);
-    window.removeEventListener('updatePairs', this.updatePairs);
+    window.removeEventListener('updatePairsAndTokens', this.updatePairsAndTokens);
   }
 
   updateTokens = () => {
@@ -440,7 +392,6 @@ export class SwapRouter extends React.Component<
 
     this.setState(currentState => {
       return {
-        ...currentState,
         tokens: {
           ...currentState.tokens,
           ...tokens,
@@ -449,8 +400,69 @@ export class SwapRouter extends React.Component<
     });
   };
 
-  updatePairs = () => {
-    // todo: add update of pairs
+  updatePairsAndTokens = async (): Promise<{
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  }> => {
+    const {
+      pairs,
+    }: {
+      pairs: Array<Pair>;
+    } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+      pairs: {},
+    });
+
+    const pairFromSymbol: { [symbol: string]: Pair } = {};
+
+    const tokens: {
+      [symbol: string]: TokenDisplay;
+    } = {
+      ...(await pairs.reduce(async (tokensFromPairs: Promise<DisplayTokenRecord>, pair: Pair) => {
+        let unwrapedTokensFromPairs: DisplayTokenRecord = await tokensFromPairs; // reduce with async/await
+
+        const symbols = [];
+        for (const t of pair.asset_infos) {
+          if ('native_token' in t) {
+            unwrapedTokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
+            symbols.push('SCRT');
+            continue;
+          }
+
+          const tokenInfoResponse = await GetSnip20Params({
+            secretjs: this.props.user.secretjs,
+            address: t.token.contract_addr,
+          });
+
+          const symbol = tokenInfoResponse.symbol;
+
+          const displaySymbol = preloadedTokens[symbol]?.symbol || symbol;
+          if (!(symbol in unwrapedTokensFromPairs)) {
+            unwrapedTokensFromPairs[displaySymbol] = {
+              symbol: displaySymbol,
+              decimals: tokenInfoResponse.decimals,
+              logo: preloadedTokens[symbol] ? preloadedTokens[symbol].logo : '/unknown.png',
+              address: t.token.contract_addr,
+              token_code_hash: t.token.token_code_hash,
+            };
+          }
+          symbols.push(displaySymbol);
+        }
+        pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
+        pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
+
+        return unwrapedTokensFromPairs;
+      }, Promise.resolve({}) /* reduce with async/await */)),
+      ...LocalStorageTokens.get(),
+    };
+
+    this.setState({ pairs, pairFromSymbol, tokens });
+
+    return { pairs, pairFromSymbol, tokens };
   };
 
   notify(type: 'success' | 'error', msg: string, closesAfterMs: number = 120_000) {
