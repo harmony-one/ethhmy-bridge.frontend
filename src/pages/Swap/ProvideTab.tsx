@@ -62,7 +62,7 @@ const ButtonMessage = (state: ProvideState): string => {
     case ProvideState.INSUFFICIENT_B_BALANCE:
       return 'Insufficient Balance';
     case ProvideState.LOADING:
-      return 'Loading price data';
+      return 'Loading tokens';
     case ProvideState.PAIR_LIQUIDITY_ZERO:
       return 'Add Initial Liquidity';
     case ProvideState.PAIR_NOT_EXIST:
@@ -168,6 +168,13 @@ export class ProvideTab extends React.Component<
         );
       }
     }
+
+    const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
+    const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    const newProvideState = this.getProvideState(pair);
+    if (newProvideState !== this.state.provideState) {
+      this.setState({ provideState: newProvideState });
+    }
   }
 
   private getTokenBalances(): (BigNumber | JSX.Element)[] {
@@ -238,9 +245,9 @@ export class ProvideTab extends React.Component<
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
     if (!pair) {
       this.setState({
-        inputA: this.state.inputA,
+        inputA: '',
         isEstimatedA: false,
-        inputB: this.state.inputB,
+        inputB: '',
         isEstimatedB: false,
       });
       return;
@@ -348,18 +355,16 @@ export class ProvideTab extends React.Component<
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
 
+    if (!(this.state.tokenB && this.state.tokenA)) {
+      return ProvideState.LOADING;
+    }
+
     if (!pair) {
-      if (this.state.inputA === '' || this.state.inputB === '') {
-        return ProvideState.PAIR_NOT_EXIST;
-      } else {
-        return ProvideState.CREATE_NEW_PAIR;
-      }
+      return ProvideState.CREATE_NEW_PAIR;
     } else if (!(balanceA instanceof BigNumber && balanceB instanceof BigNumber)) {
       return ProvideState.UNLOCK_TOKENS;
     } else if (this.getPoolA().isZero() && this.getPoolB().isZero()) {
       return ProvideState.PAIR_LIQUIDITY_ZERO;
-      // } else if (price.isNaN()) {
-      //   return ProvideState.LOADING;
     } else if (this.state.inputA === '' || this.state.inputB === '') {
       return ProvideState.WAITING_FOR_INPUT;
     } else if (compareNormalize(this.state.inputA, { amount: balanceA, decimals: decimalsA })) {
@@ -369,42 +374,11 @@ export class ProvideTab extends React.Component<
     } else {
       return ProvideState.READY;
     }
-    // note: Removing checks for one of the pools being zero - it should never happen
-    //else if (this.getPoolA(selectedPairSymbol).isZero() || this.getPoolA(selectedPairSymbol).isZero()) {
-    //       buttonMessage = BUTTON_MSG_PROVIDE;
-    //     }
-    // if (!pair) {
-    //   buttonMessage = BUTTON_MSG_NO_TRADNIG_PAIR;
-    // } else if (this.state.inputA === '' || this.state.inputB === '') {
-    //   buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
-    // } else if (
-    //   humanizeBalance(new BigNumber(balanceA as any), decimalsA).isLessThan(
-    //     new BigNumber(this.state.inputA),
-    //   )
-    // ) {
-    //   buttonMessage = `Insufficient ${this.state.tokenA} balance`;
-    // } else if (
-    //   humanizeBalance(new BigNumber(balanceB as any), decimalsB).isLessThan(
-    //     new BigNumber(this.state.inputB),
-    //   )
-    // ) {
-    //   buttonMessage = `Insufficient ${this.state.tokenB} balance`;
-    // } else if (poolA.isZero() || poolB.isZero()) {
-    //   buttonMessage = BUTTON_MSG_PROVIDE;
-    // } else if (price.isNaN()) {
-    //   buttonMessage = BUTTON_MSG_LOADING_PRICE;
-    // } else {
-    //   buttonMessage = BUTTON_MSG_PROVIDE;
-    // }
   }
 
   render() {
     const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const newProvideState = this.getProvideState(pair);
-    if (newProvideState !== this.state.provideState) {
-      this.setState({ provideState: newProvideState });
-    }
 
     const buttonMessage = ButtonMessage(this.state.provideState);
 
