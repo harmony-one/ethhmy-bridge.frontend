@@ -7,6 +7,7 @@ import { AddTokenModal } from './TokenSelector/AddTokenModal';
 import { GetSnip20Params, Snip20TokenInfo } from '../../blockchain-bridge/scrt';
 import { SigningCosmWasmClient } from 'secretjs';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import Loader from 'react-loader-spinner';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;
@@ -55,17 +56,23 @@ export const TokenSelector = (props: {
     >
       <Modal.Header>Select Token</Modal.Header>
       <Modal.Content>
-        {props.tokens.map(t => {
-          return (
-            <TokenInfoRow
-              token={t}
-              onClick={() => {
-                props?.onClick ? props.onClick(t.symbol) : (() => {})();
-                setOpen(false);
-              }}
-            />
-          );
-        })}
+        {props.tokens.length > 0 ? (
+          props.tokens.map(t => {
+            return (
+              <TokenInfoRow
+                token={t}
+                onClick={() => {
+                  props?.onClick ? props.onClick(t.symbol) : (() => {})();
+                  setOpen(false);
+                }}
+              />
+            );
+          })
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
+          </div>
+        )}
       </Modal.Content>
       <Modal.Actions>
         <AddTokenModal tokens={props.tokens} token={props.token} addToken={address => setLocalToken(address)} />
