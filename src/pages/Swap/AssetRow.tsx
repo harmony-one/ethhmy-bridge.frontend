@@ -67,13 +67,7 @@ export const AssetRow = ({
               return (
                 <>
                   <span style={{ marginRight: '0.5em' }} />
-                  <Loader
-                    type="ThreeDots"
-                    color="#00BFFF"
-                    height="1em"
-                    width="1em"
-                    style={{ margin: 'auto' }}
-                  />
+                  <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" style={{ margin: 'auto' }} />
                 </>
               );
             }
@@ -83,10 +77,7 @@ export const AssetRow = ({
             }
 
             return displayHumanizedBalance(
-              humanizeBalance(
-                new BigNumber(balance as BigNumber),
-                tokens[token].decimals,
-              ),
+              humanizeBalance(new BigNumber(balance as BigNumber), tokens[token].decimals),
               BigNumber.ROUND_DOWN,
             );
           })()}
@@ -109,24 +100,21 @@ export const AssetRow = ({
         {flexRowSpace}
         {maxButton && token && (
           <Button
-            primary
+            basic
+            color={'blue'}
             disabled={new BigNumber(balance as any).isNaN()}
             style={{
+              margin: 'auto',
               borderRadius: '15px',
               fontSize: '1rem',
               fontWeight: 500,
-              height: '30px',
+              height: '24px',
               padding: '0rem 0.4rem',
             }}
             onClick={() => {
               const { decimals } = tokens[token];
 
-              setAmount(
-                humanizeBalance(
-                  new BigNumber(balance as any),
-                  decimals,
-                ).toFixed(decimals),
-              );
+              setAmount(humanizeBalance(new BigNumber(balance as any), decimals).toFixed(decimals));
             }}
           >
             MAX

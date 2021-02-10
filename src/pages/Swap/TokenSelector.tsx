@@ -32,9 +32,9 @@ export const TokenSelector = (props: {
           symbol: tokenInfo.symbol,
           address: localToken,
           decimals: tokenInfo.decimals,
-          logo: 'https://tokens.1inch.exchange/0x967da4048cd07ab37855c090aaf366e4ce1b9f48.png',
+          logo: '/unknown.png',
         };
-        console.log('hello');
+
         LocalStorageTokens.store(customTokenInfo);
         setLocalStorageToken(LocalStorageTokens.get());
       }

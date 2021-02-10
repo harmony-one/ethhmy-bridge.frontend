@@ -1,13 +1,7 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
-import {
-  UINT128_MAX,
-  sortedStringify,
-  humanizeBalance,
-  displayHumanizedBalance,
-  canonicalizeBalance,
-} from 'utils';
+import { UINT128_MAX, sortedStringify, humanizeBalance, displayHumanizedBalance, canonicalizeBalance } from 'utils';
 import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
@@ -15,7 +9,10 @@ import { PriceRow } from './PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
-import { compareNormalize, getFeeForExecute } from './utils';
+import { compareNormalize } from './utils';
+import { getFeeForExecute } from '../../blockchain-bridge/scrt';
+import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
+import { Asset, NativeToken, Token } from './trade';
 
 const plus = (
   <svg
@@ -53,22 +50,21 @@ enum ProvideState {
   WAITING_FOR_INPUT,
   INSUFFICIENT_A_BALANCE,
   INSUFFICIENT_B_BALANCE,
-  PAIR_INVALID_LIQUIDITY,
+  PAIR_LIQUIDITY_ZERO,
   UNLOCK_TOKENS,
-  CREATE_NEW_PAIR
+  CREATE_NEW_PAIR,
 }
-
 
 const ButtonMessage = (state: ProvideState): string => {
   switch (state) {
     case ProvideState.INSUFFICIENT_A_BALANCE:
-      return 'Insufficient Balance'
+      return 'Insufficient Balance';
     case ProvideState.INSUFFICIENT_B_BALANCE:
-      return 'Insufficient Balance'
+      return 'Insufficient Balance';
     case ProvideState.LOADING:
       return 'Loading price data';
-    case ProvideState.PAIR_INVALID_LIQUIDITY:
-      return 'Invalid liquidity for pair';
+    case ProvideState.PAIR_LIQUIDITY_ZERO:
+      return 'Add Initial Liquidity';
     case ProvideState.PAIR_NOT_EXIST:
       return 'Trading pair does not exist';
     case ProvideState.READY:
@@ -76,14 +72,13 @@ const ButtonMessage = (state: ProvideState): string => {
     case ProvideState.WAITING_FOR_INPUT:
       return 'Enter an Amount';
     case ProvideState.UNLOCK_TOKENS:
-      return 'Unlock Tokens'
+      return 'Unlock Tokens';
     case ProvideState.CREATE_NEW_PAIR:
-      return 'Create New Pair'
+      return 'Create New Pair';
     default:
       return 'Provide';
   }
-}
-
+};
 
 export class ProvideTab extends React.Component<
   {
@@ -99,11 +94,7 @@ export class ProvideTab extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
-    notify: (
-      type: 'success' | 'error',
-      msg: string,
-      closesAfterMs?: number,
-    ) => void;
+    notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   },
   {
     tokenA: string;
@@ -119,7 +110,7 @@ export class ProvideTab extends React.Component<
     loadingApproveA: boolean;
     loadingApproveB: boolean;
     provideState: ProvideState;
-    selectedPairSymbol: string,
+    selectedPairSymbol: string;
   }
 > {
   constructor(props) {
@@ -156,17 +147,11 @@ export class ProvideTab extends React.Component<
   }
 
   componentDidUpdate(previousProps) {
-    if (
-      sortedStringify(previousProps.balances) !==
-      sortedStringify(this.props.balances)
-    ) {
+    if (sortedStringify(previousProps.balances) !== sortedStringify(this.props.balances)) {
       this.updateInputs();
     }
 
-    if (
-      sortedStringify(previousProps.pairFromSymbol) !==
-      sortedStringify(this.props.pairFromSymbol)
-    ) {
+    if (sortedStringify(previousProps.pairFromSymbol) !== sortedStringify(this.props.pairFromSymbol)) {
       const firstPairSymbol = Object.keys(this.props.pairFromSymbol)[0];
       if (firstPairSymbol) {
         const [tokenA, tokenB] = firstPairSymbol.split('/');
@@ -186,10 +171,7 @@ export class ProvideTab extends React.Component<
   }
 
   private getTokenBalances(): (BigNumber | JSX.Element)[] {
-    return [
-      this.props.balances[this.state.tokenA],
-      this.props.balances[this.state.tokenB],
-    ];
+    return [this.props.balances[this.state.tokenA], this.props.balances[this.state.tokenB]];
   }
 
   private getDecimalsB(): number {
@@ -228,25 +210,20 @@ export class ProvideTab extends React.Component<
         allowance: string;
         expiration: number;
       };
-    } = await this.props.secretjs.queryContractSmart(
-      this.props.tokens[symbol].address,
-      {
-        allowance: {
-          owner: this.props.user.address,
-          spender: pair.contract_addr,
-          key: 'SecretSwap',
-        },
+    } = await this.props.secretjs.queryContractSmart(this.props.tokens[symbol].address, {
+      allowance: {
+        owner: this.props.user.address,
+        spender: pair.contract_addr,
+        key: 'SecretSwap',
       },
-    );
+    });
 
     let allowance = new BigNumber(result.allowance.allowance);
     if (allowance.isNaN()) {
       allowance = new BigNumber(0);
     }
 
-    console.log(
-      `Allowance for ${symbol} is ${allowance} (${result.allowance.allowance})`,
-    );
+    console.log(`Allowance for ${symbol} is ${allowance} (${result.allowance.allowance})`);
 
     this.setState<never>({ [stateField]: allowance });
   }
@@ -255,7 +232,7 @@ export class ProvideTab extends React.Component<
     const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
 
     if (selectedPairSymbol !== this.state.selectedPairSymbol) {
-      this.setState({selectedPairSymbol});
+      this.setState({ selectedPairSymbol });
     }
 
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
@@ -269,20 +246,10 @@ export class ProvideTab extends React.Component<
       return;
     }
 
-    const humanPoolA = humanizeBalance(
-      this.getPoolA(),
-      this.getDecimalsA(),
-    );
-    const humanPoolB = humanizeBalance(
-      this.getPoolB(), this.getDecimalsB()
-    );
+    const humanPoolA = humanizeBalance(this.getPoolA(), this.getDecimalsA());
+    const humanPoolB = humanizeBalance(this.getPoolB(), this.getDecimalsB());
 
-    if (
-      humanPoolA.isNaN() ||
-      humanPoolB.isNaN() ||
-      humanPoolA.isEqualTo(0) ||
-      humanPoolB.isEqualTo(0)
-    ) {
+    if (humanPoolA.isNaN() || humanPoolB.isNaN() || humanPoolA.isEqualTo(0) || humanPoolB.isEqualTo(0)) {
       return;
     }
 
@@ -290,8 +257,7 @@ export class ProvideTab extends React.Component<
       // inputB/inputA = poolB/poolA
       // =>
       // inputB = inputA*(poolB/poolA)
-      const inputB =
-        Number(this.state.inputA) * humanPoolB.dividedBy(humanPoolA).toNumber();
+      const inputB = Number(this.state.inputA) * humanPoolB.dividedBy(humanPoolA).toNumber();
 
       if (isNaN(inputB) || this.state.inputA === '') {
         this.setState({
@@ -313,8 +279,7 @@ export class ProvideTab extends React.Component<
       // inputA/inputB = poolA/poolB
       // =>
       // inputA = inputB*(poolA/poolB)
-      const inputA =
-        Number(this.state.inputB) * humanPoolA.dividedBy(humanPoolB).toNumber();
+      const inputA = Number(this.state.inputB) * humanPoolA.dividedBy(humanPoolB).toNumber();
 
       if (isNaN(inputA) || this.state.inputB === '') {
         this.setState({
@@ -379,7 +344,6 @@ export class ProvideTab extends React.Component<
   }
 
   getProvideState(pair: Pair): ProvideState {
-
     const [balanceA, balanceB] = this.getTokenBalances();
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
@@ -390,17 +354,18 @@ export class ProvideTab extends React.Component<
       } else {
         return ProvideState.CREATE_NEW_PAIR;
       }
-    } else if (!(balanceA instanceof BigNumber && balanceB instanceof BigNumber) ){
+    } else if (!(balanceA instanceof BigNumber && balanceB instanceof BigNumber)) {
       return ProvideState.UNLOCK_TOKENS;
+    } else if (this.getPoolA().isZero() && this.getPoolB().isZero()) {
+      return ProvideState.PAIR_LIQUIDITY_ZERO;
+      // } else if (price.isNaN()) {
+      //   return ProvideState.LOADING;
     } else if (this.state.inputA === '' || this.state.inputB === '') {
       return ProvideState.WAITING_FOR_INPUT;
-    } else if (compareNormalize(this.state.inputA, {amount: balanceA, decimals: decimalsA})) {
+    } else if (compareNormalize(this.state.inputA, { amount: balanceA, decimals: decimalsA })) {
       return ProvideState.INSUFFICIENT_A_BALANCE;
-    } else if (compareNormalize(this.state.inputB, {amount: balanceB, decimals: decimalsB}))
-    {
+    } else if (compareNormalize(this.state.inputB, { amount: balanceB, decimals: decimalsB })) {
       return ProvideState.INSUFFICIENT_B_BALANCE;
-    // } else if (price.isNaN()) {
-    //   return ProvideState.LOADING;
     } else {
       return ProvideState.READY;
     }
@@ -436,9 +401,9 @@ export class ProvideTab extends React.Component<
   render() {
     const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
     const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const newProvideState = this.getProvideState(pair)
+    const newProvideState = this.getProvideState(pair);
     if (newProvideState !== this.state.provideState) {
-      this.setState({provideState: newProvideState});
+      this.setState({ provideState: newProvideState });
     }
 
     const buttonMessage = ButtonMessage(this.state.provideState);
@@ -453,29 +418,17 @@ export class ProvideTab extends React.Component<
 
     const price = this.getPrice();
 
-    const amountA = canonicalizeBalance(
-      new BigNumber(this.state.inputA),
-      decimalsA,
-    );
-    const amountB = canonicalizeBalance(
-      new BigNumber(this.state.inputB),
-      decimalsB,
-    );
+    const amountA = canonicalizeBalance(new BigNumber(this.state.inputA), decimalsA);
+    const amountB = canonicalizeBalance(new BigNumber(this.state.inputB), decimalsB);
 
-    const showApproveAButton: boolean =
-      this.state.tokenA !== 'SCRT' && pair && this.state.allowanceA.lt(amountA);
-    const showApproveBButton: boolean =
-      this.state.tokenB !== 'SCRT' && pair && this.state.allowanceA.lt(amountB);
+    const showApproveAButton: boolean = this.state.tokenA !== 'SCRT' && pair && this.state.allowanceA.lt(amountA);
+    const showApproveBButton: boolean = this.state.tokenB !== 'SCRT' && pair && this.state.allowanceB.lt(amountB);
 
     const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
-    const lpTokenTotalSupply = new BigNumber(
-      this.props.balances[`LP-${selectedPairSymbol}-total-supply`] as BigNumber,
-    );
+    const lpTokenTotalSupply = new BigNumber(this.props.balances[`LP-${selectedPairSymbol}-total-supply`] as BigNumber);
     const currentShareOfPool = lpTokenTotalSupply.isZero()
       ? lpTokenTotalSupply
-      : new BigNumber(lpTokenBalance as BigNumber).dividedBy(
-          lpTokenTotalSupply,
-        );
+      : new BigNumber(lpTokenBalance as BigNumber).dividedBy(lpTokenTotalSupply);
 
     const gainedShareOfPool = BigNumber.minimum(
       amountA.dividedBy(poolA.plus(amountA)),
@@ -519,9 +472,7 @@ export class ProvideTab extends React.Component<
                 () => {
                   this.updateInputs();
 
-                  const pair = this.props.pairFromSymbol[
-                    `${this.state.tokenA}/${this.state.tokenB}`
-                  ];
+                  const pair = this.props.pairFromSymbol[`${this.state.tokenA}/${this.state.tokenB}`];
                   this.updateAllowance(pair, this.state.tokenA);
                   this.updateAllowance(pair, this.state.tokenB);
                 },
@@ -596,9 +547,7 @@ export class ProvideTab extends React.Component<
                 () => {
                   this.updateInputs();
 
-                  const pair = this.props.pairFromSymbol[
-                    `${this.state.tokenA}/${this.state.tokenB}`
-                  ];
+                  const pair = this.props.pairFromSymbol[`${this.state.tokenA}/${this.state.tokenB}`];
                   if (pair) {
                     this.updateAllowance(pair, this.state.tokenA);
                     this.updateAllowance(pair, this.state.tokenB);
@@ -631,11 +580,7 @@ export class ProvideTab extends React.Component<
           }}
         />
         {!price.isNaN() && (
-          <PriceRow
-            fromToken={this.state.tokenA}
-            toToken={this.state.tokenB}
-            price={price.toNumber()}
-          />
+          <PriceRow fromToken={this.state.tokenA} toToken={this.state.tokenB} price={price.toNumber()} />
         )}
         {lpTokenBalance !== undefined && (
           <div
@@ -667,14 +612,20 @@ export class ProvideTab extends React.Component<
             {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
           </div>
         )}
+        <div hidden={!this.showPoolWarning()}>
+          <NewPoolWarning
+            inputA={this.state.inputA}
+            inputB={this.state.inputB}
+            tokenA={this.state.tokenA}
+            tokenB={this.state.tokenB}
+          />
+        </div>
         <div hidden={!showApproveAButton}>
           <ApproveButton
             disabled={this.state.loadingApproveA}
             loading={this.state.loadingApproveA}
             onClick={() => {
-              this.approveOnClick(pair, this.state.tokenA).then(
-                () => {}
-              );
+              this.approveOnClick(pair, this.state.tokenA).then(() => {});
             }}
             token={this.state.tokenA}
           />
@@ -684,119 +635,48 @@ export class ProvideTab extends React.Component<
             disabled={this.state.loadingApproveB}
             loading={this.state.loadingApproveB}
             onClick={() => {
-              this.approveOnClick(pair, this.state.tokenB).then(
-                () => {}
-              );
+              this.approveOnClick(pair, this.state.tokenB).then(() => {});
             }}
             token={this.state.tokenB}
           />
         </div>
-        <div hidden={this.showPoolWarning()}>
-          <NewPoolWarning
-            inputA={this.state.inputA}
-            inputB={this.state.inputB}
-            tokenA={this.state.tokenA}
-            tokenB={this.state.tokenB}/>
-        </div>
         <Button
           disabled={
-            !this.isReadyForProvide() ||
-            this.state.loadingProvide ||
-            showApproveAButton ||
-            showApproveBButton
+            !this.isReadyForNewPool() &&
+            (!this.isReadyForProvide() ||
+              this.state.inputA === '' ||
+              this.state.inputB === '' ||
+              this.state.loadingProvide ||
+              showApproveAButton ||
+              showApproveBButton)
           }
           loading={this.state.loadingProvide}
-          primary={
-            this.isReadyForProvide() &&
-            !showApproveAButton &&
-            !showApproveBButton
-          }
+          primary={this.isReadyForProvide() && !showApproveAButton && !showApproveBButton}
           fluid
           style={buttonStyle}
           onClick={async () => {
-            this.setState({
-              loadingProvide: true,
-            });
-
-            const msg = {
-              provide_liquidity: {
-                assets: [],
-              },
-            };
-
-            let transferAmount: Array<Coin> = [];
-            for (const i of ['A', 'B']) {
-              const { decimals } = this.props.tokens[this.state['token' + i]];
-
-              const amount: string = canonicalizeBalance(
-                new BigNumber(this.state['input' + i]),
-                decimals,
-              ).toFixed(
-                0,
-                BigNumber.ROUND_DOWN,
-                /*
-                should be 0 fraction digits because of canonicalizeBalance,
-                but to be sure we're rounding down to prevent over-spending
-                */
-              );
-
-              if (this.state['token' + i] === 'SCRT') {
-                msg.provide_liquidity.assets.push({
-                  info: {
-                    native_token: {
-                      denom: 'uscrt',
-                    },
-                  },
-                  amount: amount,
+            if (this.isReadyForProvide()) {
+              await this.provideLiquidityAction(pair)
+                .catch(e => {
+                  this.props.notify('error', e);
+                })
+                .then(() => {
+                  this.props.notify('success', 'Liquidity added successfully');
                 });
-                transferAmount = [{ amount: amount, denom: 'uscrt' }];
-              } else {
-                const token = this.props.tokens[this.state['token' + i]];
-                msg.provide_liquidity.assets.push({
-                  info: {
-                    token: {
-                      contract_addr: token.address,
-                      token_code_hash: token.token_code_hash,
-                      viewing_key: '',
-                    },
-                  },
-                  amount: amount,
+            } else if (this.isReadyForNewPool()) {
+              const assetA = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenA]);
+              const assetB = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenB]);
+
+              await this.createNewPairAction(assetA, assetB)
+                .catch(e => {
+                  console.log('hello');
+                  this.props.notify('error', e);
+                })
+                .then(() => {
+                  console.log('hello2');
+                  this.props.notify('success', 'Pair created successfully');
                 });
-              }
             }
-            const { inputA, inputB, tokenA, tokenB } = this.state;
-
-            try {
-              await this.props.secretjs.execute(
-                pair.contract_addr,
-                msg,
-                '',
-                transferAmount,
-                getFeeForExecute(500_000),
-              );
-
-              this.props.notify(
-                'success',
-                `Provided ${inputA} ${tokenA} + ${inputB} ${tokenB}`,
-              );
-
-              this.setState({
-                inputA: '',
-                inputB: '',
-                isEstimatedA: false,
-                isEstimatedB: false,
-              });
-            } catch (error) {
-              console.error('Error while trying to add liquidity', error);
-              this.props.notify(
-                'error',
-                `Error providing to ${tokenA}/${tokenB}: ${error.message}`,
-              );
-            }
-
-            this.setState({
-              loadingProvide: false,
-            });
           }}
         >
           {buttonMessage}
@@ -805,8 +685,94 @@ export class ProvideTab extends React.Component<
     );
   }
 
+  private isReadyForNewPool() {
+    return this.state.provideState === ProvideState.CREATE_NEW_PAIR;
+  }
+
+  private async createNewPairAction(tokenA: Asset, tokenB: Asset): Promise<string> {
+    const result = await CreateNewPair({ secretjs: this.props.secretjs, tokenA, tokenB });
+
+    return result.contractAddress;
+  }
+
+  private async provideLiquidityAction(pair: Pair) {
+    this.setState({
+      loadingProvide: true,
+    });
+
+    const msg = {
+      provide_liquidity: {
+        assets: [],
+      },
+    };
+
+    let transferAmount: Array<Coin> = [];
+    for (const i of ['A', 'B']) {
+      const { decimals } = this.props.tokens[this.state['token' + i]];
+
+      const amount: string = canonicalizeBalance(new BigNumber(this.state['input' + i]), decimals).toFixed(
+        0,
+        BigNumber.ROUND_DOWN,
+        /*
+          should be 0 fraction digits because of canonicalizeBalance,
+          but to be sure we're rounding down to prevent over-spending
+          */
+      );
+
+      if (this.state['token' + i] === 'SCRT') {
+        msg.provide_liquidity.assets.push({
+          info: {
+            native_token: {
+              denom: 'uscrt',
+            },
+          },
+          amount: amount,
+        });
+        transferAmount = [{ amount: amount, denom: 'uscrt' }];
+      } else {
+        const token = this.props.tokens[this.state['token' + i]];
+        msg.provide_liquidity.assets.push({
+          info: {
+            token: {
+              contract_addr: token.address,
+              token_code_hash: token.token_code_hash,
+              viewing_key: '',
+            },
+          },
+          amount: amount,
+        });
+      }
+    }
+    const { inputA, inputB, tokenA, tokenB } = this.state;
+
+    try {
+      await this.props.secretjs.execute(pair.contract_addr, msg, '', transferAmount, getFeeForExecute(500_000));
+
+      this.props.notify('success', `Provided ${inputA} ${tokenA} + ${inputB} ${tokenB}`);
+
+      this.setState({
+        inputA: '',
+        inputB: '',
+        isEstimatedA: false,
+        isEstimatedB: false,
+      });
+    } catch (error) {
+      console.error('Error while trying to add liquidity', error);
+      this.props.notify('error', `Error providing to ${tokenA}/${tokenB}: ${error.message}`);
+    }
+
+    this.setState({
+      loadingProvide: false,
+    });
+  }
+
   private showPoolWarning(): boolean {
-    return this.state.provideState in [ProvideState.PAIR_NOT_EXIST, ProvideState.CREATE_NEW_PAIR];
+    console.log(this.state.provideState);
+    return (
+      this.state.provideState === ProvideState.PAIR_NOT_EXIST ||
+      this.state.provideState === ProvideState.CREATE_NEW_PAIR ||
+      this.state.provideState === ProvideState.PAIR_LIQUIDITY_ZERO
+    );
   }
 
   private getPrice() {
@@ -816,67 +782,53 @@ export class ProvideTab extends React.Component<
   }
 
   private isReadyForProvide() {
-    return this.state.provideState === ProvideState.READY;
+    return (
+      this.state.provideState === ProvideState.READY || this.state.provideState === ProvideState.PAIR_LIQUIDITY_ZERO
+    );
   }
 
   private getPoolA() {
     return new BigNumber(
-      this.props.balances[
-        `${this.state.tokenA}-${this.state.tokenA}/${this.state.tokenB}`
-        ] as BigNumber,
+      this.props.balances[`${this.state.tokenA}-${this.state.tokenA}/${this.state.tokenB}`] as BigNumber,
     );
   }
 
   private getPoolB() {
     return new BigNumber(
-      this.props.balances[
-        `${this.state.tokenB}-${this.state.tokenA}/${this.state.tokenB}`
-        ] as BigNumber,
+      this.props.balances[`${this.state.tokenB}-${this.state.tokenA}/${this.state.tokenB}`] as BigNumber,
     );
   }
 }
 
-const ApproveButton = (props: {disabled: boolean, loading: boolean, onClick: any, token: string}) => <Button
-  disabled={props.disabled}
-  loading={props.loading}
-  primary
-  fluid
-  style={buttonStyle}
-  onClick={props.onClick}
->
-  {`Approve ${props.token}`}
-</Button>
+const ApproveButton = (props: { disabled: boolean; loading: boolean; onClick: any; token: string }) => (
+  <Button disabled={props.disabled} loading={props.loading} primary fluid style={buttonStyle} onClick={props.onClick}>
+    {`Approve ${props.token}`}
+  </Button>
+);
 
 //(poolA.isZero() || poolB.isZero()) &&
 // !poolA.isNaN() &&
 // !poolB.isNaN() &&
 
-const NewPoolWarning = (props: {inputA: string, inputB: string, tokenA: string, tokenB: string}) => {return (
-  <div
-    style={{
-      display: 'flex',
-      paddingTop: '0.5rem',
-    }}
-  >
-    <Message warning style={{ borderRadius: '20px' }}>
-      <Message.Header>Pair without liquidity!</Message.Header>
-      <p>
-        This trading pair has no liquidity. By providing liquidity you
-        are setting the price.
-      </p>
-      {(() => {
-        const newPrice = new BigNumber(props.inputA).dividedBy(props.inputB);
+const NewPoolWarning = (props: { inputA: string; inputB: string; tokenA: string; tokenB: string }) => {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        paddingTop: '0.5rem',
+      }}
+    >
+      <Message warning style={{ borderRadius: '20px' }}>
+        <Message.Header>Pair without liquidity!</Message.Header>
+        <p>This trading pair has no liquidity. By providing liquidity you are setting the price.</p>
+        {(() => {
+          const newPrice = new BigNumber(props.inputA).dividedBy(props.inputB);
 
-        return newPrice.isNaN() ? null : (
-          <PriceRow
-            fromToken={props.tokenA}
-            toToken={props.tokenB}
-            price={newPrice.toNumber()}
-            labelPrefix="New "
-          />
-        );
-      })()}
-    </Message>
-  </div>
-);
-}
+          return newPrice.isNaN() ? null : (
+            <PriceRow fromToken={props.tokenA} toToken={props.tokenB} price={newPrice.toNumber()} labelPrefix="New " />
+          );
+        })()}
+      </Message>
+    </div>
+  );
+};

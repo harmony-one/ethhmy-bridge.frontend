@@ -1,3 +1,5 @@
+import { TokenDisplay } from './index';
+
 export enum TradeType {
   EXACT_INPUT,
   EXACT_OUTPUT,
@@ -59,6 +61,15 @@ export class Asset {
     return 'native_token' in info;
   }
 
+  static fromTokenDisplay(token: TokenDisplay): Asset {
+    let tokenInfo: TokenInfo = {
+      symbol: token.symbol,
+      address: token?.address,
+    };
+
+    return Asset.fromTokenInfo(tokenInfo);
+  }
+
   static fromTokenInfo(token: TokenInfo): Asset {
     if (token.address) {
       return new Asset(token.symbol, {
@@ -116,22 +127,14 @@ export class Trade {
   //public readonly pair: string
 
   getExactAmount(): string {
-    return this.tradeType === TradeType.EXACT_OUTPUT
-      ? this.outputAmount.amount
-      : this.inputAmount.amount;
+    return this.tradeType === TradeType.EXACT_OUTPUT ? this.outputAmount.amount : this.inputAmount.amount;
   }
 
   getEstimatedAmount(): string {
-    return this.tradeType === TradeType.EXACT_OUTPUT
-      ? this.inputAmount.amount
-      : this.outputAmount.amount;
+    return this.tradeType === TradeType.EXACT_OUTPUT ? this.inputAmount.amount : this.outputAmount.amount;
   }
 
-  constructor(
-    inputAmount: Currency,
-    outputAmount: Currency,
-    tradeType: TradeType,
-  ) {
+  constructor(inputAmount: Currency, outputAmount: Currency, tradeType: TradeType) {
     this.inputAmount = inputAmount;
     this.outputAmount = outputAmount;
     this.tradeType = tradeType;

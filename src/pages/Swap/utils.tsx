@@ -1,6 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { ExecuteResult } from 'secretjs';
-import { StdFee } from 'secretjs/types/types';
 import { UserStoreEx } from 'stores/UserStore';
 import { ERROR_WRONG_VIEWING_KEY, TokenDisplay } from '.';
 import React from 'react';
@@ -42,10 +40,7 @@ export async function getBalance(
     <span
       className="view-token-button"
       onClick={async e => {
-        await userStore.keplrWallet.suggestToken(
-          userStore.chainId,
-          tokens[symbol].address,
-        );
+        await userStore.keplrWallet.suggestToken(userStore.chainId, tokens[symbol].address);
         // TODO trigger balance refresh if this was an "advanced set" that didn't
         // result in an on-chain transaction
       }}
@@ -58,15 +53,12 @@ export async function getBalance(
     return unlockJsx;
   }
 
-  const result = await userStore.secretjs.queryContractSmart(
-    tokens[symbol].address,
-    {
-      balance: {
-        address: walletAddress,
-        key: viewingKey,
-      },
+  const result = await userStore.secretjs.queryContractSmart(tokens[symbol].address, {
+    balance: {
+      address: walletAddress,
+      key: viewingKey,
     },
-  );
+  });
 
   if (viewingKey && 'viewing_key_error' in result) {
     // TODO handle this
@@ -94,24 +86,9 @@ export async function getBalance(
   }
 }
 
-export function extractValueFromLogs(
-  txResult: ExecuteResult,
-  key: string,
-): string {
-  return txResult.logs[0].events
-    .find(e => e.type === 'wasm')
-    .attributes.find(a => a.key === key).value;
-}
-
-export function getFeeForExecute(gas: number): StdFee {
-  return {
-    amount: [{ amount: String(gas), denom: 'uscrt' }],
-    gas: String(gas),
-  };
-}
-
-export function compareNormalize(number1: BigNumber.Value, number2: {amount: BigNumber.Value, decimals: number}): boolean {
-  return humanizeBalance(new BigNumber(number2.amount as any), number2.decimals).isLessThan(
-    new BigNumber(number1),
-  )
+export function compareNormalize(
+  number1: BigNumber.Value,
+  number2: { amount: BigNumber.Value; decimals: number },
+): boolean {
+  return humanizeBalance(new BigNumber(number2.amount as any), number2.decimals).isLessThan(new BigNumber(number1));
 }

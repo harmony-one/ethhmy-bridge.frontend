@@ -105,3 +105,12 @@ export const Snip20Send = async (params: {
     },
   });
 };
+
+export const GetContractCodeHash = async (params: {
+  secretjs: SigningCosmWasmClient;
+  address: string;
+}): Promise<string> => {
+  const { secretjs, address } = params;
+
+  return await secretjs.getCodeHashByContractAddr(address);
+};

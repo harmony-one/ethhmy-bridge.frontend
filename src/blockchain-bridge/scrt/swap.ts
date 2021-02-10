@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js';
-import { SigningCosmWasmClient } from 'secretjs';
-import { Currency, Trade, Asset, TradeType } from '../../pages/Swap/trade';
+import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
+import { Currency, Trade, Asset, TradeType, Token, NativeToken } from '../../pages/Swap/trade';
 import { TokenDisplay } from '../../pages/Swap';
-import { Snip20TokenInfo } from './snip20';
+import { GetContractCodeHash, Snip20TokenInfo } from './snip20';
+import { extractValueFromLogs, getFeeForExecute, validateBech32Address } from './utils';
 
 export const buildAssetInfo = (currency: Currency) => {
   if (currency.token.info.type === 'native_token') {
@@ -64,9 +65,7 @@ export const ReverseSimulateResult = async (params: {
 }): Promise<ReverseSimulationResponse> => {
   const { secretjs, trade, pair } = params;
 
-  console.log(
-    `trade: ${pair}: ${JSON.stringify(buildAssetInfo(trade.outputAmount))}`,
-  );
+  console.log(`trade: ${pair}: ${JSON.stringify(buildAssetInfo(trade.outputAmount))}`);
 
   return await secretjs.queryContractSmart(pair, {
     reverse_simulation: {
@@ -132,13 +131,11 @@ export const handleSimulation = async (
         console.error(2);
       }
 
-      let resultReverse: ReverseSimulationResponse = await ReverseSimulateResult(
-        {
-          secretjs,
-          trade,
-          pair,
-        },
-      ).catch(err => {
+      let resultReverse: ReverseSimulationResponse = await ReverseSimulateResult({
+        secretjs,
+        trade,
+        pair,
+      }).catch(err => {
         throw new Error(`Failed to run reverse simulation: ${err}`);
       });
       returned_asset = resultReverse.offer_amount;
@@ -174,14 +171,10 @@ export const compute_swap = (
   // offer => ask
   // ask_amount = (ask_pool - cp / (offer_pool + offer_amount)) * (1 - commission_rate)
   const cp = offer_pool.multipliedBy(ask_pool);
-  let return_amount = ask_pool.minus(
-    cp.multipliedBy(new BigNumber(1).dividedBy(offer_pool.plus(offer_amount))),
-  );
+  let return_amount = ask_pool.minus(cp.multipliedBy(new BigNumber(1).dividedBy(offer_pool.plus(offer_amount))));
 
   // calculate spread & commission
-  const spread_amount = offer_amount
-    .multipliedBy(ask_pool.dividedBy(offer_pool))
-    .minus(return_amount);
+  const spread_amount = offer_amount.multipliedBy(ask_pool.dividedBy(offer_pool)).minus(return_amount);
   const commission_amount = return_amount.multipliedBy(COMMISSION_RATE);
 
   // commission will be absorbed to pool
@@ -207,28 +200,18 @@ export const compute_offer_amount = (
 
   const offer_amount = cp
     .multipliedBy(
-      new BigNumber(1).dividedBy(
-        ask_pool.minus(
-          ask_amount.multipliedBy(reverse_decimal(one_minus_commission)),
-        ),
-      ),
+      new BigNumber(1).dividedBy(ask_pool.minus(ask_amount.multipliedBy(reverse_decimal(one_minus_commission)))),
     )
     .minus(offer_pool);
 
-  const before_commission_deduction = ask_amount.multipliedBy(
-    reverse_decimal(one_minus_commission),
-  );
+  const before_commission_deduction = ask_amount.multipliedBy(reverse_decimal(one_minus_commission));
 
   let spread_amount = new BigNumber(0);
   try {
-    spread_amount = offer_amount
-      .multipliedBy(ask_pool.dividedBy(offer_pool))
-      .minus(before_commission_deduction);
+    spread_amount = offer_amount.multipliedBy(ask_pool.dividedBy(offer_pool)).minus(before_commission_deduction);
   } catch (e) {}
 
-  const commission_amount = before_commission_deduction.multipliedBy(
-    COMMISSION_RATE,
-  );
+  const commission_amount = before_commission_deduction.multipliedBy(COMMISSION_RATE);
   return { offer_amount, spread_amount, commission_amount };
 };
 
@@ -244,19 +227,66 @@ export const reverse_decimal = (decimal: BigNumber): BigNumber => {
   return DECIMAL_FRACTIONAL.dividedBy(decimal.multipliedBy(DECIMAL_FRACTIONAL));
 };
 
-export const CreateNewPair = async (params: { secretjs: SigningCosmWasmClient, address: string, tokenA: TokenDisplay, tokenB: TokenDisplay}) : Promise<Snip20TokenInfo> => {
-  const { secretjs, address } = params;
+interface CreatePairResponse {
+  contractAddress: string;
+}
 
+export const CreateNewPair = async (params: {
+  secretjs: SigningCosmWasmClient;
+  tokenA: Asset;
+  tokenB: Asset;
+}): Promise<CreatePairResponse> => {
+  const { secretjs, tokenA, tokenB } = params;
+  //TokenInfo
+  //const assetInfos = AssetInfo
+
+  let asset_infos = [];
+  for (const t of [tokenA, tokenB]) {
+    // is a token
+    if ('token' in t.info) {
+      if (!validateBech32Address(t.info.token.contract_addr)) {
+        throw new Error('Token address is not valid');
+      }
+      let token = t.info.token;
+      token.token_code_hash = await GetContractCodeHash({ secretjs, address: token.contract_addr });
+
+      asset_infos.push({ token });
+    } else {
+      asset_infos.push({ native_token: t.info.native_token });
+    }
+  }
+
+  const factoryAddress = process.env.AMM_FACTORY_CONTRACT;
+  const pairCodeId = Number(process.env.AMM_PAIR_CODE_ID);
+  let contractAddress;
   try {
-    const paramsResponse = await secretjs.execute(address, { token_info: {} });
+    const response: ExecuteResult = await secretjs.execute(
+      factoryAddress,
+      {
+        create_pair: {
+          asset_infos,
+        },
+      },
+      '',
+      [],
+      getFeeForExecute(1_000_000),
+    );
+
+    if (extractValueFromLogs(response, 'create_pair')) {
+      try {
+        contractAddress = extractValueFromLogs(response, 'contract_address');
+      } catch (_) {
+        if (!contractAddress) {
+          contractAddress = (await secretjs.getContracts(pairCodeId))[-1].address;
+        }
+      }
+    }
 
     return {
-      name: paramsResponse.token_info.name,
-      symbol: paramsResponse.token_info.symbol,
-      decimals: paramsResponse.token_info.decimals,
-      total_supply: paramsResponse.token_info?.total_supply,
+      contractAddress,
     };
   } catch (e) {
-    throw Error('Failed to get info');
+    console.error(`Failed to create pair: ${e}`);
+    throw Error('Failed to create pair');
   }
-}
+};

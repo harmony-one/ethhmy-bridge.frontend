@@ -1,20 +1,13 @@
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import {
-  Container,
-  Image,
-  Button,
-  Divider,
-  Header,
-  Accordion,
-} from 'semantic-ui-react';
+import { Container, Image, Button, Divider, Header, Accordion } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { flexRowSpace, Pair, TokenDisplay } from '.';
 import { PriceRow } from './PriceRow';
 import { downArrow } from './SwapTab';
-import { getFeeForExecute } from './utils';
+import { getFeeForExecute } from '../../blockchain-bridge/scrt';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
@@ -29,11 +22,7 @@ export class WithdrawLiquidityPanel extends React.Component<
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
-    notify: (
-      type: 'success' | 'error',
-      msg: string,
-      closesAfterMs?: number,
-    ) => void;
+    notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   },
   {
     isLoading: boolean;
@@ -61,9 +50,7 @@ export class WithdrawLiquidityPanel extends React.Component<
     const decimalsB = this.props.tokens[tokenB].decimals;
 
     const lpTokenBalance = this.props.balances[this.props.lpTokenSymbol];
-    const lpTokenTotalSupply = this.props.balances[
-      this.props.lpTokenSymbol + '-total-supply'
-    ] as BigNumber;
+    const lpTokenTotalSupply = this.props.balances[this.props.lpTokenSymbol + '-total-supply'] as BigNumber;
 
     let lpShare = new BigNumber(0);
     let lpShareJsxElement = lpTokenBalance; // View Balance
@@ -76,21 +63,11 @@ export class WithdrawLiquidityPanel extends React.Component<
         lpShare = lpTokenBalanceNum.dividedBy(lpTokenTotalSupply);
 
         pooledTokenA = displayHumanizedBalance(
-          humanizeBalance(
-            lpShare.multipliedBy(
-              this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber,
-            ),
-            decimalsA,
-          ),
+          humanizeBalance(lpShare.multipliedBy(this.props.balances[`${tokenA}-${pairSymbol}`] as BigNumber), decimalsA),
         );
 
         pooledTokenB = displayHumanizedBalance(
-          humanizeBalance(
-            lpShare.multipliedBy(
-              this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber,
-            ),
-            decimalsB,
-          ),
+          humanizeBalance(lpShare.multipliedBy(this.props.balances[`${tokenB}-${pairSymbol}`] as BigNumber), decimalsB),
         );
 
         lpShareJsxElement = (
@@ -124,25 +101,17 @@ export class WithdrawLiquidityPanel extends React.Component<
       padding: '0.5em 0 0 0',
     };
 
-    const poolA = new BigNumber(
-      this.props.balances[`${tokenA}-${pairSymbol}`] as any,
-    );
-    const poolB = new BigNumber(
-      this.props.balances[`${tokenB}-${pairSymbol}`] as any,
-    );
+    const poolA = new BigNumber(this.props.balances[`${tokenA}-${pairSymbol}`] as any);
+    const poolB = new BigNumber(this.props.balances[`${tokenB}-${pairSymbol}`] as any);
 
-    const price = humanizeBalance(poolA, decimalsA).dividedBy(
-      humanizeBalance(poolB, decimalsB),
-    );
+    const price = humanizeBalance(poolA, decimalsA).dividedBy(humanizeBalance(poolB, decimalsB));
 
     const lpTokenBalanceString = lpTokenBalanceNum.toFormat(0, {
       groupSeparator: '',
     });
-    const amountInTokenDenom = lpTokenBalanceNum
-      .multipliedBy(this.state.withdrawPercentage)
-      .toFormat(0, {
-        groupSeparator: '',
-      });
+    const amountInTokenDenom = lpTokenBalanceNum.multipliedBy(this.state.withdrawPercentage).toFormat(0, {
+      groupSeparator: '',
+    });
 
     return (
       <Container
@@ -181,26 +150,20 @@ export class WithdrawLiquidityPanel extends React.Component<
               {flexRowSpace}
               {lpTokenBalanceNum.isNaN()
                 ? lpTokenBalance
-                : displayHumanizedBalance(
-                    humanizeBalance(lpTokenBalanceNum, 6),
-                  )}
+                : displayHumanizedBalance(humanizeBalance(lpTokenBalanceNum, 6))}
             </div>
             {!lpTokenBalanceNum.isNaN() && (
               <>
                 <div style={rowStyle}>
                   <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>
                   {flexRowSpace}
-                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                    {pooledTokenA}
-                  </span>
+                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenA}</span>
                   {getLogo(tokenA)}
                 </div>
                 <div style={rowStyle}>
                   <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}`}</span>
                   {flexRowSpace}
-                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                    {pooledTokenB}
-                  </span>
+                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenB}</span>
                   {getLogo(tokenB)}
                 </div>
                 <div style={rowStyle}>
@@ -221,9 +184,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                       }}
                     >
                       {flexRowSpace}
-                      {`${new BigNumber(
-                        this.state.withdrawPercentage * 100,
-                      ).toFixed(0)}%`}
+                      {`${new BigNumber(this.state.withdrawPercentage * 100).toFixed(0)}%`}
                       {flexRowSpace}
                     </div>
                     <div style={{ ...rowStyle, paddingBottom: '0.2em' }}>
@@ -314,14 +275,9 @@ export class WithdrawLiquidityPanel extends React.Component<
                       <span style={{ margin: 'auto' }}>{tokenA}</span>
                       {flexRowSpace}
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                        {this.state.withdrawPercentage === 0 ||
-                        this.state.withdrawPercentage === 1
-                          ? null
-                          : '~'}
+                        {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
                         {displayHumanizedBalance(
-                          new BigNumber(
-                            pooledTokenA.replace(/,/g, ''),
-                          ).multipliedBy(this.state.withdrawPercentage),
+                          new BigNumber(pooledTokenA.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
                         )}
                       </span>
                       {getLogo(tokenA)}
@@ -330,33 +286,20 @@ export class WithdrawLiquidityPanel extends React.Component<
                       <span style={{ margin: 'auto' }}>{tokenB}</span>
                       {flexRowSpace}
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                        {this.state.withdrawPercentage === 0 ||
-                        this.state.withdrawPercentage === 1
-                          ? null
-                          : '~'}
+                        {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
                         {displayHumanizedBalance(
-                          new BigNumber(
-                            pooledTokenB.replace(/,/g, ''),
-                          ).multipliedBy(this.state.withdrawPercentage),
+                          new BigNumber(pooledTokenB.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
                         )}
                       </span>
                       {getLogo(tokenB)}
                     </div>
-                    {!price.isNaN() && (
-                      <PriceRow
-                        fromToken={tokenA}
-                        toToken={tokenB}
-                        price={price.toNumber()}
-                      />
-                    )}
+                    {!price.isNaN() && <PriceRow fromToken={tokenA} toToken={tokenB} price={price.toNumber()} />}
                     <div style={rowStyle}>
                       {flexRowSpace}
                       <Button
                         primary
                         loading={this.state.isLoading}
-                        disabled={
-                          this.state.isLoading || amountInTokenDenom === '0'
-                        }
+                        disabled={this.state.isLoading || amountInTokenDenom === '0'}
                         style={{
                           margin: '0.5em 0 0 0',
                           borderRadius: '12px',
@@ -389,8 +332,7 @@ export class WithdrawLiquidityPanel extends React.Component<
 
                             this.props.notify(
                               'success',
-                              `Withdrawn ${100 *
-                                withdrawPercentage}% from your pooled ${pairSymbol}`,
+                              `Withdrawn ${100 * withdrawPercentage}% from your pooled ${pairSymbol}`,
                             );
 
                             this.setState({
@@ -399,8 +341,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                           } catch (error) {
                             this.props.notify(
                               'error',
-                              `Error withdrawing ${100 *
-                                withdrawPercentage}% from your pooled ${pairSymbol}: ${
+                              `Error withdrawing ${100 * withdrawPercentage}% from your pooled ${pairSymbol}: ${
                                 error.message
                               }`,
                             );
