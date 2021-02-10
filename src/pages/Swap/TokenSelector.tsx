@@ -7,7 +7,26 @@ import { AddTokenModal } from './TokenSelector/AddTokenModal';
 import { GetSnip20Params, Snip20TokenInfo } from '../../blockchain-bridge/scrt';
 import { SigningCosmWasmClient } from 'secretjs';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import Loader from 'react-loader-spinner';
 import { ClearCustomTokensButton } from './TokenSelector/ClearCustomTokens';
+
+const exitIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
+
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;
@@ -55,19 +74,32 @@ export const TokenSelector = (props: {
       style={{ width: '700px' }}
       dimmer={'blurring'}
     >
-      <Modal.Header>Select Token</Modal.Header>
+      <Modal.Header>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>Select a token</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => setOpen(false)}>
+            {exitIcon}
+          </span>
+        </div>
+      </Modal.Header>
       <Modal.Content>
-        {props.tokens.map(t => {
-          return (
-            <TokenInfoRow
-              token={t}
-              onClick={() => {
-                props?.onClick ? props.onClick(t.symbol) : (() => {})();
-                setOpen(false);
-              }}
-            />
-          );
-        })}
+        {props.tokens.length > 0 ? (
+          props.tokens.map(t => {
+            return (
+              <TokenInfoRow
+                token={t}
+                onClick={() => {
+                  props?.onClick ? props.onClick(t.symbol) : (() => {})();
+                  setOpen(false);
+                }}
+              />
+            );
+          })
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
+          </div>
+        )}
       </Modal.Content>
       <Modal.Actions style={{ display: 'flex' }}>
         <ClearCustomTokensButton />
