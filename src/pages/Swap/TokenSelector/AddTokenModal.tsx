@@ -31,6 +31,7 @@ export const AddTokenModal = (props: { tokens: TokenDisplay[]; token: TokenDispl
       onOpen={() => setOpen(true)}
       open={open}
       trigger={<AddTokenButton />}
+      dimmer={'blurring'}
       style={{ width: '700px', display: 'flex' }}
     >
       <Modal.Header>Enter Token Address</Modal.Header>

@@ -26,6 +26,11 @@ class LocalStorageTokens {
       return null;
     }
   }
+
+  static clear() {
+    setLocalStorage({});
+    window.dispatchEvent(new Event('updatePairsAndTokens'));
+  }
 }
 
 export default LocalStorageTokens;
