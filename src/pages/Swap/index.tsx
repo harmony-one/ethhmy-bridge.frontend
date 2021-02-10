@@ -15,10 +15,7 @@ import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
 import { Icon, Message, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
-import {
-  NotificationContainer,
-  NotificationManager,
-} from 'react-notifications';
+import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 import { getBalance } from './utils';
 import { BetaWarning } from './BetaWarning';
@@ -100,7 +97,7 @@ export class SwapRouter extends React.Component<
 
   async componentDidMount() {
     window.addEventListener('storage', this.updateTokens);
-
+    window.addEventListener('updatePairs', this.updatePairs);
     await this.props.user.signIn(true);
 
     while (!this.props.user.secretjs) {
@@ -435,6 +432,7 @@ export class SwapRouter extends React.Component<
     }
 
     window.removeEventListener('storage', this.updateTokens);
+    window.removeEventListener('updatePairs', this.updatePairs);
   }
 
   updateTokens = () => {
@@ -451,11 +449,11 @@ export class SwapRouter extends React.Component<
     });
   };
 
-  notify(
-    type: 'success' | 'error',
-    msg: string,
-    closesAfterMs: number = 120_000,
-  ) {
+  updatePairs = () => {
+    // todo: add update of pairs
+  };
+
+  notify(type: 'success' | 'error', msg: string, closesAfterMs: number = 120_000) {
     NotificationManager[type](undefined, msg, closesAfterMs);
   }
 

@@ -647,7 +647,7 @@ export class ProvideTab extends React.Component<
                   this.props.notify('error', e);
                 })
                 .then(() => {
-                  console.log('hello2');
+                  window.dispatchEvent(new Event('updatePairs'));
                   this.props.notify('success', 'Pair created successfully');
                 });
             }
@@ -779,10 +779,6 @@ const ApproveButton = (props: { disabled: boolean; loading: boolean; onClick: an
     {`Approve ${props.token}`}
   </Button>
 );
-
-//(poolA.isZero() || poolB.isZero()) &&
-// !poolA.isNaN() &&
-// !poolB.isNaN() &&
 
 const NewPoolWarning = (props: { inputA: string; inputB: string; tokenA: string; tokenB: string }) => {
   return (
