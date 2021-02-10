@@ -1,42 +1,44 @@
 .tokenInfoRow {
-  border-radius 20px
-  height 62px
-  //font-weight 500
-  display flex
-  justify-content space-between
-  width 100%
-  //color #2F80ED
-  background-color transparent
-  -webkit-font-smoothing antialiased
-  -webkit-tap-highlight-color transparent
+  border-radius: 20px;
+  height: 62px;
+  // font-weight 500
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  // color #2F80ED
+  background-color: transparent;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
   // border 1px solid rgba(47, 128, 237, 0.5)
-  //box-shadow 0 0 0.5rem rgba(0, 0, 0, 0.3)
-  cursor pointer;
-  transition all 0.8s ease;
-  outline none;
+  // box-shadow 0 0 0.5rem rgba(0, 0, 0, 0.3)
+  cursor: pointer;
+  transition: all 0.8s ease;
+  outline: none;
+
   &:hover {
-    background-color rgba(0, 191, 255, 0.1)
+    background-color: rgba(0, 191, 255, 0.1);
   }
 
   &:disabled {
-    color #848484;
+    color: #848484;
     // border 1px solid #848484
-    background-color transparent
-    cursor default
+    background-color: transparent;
+    cursor: default;
   }
 }
 
 .tokenInfoItemsLeft {
-  padding-left 5px
-  align-items center
-  display flex
+  padding-left: 5px;
+  align-items: center;
+  display: flex;
 
   * {
-    margin-left 5px
+    margin-left: 5px;
   }
 }
 
 .tokenInfoItemsRight {
-  padding-right 10px
-  align-items center
+  padding-right: 10px;
+  align-items: center;
+  margin: revert;
 }
