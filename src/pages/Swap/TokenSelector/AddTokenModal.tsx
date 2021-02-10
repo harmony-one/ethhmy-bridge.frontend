@@ -7,6 +7,7 @@ import cn from 'classnames';
 import { IsValid } from './IsValid';
 import { validateBech32Address } from '../../../blockchain-bridge/scrt';
 import { Text } from '../../../components/Base/components/Text';
+import { ExitIcon } from '../../../ui/Icons/ExitIcon';
 
 const AddTokenButton = (props: { onClick?: any }) => {
   return (
@@ -34,15 +35,19 @@ export const AddTokenModal = (props: { tokens: TokenDisplay[]; token: TokenDispl
       dimmer={'blurring'}
       style={{ width: '700px', display: 'flex' }}
     >
-      <Modal.Header>Enter Token Address</Modal.Header>
+      <Modal.Header>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span>Enter Token Address</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => setOpen(false)}>
+            <ExitIcon />
+          </span>
+        </div>
+      </Modal.Header>
       <Modal.Content>
         <SwapInput value={address} setValue={setAddress} placeholder={'secret1.....'} width={'600px'} />
         <IsValid isValid={isValidAddress} />
       </Modal.Content>
       <Modal.Actions>
-        <Button color="grey" onClick={() => setOpen(false)}>
-          Nope
-        </Button>
         <Button
           content="Add"
           labelPosition="right"
