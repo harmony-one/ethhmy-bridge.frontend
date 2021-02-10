@@ -647,7 +647,7 @@ export class ProvideTab extends React.Component<
                   this.props.notify('error', e);
                 })
                 .then(() => {
-                  window.dispatchEvent(new Event('updatePairs'));
+                  window.dispatchEvent(new Event('updatePairsAndTokens'));
                   this.props.notify('success', 'Pair created successfully');
                 });
             }
