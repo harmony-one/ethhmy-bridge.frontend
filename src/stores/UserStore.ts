@@ -119,6 +119,9 @@ export class UserStoreEx extends StoreConstructor {
     switch (process.env.NETWORK) {
       case 'testnet':
         return Number(this.metamaskChainId) === 1666700000;
+
+      case 'mainnet':
+        return Number(this.metamaskChainId) === 1666600000;
     }
 
     return false;
