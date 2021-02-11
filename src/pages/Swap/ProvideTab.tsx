@@ -339,7 +339,7 @@ export class ProvideTab extends React.Component<
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
       });
-      this.props.notify('success', `${symbol} approved`);
+      this.props.notify('success', `${symbol} approved for ${this.state.tokenA}/${this.state.tokenB}`);
     } catch (error) {
       console.error('Error while trying to approve', symbol, error);
       this.props.notify('error', `Error approving ${symbol}: ${error.message}`);
