@@ -532,7 +532,7 @@ export class SwapRouter extends React.Component<
               )}
             </Box>
             <SwapFooter />
-            <BetaWarning />
+            <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
         </PageContainer>
       </BaseContainer>
