@@ -9,10 +9,20 @@ export const WalletOverview: React.FC<{
   tokens: { [symbol: string]: TokenDisplay };
   balances: { [symbol: string]: BigNumber | JSX.Element };
 }> = ({ tokens, balances }) => {
+  const tokenSymbols = Object.keys(tokens);
+
+  if (tokenSymbols.length === 0) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '1em 0' }}>
+        <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
+      </div>
+    );
+  }
+
   return (
     <>
-      {Object.keys(tokens)
-        .sort((a, b) => (a.toLowerCase().includes('scrt') ? -1 : 1))
+      {tokenSymbols
+        .sort(a => (a.toLowerCase().includes('scrt') ? -1 : 1))
         .map(symbol => {
           const token = tokens[symbol];
           const balance = balances[symbol];
@@ -37,7 +47,7 @@ export const WalletOverview: React.FC<{
         .map(([token, balance]: [TokenDisplay, JSX.Element]) => {
           return (
             <div key={token.symbol} style={{ display: 'flex', alignItems: 'center', marginTop: '1em' }}>
-              <Image src={token.logo} avatar />
+              <Image src={token.logo} avatar style={{ boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px' }} />
               <span style={{ marginRight: '0.3em' }} />
               {balance}
             </div>

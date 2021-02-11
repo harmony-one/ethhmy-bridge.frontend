@@ -23,6 +23,9 @@ import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge/scrt';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import { WalletOverview } from './WalletOverview';
+import { Icon } from 'components/Base';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { CopyWithFeedback } from './CopyWithFeedback';
 
 type DisplayTokenRecord = Record<string, TokenDisplay>;
 
@@ -501,7 +504,14 @@ export class SwapRouter extends React.Component<
           }}
         >
           <Popup
-            header={this.props.user.address}
+            header={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <strong>{this.props.user.address}</strong>
+                <span style={{ marginLeft: '0.3em' }}>
+                  <CopyWithFeedback text={this.props.user.address} />
+                </span>
+              </div>
+            }
             content={<WalletOverview tokens={this.state.tokens} balances={this.state.balances} />}
             position="left center"
             on="click"

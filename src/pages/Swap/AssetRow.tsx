@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
-import React, { useState } from 'react';
+import React from 'react';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
-import { Button, Container, Input, Dropdown, Modal } from 'semantic-ui-react';
+import { Button, Container } from 'semantic-ui-react';
 import { TokenDisplay } from '.';
 import Loader from 'react-loader-spinner';
 import { TokenSelector } from './TokenSelector';
@@ -22,9 +22,7 @@ export const AssetRow = ({
   maxButton,
   secretjs,
 }: {
-  tokens: {
-    [symbol: string]: TokenDisplay;
-  };
+  tokens: { [symbol: string]: TokenDisplay };
   token: string;
   setToken: (symbol: string) => void;
   amount: string;
@@ -101,7 +99,7 @@ export const AssetRow = ({
         {maxButton && token && (
           <Button
             basic
-            color={'blue'}
+            color="blue"
             disabled={new BigNumber(balance as any).isNaN()}
             style={{
               margin: 'auto',

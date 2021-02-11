@@ -27,7 +27,7 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
       <p>
         <strong>Getting sETH:</strong> {/* Via the bridge from the ETH
                 rinkeby testnet, or just  */}
-        Swap SCRT for it 👆😋
+        Swap sSCRT for it 👆😋
       </p>
       <strong>Feedback channels:</strong>
       <ul>
@@ -52,14 +52,6 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
             Telegram
           </a>
         </li>
-      </ul>
-      <strong>In the works (will be available for mainnet):</strong>
-      <ul>
-        <li>Withdraw liquidity button</li>
-        <li>View pair analytics</li>
-        <li>Create a new pair</li>
-        <li>Route swapping</li>
-        <li>Expert mode (customize slippage, skip approval screens, etc.)</li>
       </ul>
     </Message>
   );
