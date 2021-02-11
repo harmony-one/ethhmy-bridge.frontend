@@ -3,8 +3,8 @@ module.exports = {
   env: {
     browser: true,
   },
-  plugins: ["@typescript-eslint", "react-hooks"],
+  plugins: ['@typescript-eslint', 'react-hooks'],
   rules: {
-    'require-await': 'off'
+    'require-await': 'off',
   },
 };

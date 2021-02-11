@@ -15,13 +15,7 @@ export interface IExpandedRowProps {
 }
 
 const isEth = type =>
-  [
-    'approveEthManger',
-    'lockToken',
-    'unlockToken',
-    'unlockTokenRollback',
-    'waitingBlockNumber',
-  ].includes(type);
+  ['approveEthManger', 'lockToken', 'unlockToken', 'unlockTokenRollback', 'waitingBlockNumber'].includes(type);
 
 const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
   if (!action || !action.payload || !action.payload.gasPrice) {
@@ -44,9 +38,7 @@ const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
 export const getOperationFee = (operation: IOperation) => {
   const isEth = operation.type === EXCHANGE_MODE.ETH_TO_SCRT;
 
-  const actionsFee = operation.actions
-    .map(getActionFee)
-    .filter(a => a.isEth === isEth);
+  const actionsFee = operation.actions.map(getActionFee).filter(a => a.isEth === isEth);
 
   return actionsFee.reduce((acc, action) => acc + action.value, 0);
 };
@@ -71,11 +63,7 @@ const actionColumns: IColumn<IAction>[] = [
     key: 'type',
     dataIndex: 'type',
     width: 240,
-    render: value => (
-      <Box className={cn(styles.actionCell, styles.type)}>
-        {STEPS_TITLE[value]}
-      </Box>
-    ),
+    render: value => <Box className={cn(styles.actionCell, styles.type)}>{STEPS_TITLE[value]}</Box>,
   },
   {
     title: 'tx Hash',
@@ -88,8 +76,7 @@ const actionColumns: IColumn<IAction>[] = [
         href={
           (isEth(action.type)
             ? process.env.ETH_EXPLORER_URL + '/tx/'
-            : process.env.SCRT_EXPLORER_URL + '/transactions/') +
-          action.transactionHash
+            : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
         }
         target="_blank"
       >
@@ -102,9 +89,7 @@ const actionColumns: IColumn<IAction>[] = [
     key: 'status',
     dataIndex: 'status',
     width: 140,
-    render: value => (
-      <Box className={cn(styles.status, styles[value])}>{value}</Box>
-    ),
+    render: value => <Box className={cn(styles.status, styles[value])}>{value}</Box>,
   },
   {
     title: 'Age',
@@ -197,26 +182,17 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>
 
-            <Box
-              className={cn(styles.status, styles[action.status])}
-              margin={{ right: '25px' }}
-              style={{ width: 120 }}
-            >
+            <Box className={cn(styles.status, styles[action.status])} margin={{ right: '25px' }} style={{ width: 120 }}>
               {action.status}
             </Box>
 
-            <Box
-              className={styles.actionCell}
-              style={{ width: 220 }}
-              align="center"
-            >
+            <Box className={styles.actionCell} style={{ width: 220 }} align="center">
               <a
                 className={styles.addressLink}
                 href={
                   (isEth(action.type)
                     ? process.env.ETH_EXPLORER_URL + '/tx/'
-                    : process.env.SCRT_EXPLORER_URL + '/transactions/') +
-                  action.transactionHash
+                    : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
                 }
                 target="_blank"
               >
@@ -225,19 +201,10 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             </Box>
 
             <Box className={styles.actionCell} style={{ width: 160 }}>
-              {action.timestamp
-                ? dateTimeAgoFormat(action.timestamp * 1000)
-                : '--'}
+              {action.timestamp ? dateTimeAgoFormat(action.timestamp * 1000) : '--'}
             </Box>
             <Box className={styles.actionCell} style={{ width: 180 }}>
-              {action.payload ? (
-                <Price
-                  value={Number(getActionFee(action).value)}
-                  isEth={isEth(action.type)}
-                />
-              ) : (
-                '--'
-              )}
+              {action.payload ? <Price value={Number(getActionFee(action).value)} isEth={isEth(action.type)} /> : '--'}
             </Box>
           </Box>
         </Box>

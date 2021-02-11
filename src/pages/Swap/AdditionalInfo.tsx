@@ -19,15 +19,9 @@ export const AdditionalInfo = ({
   fromToken: string;
   toToken: string;
 }) => {
-  const [minReceivedIconBackground, setMinReceivedIconBackground] = useState<
-    string
-  >('whitesmoke');
-  const [liqProvFeeIconBackground, setLiqProvFeeIconBackground] = useState<
-    string
-  >('whitesmoke');
-  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState<
-    string
-  >('whitesmoke');
+  const [minReceivedIconBackground, setMinReceivedIconBackground] = useState<string>('whitesmoke');
+  const [liqProvFeeIconBackground, setLiqProvFeeIconBackground] = useState<string>('whitesmoke');
+  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState<string>('whitesmoke');
 
   let priceImpactColor = 'green'; // Less than 1% - Awesome
   if (priceImpact > 0.05) {
@@ -71,12 +65,8 @@ export const AdditionalInfo = ({
                     background: minReceivedIconBackground,
                     verticalAlign: 'middle',
                   }}
-                  onMouseEnter={() =>
-                    setMinReceivedIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setMinReceivedIconBackground('whitesmoke')
-                  }
+                  onMouseEnter={() => setMinReceivedIconBackground('rgb(237, 238, 242)')}
+                  onMouseLeave={() => setMinReceivedIconBackground('whitesmoke')}
                 />
               }
               content="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
@@ -109,26 +99,19 @@ export const AdditionalInfo = ({
                     background: priceImpactIconBackground,
                     verticalAlign: 'middle',
                   }}
-                  onMouseEnter={() =>
-                    setPriceImpactIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setPriceImpactIconBackground('whitesmoke')
-                  }
+                  onMouseEnter={() => setPriceImpactIconBackground('rgb(237, 238, 242)')}
+                  onMouseLeave={() => setPriceImpactIconBackground('whitesmoke')}
                 />
               }
               content="The difference between the market price and estimated price due to trade size."
               position="top center"
             />
           </span>
-          <strong style={{ color: priceImpactColor }}>{`${new Intl.NumberFormat(
-            'en-US',
-            {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-              useGrouping: true,
-            },
-          ).format(priceImpact * 100)}%`}</strong>
+          <strong style={{ color: priceImpactColor }}>{`${new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true,
+          }).format(priceImpact * 100)}%`}</strong>
         </div>
         <div
           style={{
@@ -150,9 +133,7 @@ export const AdditionalInfo = ({
                     background: liqProvFeeIconBackground,
                     verticalAlign: 'middle',
                   }}
-                  onMouseEnter={() =>
-                    setLiqProvFeeIconBackground('rgb(237, 238, 242)')
-                  }
+                  onMouseEnter={() => setLiqProvFeeIconBackground('rgb(237, 238, 242)')}
                   onMouseLeave={() => setLiqProvFeeIconBackground('whitesmoke')}
                 />
               }

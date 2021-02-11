@@ -6,11 +6,7 @@ export interface IDataError extends Error {
   data?: any;
 }
 
-export function createError(
-  name: string,
-  message: string,
-  data?: any,
-): IDataError {
+export function createError(name: string, message: string, data?: any): IDataError {
   const newError: IDataError = new Error(message);
 
   newError.name = name;
@@ -47,7 +43,8 @@ export type HttpResponseError = Error & {
 export function printError(error: any): string {
   if (typeof error === 'string') {
     return error;
-  } if (typeof error === 'object') {
+  }
+  if (typeof error === 'object') {
     if ('message' in error) {
       return error.message;
     }

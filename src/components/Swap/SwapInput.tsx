@@ -1,12 +1,7 @@
 import { Input } from 'semantic-ui-react';
 import React from 'react';
 
-export const SwapInput = (props: {
-  value: string;
-  setValue: any;
-  placeholder?: string;
-  width?: string;
-}) => {
+export const SwapInput = (props: { value: string; setValue: any; placeholder?: string; width?: string }) => {
   return (
     <Input
       style={{

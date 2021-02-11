@@ -1,13 +1,7 @@
 import * as React from 'react';
 import { Box } from 'grommet';
 import * as styles from './styles.styl';
-import {
-  Form,
-  Input,
-  isRequired,
-  MobxForm,
-  NumberInput,
-} from 'components/Form';
+import { Form, Input, isRequired, MobxForm, NumberInput } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
@@ -28,19 +22,12 @@ export interface ITokenInfo {
   minAmount: string;
 }
 
-function getLabel(
-  mode: EXCHANGE_MODE,
-  tokenType: TOKEN,
-  tokenInfo: ITokenInfo,
-) {
+function getLabel(mode: EXCHANGE_MODE, tokenType: TOKEN, tokenInfo: ITokenInfo) {
   if (tokenInfo.label === 'WSCRT') {
     return mode === EXCHANGE_MODE.SCRT_TO_ETH ? `SSCRT Amount` : `WSCRT Amount`;
   } else {
-    return `${(mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-    tokenType === TOKEN.ERC20 &&
-    tokenInfo.label
-      ? 'secret'
-      : '') + tokenInfo.label} Amount`;
+    return `${(mode === EXCHANGE_MODE.SCRT_TO_ETH && tokenType === TOKEN.ERC20 && tokenInfo.label ? 'secret' : '') +
+      tokenInfo.label} Amount`;
   }
 }
 
@@ -93,10 +80,7 @@ export class Exchange extends React.Component<
       }
     }
 
-    if (
-      !userMetamask.isAuthorized &&
-      exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-    ) {
+    if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
       if (!userMetamask.isAuthorized) {
         await userMetamask.signIn(true);
       }
@@ -140,8 +124,7 @@ export class Exchange extends React.Component<
           return {
             label: 'secretETH',
             maxAmount:
-              !user.balanceToken['Ethereum'] ||
-              user.balanceToken['Ethereum'].includes(unlockToken)
+              !user.balanceToken['Ethereum'] || user.balanceToken['Ethereum'].includes(unlockToken)
                 ? '0'
                 : user.balanceToken['Ethereum'],
             minAmount: user.balanceTokenMin['Ethereum'] || '0',
@@ -181,11 +164,7 @@ export class Exchange extends React.Component<
               borderRadius: '50%',
             }}
           >
-            <Icon
-              size="50"
-              style={{ width: 50, color: 'white' }}
-              glyph="CheckMark"
-            />
+            <Icon size="50" style={{ width: 50, color: 'white' }} glyph="CheckMark" />
           </Box>
         );
         description = 'Success';
@@ -230,10 +209,7 @@ export class Exchange extends React.Component<
         {exchange.step.id === EXCHANGE_STEPS.BASE ? (
           <Box direction="row">
             <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.ETH ? styles.selected : '',
-              )}
+              className={cn(styles.itemToken, exchange.token === TOKEN.ETH ? styles.selected : '')}
               onClick={() => {
                 exchange.setToken(TOKEN.ETH);
                 routing.push(`/${exchange.token}`);
@@ -241,24 +217,13 @@ export class Exchange extends React.Component<
             >
               <img
                 className={styles.imgToken}
-                src={
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                    ? '/eth.svg'
-                    : '/scrt.svg'
-                }
+                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/eth.svg' : '/scrt.svg'}
               />
-              <Text>
-                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-                  ? 'secretETH'
-                  : 'ETH'}
-              </Text>
+              <Text>{exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'secretETH' : 'ETH'}</Text>
             </Box>
 
             <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.ERC20 ? styles.selected : '',
-              )}
+              className={cn(styles.itemToken, exchange.token === TOKEN.ERC20 ? styles.selected : '')}
               onClick={() => {
                 exchange.setToken(TOKEN.ERC20);
                 routing.push(`/${exchange.token}`);
@@ -266,42 +231,21 @@ export class Exchange extends React.Component<
             >
               <img
                 className={styles.imgToken}
-                src={
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                    ? '/eth.svg'
-                    : '/scrt.svg'
-                }
+                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/eth.svg' : '/scrt.svg'}
               />
-              <Text>
-                {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH
-                  ? 'SNIP20'
-                  : 'ERC20'}
-              </Text>
+              <Text>{exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SNIP20' : 'ERC20'}</Text>
             </Box>
           </Box>
         ) : null}
 
-        <Form
-          ref={ref => (this.formRef = ref)}
-          data={this.props.exchange.transaction}
-          {...({} as any)}
-        >
+        <Form ref={ref => (this.formRef = ref)} data={this.props.exchange.transaction} {...({} as any)}>
           {exchange.step.id === EXCHANGE_STEPS.BASE ? (
             <Box direction="column" fill={true}>
               {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
 
-              <Box
-                direction="column"
-                gap="2px"
-                fill={true}
-                margin={{ top: 'xlarge', bottom: 'large' }}
-              >
+              <Box direction="column" gap="2px" fill={true} margin={{ top: 'xlarge', bottom: 'large' }}>
                 <NumberInput
-                  label={getLabel(
-                    exchange.mode,
-                    exchange.token,
-                    this.tokenInfo,
-                  )}
+                  label={getLabel(exchange.mode, exchange.token, this.tokenInfo)}
                   name="amount"
                   type="decimal"
                   precision="6"
@@ -314,17 +258,9 @@ export class Exchange extends React.Component<
                     (_, value, callback) => {
                       const errors = [];
 
-                      if (
-                        value &&
-                        Number(value) >
-                          Number(this.tokenInfo.maxAmount.replace(/,/g, ''))
-                      ) {
+                      if (value && Number(value) > Number(this.tokenInfo.maxAmount.replace(/,/g, ''))) {
                         errors.push('Exceeded the maximum amount');
-                      } else if (
-                        value &&
-                        Number(value) <
-                          Number(this.tokenInfo.minAmount.replace(/,/g, ''))
-                      ) {
+                      } else if (value && Number(value) < Number(this.tokenInfo.minAmount.replace(/,/g, ''))) {
                         errors.push('Below the minimum amount');
                       }
 
@@ -333,18 +269,11 @@ export class Exchange extends React.Component<
                   ]}
                 />
                 <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>Min / Max</b> ={' '}
-                  {formatWithSixDecimals(
-                    this.tokenInfo.minAmount.replace(/,/g, ''),
-                  )}
+                  <b>Min / Max</b> = {formatWithSixDecimals(this.tokenInfo.minAmount.replace(/,/g, ''))}
                   {' / '}
-                  {formatWithSixDecimals(
-                    this.tokenInfo.maxAmount.replace(/,/g, ''),
-                  )}{' '}
-                  {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                  exchange.token === TOKEN.ERC20
-                    ? 'secret'
-                    : '') + this.tokenInfo.label}
+                  {formatWithSixDecimals(this.tokenInfo.maxAmount.replace(/,/g, ''))}{' '}
+                  {(exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && exchange.token === TOKEN.ERC20 ? 'secret' : '') +
+                    this.tokenInfo.label}
                 </Text>
               </Box>
 
@@ -364,10 +293,7 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.ethAddress =
-                          userMetamask.ethAddress)
-                      }
+                      onClick={() => (exchange.transaction.ethAddress = userMetamask.ethAddress)}
                     >
                       Use my address
                     </Box>
@@ -389,9 +315,7 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.scrtAddress = user.address)
-                      }
+                      onClick={() => (exchange.transaction.scrtAddress = user.address)}
                     >
                       Use my address
                     </Box>
@@ -402,9 +326,7 @@ export class Exchange extends React.Component<
           ) : null}
         </Form>
 
-        {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
-          <Details showTotal={true} />
-        ) : null}
+        {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? <Details showTotal={true} /> : null}
 
         {exchange.step.id === EXCHANGE_STEPS.SENDING ? (
           <Details>
@@ -424,18 +346,14 @@ export class Exchange extends React.Component<
               direction="row"
               // justify="end"
               margin={{
-                top:
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                    ? 'medium'
-                    : '0px',
+                top: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'medium' : '0px',
               }}
               fill={true}
             >
-              {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
-              exchange.token === TOKEN.ERC20 ? (
+              {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && exchange.token === TOKEN.ERC20 ? (
                 <Text color="Red500" style={{ textAlign: 'left' }}>
-                  If this is the first time you're sending this token, you will
-                  be prompted to sign <b>two</b> transactions.
+                  If this is the first time you're sending this token, you will be prompted to sign <b>two</b>{' '}
+                  transactions.
                   <br />
                   Otherwise you will be prompted to sign <b>one</b> transaction.
                 </Text>
@@ -448,12 +366,7 @@ export class Exchange extends React.Component<
           </>
         ) : null}
 
-        <Box
-          direction="row"
-          margin={{ top: 'large' }}
-          justify="end"
-          align="center"
-        >
+        <Box direction="row" margin={{ top: 'large' }} justify="end" align="center">
           {exchange.step.buttons.map((conf, idx) => (
             <Button
               key={idx}

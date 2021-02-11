@@ -26,11 +26,7 @@ export const App: React.FC = () => {
           <Route exact path="/explorer" component={Explorer} />
           <Route exact path="/earn" component={EarnRewards} />
           <Route exact path="/:token" component={EthBridge} />
-          <Route
-            exact
-            path="/:token/operations/:operationId"
-            component={EthBridge}
-          />
+          <Route exact path="/:token/operations/:operationId" component={EthBridge} />
           <Redirect to="/swap" />
         </Switch>
       </Suspense>

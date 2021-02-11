@@ -11,30 +11,20 @@ import { divDecimals, formatWithSixDecimals, mulDecimals } from '../../utils';
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
     <Box
-      direction={
-        props.type === EXCHANGE_MODE.ETH_TO_SCRT ? 'row' : 'row-reverse'
-      }
+      direction={props.type === EXCHANGE_MODE.ETH_TO_SCRT ? 'row' : 'row-reverse'}
       align="center"
       className={cn(styles.operationType)}
       margin={{ left: '20px' }}
     >
       <Box direction="row" align="center">
-        <img
-          className={styles.imgToken}
-          style={{ height: 20 }}
-          src="/eth.svg"
-        />
+        <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
         <Text size="medium">ETH</Text>
       </Box>
       <Box direction="row" margin={{ horizontal: 'xsmall' }} align="center">
         <img src="/right.svg" />
       </Box>
       <Box direction="row" align="center">
-        <img
-          className={styles.imgToken}
-          style={{ height: 18 }}
-          src="/scrt.svg"
-        />
+        <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
         <Text size="medium">ONE</Text>
       </Box>
     </Box>
@@ -42,27 +32,13 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
 };
 
 export const Price = observer(
-  (props: {
-    value: number;
-    valueUsd?: number;
-    isEth?: boolean;
-    boxProps?: BoxProps;
-    token?: string;
-  }) => {
+  (props: { value: number; valueUsd?: number; isEth?: boolean; boxProps?: BoxProps; token?: string }) => {
     const { user } = useStores();
 
     const tokenName = props.token || (props.isEth ? 'ETH' : 'SCRT');
-    const valueUsd = props.valueUsd
-      ? props.valueUsd
-      : props.value * (props.isEth ? user.ethRate : user.scrtRate);
+    const valueUsd = props.valueUsd ? props.valueUsd : props.value * (props.isEth ? user.ethRate : user.scrtRate);
     return (
-      <Box
-        direction="column"
-        align="end"
-        justify="center"
-        pad={{ right: 'medium' }}
-        {...props.boxProps}
-      >
+      <Box direction="column" align="end" justify="center" pad={{ right: 'medium' }} {...props.boxProps}>
         <Text style={{ fontSize: 14 }}>{`${props.value} ${tokenName}`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
           ${formatWithSixDecimals(valueUsd)}
@@ -93,9 +69,7 @@ export const FormatWithDecimals = observer((props: ITokenParams) => {
   const { type, amount, address } = props;
 
   if (type === TOKEN.ERC20 || type === TOKEN.S20) {
-    const token = tokens.data.find(
-      t => t.src_address.toLowerCase() === address.toLowerCase(),
-    );
+    const token = tokens.data.find(t => t.src_address.toLowerCase() === address.toLowerCase());
 
     if (token) {
       return <Box>{divDecimals(amount, token.decimals)}</Box>;
@@ -112,9 +86,7 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { value, erc20Address } = props;
 
   if (value === TOKEN.ERC20) {
-    const token = tokens.data.find(
-      t => t.src_address.toLowerCase() === erc20Address.toLowerCase(),
-    );
+    const token = tokens.data.find(t => t.src_address.toLowerCase() === erc20Address.toLowerCase());
 
     if (token && token.display_props) {
       return token.display_props.proxy_symbol ? (

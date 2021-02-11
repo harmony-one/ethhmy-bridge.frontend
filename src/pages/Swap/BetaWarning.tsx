@@ -27,8 +27,7 @@ export const BetaWarning = () => {
                 to convert to sSCRT */}
       </p>
       <p>
-        <strong>Getting sETH:</strong>{' '}
-        {/* Via the bridge from the ETH
+        <strong>Getting sETH:</strong> {/* Via the bridge from the ETH
                 rinkeby testnet, or just  */}
         Swap SCRT for it 👆😋
       </p>
@@ -36,18 +35,12 @@ export const BetaWarning = () => {
       <ul>
         <li>
           Open a{' '}
-          <a
-            href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new"
-            target="_blank"
-          >
+          <a href="https://github.com/enigmampc/EthereumBridgeFrontend/issues/new" target="_blank">
             GitHub issue
           </a>
         </li>
         <li>
-          <a
-            href="https://discord.com/channels/360051864110235648/805840792303960155"
-            target="_blank"
-          >
+          <a href="https://discord.com/channels/360051864110235648/805840792303960155" target="_blank">
             #🔀amm-support
           </a>{' '}
           on Discord

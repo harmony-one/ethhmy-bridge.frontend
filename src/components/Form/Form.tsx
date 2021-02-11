@@ -34,7 +34,9 @@ export class Form extends MobxForm<IFormProps> {
     }
 
     if (this.props.onValidSubmit) {
-      this.validateFields().then(this.props.onValidSubmit).catch();
+      this.validateFields()
+        .then(this.props.onValidSubmit)
+        .catch();
     }
   };
 

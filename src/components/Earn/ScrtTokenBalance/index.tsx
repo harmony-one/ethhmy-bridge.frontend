@@ -39,18 +39,13 @@ const ScrtTokenBalance = (props: {
 
   const text = props.subtitle ? props.subtitle : 'Available Balance';
 
-  const minimumFactions =
-    props.minimumFactions !== undefined ? props.minimumFactions : 3;
+  const minimumFactions = props.minimumFactions !== undefined ? props.minimumFactions : 3;
 
   if (!value) {
     return (
       <SoftTitleValue
-        title={
-          <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-        }
-        subTitle={
-          user.secretjs ? 'Fetching Balance...' : 'Connecting to Keplr...'
-        }
+        title={<Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />}
+        subTitle={user.secretjs ? 'Fetching Balance...' : 'Connecting to Keplr...'}
       />
     );
   } else if (value === unlockToken) {
@@ -61,11 +56,7 @@ const ScrtTokenBalance = (props: {
             userStore={props.userStore}
             tokenAddress={props.tokenAddress}
             selected={props.selected}
-            subtitle={
-              props.subtitle.includes('Rewards')
-                ? props.subtitle
-                : props.currency
-            }
+            subtitle={props.subtitle.includes('Rewards') ? props.subtitle : props.currency}
             showSubTitle={true}
             pulseInterval={props.pulseInterval}
             title={props.unlockTitle}
@@ -84,15 +75,10 @@ const ScrtTokenBalance = (props: {
                   return 'Fix Viewing Key';
                 }
 
-                return `${formatNumber(
-                  divDecimals(value.replace(/,/g, ''), props.decimals),
-                  minimumFactions,
-                )}`;
+                return `${formatNumber(divDecimals(value.replace(/,/g, ''), props.decimals), minimumFactions)}`;
               })()}
             />
-            <div style={{ marginLeft: '5px', paddingTop: '4px' }}>
-              {props.currency}
-            </div>
+            <div style={{ marginLeft: '5px', paddingTop: '4px' }}>{props.currency}</div>
           </div>
         }
         subTitle={text}

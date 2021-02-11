@@ -227,7 +227,6 @@ const appendToInputByOneSymbol = value => {
   });
 };
 
-const stringArray = (fn, number = 100) =>
-  Array.from({ length: number }, fn).map(it => it.toString());
+const stringArray = (fn, number = 100) => Array.from({ length: number }, fn).map(it => it.toString());
 
 const last = arr => arr.slice(-1)[0];

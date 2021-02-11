@@ -85,27 +85,19 @@ export interface CommonFilterBodyProps {
   placeholder?: string;
 }
 
-export const FilterModal = React.forwardRef(
-  (props: FilterModalProps, ref: React.MutableRefObject<HTMLDivElement>) => {
-    const { children, onClose, hasActiveFilter, position } = props;
+export const FilterModal = React.forwardRef((props: FilterModalProps, ref: React.MutableRefObject<HTMLDivElement>) => {
+  const { children, onClose, hasActiveFilter, position } = props;
 
-    if (!ref.current) {
-      return null;
-    }
+  if (!ref.current) {
+    return null;
+  }
 
-    const bounds = ref.current.getBoundingClientRect();
+  const bounds = ref.current.getBoundingClientRect();
 
-    return ReactDOM.createPortal(
-      <FilterModalWrap
-        position={position}
-        bounds={bounds}
-        hasActiveFilter={hasActiveFilter}
-      >
-        <OutsideClickHandler onOutsideClick={onClose}>
-          {children}
-        </OutsideClickHandler>
-      </FilterModalWrap>,
-      document.body,
-    );
-  },
-);
+  return ReactDOM.createPortal(
+    <FilterModalWrap position={position} bounds={bounds} hasActiveFilter={hasActiveFilter}>
+      <OutsideClickHandler onOutsideClick={onClose}>{children}</OutsideClickHandler>
+    </FilterModalWrap>,
+    document.body,
+  );
+});

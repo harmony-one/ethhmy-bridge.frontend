@@ -7,11 +7,7 @@ export const Spinner: React.FC<React.SVGAttributes<SVGElement>> = props => {
   const middle = boxSize / 2;
   return (
     <div className={s.spinnerContainer}>
-      <svg
-        viewBox={`0 0 ${boxSize} ${boxSize}`}
-        className={s.spinner}
-        {...props}
-      >
+      <svg viewBox={`0 0 ${boxSize} ${boxSize}`} className={s.spinner} {...props}>
         <circle
           r={radius}
           cx={middle}

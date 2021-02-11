@@ -25,14 +25,8 @@ const UnlockToken = (props: {
         onClick={async () => {
           setLoading(true);
           try {
-            await props.userStore.keplrWallet.suggestToken(
-              props.userStore.chainId,
-              props.tokenAddress,
-            );
-            await props.userStore.updateBalanceForSymbol(
-              null,
-              props.tokenAddress,
-            );
+            await props.userStore.keplrWallet.suggestToken(props.userStore.chainId, props.tokenAddress);
+            await props.userStore.updateBalanceForSymbol(null, props.tokenAddress);
           } catch (error) {
             error => console.error(error);
           }
@@ -65,10 +59,7 @@ const UnlockToken = (props: {
         >
           🔍
         </span>
-        <SoftTitleValue
-          title={'View Balance'}
-          subTitle={props.showSubTitle ? props.subtitle : null}
-        />
+        <SoftTitleValue title={'View Balance'} subTitle={props.showSubTitle ? props.subtitle : null} />
       </Button>
     </Box>
   );

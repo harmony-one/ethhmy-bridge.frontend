@@ -7,13 +7,7 @@ import { Button } from 'semantic-ui-react';
 import { unlockToken } from '../../../utils';
 
 // todo: add failed toast or something
-const EarnButton = ({
-  props,
-  value,
-  changeValue,
-  togglePulse,
-  setPulseInterval,
-}) => {
+const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
@@ -28,10 +22,7 @@ const EarnButton = ({
           recipient: props.token.rewardsContract,
           address: props.token.lockedAssetAddress,
           // maximum precision for the contract is 6 decimals
-          amount: valueToDecimals(
-            Number(value).toFixed(6),
-            props.token.decimals,
-          ),
+          amount: valueToDecimals(Number(value).toFixed(6), props.token.decimals),
         })
           .then(_ => {
             changeValue({

@@ -21,11 +21,7 @@ export class WithdrawTab extends React.Component<{
   pairFromSymbol: {
     [symbol: string]: Pair;
   };
-  notify: (
-    type: 'success' | 'error',
-    msg: string,
-    closesAfterMs?: number,
-  ) => void;
+  notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
 }> {
   constructor(props) {
     super(props);
@@ -33,11 +29,7 @@ export class WithdrawTab extends React.Component<{
 
   render() {
     const withdrawPanelList = Object.keys(this.props.balances)
-      .filter(
-        lpTokenSymbol =>
-          lpTokenSymbol.startsWith('LP') &&
-          !lpTokenSymbol.includes('total-supply'),
-      )
+      .filter(lpTokenSymbol => lpTokenSymbol.startsWith('LP') && !lpTokenSymbol.includes('total-supply'))
       .map(lpTokenSymbol => (
         <span key={lpTokenSymbol}>
           <WithdrawLiquidityPanel

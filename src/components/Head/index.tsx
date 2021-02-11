@@ -36,9 +36,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
-        routing.push(
-          `/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`,
-        );
+        routing.push(`/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`);
       } else {
         routing.push(`/${exchange.token || TOKEN.ETH}`);
       }
@@ -93,13 +91,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo &&
-                  !isFaq &&
-                  !isExplorer &&
-                  !isGetTokens &&
-                  !isTokens &&
-                  !isSwap &&
-                  !isEarn
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isSwap && !isEarn
                   ? styles.selected
                   : '',
               )}
@@ -118,10 +110,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
-              className={cn(
-                styles.itemToken,
-                isExplorer ? styles.selected : '',
-              )}
+              className={cn(styles.itemToken, isExplorer ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/explorer`);
               }}
@@ -136,10 +125,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Info</Text>
             </Box> */}
 
-            <Box
-              className={cn(styles.itemToken, isEarn ? styles.selected : '')}
-              onClick={() => routing.push('/earn')}
-            >
+            <Box className={cn(styles.itemToken, isEarn ? styles.selected : '')} onClick={() => routing.push('/earn')}>
               <Text>Earn</Text>
             </Box>
 
@@ -152,10 +138,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Swap</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isFaq ? styles.selected : '')}
-              onClick={() => routing.push('/faq')}
-            >
+            <Box className={cn(styles.itemToken, isFaq ? styles.selected : '')} onClick={() => routing.push('/faq')}>
               <Text>FAQ</Text>
             </Box>
           </Box>

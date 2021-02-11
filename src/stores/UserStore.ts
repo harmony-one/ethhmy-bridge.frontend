@@ -4,20 +4,9 @@ import { statusFetching } from '../constants';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import {
-  divDecimals,
-  formatWithSixDecimals,
-  sleep,
-  toFixedTrunc,
-  unlockToken,
-} from '../utils';
+import { divDecimals, formatWithSixDecimals, sleep, toFixedTrunc, unlockToken } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
-import {
-  getViewingKey,
-  QueryDeposit,
-  QueryRewards,
-  Snip20GetBalance,
-} from '../blockchain-bridge/scrt';
+import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
 
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
@@ -141,11 +130,7 @@ export class UserStoreEx extends StoreConstructor {
         const symbol = data.id;
 
         if (!(symbol in symbolUpdateHeightCache)) {
-          console.error(
-            symbol,
-            'not in symbolUpdateHeightCache:',
-            symbolUpdateHeightCache,
-          );
+          console.error(symbol, 'not in symbolUpdateHeightCache:', symbolUpdateHeightCache);
           return;
         }
 
@@ -245,7 +230,7 @@ export class UserStoreEx extends StoreConstructor {
     this.isInfoReading = true;
     this.syncLocalStorage();
   }
-  
+
   @action public setInfoEarnReading() {
     this.isInfoEarnReading = true;
     this.syncLocalStorage();
@@ -344,10 +329,7 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getSnip20Balance = async (
-    snip20Address: string,
-    decimals: string | number,
-  ): Promise<string> => {
+  @action public getSnip20Balance = async (snip20Address: string, decimals: string | number): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -372,9 +354,7 @@ export class UserStoreEx extends StoreConstructor {
     });
   };
 
-  @action public getBridgeRewardsBalance = async (
-    snip20Address: string,
-  ): Promise<string> => {
+  @action public getBridgeRewardsBalance = async (snip20Address: string): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -398,9 +378,7 @@ export class UserStoreEx extends StoreConstructor {
     return result;
   };
 
-  @action public getBridgeDepositBalance = async (
-    snip20Address: string,
-  ): Promise<string> => {
+  @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
     if (!this.secretjs) {
       return '0';
     }
@@ -421,23 +399,14 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     await Promise.all([
-      ...this.stores.tokens.allData.map(token =>
-        this.updateBalanceForSymbol(token.display_props.symbol),
-      ),
+      ...this.stores.tokens.allData.map(token => this.updateBalanceForSymbol(token.display_props.symbol)),
       this.updateBalanceForSymbol('SCRT'),
       this.updateBalanceForSymbol('sSCRT'),
     ]);
   };
 
-  @action public updateBalanceForSymbol = async (
-    symbol: string,
-    tokenAddress?: string,
-  ) => {
-    while (
-      !this.address &&
-      !this.secretjs &&
-      this.stores.tokens.allData.length === 0
-    ) {
+  @action public updateBalanceForSymbol = async (symbol: string, tokenAddress?: string) => {
+    while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
       await sleep(100);
     }
 
@@ -446,15 +415,9 @@ export class UserStoreEx extends StoreConstructor {
     }
     if (!symbol && tokenAddress) {
       try {
-        symbol = this.stores.tokens.allData.find(
-          t => t.dst_address === tokenAddress,
-        ).display_props.symbol;
+        symbol = this.stores.tokens.allData.find(t => t.dst_address === tokenAddress).display_props.symbol;
       } catch (error) {
-        console.error(
-          'Error finding symbol for SNIP20 address',
-          tokenAddress,
-          error,
-        );
+        console.error('Error finding symbol for SNIP20 address', tokenAddress, error);
       }
     }
     if (!symbol) {
@@ -466,9 +429,7 @@ export class UserStoreEx extends StoreConstructor {
     if (symbol === 'SCRT') {
       this.secretjs.getAccount(this.address).then(account => {
         try {
-          this.balanceSCRT = formatWithSixDecimals(
-            divDecimals(account.balance[0].amount, 6),
-          );
+          this.balanceSCRT = formatWithSixDecimals(divDecimals(account.balance[0].amount, 6));
         } catch (e) {
           this.balanceSCRT = '0';
         }
@@ -477,16 +438,11 @@ export class UserStoreEx extends StoreConstructor {
     }
     if (symbol === 'sSCRT') {
       try {
-        const balance = await this.getSnip20Balance(
-          process.env.SSCRT_CONTRACT,
-          6,
-        );
+        const balance = await this.getSnip20Balance(process.env.SSCRT_CONTRACT, 6);
         if (balance.includes(unlockToken)) {
           this.balanceToken['sSCRT'] = balance;
         } else {
-          this.balanceToken['sSCRT'] = formatWithSixDecimals(
-            toFixedTrunc(balance, 6),
-          );
+          this.balanceToken['sSCRT'] = formatWithSixDecimals(toFixedTrunc(balance, 6));
         }
       } catch (err) {
         this.balanceToken['sSCRT'] = unlockToken;
@@ -494,21 +450,14 @@ export class UserStoreEx extends StoreConstructor {
       return;
     }
 
-    const token = this.stores.tokens.allData.find(
-      t => t.display_props.symbol === symbol,
-    );
+    const token = this.stores.tokens.allData.find(t => t.display_props.symbol === symbol);
 
     try {
-      const balance = await this.getSnip20Balance(
-        token.dst_address,
-        token.decimals,
-      );
+      const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
       if (balance.includes(unlockToken)) {
         this.balanceToken[token.src_coin] = balance;
       } else {
-        this.balanceToken[token.src_coin] = formatWithSixDecimals(
-          toFixedTrunc(balance, 6),
-        );
+        this.balanceToken[token.src_coin] = formatWithSixDecimals(toFixedTrunc(balance, 6));
       }
     } catch (err) {
       this.balanceToken[token.src_coin] = unlockToken;
@@ -520,9 +469,7 @@ export class UserStoreEx extends StoreConstructor {
       // Ethereum?
     }
 
-    const rewradsToken = this.stores.rewards.allData.find(
-      t => t.inc_token.symbol === `s${symbol}`,
-    );
+    const rewradsToken = this.stores.rewards.allData.find(t => t.inc_token.symbol === `s${symbol}`);
 
     if (!rewradsToken) {
       console.log('No rewards token for', symbol);
@@ -530,44 +477,34 @@ export class UserStoreEx extends StoreConstructor {
     }
 
     try {
-      const balance = await this.getBridgeRewardsBalance(
-        rewradsToken.pool_address,
-      );
+      const balance = await this.getBridgeRewardsBalance(rewradsToken.pool_address);
 
       if (balance.includes(unlockToken)) {
-        this.balanceRewards[
-          rewardsKey(rewradsToken.inc_token.symbol)
-        ] = balance;
+        this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = balance;
       } else {
         // rewards are in the rewards_token decimals
-        this.balanceRewards[
-          rewardsKey(rewradsToken.inc_token.symbol)
-        ] = divDecimals(balance, rewradsToken.rewards_token.decimals); //divDecimals(balance, token.inc_token.decimals);
+        this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = divDecimals(
+          balance,
+          rewradsToken.rewards_token.decimals,
+        ); //divDecimals(balance, token.inc_token.decimals);
       }
     } catch (err) {
-      this.balanceRewards[
-        rewardsKey(rewradsToken.inc_token.symbol)
-      ] = unlockToken;
+      this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = unlockToken;
     }
 
     try {
-      const balance = await this.getBridgeDepositBalance(
-        rewradsToken.pool_address,
-      );
+      const balance = await this.getBridgeDepositBalance(rewradsToken.pool_address);
 
       if (balance.includes(unlockToken)) {
-        this.balanceRewards[
-          rewardsDepositKey(rewradsToken.inc_token.symbol)
-        ] = balance;
+        this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = balance;
       } else {
-        this.balanceRewards[
-          rewardsDepositKey(rewradsToken.inc_token.symbol)
-        ] = divDecimals(balance, rewradsToken.inc_token.decimals);
+        this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = divDecimals(
+          balance,
+          rewradsToken.inc_token.decimals,
+        );
       }
     } catch (err) {
-      this.balanceRewards[
-        rewardsDepositKey(rewradsToken.inc_token.symbol)
-      ] = unlockToken;
+      this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = unlockToken;
     }
 
     try {
@@ -619,18 +556,12 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public async getRates() {
-    const scrtbtc = await agent.get<{ body: IOperation }>(
-      'https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC',
-    );
-    const btcusdt = await agent.get<{ body: IOperation }>(
-      'https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT',
-    );
+    const scrtbtc = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=SCRTBTC');
+    const btcusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=BTCUSDT');
 
     this.scrtRate = scrtbtc.body.lastPrice * btcusdt.body.lastPrice;
 
-    const ethusdt = await agent.get<{ body: IOperation }>(
-      'https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT',
-    );
+    const ethusdt = await agent.get<{ body: IOperation }>('https://api.binance.com/api/v1/ticker/24hr?symbol=ETHUSDT');
 
     this.ethRate = ethusdt.body.lastPrice;
   }

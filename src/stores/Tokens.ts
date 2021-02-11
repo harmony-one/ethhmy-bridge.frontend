@@ -17,9 +17,6 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
         totalLockedUSD: 'asc',
       },
     });
-
-
-
   }
   //
   @computed get totalLockedUSD() {

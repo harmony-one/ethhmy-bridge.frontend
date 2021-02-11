@@ -6,12 +6,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo } from 'stores/interfaces';
-import {
-  dateTimeAgoFormat,
-  divDecimals,
-  formatWithTwoDecimals,
-  truncateAddressString,
-} from 'utils';
+import { dateTimeAgoFormat, divDecimals, formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
@@ -21,11 +16,7 @@ import { isMobile } from 'react-device-detect';
 const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
-      target="_blank"
-    >
+    <a className={styles.addressLink} href={`${process.env.ETH_EXPLORER_URL}/token/${value}`} target="_blank">
       {truncateAddressString(value, num)}
     </a>
   </Box>
@@ -34,11 +25,7 @@ const ethAddress = (value, num = 10) => (
 const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
-      target="_blank"
-    >
+    <a className={styles.addressLink} href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`} target="_blank">
       {truncateAddressString(value, num)}
     </a>
   </Box>
@@ -156,9 +143,7 @@ export const Tokens = observer((props: any) => {
                 .toString()
                 .toLowerCase()
                 .includes(search.toLowerCase()),
-          ) ||
-          getScrtAddress(token.dst_address).toLowerCase() ===
-            search.toLowerCase()
+          ) || getScrtAddress(token.dst_address).toLowerCase() === search.toLowerCase()
         );
       }
 
@@ -177,14 +162,12 @@ export const Tokens = observer((props: any) => {
       (token as any).key = token.symbol; // make react not sad
       return token;
     })
-    .sort((t1, t2) =>
-      Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1,
-    )
+    .sort((t1, t2) => (Number(t1.totalLockedUSD) > Number(t2.totalLockedUSD) ? -1 : 1))
     .map(token => {
       try {
-        token.totalLocked = `${formatWithTwoDecimals(
-          token.totalLockedNormal,
-        )} ($${formatWithTwoDecimals(token.totalLockedUSD)})`;
+        token.totalLocked = `${formatWithTwoDecimals(token.totalLockedNormal)} ($${formatWithTwoDecimals(
+          token.totalLockedUSD,
+        )})`;
       } catch (error) {}
 
       return token;
@@ -193,13 +176,7 @@ export const Tokens = observer((props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          direction="row"
-          justify="between"
-          align="center"
-          margin={{ top: 'medium' }}
-          pad={{ horizontal: 'medium' }}
-        >
+        <Box direction="row" justify="between" align="center" margin={{ top: 'medium' }} pad={{ horizontal: 'medium' }}>
           <div
             style={{
               display: 'flex',
@@ -223,11 +200,7 @@ export const Tokens = observer((props: any) => {
               </span>
             </span>
           </div>
-          {lastUpdateAgo ? (
-            <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
-          ) : (
-            <Text> </Text>
-          ) // this makes sure the TVL is sort of in the middle of the page
+          {lastUpdateAgo ? <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text> : <Text> </Text> // this makes sure the TVL is sort of in the middle of the page
           }
         </Box>
 
@@ -242,13 +215,7 @@ export const Tokens = observer((props: any) => {
           </Box>
         )}
 
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="center"
-          align="start"
-        >
+        <Box direction="row" wrap={true} fill={true} justify="center" align="start">
           <Table
             data={filteredData}
             columns={columns}

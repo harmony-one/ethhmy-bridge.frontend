@@ -16,10 +16,7 @@ export function dateTimeAgoFormat(date: number): string {
   return moment(date).fromNow();
 }
 
-export function dateFormat(
-  date: number | Date | string,
-  isFull?: boolean,
-): string {
+export function dateFormat(date: number | Date | string, isFull?: boolean): string {
   return moment(date).format(isFull ? 'DD.MM.YYYY, HH:mm' : 'DD.MM.YYYY');
 }
 
