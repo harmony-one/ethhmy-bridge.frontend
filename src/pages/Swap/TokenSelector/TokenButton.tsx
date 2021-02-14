@@ -3,6 +3,8 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import React from 'react';
 import { Icon, Image } from 'semantic-ui-react';
+import { ExpandIcon } from '../../../ui/Icons/ExpandIcon';
+import { Text } from '../../../components/Base';
 
 export const TokenButton = (props: { token: TokenDisplay; onClick?: any }) => {
   return (
@@ -18,8 +20,8 @@ export const TokenButton = (props: { token: TokenDisplay; onClick?: any }) => {
           width: '28px',
         }}
       />
-      <span>{props.token.symbol}</span>
-      <Icon name="dropdown" style={{ margin: 'auto' }} />
+      <span style={{ textAlign: 'center', width: '80px' }}>{props.token.symbol}</span>
+      <ExpandIcon />
     </div>
   );
 };
