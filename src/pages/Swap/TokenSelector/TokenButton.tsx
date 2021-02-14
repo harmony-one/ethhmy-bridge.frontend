@@ -9,7 +9,7 @@ export const TokenButton = (props: { token: TokenDisplay; onClick?: any }) => {
   return (
     <div className={cn(styles.tokenButton)} onClick={props.onClick}>
       <Image src={props.token.logo} avatar style={{ boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px' }} />
-      <span style={{ textAlign: 'center', width: '80px' }}>{props.token.symbol}</span>
+      <span>{props.token.symbol}</span>
       <ExpandIcon />
     </div>
   );
