@@ -7,9 +7,7 @@ import { IStyledChildrenProps } from 'interfaces';
 //import * as styles from './styles.styl';
 import { Disclaimer } from '../DisclaimerWarning';
 
-export const BaseContainer: React.FC<IStyledChildrenProps<
-  BoxProps
->> = withTheme(
+export const BaseContainer: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   ({ theme, children, ...props }: IStyledChildrenProps<BoxProps>) => {
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;

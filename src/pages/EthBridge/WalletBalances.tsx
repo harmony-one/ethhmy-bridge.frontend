@@ -42,21 +42,14 @@ const AssetRow = observer<any>(props => {
       </Text>
       {props.address && (
         <CopyToClipboard text={props.value}>
-          <Icon
-            glyph="PrintFormCopy"
-            size="1em"
-            color="#1c2a5e"
-            style={{ marginLeft: 10, width: 20 }}
-          />
+          <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
         </CopyToClipboard>
       )}
     </Box>
   );
 
   if (!props.value) {
-    value = (
-      <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-    );
+    value = <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />;
   } else if (props.value === unlockToken) {
     value = (
       <div style={{ margin: 0, display: 'flex', flexDirection: 'row' }}>
@@ -89,32 +82,18 @@ const AssetRow = observer<any>(props => {
   }
 
   return (
-    <Box
-      className={cn(
-        styles.walletBalancesRow,
-        props.last ? '' : styles.underline,
-      )}
-    >
+    <Box className={cn(styles.walletBalancesRow, props.last ? '' : styles.underline)}>
       <Box direction="row" align="center" justify="center">
         <Text
           color={props.selected ? '#00ADE8' : null}
           bold={false}
-          style={
-            props.value === unlockToken ? { padding: '1em 0 1em 0' } : null
-          }
+          style={props.value === unlockToken ? { padding: '1em 0 1em 0' } : null}
         >
           {props.asset}
         </Text>
         {props.link ? (
-          <a
-            href={props.link}
-            target="_blank"
-            style={{ textDecoration: 'none' }}
-          >
-            <Icon
-              glyph="ExternalLink"
-              style={{ width: 14, margin: '0 0 2px 10px' }}
-            />
+          <a href={props.link} target="_blank" style={{ textDecoration: 'none' }}>
+            <Icon glyph="ExternalLink" style={{ width: 14, margin: '0 0 2px 10px' }} />
           </a>
         ) : null}
       </Box>
@@ -130,21 +109,12 @@ export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals, exchange, tokens } = useStores();
 
   return (
-    <Box
-      direction="column"
-      className={styles.walletBalances}
-      margin={{ vertical: 'large' }}
-    >
+    <Box direction="column" className={styles.walletBalances} margin={{ vertical: 'large' }}>
       {/*<Title>Wallet Info</Title>*/}
 
       <Box className={styles.container}>
         <Box direction="column" margin={{ bottom: 'large' }}>
-          <Box
-            direction="row"
-            align="center"
-            justify="between"
-            margin={{ bottom: 'xsmall' }}
-          >
+          <Box direction="row" align="center" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
               <img className={styles.imgToken} src="/eth.svg" />
               <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
@@ -157,31 +127,19 @@ export const WalletBalances = observer(() => {
                 }}
                 margin={{ left: 'medium' }}
               >
-                <Icon
-                  glyph="Logout"
-                  size="24px"
-                  style={{ opacity: 0.5 }}
-                  color="BlackTxt"
-                />
+                <Icon glyph="Logout" size="24px" style={{ opacity: 0.5 }} color="BlackTxt" />
               </Box>
             )}
           </Box>
 
           {userMetamask.isAuthorized ? (
             <>
-              <AssetRow
-                asset="ETH Address"
-                value={userMetamask.ethAddress}
-                address={true}
-              />
+              <AssetRow asset="ETH Address" value={userMetamask.ethAddress} address={true} />
 
               <AssetRow
                 asset="ETH"
                 value={userMetamask.ethBalance}
-                selected={
-                  exchange.token === TOKEN.ETH &&
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT
-                }
+                selected={exchange.token === TOKEN.ETH && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
               />
 
               {tokens.allData
@@ -230,23 +188,14 @@ export const WalletBalances = observer(() => {
                 }}
                 margin={{ left: 'medium' }}
               >
-                <Icon
-                  glyph="Logout"
-                  size="24px"
-                  style={{ opacity: 0.5 }}
-                  color="BlackTxt"
-                />
+                <Icon glyph="Logout" size="24px" style={{ opacity: 0.5 }} color="BlackTxt" />
               </Box>
             )}
           </Box>
 
           {user.isAuthorized ? (
             <>
-              <AssetRow
-                asset="Secret Address"
-                value={user.address}
-                address={true}
-              />
+              <AssetRow asset="Secret Address" value={user.address} address={true} />
               <AssetRow asset="SCRT" value={user.balanceSCRT} />
               <AssetRow
                 asset="secretSCRT"
@@ -260,14 +209,10 @@ export const WalletBalances = observer(() => {
                 <AssetRow
                   asset="secretETH"
                   value={user.balanceToken['Ethereum']}
-                  token={tokens.allData.find(
-                    token => token.src_coin === 'Ethereum',
-                  )}
+                  token={tokens.allData.find(token => token.src_coin === 'Ethereum')}
                   userStore={user}
                   link={(() => {
-                    const eth = tokens.allData.find(
-                      token => token.src_coin === 'Ethereum',
-                    );
+                    const eth = tokens.allData.find(token => token.src_coin === 'Ethereum');
                     if (!eth) {
                       return undefined;
                     }

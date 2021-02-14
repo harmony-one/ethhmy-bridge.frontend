@@ -10,7 +10,7 @@ export const getFilesBase64 = (files: File[], cb: (filesWithBase64: IFileWithBas
       if (result.length === files.length) {
         cb(result);
       }
-    })
+    }),
   );
 };
 
@@ -19,8 +19,7 @@ export const getFilesBase64Promise = (files: File[]): Promise<IFileWithBase64[]>
 
 export const getFileBase64 = (file: File, cb: (base64: string) => void) => onReadAsBase64(file)(cb);
 
-const getFileBase64Promise = (file: File): Promise<string> =>
-  new Promise(resolve => onReadAsBase64(file)(resolve));
+const getFileBase64Promise = (file: File): Promise<string> => new Promise(resolve => onReadAsBase64(file)(resolve));
 
 const onReadAsBase64 = (file: File) => (cb: (base64: string) => void) => {
   const reader = new FileReader();
@@ -30,7 +29,7 @@ const onReadAsBase64 = (file: File) => (cb: (base64: string) => void) => {
 
 export const useDerivedState = <T = unknown>(
   defaultValue: T,
-  paramsToSync: Partial<IParamsToSync<T>> = {}
+  paramsToSync: Partial<IParamsToSync<T>> = {},
 ): [T, (value: T) => void] => {
   const [value, setValue] = useState<T>(defaultValue);
   const derivedValue = paramsToSync.value || value;
@@ -45,8 +44,7 @@ export const useDerivedState = <T = unknown>(
   return [derivedValue, setDerivedValue];
 };
 
-export const getFilesWithHashes = (files: File[]) =>
-  files.map(file => ({ file, hash: getFileHash(file) }));
+export const getFilesWithHashes = (files: File[]) => files.map(file => ({ file, hash: getFileHash(file) }));
 
 const getFileHash = (file: File) => {
   // JSON.stringify returns '{}' for any File, so we copy all props manually

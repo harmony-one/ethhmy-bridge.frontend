@@ -33,9 +33,7 @@ export function SubHeader(props: {
   const { filter, onChange, column, updateManyFilters } = props;
   const { dataIndex } = column;
 
-  const isActiveFilter = column.filter?.isApplied
-    ? column.filter.isApplied()
-    : isFilterApplied(filter);
+  const isActiveFilter = column.filter?.isApplied ? column.filter.isApplied() : isFilterApplied(filter);
 
   const removeFilter = () => {
     if (typeof column.filter?.resetButton?.onClick === 'function') {

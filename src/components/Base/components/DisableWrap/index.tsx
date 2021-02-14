@@ -9,7 +9,7 @@ interface IDisableWrapProps {
 
 const Disabled = styled.div<any>`
   position: relative;
-  
+
   width: 100%;
 
   &:after {

@@ -50,10 +50,7 @@ interface IProps {
 }
 
 export interface ITableOptions {
-  checkboxOptionsPromise: (
-    fieldName: string,
-    params?: any,
-  ) => Promise<string[]>;
+  checkboxOptionsPromise: (fieldName: string, params?: any) => Promise<string[]>;
 }
 
 @observer
@@ -78,12 +75,7 @@ export class Table extends React.Component<IProps> {
 
   @computed
   private get columns() {
-    const {
-      columns,
-      dataLayerConfig,
-      onChangeDataFlow,
-      options = {},
-    } = this.props;
+    const { columns, dataLayerConfig, onChangeDataFlow, options = {} } = this.props;
 
     const hasAnyActiveFilter = this.hasAnyActiveFilter();
 
@@ -108,9 +100,7 @@ export class Table extends React.Component<IProps> {
 
   componentDidMount() {
     const { columns, dataLayerConfig, onChangeDataFlow } = this.props;
-    const sorter = columns
-      .filter(col => col.defaultSort)
-      .map(col => `${String(col.key)},${col.defaultSort}`);
+    const sorter = columns.filter(col => col.defaultSort).map(col => `${String(col.key)},${col.defaultSort}`);
     onChangeDataFlow({ ...dataLayerConfig, sorter });
   }
 
@@ -142,9 +132,7 @@ export class Table extends React.Component<IProps> {
           scroll={scroll}
           onRow={(rowData, index) => {
             return {
-              onClick: () =>
-                onRowClicked instanceof Function &&
-                onRowClicked(rowData, index),
+              onClick: () => onRowClicked instanceof Function && onRowClicked(rowData, index),
               style: {
                 cursor: onRowClicked instanceof Function ? 'pointer' : 'auto',
               },

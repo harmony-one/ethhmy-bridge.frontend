@@ -174,8 +174,7 @@ export const Theme: any = {
       verticalAlign: 'top',
     },
     extend: css`
-      ${(props: any) =>
-        'border-collapse: separate; width: 100%; table-layout: fixed; word-break: break-all;}'}
+      ${(props: any) => 'border-collapse: separate; width: 100%; table-layout: fixed; word-break: break-all;}'}
     `,
   },
 };

@@ -16,9 +16,7 @@ export function getValueFromEvent(e: any): boolean | string {
   return target.type === 'checkbox' ? target.checked : target.value;
 }
 
-export function checkIsRequired(
-  rules: Array<IRuleFunc | IRuleObj> | IRuleFunc | IRuleObj
-): boolean {
+export function checkIsRequired(rules: Array<IRuleFunc | IRuleObj> | IRuleFunc | IRuleObj): boolean {
   if (rules) {
     if (_.isArray(rules)) {
       return (

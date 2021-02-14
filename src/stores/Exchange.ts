@@ -1,23 +1,11 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
 import { statusFetching, SwapStatus } from '../constants';
-import {
-  ACTION_TYPE,
-  EXCHANGE_MODE,
-  IOperation,
-  ITokenInfo,
-  TOKEN,
-} from './interfaces';
+import { ACTION_TYPE, EXCHANGE_MODE, IOperation, ITokenInfo, TOKEN } from './interfaces';
 import * as operationService from 'services';
 
 import * as contract from '../blockchain-bridge';
-import {
-  balanceNumberFormat,
-  divDecimals,
-  mulDecimals,
-  sleep,
-  uuid,
-} from '../utils';
+import { balanceNumberFormat, divDecimals, mulDecimals, sleep, uuid } from '../utils';
 import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
 import { Snip20SendToBridge, Snip20SwapHash } from '../blockchain-bridge';
 
@@ -100,16 +88,12 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get networkFee() {
-    return this.mode === EXCHANGE_MODE.ETH_TO_SCRT
-      ? this.ethNetworkFee
-      : 0.0134438;
+    return this.mode === EXCHANGE_MODE.ETH_TO_SCRT ? this.ethNetworkFee : 0.0134438;
   }
 
   @computed
   get swapFee() {
-    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH
-      ? Number(balanceNumberFormat.format(this.swapFeeToken))
-      : 0;
+    return this.mode === EXCHANGE_MODE.SCRT_TO_ETH ? Number(balanceNumberFormat.format(this.swapFeeToken)) : 0;
   }
 
   @computed
@@ -134,9 +118,7 @@ export class Exchange extends StoreConstructor {
 
                 this.isFeeLoading = true;
                 // todo: add check for approve
-                this.ethNetworkFee = await getNetworkFee(
-                  Number(process.env.ETH_GAS_LIMIT) * 2,
-                );
+                this.ethNetworkFee = await getNetworkFee(Number(process.env.ETH_GAS_LIMIT) * 2);
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.SCRT_TO_ETH:
@@ -145,13 +127,9 @@ export class Exchange extends StoreConstructor {
                 this.ethSwapFee = await getNetworkFee(process.env.SWAP_FEE);
                 let token: ITokenInfo;
                 if (this.token === TOKEN.ETH) {
-                  token = this.stores.tokens.allData.find(
-                    t => t.name === 'Ethereum',
-                  );
+                  token = this.stores.tokens.allData.find(t => t.name === 'Ethereum');
                 } else {
-                  token = this.stores.tokens.allData.find(
-                    t => t.dst_address === this.transaction.snip20Address,
-                  );
+                  token = this.stores.tokens.allData.find(t => t.dst_address === this.transaction.snip20Address);
                 }
                 this.swapFeeUsd = this.ethSwapFee * this.stores.user.ethRate;
                 this.swapFeeToken = this.swapFeeUsd / Number(token.price);
@@ -256,9 +234,7 @@ export class Exchange extends StoreConstructor {
 
     if (swap.swap) {
       this.operation.type =
-        swap.swap.src_network === 'Ethereum'
-          ? EXCHANGE_MODE.ETH_TO_SCRT
-          : EXCHANGE_MODE.SCRT_TO_ETH;
+        swap.swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
       this.token =
         swap.swap.src_coin === 'native'
           ? TOKEN.ETH
@@ -272,16 +248,12 @@ export class Exchange extends StoreConstructor {
         this.transaction.ethAddress = swap.swap.src_address;
         this.transaction.scrtAddress = swap.swap.dst_address;
 
-        const decimals = this.stores.tokens.allData.find(
-          t => t.dst_address === swap.swap.dst_address,
-        ).decimals;
+        const decimals = this.stores.tokens.allData.find(t => t.dst_address === swap.swap.dst_address).decimals;
 
         this.transaction.amount = divDecimals(swap.swap.amount, decimals);
         this.txHash = swap.swap.src_tx_hash;
       } else {
-        const decimals = this.stores.tokens.allData.find(
-          t => t.dst_address === swap.swap.src_coin,
-        ).decimals;
+        const decimals = this.stores.tokens.allData.find(t => t.dst_address === swap.swap.src_coin).decimals;
 
         this.transaction.amount = divDecimals(swap.swap.amount, decimals);
 
@@ -304,14 +276,11 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   async createOperation(transactionHash?: string) {
-    let params = transactionHash
-      ? { id: uuid(), transactionHash }
-      : { id: uuid() };
+    let params = transactionHash ? { id: uuid(), transactionHash } : { id: uuid() };
 
     const operation = await operationService.createOperation(params);
 
-    operation.operation.status =
-      SwapStatus[SwapStatus[operation.operation.status]];
+    operation.operation.status = SwapStatus[SwapStatus[operation.operation.status]];
 
     this.operation = operation.operation;
     return this.operation;
@@ -336,8 +305,7 @@ export class Exchange extends StoreConstructor {
     });
   }
 
-  getActionByType = (type: ACTION_TYPE) =>
-    this.operation.actions.find(a => a.type === type);
+  getActionByType = (type: ACTION_TYPE) => this.operation.actions.find(a => a.type === type);
 
   @action.bound
   async sendOperation(id: string = '') {
@@ -386,24 +354,14 @@ export class Exchange extends StoreConstructor {
 
   async waitForResult() {
     let lolStatus = await this.getStatus(this.operation.id);
-    if (
-      lolStatus === SwapStatus.SWAP_CONFIRMED ||
-      lolStatus === SwapStatus.SWAP_FAILED
-    ) {
+    if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
       this.operation.status = lolStatus;
     }
 
-    while (
-      ![SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(
-        this.operation.status,
-      )
-    ) {
+    while (![SwapStatus.SWAP_FAILED, SwapStatus.SWAP_CONFIRMED].includes(this.operation.status)) {
       await sleep(2000);
       lolStatus = await this.getStatus(this.operation.id);
-      if (
-        lolStatus === SwapStatus.SWAP_CONFIRMED ||
-        lolStatus === SwapStatus.SWAP_FAILED
-      ) {
+      if (lolStatus === SwapStatus.SWAP_CONFIRMED || lolStatus === SwapStatus.SWAP_FAILED) {
         this.operation.status = lolStatus;
       }
     }
@@ -435,10 +393,7 @@ export class Exchange extends StoreConstructor {
 
     this.txHash = transaction.transactionHash;
 
-    this.operation.status = await this.updateOperation(
-      this.operation.id,
-      transaction.transactionHash,
-    );
+    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
     this.setStatus();
 
     await this.waitForResult();
@@ -454,17 +409,11 @@ export class Exchange extends StoreConstructor {
     await this.createOperation();
     this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
-    let transaction = await contract.ethMethodsETH.swapEth(
-      this.transaction.scrtAddress,
-      this.transaction.amount,
-    );
+    let transaction = await contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount);
 
     this.txHash = transaction.transactionHash;
 
-    this.operation.status = await this.updateOperation(
-      this.operation.id,
-      transaction.transactionHash,
-    );
+    this.operation.status = await this.updateOperation(this.operation.id, transaction.transactionHash);
     this.setStatus();
 
     await this.waitForResult();
@@ -483,15 +432,11 @@ export class Exchange extends StoreConstructor {
     let price: string;
     if (isEth) {
       decimals = 18;
-      const token = this.stores.tokens.allData.find(
-        t => t.src_coin === 'Ethereum',
-      );
+      const token = this.stores.tokens.allData.find(t => t.src_coin === 'Ethereum');
       price = token.price;
       this.transaction.snip20Address = token.dst_address;
     } else {
-      const token = this.stores.tokens.allData.find(
-        t => t.dst_address === this.transaction.snip20Address,
-      );
+      const token = this.stores.tokens.allData.find(t => t.dst_address === this.transaction.snip20Address);
       if (token) {
         decimals = token.decimals;
         price = token.price;
@@ -523,9 +468,7 @@ export class Exchange extends StoreConstructor {
         !confirm(
           `Swap fee is expected to be a large percentage of your funds ($${swapFeeUSD.toFixed(
             2,
-          )} out of $${swappedAmountUSD.toFixed(
-            2,
-          )}). Are you sure you wish to continue?`,
+          )} out of $${swappedAmountUSD.toFixed(2)}). Are you sure you wish to continue?`,
         )
       ) {
         this.operation.status = SwapStatus.SWAP_FAILED;

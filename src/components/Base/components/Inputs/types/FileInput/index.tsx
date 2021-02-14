@@ -4,8 +4,7 @@ import { Icon, Text } from 'components/Base';
 import { getFilesWithHashes, useDerivedState } from './utils';
 import { FileUploader } from './Uploader';
 
-interface IFileInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
+interface IFileInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
   value?: File[];
   onChange?(files: File[]): void;
 }
@@ -36,8 +35,7 @@ export const FileInput = (props: IFileInputProps) => {
   };
 
   const clearFiles = () => setValue([]);
-  const removeFile = (index: number) =>
-    setValue(value.filter((file, fileIndex) => fileIndex !== index));
+  const removeFile = (index: number) => setValue(value.filter((file, fileIndex) => fileIndex !== index));
 
   const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.persist();
@@ -66,10 +64,7 @@ export const FileInput = (props: IFileInputProps) => {
         }}
       >
         {value.map((file, index) => (
-          <div
-            key={file.name + index}
-            style={{ display: 'flex', justifyContent: 'space-between', lineHeight: '2' }}
-          >
+          <div key={file.name + index} style={{ display: 'flex', justifyContent: 'space-between', lineHeight: '2' }}>
             <Text size="small">{file.name}</Text>
             <Icon size="xsmall" glyph="Trash" color="Basic500" onClick={() => removeFile(index)} />
           </div>

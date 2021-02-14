@@ -46,9 +46,7 @@ export const ERC20Select = observer(() => {
         <Box margin={{ top: 'small', bottom: 'medium' }}>
           <Select
             options={tokens.allData
-              .filter(
-                token => token.display_props && token.src_coin !== 'Ethereum',
-              )
+              .filter(token => token.display_props && token.src_coin !== 'Ethereum')
               .sort((a, b) =>
                 /* SCRT first */
                 a.display_props.symbol.toLowerCase().includes('scrt') ? -1 : 1,
@@ -62,9 +60,7 @@ export const ERC20Select = observer(() => {
             value={token}
             onChange={async value => {
               setToken(value);
-              setSnip20(
-                tokens.allData.find(t => t.src_address === value).dst_address,
-              );
+              setSnip20(tokens.allData.find(t => t.src_address === value).dst_address);
 
               setError('');
               try {
@@ -76,12 +72,7 @@ export const ERC20Select = observer(() => {
             placeholder="Select your token"
           />
           {token ? (
-            <Box
-              direction="row"
-              justify="between"
-              align="center"
-              margin={{ top: 'medium' }}
-            >
+            <Box direction="row" justify="between" align="center" margin={{ top: 'medium' }}>
               <Text>Address:</Text>
               <a
                 className={styles.addressLink}
@@ -92,10 +83,7 @@ export const ERC20Select = observer(() => {
                 }
                 target="_blank"
               >
-                {truncateAddressString(
-                  exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? token : snip20,
-                  16,
-                )}
+                {truncateAddressString(exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? token : snip20, 16)}
               </a>
             </Box>
           ) : null}

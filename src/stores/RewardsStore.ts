@@ -11,7 +11,7 @@ export class Rewards extends ListStoreConstructor<IRewardPool> {
       paginationData: { pageSize: 100 },
       sorter: 'none',
       //sorter: 'none',
-      sorters: {}
+      sorters: {},
       // sorters: {
       //   totalLockedUSD: 'asc',
       // },

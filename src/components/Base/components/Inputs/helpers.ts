@@ -8,12 +8,9 @@ export function limitLength(value: string | number, limit = 19) {
 export function normalizeNumber(value: string | number) {
   const strValue = String(value);
   return String(
-    isNaN(Number(value)) ||
-      strValue === '-' ||
-      (strValue.match(/\./g) || []).length === 1 ||
-      value === ''
+    isNaN(Number(value)) || strValue === '-' || (strValue.match(/\./g) || []).length === 1 || value === ''
       ? value
-      : Number(value)
+      : Number(value),
   );
 }
 

@@ -62,17 +62,7 @@ export interface IRadioGroupProps {
 }
 
 const RadioButton = (props: IRadioOptionProps) => {
-  const {
-    theme,
-    text,
-    value,
-    checkedValue,
-    onChange,
-    styles,
-    name = 'radio',
-    disabled,
-    size = 'auto',
-  } = props;
+  const { theme, text, value, checkedValue, onChange, styles, name = 'radio', disabled, size = 'auto' } = props;
   const checked = value === checkedValue;
 
   const { colorPrimary } = theme.styled.colors;
@@ -84,12 +74,7 @@ const RadioButton = (props: IRadioOptionProps) => {
         {checked ? (
           <Icon glyph="RadioButton" nativeClick color={disabled ? disabledColor : colorPrimary} />
         ) : (
-          <Icon
-            glyph="RadioButtonEmpty"
-            nativeClick
-            color={disabled ? disabledColor : colorPrimary}
-            checked
-          />
+          <Icon glyph="RadioButtonEmpty" nativeClick color={disabled ? disabledColor : colorPrimary} checked />
         )}
       </div>
 
@@ -108,17 +93,7 @@ const RadioButton = (props: IRadioOptionProps) => {
 };
 
 const RadioGroupClass = (props: ICommonInputProps & IRadioGroupProps & { theme: object }) => {
-  const {
-    options = [],
-    theme,
-    label,
-    direction = 'column',
-    value,
-    name,
-    onChange,
-    optionSize,
-    optionsStyles,
-  } = props;
+  const { options = [], theme, label, direction = 'column', value, name, onChange, optionSize, optionsStyles } = props;
 
   return (
     <StyledRadioWrap theme={theme}>
@@ -145,6 +120,4 @@ const RadioGroupClass = (props: ICommonInputProps & IRadioGroupProps & { theme: 
   );
 };
 
-export const RadioGroup: React.ComponentType<ICommonInputProps & IRadioGroupProps> = withTheme(
-  RadioGroupClass
-);
+export const RadioGroup: React.ComponentType<ICommonInputProps & IRadioGroupProps> = withTheme(RadioGroupClass);

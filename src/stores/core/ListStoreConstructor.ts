@@ -68,9 +68,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
   @observable public sorter: string | string[];
   @observable public filters: IFilters = {};
   @observable public fetchError: NormalizedError;
-  public endpointFn: (
-    params: any,
-  ) => Promise<{ content: T[]; [name: string]: any }>;
+  public endpointFn: (params: any) => Promise<{ content: T[]; [name: string]: any }>;
   public debouncedFetch: any;
   public pollingInterval: number;
   tId: number;
@@ -84,11 +82,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
     return this.fetchStatus === 'fetching';
   }
 
-  constructor(
-    stores: any,
-    endpoint: (params: any) => Promise<{ content: T[] }>,
-    options: IListStoreOptions,
-  ) {
+  constructor(stores: any, endpoint: (params: any) => Promise<{ content: T[] }>, options: IListStoreOptions) {
     super(stores);
     this.endpointFn = endpoint;
 
@@ -114,9 +108,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
       this.reactionId = reaction(
         () => this.filteredData,
         () => {
-          this.paginationData.totalPages = Math.ceil(
-            this.filteredData.length / this.paginationData.pageSize,
-          );
+          this.paginationData.totalPages = Math.ceil(this.filteredData.length / this.paginationData.pageSize);
         },
       );
     }
@@ -155,18 +147,12 @@ export class ListStoreConstructor<T> extends StoreConstructor {
         ...this.paginationData,
         ...paginationData,
         currentPage: 1,
-        totalPages: Math.ceil(
-          paginationData.totalElements / paginationData.pageSize,
-        ),
+        totalPages: Math.ceil(paginationData.totalElements / paginationData.pageSize),
       };
     } else {
       this.paginationData = { ...this.paginationData, ...paginationData };
     }
-    this.sorter = isArray(sorter)
-      ? sorter
-      : sorter === 'none'
-      ? undefined
-      : sorter || this.sorter;
+    this.sorter = isArray(sorter) ? sorter : sorter === 'none' ? undefined : sorter || this.sorter;
     this.sorters = { ...this.sorters, ...sorters };
     this.filters = { ...this.filters, ...filters };
 
@@ -215,11 +201,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
       size: pageSize,
       page: currentPage - 1,
       ...this.filters,
-      sort: isArray(this.sorter)
-        ? this.sorter
-        : this.sorter !== 'none'
-        ? this.sorter
-        : undefined,
+      sort: isArray(this.sorter) ? this.sorter : this.sorter !== 'none' ? this.sorter : undefined,
     };
   }
 
@@ -231,9 +213,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
       Object.entries(this.filters)
         .filter(([key, value]) => !!value)
         .every(([key, value]) => {
-          return value instanceof Array
-            ? value.includes(rowData[key])
-            : rowData[key].indexOf(value) > -1;
+          return value instanceof Array ? value.includes(rowData[key]) : rowData[key].indexOf(value) > -1;
         }),
     );
   }

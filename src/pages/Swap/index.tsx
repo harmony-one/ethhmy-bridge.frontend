@@ -13,7 +13,7 @@ import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
-import { Icon, Message, Popup } from 'semantic-ui-react';
+import { Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
@@ -22,7 +22,10 @@ import { BetaWarning } from './BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge/scrt';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
-import { takeRightWhile } from 'lodash';
+import { WalletOverview } from './WalletOverview';
+import { Icon } from 'components/Base';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { CopyWithFeedback } from './CopyWithFeedback';
 
 type DisplayTokenRecord = Record<string, TokenDisplay>;
 
@@ -68,38 +71,46 @@ export class SwapRouter extends React.Component<
       [symbol: string]: TokenDisplay;
     };
     balances: {
-      [symbol: string]: bigint | JSX.Element;
+      [symbol: string]: BigNumber | JSX.Element;
     };
     pairs: Array<Pair>;
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
-    //securedByIconBackground: string;
   }
 > {
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
   private ws: WebSocket;
-  public state = {
+  public state: {
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    balances: {
+      [symbol: string]: BigNumber | JSX.Element;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  } = {
     tokens: {},
     balances: {},
     pairs: [],
     pairFromSymbol: {},
-    //securedByIconBackground: 'whitesmoke',
   };
 
   constructor(props: { user: UserStoreEx }) {
     super(props);
-    window.onhashchange = this.onHashChange.bind(this);
+    window.onhashchange = this.onHashChange;
   }
 
-  onHashChange() {
+  onHashChange = () => {
     this.forceUpdate();
-  }
+  };
 
   async componentDidMount() {
     window.addEventListener('storage', this.updateTokens);
     window.addEventListener('updatePairsAndTokens', this.updatePairsAndTokens);
-    await this.props.user.signIn(true);
 
     while (!this.props.user.secretjs) {
       await sleep(100);
@@ -482,6 +493,31 @@ export class SwapRouter extends React.Component<
 
     return (
       <BaseContainer>
+        <div
+          style={{ position: 'absolute', right: '10%', cursor: 'pointer' }}
+          onClick={() => {
+            if (this.props.user.secretjs) {
+              return;
+            }
+
+            this.props.user.signIn(true);
+          }}
+        >
+          <Popup
+            header={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <strong>{this.props.user.address}</strong>
+                <span style={{ marginLeft: '0.3em' }}>
+                  <CopyWithFeedback text={this.props.user.address} />
+                </span>
+              </div>
+            }
+            content={<WalletOverview tokens={this.state.tokens} balances={this.state.balances} />}
+            position="left center"
+            on="click"
+            trigger={<Image src="/keplr.svg" size="mini" />}
+          />
+        </div>
         <PageContainer>
           <Box
             className={styles.faqContainer}
@@ -532,9 +568,10 @@ export class SwapRouter extends React.Component<
               )}
             </Box>
             <SwapFooter />
-            <BetaWarning />
+            <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
         </PageContainer>
+        <NotificationContainer />
       </BaseContainer>
     );
   }

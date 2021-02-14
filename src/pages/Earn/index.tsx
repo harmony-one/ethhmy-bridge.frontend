@@ -40,8 +40,7 @@ export const EarnRewards = observer((props: any) => {
             backgroundColor: '#F5F8FE',
             zIndex: -1,
           }}
-        >
-        </div>
+        ></div>
         <div
           style={{
             display: 'flex',
@@ -50,44 +49,34 @@ export const EarnRewards = observer((props: any) => {
             backgroundColor: '#F5F8FE',
           }}
         >
-           <Icon glyph="InfoIcon" size="medium" color={'black'} 
-          style={{
-            display: 'inline-block',
-            marginRight: '16px',
-          }}
+          <Icon
+            glyph="InfoIcon"
+            size="medium"
+            color={'black'}
+            style={{
+              display: 'inline-block',
+              marginRight: '16px',
+            }}
           />
-          <p 
-          style={{
-            minWidth: '550px',
-            maxWidth: '1047px',
-            display: 'inline-block',
-          }}
+          <p
+            style={{
+              minWidth: '550px',
+              maxWidth: '1047px',
+              display: 'inline-block',
+            }}
           >
-           If you have created viewing keys for secretTokens and secretSCRT, you should be able to see secretTokens locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
+            If you have created viewing keys for secretTokens and secretSCRT, you should be able to see secretTokens
+            locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
           </p>
         </div>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="between"
-          align="start"
-        >
-          <Box
-            direction="column"
-            align="center"
-            justify="center"
-            className={styles.base}
-          >
+        <Box direction="row" wrap={true} fill={true} justify="between" align="start">
+          <Box direction="column" align="center" justify="center" className={styles.base}>
             {rewards.allData.map(rewardToken => {
               if (rewardToken.pending_rewards === '0') {
                 return null;
               }
 
-              let token = tokens.allData.find(
-                element =>
-                  element.dst_address === rewardToken.inc_token.address,
-              );
+              let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address);
               if (!token) {
                 return null;
               }
@@ -105,12 +94,8 @@ export const EarnRewards = observer((props: any) => {
                   rewardToken.inc_token.decimals,
                 ),
                 rewardsDecimals: String(rewardToken.rewards_token.decimals),
-                rewards:
-                  user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
-                deposit:
-                  user.balanceRewards[
-                    rewardsDepositKey(rewardToken.inc_token.symbol)
-                  ],
+                rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
+                deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
                 balance: user.balanceToken[token.src_coin],
                 decimals: token.decimals,
                 name: token.name,
@@ -121,17 +106,11 @@ export const EarnRewards = observer((props: any) => {
                 deadline: Number(rewardToken.deadline),
               };
 
-              return (
-                <EarnRow
-                  key={rewardToken.inc_token.symbol}
-                  userStore={user}
-                  token={rewardsToken}
-                />
-              );
+              return <EarnRow key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
             })}
           </Box>
         </Box>
-        <InfoModalEarn/>
+        <InfoModalEarn />
       </PageContainer>
     </BaseContainer>
   );

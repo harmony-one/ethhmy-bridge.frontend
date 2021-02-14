@@ -1,14 +1,7 @@
 import * as React from 'react';
 
 export const Mail: React.FC<React.SVGProps<SVGSVGElement>> = ({ ...svgProps }) => (
-  <svg
-    width="12"
-    height="9"
-    viewBox="0 0 12 9"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...svgProps}
-  >
+  <svg width="12" height="9" viewBox="0 0 12 9" fill="none" xmlns="http://www.w3.org/2000/svg" {...svgProps}>
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"

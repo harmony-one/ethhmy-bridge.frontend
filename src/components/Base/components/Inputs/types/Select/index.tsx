@@ -51,11 +51,7 @@ function selectValueByOption(option: IReactSelectOption) {
   return option.value;
 }
 
-function selectOptionByValue(
-  value: string,
-  options: IReactSelectOption[],
-  noDefaultValue: boolean,
-) {
+function selectOptionByValue(value: string, options: IReactSelectOption[], noDefaultValue: boolean) {
   if (noDefaultValue) {
     return undefined;
   }
@@ -80,11 +76,7 @@ const IconOption = props => (
   <Option {...props}>
     <Box direction="row" justify="start" align="center">
       {props.data.image ? (
-        <img
-          src={props.data.image}
-          style={{ width: 20, marginRight: 20 }}
-          alt={props.data.label}
-        />
+        <img src={props.data.image} style={{ width: 20, marginRight: 20 }} alt={props.data.label} />
       ) : null}
       <Text>{props.data.label}</Text>
     </Box>
@@ -96,11 +88,7 @@ const IconSingleValue = placeholder => props => (
     {props.data.label ? (
       <Box direction="row" justify="start" align="center">
         {props.data.image ? (
-          <img
-            src={props.data.image}
-            style={{ width: 20, marginRight: 10 }}
-            alt={props.data.label}
-          />
+          <img src={props.data.image} style={{ width: 20, marginRight: 10 }} alt={props.data.label} />
         ) : null}
         <Text style={{ marginTop: 2 }}>{props.data.label}</Text>
       </Box>
@@ -111,13 +99,7 @@ const IconSingleValue = placeholder => props => (
 );
 
 const SelectClass = (props: ICommonInputProps & ISelectProps) => {
-  const {
-    type = 'default',
-    styles,
-    disabled,
-    placeholder,
-    noDefaultValue,
-  } = props;
+  const { type = 'default', styles, disabled, placeholder, noDefaultValue } = props;
 
   const mappedOptions = mapOptions(props.options);
 
@@ -130,21 +112,13 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
       styles={getStyles(type, styles)}
       menuPlacement="auto"
       components={{
-        DropdownIndicator: ddProps => (
-          <DropdownIndicator glyph={props.glyph} {...ddProps} />
-        ),
+        DropdownIndicator: ddProps => <DropdownIndicator glyph={props.glyph} {...ddProps} />,
         Option: IconOption,
         SingleValue: IconSingleValue(placeholder),
       }}
       options={mappedOptions}
-      defaultValue={selectOptionByValue(
-        props.value,
-        mappedOptions,
-        noDefaultValue,
-      )}
-      onChange={(option: IReactSelectOption) =>
-        props.onChange(selectValueByOption(option))
-      }
+      defaultValue={selectOptionByValue(props.value, mappedOptions, noDefaultValue)}
+      onChange={(option: IReactSelectOption) => props.onChange(selectValueByOption(option))}
       {...injectValueProp(props.value, props.options)}
       placeholder={placeholder}
     />
@@ -154,6 +128,4 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
 export const Select: React.ComponentType<ISelectProps> = withTheme(SelectClass);
 
 const injectValueProp = (value: any, options: ISelectOption[]) =>
-  typeof value === 'undefined'
-    ? {}
-    : { value: mapOptions(options).find(option => option.value === value) };
+  typeof value === 'undefined' ? {} : { value: mapOptions(options).find(option => option.value === value) };

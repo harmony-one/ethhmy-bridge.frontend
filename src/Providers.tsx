@@ -8,12 +8,7 @@ import { Theme, baseTheme } from 'themes';
 export const Providers: React.FC = ({ children }) => (
   <StoresProvider stores={stores as any}>
     <MobxProvider {...stores}>
-      <Grommet
-        theme={{ ...Theme, ...baseTheme }}
-        plain={true}
-        full={true}
-        id="grommetRoot"
-      >
+      <Grommet theme={{ ...Theme, ...baseTheme }} plain={true} full={true} id="grommetRoot">
         <Router history={stores.routing.history}>{children}</Router>
       </Grommet>
     </MobxProvider>

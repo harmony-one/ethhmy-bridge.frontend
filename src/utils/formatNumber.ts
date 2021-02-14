@@ -16,9 +16,7 @@ export const balanceNumberFormat = new Intl.NumberFormat('en-US', {
 });
 
 export const valueToDecimals = (value: string, decimals: string): string => {
-  return BigInt(
-    parseFloat(value) * Math.pow(10, parseInt(decimals)),
-  ).toString();
+  return BigInt(parseFloat(value) * Math.pow(10, parseInt(decimals))).toString();
 };
 
 export const zeroDecimalsFormatter = new Intl.NumberFormat('en-US', {
@@ -66,23 +64,16 @@ export function truncateAddressString(address: string, num = 12) {
   return `${first}...${last}`;
 }
 
-export const sortedStringify = (obj: any) =>
-  JSON.stringify(obj, Object.keys(obj).sort());
+export const sortedStringify = (obj: any) => JSON.stringify(obj, Object.keys(obj).sort());
 
-export const mulDecimals = (
-  amount: string | number,
-  decimals: string | number,
-) => {
+export const mulDecimals = (amount: string | number, decimals: string | number) => {
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).multipliedBy(decimalsMul);
 
   return new BN(amountStr.toFixed());
 };
 
-export const divDecimals = (
-  amount: string | number,
-  decimals: string | number,
-) => {
+export const divDecimals = (amount: string | number, decimals: string | number) => {
   if (decimals === 0) {
     return String(amount);
   }
@@ -105,12 +96,8 @@ export const displayHumanizedBalance = (
     useGrouping: true,
   }).format(Number(balance.toFixed(decimals, roundingMode)));
 
-export const humanizeBalance = (
-  balance: BigNumber,
-  decimals: number,
-): BigNumber => balance.dividedBy(new BigNumber(`1e${decimals}`));
+export const humanizeBalance = (balance: BigNumber, decimals: number): BigNumber =>
+  balance.dividedBy(new BigNumber(`1e${decimals}`));
 
-export const canonicalizeBalance = (
-  balance: BigNumber,
-  decimals: number,
-): BigNumber => balance.multipliedBy(new BigNumber(`1e${decimals}`));
+export const canonicalizeBalance = (balance: BigNumber, decimals: number): BigNumber =>
+  balance.multipliedBy(new BigNumber(`1e${decimals}`));

@@ -14,4 +14,3 @@ export class Operations extends ListStoreConstructor<ISwap> {
     });
   }
 }
-

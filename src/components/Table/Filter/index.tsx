@@ -29,14 +29,7 @@ const FilterC: React.FunctionComponent<IFilterProps> = props => {
     setOpenFilter(!isOpenFilter);
   };
 
-  const {
-    name,
-    type,
-    textMap,
-    normalize,
-    placeholder,
-    position = 'bottomRight',
-  }: any = filter;
+  const { name, type, textMap, normalize, placeholder, position = 'bottomRight' }: any = filter;
 
   const getFilterBody = () => {
     if (filter.render) return filter.render;
@@ -62,17 +55,11 @@ const FilterC: React.FunctionComponent<IFilterProps> = props => {
           onClick={switchFilterModal}
           glyph="Filter2"
           size="14px"
-          color={
-            hasActiveFilter ? theme.palette.Basic800 : theme.palette.Basic400
-          }
+          color={hasActiveFilter ? theme.palette.Basic800 : theme.palette.Basic400}
         />
       </FilterWrap>
       {isOpenFilter && (
-        <FilterModal
-          ref={refContainer}
-          position={position}
-          onClose={() => setOpenFilter(false)}
-        >
+        <FilterModal ref={refContainer} position={position} onClose={() => setOpenFilter(false)}>
           <>
             <FilterBody
               value={value}

@@ -18,11 +18,7 @@ import { SearchInput } from '../../components/Search';
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
-      target="_blank"
-    >
+    <a className={styles.addressLink} href={`${process.env.ETH_EXPLORER_URL}/address/${value}`} target="_blank">
       {truncateAddressString(value, 5)}
     </a>
   </Box>
@@ -31,11 +27,7 @@ const ethAddress = value => (
 const secretAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
     <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
-      target="_blank"
-    >
+    <a className={styles.addressLink} href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`} target="_blank">
       {truncateAddressString(value, 5)}
     </a>
   </Box>
@@ -78,10 +70,7 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     key: 'dst_address',
     dataIndex: 'dst_address',
     width: 200,
-    render: (value, data) =>
-      data.src_network === 'Ethereum'
-        ? secretAddress(value)
-        : ethAddress(value),
+    render: (value, data) => (data.src_network === 'Ethereum' ? secretAddress(value) : ethAddress(value)),
   },
   // {
   //   title: 'To',
@@ -167,17 +156,9 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     width: 120,
     render: (value, data) =>
       data.src_network === 'Ethereum' ? (
-        <FormatWithDecimals
-          type={TOKEN.ERC20}
-          amount={value}
-          address={data.src_coin}
-        />
+        <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.src_coin} />
       ) : (
-        <FormatWithDecimals
-          type={TOKEN.ERC20}
-          amount={value}
-          address={data.dst_coin}
-        />
+        <FormatWithDecimals type={TOKEN.ERC20} amount={value} address={data.dst_coin} />
       ),
   },
   {
@@ -240,9 +221,7 @@ export const Explorer = observer((props: any) => {
                 .toString()
                 .toLowerCase()
                 .includes(search.toLowerCase()),
-          ) ||
-          getScrtAddress(value.dst_address).toLowerCase() ===
-            search.toLowerCase()
+          ) || getScrtAddress(value.dst_address).toLowerCase() === search.toLowerCase()
         );
       }
 
@@ -253,14 +232,7 @@ export const Explorer = observer((props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="center"
-          align="start"
-          margin={{ top: 'xlarge' }}
-        >
+        <Box direction="row" wrap={true} fill={true} justify="center" align="start" margin={{ top: 'xlarge' }}>
           {/*    {isAuthorized ? (
             <Box
               direction="row"

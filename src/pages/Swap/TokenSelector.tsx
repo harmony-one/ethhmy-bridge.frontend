@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal } from 'semantic-ui-react';
+import { Modal } from 'semantic-ui-react';
 import { TokenDisplay } from './index';
 import { TokenInfoRow } from './TokenInfoRow';
 import { TokenSelectorButton } from './TokenSelector/TokenSelectorButton';
@@ -67,17 +67,20 @@ export const TokenSelector = (props: {
       </Modal.Header>
       <Modal.Content>
         {props.tokens.length > 0 ? (
-          props.tokens.map(t => {
-            return (
-              <TokenInfoRow
-                token={t}
-                onClick={() => {
-                  props?.onClick ? props.onClick(t.symbol) : (() => {})();
-                  setOpen(false);
-                }}
-              />
-            );
-          })
+          props.tokens
+            .sort(a => (a.symbol.toLowerCase().includes('scrt') ? -1 : 1))
+            .map(t => {
+              return (
+                <TokenInfoRow
+                  key={t.address}
+                  token={t}
+                  onClick={() => {
+                    props?.onClick ? props.onClick(t.symbol) : (() => {})();
+                    setOpen(false);
+                  }}
+                />
+              );
+            })
         ) : (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />

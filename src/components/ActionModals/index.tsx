@@ -23,10 +23,7 @@ export type TActionDataType<T = any> = {
 };
 
 function isClassComponent(component: any) {
-  return (
-    (!!component.prototype && !!component.prototype.isReactComponent) ||
-    typeof component !== 'function'
-  );
+  return (!!component.prototype && !!component.prototype.isReactComponent) || typeof component !== 'function';
 }
 
 export const ActionModal = observer<{
@@ -80,32 +77,15 @@ export const ActionModal = observer<{
       style={{ visibility: visible ? 'visible' : 'hidden', zIndex: 999 }}
       config={config}
     >
-      {false ? (
-        <Header
-          title={options.title}
-          onClose={onClose}
-          pending={isActionLoading}
-        />
-      ) : null}
+      {false ? <Header title={options.title} onClose={onClose} pending={isActionLoading} /> : null}
       {!isClassComponent(Render) ? (
         Render({ actionData })
       ) : (
-        <Render
-          config={config}
-          actionData={actionData}
-          onValidate={onValidate}
-          ref={bodyRef}
-        />
+        <Render config={config} actionData={actionData} onValidate={onValidate} ref={bodyRef} />
       )}
       <Footer>
         {options.closeText && (
-          <Button
-            size="auto"
-            transparent
-            onClick={onClose}
-            color="Basic700"
-            disabled={isActionLoading}
-          >
+          <Button size="auto" transparent onClick={onClose} color="Basic700" disabled={isActionLoading}>
             {options.closeText}
           </Button>
         )}
@@ -143,11 +123,7 @@ export const ActionModals: React.FC = observer(() => {
   return (
     <>
       {actionModals.pool.map((config, idx) => (
-        <ActionModal
-          key={config.id}
-          config={config}
-          visible={actionModals.pool.length - 1 === idx}
-        />
+        <ActionModal key={config.id} config={config} visible={actionModals.pool.length - 1 === idx} />
       ))}
     </>
   );

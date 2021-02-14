@@ -458,20 +458,14 @@
   "ast": {
     "absolutePath": "/Users/yuriy/pro5/ethhmy-bridge.contract/contracts/lib/MyERC20.sol",
     "exportedSymbols": {
-      "MyERC20": [
-        1250
-      ]
+      "MyERC20": [1250]
     },
     "id": 1251,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 1225,
-        "literals": [
-          "solidity",
-          "0.5",
-          ".17"
-        ],
+        "literals": ["solidity", "0.5", ".17"],
         "nodeType": "PragmaDirective",
         "src": "0:23:7"
       },
@@ -565,29 +559,12 @@
             "src": "268:13:7"
           }
         ],
-        "contractDependencies": [
-          2069,
-          2257,
-          2849,
-          2883,
-          2941,
-          2969,
-          3038
-        ],
+        "contractDependencies": [2069, 2257, 2849, 2883, 2941, 2969, 3038],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 1250,
-        "linearizedBaseContracts": [
-          1250,
-          2969,
-          2257,
-          2941,
-          2883,
-          2849,
-          3038,
-          2069
-        ],
+        "linearizedBaseContracts": [1250, 2969, 2257, 2941, 2883, 2849, 3038, 2069],
         "name": "MyERC20",
         "nodeType": "ContractDefinition",
         "nodes": [
@@ -772,20 +749,14 @@
   "legacyAST": {
     "absolutePath": "/Users/yuriy/pro5/ethhmy-bridge.contract/contracts/lib/MyERC20.sol",
     "exportedSymbols": {
-      "MyERC20": [
-        1250
-      ]
+      "MyERC20": [1250]
     },
     "id": 1251,
     "nodeType": "SourceUnit",
     "nodes": [
       {
         "id": 1225,
-        "literals": [
-          "solidity",
-          "0.5",
-          ".17"
-        ],
+        "literals": ["solidity", "0.5", ".17"],
         "nodeType": "PragmaDirective",
         "src": "0:23:7"
       },
@@ -879,29 +850,12 @@
             "src": "268:13:7"
           }
         ],
-        "contractDependencies": [
-          2069,
-          2257,
-          2849,
-          2883,
-          2941,
-          2969,
-          3038
-        ],
+        "contractDependencies": [2069, 2257, 2849, 2883, 2941, 2969, 3038],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
         "id": 1250,
-        "linearizedBaseContracts": [
-          1250,
-          2969,
-          2257,
-          2941,
-          2883,
-          2849,
-          3038,
-          2069
-        ],
+        "linearizedBaseContracts": [1250, 2969, 2257, 2941, 2883, 2849, 3038, 2069],
         "name": "MyERC20",
         "nodeType": "ContractDefinition",
         "nodes": [

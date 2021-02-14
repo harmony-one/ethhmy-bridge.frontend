@@ -4,9 +4,13 @@ import { useState } from 'react';
 import { Button, Icon, TextInput } from 'components/Base';
 import { CommonFilterBodyProps } from './common';
 
-export const SearchText: React.FunctionComponent<CommonFilterBodyProps> =
-  ({ value, fieldName, onChange, onClose, placeholder = 'Найти...' }) => {
-
+export const SearchText: React.FunctionComponent<CommonFilterBodyProps> = ({
+  value,
+  fieldName,
+  onChange,
+  onClose,
+  placeholder = 'Найти...',
+}) => {
   const [searchText, setSearchText] = useState(value);
 
   const handleFilterChange = () => {
@@ -24,10 +28,7 @@ export const SearchText: React.FunctionComponent<CommonFilterBodyProps> =
 
   return (
     <Box>
-      <Box
-        pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-        style={{ borderBottom: '1px solid #e7ecf7' }}
-      >
+      <Box pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} style={{ borderBottom: '1px solid #e7ecf7' }}>
         <TextInput
           value={searchText}
           size="full"
@@ -37,10 +38,7 @@ export const SearchText: React.FunctionComponent<CommonFilterBodyProps> =
           placeholder={placeholder}
           renderLeft={<Icon glyph="Search" size="16px" color="Basic300" />}
           renderRight={
-            <div
-              onClick={() => setSearchText('')}
-              style={{ cursor: 'pointer' }}
-            >
+            <div onClick={() => setSearchText('')} style={{ cursor: 'pointer' }}>
               <Icon glyph="Close" size="16px" color="Basic300" />
             </div>
           }
@@ -58,12 +56,7 @@ export const SearchText: React.FunctionComponent<CommonFilterBodyProps> =
         >
           Отменить
         </Button>
-        <Button
-          fontSize="13px"
-          size="small"
-          padding="0 16px"
-          onClick={handleFilterChange}
-        >
+        <Button fontSize="13px" size="small" padding="0 16px" onClick={handleFilterChange}>
           Применить
         </Button>
       </Box>

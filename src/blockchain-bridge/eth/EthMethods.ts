@@ -24,17 +24,12 @@ export class EthMethods {
     const secretAddrHex = this.web3.utils.fromAscii(userAddr);
     // TODO: add validation
 
-    const estimateGas = await this.ethManagerContract.methods
-      .swap(secretAddrHex)
-      .estimateGas({
-        value: ethToWei(amount),
-        from: accounts[0],
-      });
+    const estimateGas = await this.ethManagerContract.methods.swap(secretAddrHex).estimateGas({
+      value: ethToWei(amount),
+      from: accounts[0],
+    });
 
-    const gasLimit = Math.max(
-      estimateGas + estimateGas * 0.3,
-      Number(process.env.ETH_GAS_LIMIT),
-    );
+    const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
 
     return await this.ethManagerContract.methods.swap(secretAddrHex).send({
       value: ethToWei(amount),

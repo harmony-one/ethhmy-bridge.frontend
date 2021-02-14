@@ -2,14 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { Row } from '../Layout';
 
-export const Tabs: React.FunctionComponent<IProps> = ({
-  onChange,
-  selected,
-  tabs,
-  small,
-  children,
-  ...rest
-}) => (
+export const Tabs: React.FunctionComponent<IProps> = ({ onChange, selected, tabs, small, children, ...rest }) => (
   <Row {...rest}>
     {tabs.map(item => (
       <Tab key={item.id} onChange={onChange} selected={selected} small={small} {...item} />
@@ -42,12 +35,9 @@ const Tab: React.FunctionComponent<ITabProps> = ({
 const StyledTab = styled.div<any>`
   padding: ${props => props.theme.styled.tabs.tab.padding || ''};
   margin: ${props => props.theme.styled.tabs.tab.margin || ''};
-  color: ${props =>
-    props.active ? props.theme.styled.tabs.tab.colorActive : props.theme.styled.tabs.tab.color}
+  color: ${props => (props.active ? props.theme.styled.tabs.tab.colorActive : props.theme.styled.tabs.tab.color)}
   background-color: ${props =>
-    props.active
-      ? props.theme.styled.tabs.tab.backgroundColorActive
-      : props.theme.styled.tabs.tab.backgroundColor}
+    props.active ? props.theme.styled.tabs.tab.backgroundColorActive : props.theme.styled.tabs.tab.backgroundColor}
   border: ${props => props.theme.styled.tabs.tab.border};
   border-bottom: ${props =>
     `${props.theme.styled.tabs.activeBorderBottomWidth}px solid ${

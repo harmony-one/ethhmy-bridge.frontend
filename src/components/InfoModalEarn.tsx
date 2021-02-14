@@ -15,20 +15,17 @@ export const InfoModalEarn = observer(() => {
     }
 
     if (!user.isInfoEarnReading) {
-      actionModals.open(
-        () => <InfoEarn title="Improve privacy guarantees and earn SCRT rewards" />,
-        {
-          title: '',
-          applyText: 'Got it',
-          closeText: '',
-          noValidation: true,
-          showOther: true,
-          onApply: () => {
-            user.setInfoEarnReading();
-            return Promise.resolve();
-          },
+      actionModals.open(() => <InfoEarn title="Improve privacy guarantees and earn SCRT rewards" />, {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        showOther: true,
+        onApply: () => {
+          user.setInfoEarnReading();
+          return Promise.resolve();
         },
-      );
+      });
     }
   }, [user.isInfoEarnReading]);
 

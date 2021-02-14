@@ -2,11 +2,7 @@ import { action, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import {
-  getEthBalance,
-  getErc20Balance,
-  ethMethodsERC20,
-} from '../blockchain-bridge';
+import { getEthBalance, getErc20Balance, ethMethodsERC20 } from '../blockchain-bridge';
 import { divDecimals, formatWithSixDecimals } from '../utils';
 import Web3 from 'web3';
 
@@ -109,7 +105,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
       this.provider.on('chainChanged', () => {
         //document.location.reload()
-      })
+      });
 
       this.provider.on('disconnect', () => {
         this.isAuthorized = false;
@@ -171,9 +167,7 @@ export class UserStoreMetamask extends StoreConstructor {
           continue;
         }
         getErc20Balance(this.ethAddress, token.src_address).then(b => {
-          this.balanceToken[token.src_coin] = formatWithSixDecimals(
-            divDecimals(b, token.decimals),
-          );
+          this.balanceToken[token.src_coin] = formatWithSixDecimals(divDecimals(b, token.decimals));
         });
         this.balanceTokenMin[token.src_coin] = token.display_props.min_to_scrt;
       }
@@ -205,17 +199,11 @@ export class UserStoreMetamask extends StoreConstructor {
     ).display_props.min_to_scrt;
 
     if (tokens) {
-      const token = tokens.allData.find(
-        t => t.src_address === this.erc20Address,
-      );
+      const token = tokens.allData.find(t => t.src_address === this.erc20Address);
       if (token.dst_address) {
         this.stores.user.snip20Address = token.dst_address;
-        this.stores.user.snip20Balance = this.stores.user.balanceToken[
-          token.src_coin
-        ];
-        this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[
-          token.src_coin
-        ];
+        this.stores.user.snip20Balance = this.stores.user.balanceToken[token.src_coin];
+        this.stores.user.snip20BalanceMin = this.stores.user.balanceTokenMin[token.src_coin];
       }
     }
   };
