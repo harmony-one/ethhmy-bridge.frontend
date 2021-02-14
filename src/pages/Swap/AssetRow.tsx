@@ -84,6 +84,7 @@ export const AssetRow = ({
       <div
         style={{
           display: 'flex',
+          justifyContent: 'flex-end',
         }}
       >
         <SwapInput
