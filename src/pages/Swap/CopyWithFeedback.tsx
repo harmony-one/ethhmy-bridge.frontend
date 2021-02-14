@@ -10,7 +10,7 @@ export const CopyWithFeedback = ({ text }: { text: string }) => {
       text={text}
       onCopy={() => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 5000);
+        setTimeout(() => setCopied(false), 1500);
       }}
     >
       <Icon glyph="PrintFormCopy" size="1em" color={copied ? 'green' : null} />
