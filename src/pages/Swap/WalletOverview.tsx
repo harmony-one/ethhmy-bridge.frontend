@@ -10,8 +10,8 @@ export const WalletOverview: React.FC<{
   tokens: { [symbol: string]: TokenDisplay };
   balances: { [symbol: string]: BigNumber | JSX.Element };
 }> = ({ tokens, balances }) => {
-  tokens['SCRT'] = preloadedTokens['SCRT'];
-  const tokenSymbols = Object.keys(tokens);
+  const walletTokens = Object.assign({}, tokens, { SCRT: preloadedTokens['SCRT'] });
+  const tokenSymbols = Object.keys(walletTokens);
 
   if (tokenSymbols.length === 0) {
     return (
@@ -26,7 +26,7 @@ export const WalletOverview: React.FC<{
       {tokenSymbols
         .sort(a => (a.toLowerCase().includes('scrt') ? -1 : 1))
         .map(symbol => {
-          const token = tokens[symbol];
+          const token = walletTokens[symbol];
           const balance = balances[symbol];
 
           if (!balance) {
