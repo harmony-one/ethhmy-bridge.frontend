@@ -630,13 +630,7 @@ export class ProvideTab extends React.Component<
           style={buttonStyle}
           onClick={async () => {
             if (this.isReadyForProvide()) {
-              await this.provideLiquidityAction(pair)
-                .catch(e => {
-                  this.props.notify('error', e);
-                })
-                .then(() => {
-                  this.props.notify('success', 'Liquidity added successfully');
-                });
+              await this.provideLiquidityAction(pair);
             } else if (this.isReadyForNewPool()) {
               const assetA = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenA]);
               const assetB = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenB]);
