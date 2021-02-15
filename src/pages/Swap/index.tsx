@@ -13,7 +13,7 @@ import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
-import { Image, Popup } from 'semantic-ui-react';
+import { Button, Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
@@ -515,8 +515,16 @@ export class SwapRouter extends React.Component<
             }
             content={<WalletOverview tokens={this.state.tokens} balances={this.state.balances} />}
             position="left center"
+            basic
             on="click"
-            trigger={<Image src="/keplr.svg" size="mini" />}
+            trigger={
+              <Button basic style={{ padding: 0, borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Image src="/keplr.svg" size="mini" />
+                  <span style={{ margin: '0 0.3em' }}>My Wallet</span>
+                </div>
+              </Button>
+            }
           />
         </div>
         <PageContainer>
