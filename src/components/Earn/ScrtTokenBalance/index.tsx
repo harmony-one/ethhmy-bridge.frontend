@@ -79,10 +79,16 @@ const ScrtTokenBalance = (props: {
         title={
           <div className={cn(styles.assetRow)}>
             <NumberOdometer
-              number={`${formatNumber(
-                divDecimals(value.replace(/,/g, ''), props.decimals),
-                minimumFactions,
-              )}`}
+              number={(() => {
+                if (value.includes('Unlock')) {
+                  return 'Fix Viewing Key';
+                }
+
+                return `${formatNumber(
+                  divDecimals(value.replace(/,/g, ''), props.decimals),
+                  minimumFactions,
+                )}`;
+              })()}
             />
             <div style={{ marginLeft: '5px', paddingTop: '4px' }}>
               {props.currency}
