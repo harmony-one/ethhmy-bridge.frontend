@@ -4,9 +4,10 @@ import Loader from 'react-loader-spinner';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { TokenDisplay } from '.';
 import { Image } from 'semantic-ui-react';
+import { SwapTokenMap } from './SwapToken';
 
 export const WalletOverview: React.FC<{
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   balances: { [symbol: string]: BigNumber | JSX.Element };
 }> = ({ tokens, balances }) => {
   const tokenSymbols = Object.keys(tokens);

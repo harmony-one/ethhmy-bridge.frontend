@@ -1,8 +1,8 @@
 import BigNumber from 'bignumber.js';
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
-import { Currency, Trade, Asset, TradeType, Token, NativeToken } from '../../pages/Swap/trade';
-import { TokenDisplay } from '../../pages/Swap';
-import { GetContractCodeHash, Snip20TokenInfo } from './snip20';
+import { Asset, Currency, Trade, TradeType } from '../../pages/Swap/trade';
+import { Pair } from '../../pages/Swap';
+import { GetContractCodeHash } from './snip20';
 import { extractValueFromLogs, getFeeForExecute, validateBech32Address } from './utils';
 
 export const buildAssetInfo = (currency: Currency) => {
@@ -289,4 +289,15 @@ export const CreateNewPair = async (params: {
     console.error(`Failed to create pair: ${e}`);
     throw Error('Failed to create pair');
   }
+};
+
+interface GetAllPairsResponse {
+  pairs: Array<Pair>;
+}
+
+export const GetAllPairs = async (params: { secretjs: SigningCosmWasmClient }): Promise<GetAllPairsResponse> => {
+  const { secretjs } = params;
+  return await secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+    pairs: {},
+  });
 };

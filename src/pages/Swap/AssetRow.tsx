@@ -2,11 +2,11 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { Button, Container } from 'semantic-ui-react';
-import { TokenDisplay } from '.';
 import Loader from 'react-loader-spinner';
 import { TokenSelector } from './TokenSelector';
 import { SwapInput } from '../../components/Swap/SwapInput';
 import { SigningCosmWasmClient } from 'secretjs';
+import { SwapTokenMap } from './SwapToken';
 
 const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
@@ -22,7 +22,7 @@ export const AssetRow = ({
   maxButton,
   secretjs,
 }: {
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   token: string;
   setToken: (symbol: string) => void;
   amount: string;

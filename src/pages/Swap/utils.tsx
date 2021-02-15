@@ -1,29 +1,27 @@
 import BigNumber from 'bignumber.js';
 import { UserStoreEx } from 'stores/UserStore';
-import { ERROR_WRONG_VIEWING_KEY, TokenDisplay } from '.';
+import { ERROR_WRONG_VIEWING_KEY } from '.';
 import React from 'react';
 import Style from 'style-it';
 import { humanizeBalance } from '../../utils';
+import { SigningCosmWasmClient } from 'secretjs';
 
-export async function getBalance(
-  symbol: string,
+export async function getNativeBalance(walletAddress: string, secretjs: SigningCosmWasmClient) {
+  return secretjs.getAccount(walletAddress).then(account => {
+    try {
+      return new BigNumber(account.balance[0].amount);
+    } catch (error) {
+      return new BigNumber(0);
+    }
+  });
+}
+
+export async function getTokenBalance(
   walletAddress: string,
-  tokens: {
-    [symbol: string]: TokenDisplay;
-  },
+  tokenAddress: string,
   viewingKey: string,
   userStore: UserStoreEx,
 ): Promise<BigNumber | JSX.Element> {
-  if (symbol === 'SCRT') {
-    return userStore.secretjs.getAccount(walletAddress).then(account => {
-      try {
-        return new BigNumber(account.balance[0].amount);
-      } catch (error) {
-        return new BigNumber(0);
-      }
-    });
-  }
-
   const unlockJsx = Style.it(
     `.view-token-button {
       cursor: pointer;
@@ -40,7 +38,7 @@ export async function getBalance(
     <span
       className="view-token-button"
       onClick={async e => {
-        await userStore.keplrWallet.suggestToken(userStore.chainId, tokens[symbol].address);
+        await userStore.keplrWallet.suggestToken(userStore.chainId, tokenAddress);
         // TODO trigger balance refresh if this was an "advanced set" that didn't
         // result in an on-chain transaction
       }}
@@ -53,7 +51,8 @@ export async function getBalance(
     return unlockJsx;
   }
 
-  const result = await userStore.secretjs.queryContractSmart(tokens[symbol].address, {
+  // todo: replace this with the function from blockchain-bridge/scrt/snip20
+  const result = await userStore.secretjs.queryContractSmart(tokenAddress, {
     balance: {
       address: walletAddress,
       key: viewingKey,
@@ -78,7 +77,7 @@ export async function getBalance(
     return new BigNumber(result.balance.amount);
   } catch (error) {
     console.log(
-      `Got an error while trying to query ${symbol} token balance for address ${walletAddress}:`,
+      `Got an error while trying to query token ${tokenAddress} balance for address ${walletAddress}:`,
       result,
       error,
     );

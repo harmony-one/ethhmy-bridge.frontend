@@ -6,7 +6,7 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, truncateAddressString } from 'utils';
 import { STEPS_TITLE } from './steps-constants';
-import { IColumn, Table } from '../../components/Table';
+import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 

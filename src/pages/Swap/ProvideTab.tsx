@@ -1,8 +1,8 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
-import { UINT128_MAX, sortedStringify, humanizeBalance, displayHumanizedBalance, canonicalizeBalance } from 'utils';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
+import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
+import { flexRowSpace, Pair, swapContainerStyle } from '.';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
@@ -10,9 +10,10 @@ import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
 import { compareNormalize } from './utils';
-import { getFeeForExecute } from '../../blockchain-bridge/scrt';
+import { getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
-import { Asset, NativeToken, Token } from './trade';
+import { Asset } from './trade';
+import { SwapTokenMap } from './SwapToken';
 
 const plus = (
   <svg
@@ -84,9 +85,7 @@ export class ProvideTab extends React.Component<
   {
     user: UserStoreEx;
     secretjs: SigningCosmWasmClient;
-    tokens: {
-      [symbol: string]: TokenDisplay;
-    };
+    tokens: SwapTokenMap;
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };

@@ -7,20 +7,17 @@ import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
 import Loader from 'react-loader-spinner';
+import { SwapTokenMap } from './SwapToken';
 
 export class WithdrawTab extends React.Component<{
   user: UserStoreEx;
   secretjs: SigningCosmWasmClient;
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   balances: { [symbol: string]: BigNumber | JSX.Element };
   pairs: Array<Pair>;
   pairFromSymbol: { [symbol: string]: Pair };
   notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
 }> {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const withdrawPanelList = Object.keys(this.props.balances)
       .filter(lpTokenSymbol => lpTokenSymbol.startsWith('LP') && !lpTokenSymbol.includes('total-supply'))
@@ -28,7 +25,7 @@ export class WithdrawTab extends React.Component<{
         <span key={lpTokenSymbol}>
           <WithdrawLiquidityPanel
             lpTokenSymbol={lpTokenSymbol}
-            tokens={this.props.tokens}
+            tokens={{}} //this.props.tokens
             balances={this.props.balances}
             secretjs={this.props.secretjs}
             pairFromSymbol={this.props.pairFromSymbol}

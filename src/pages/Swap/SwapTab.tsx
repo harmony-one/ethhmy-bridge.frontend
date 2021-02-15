@@ -5,12 +5,13 @@ import { canonicalizeBalance, displayHumanizedBalance, humanizeBalance, sortedSt
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from './PriceRow';
-import { compute_swap, compute_offer_amount } from '../../blockchain-bridge/scrt/swap';
+import { compute_offer_amount, compute_swap } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
+import { flexRowSpace, NewPair, Pair, swapContainerStyle } from '.';
 import { BigNumber } from 'bignumber.js';
-import { extractValueFromLogs, getFeeForExecute } from '../../blockchain-bridge/scrt';
+import { extractValueFromLogs, getFeeForExecute } from '../../blockchain-bridge';
+import { SwapTokenMap } from './SwapToken';
 
 export const downArrow = (
   <svg
@@ -38,17 +39,16 @@ const BUTTON_MSG_SWAP = 'Swap';
 export class SwapTab extends React.Component<
   {
     secretjs: SigningCosmWasmClient;
-    tokens: {
-      [symbol: string]: TokenDisplay;
-    };
+    tokens: SwapTokenMap;
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };
-    pairs: Array<Pair>;
+    selectedPair: NewPair;
     pairFromSymbol: {
       [symbol: string]: Pair;
     };
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+    onSetTokens: CallableFunction;
   },
   {
     fromToken: string;
@@ -70,7 +70,7 @@ export class SwapTab extends React.Component<
 
     this.state = {
       fromToken: Object.keys(this.props.tokens)[0] || '',
-      toToken: Object.keys(this.props.tokens)[1] || '',
+      toToken: '',
       fromInput: '',
       toInput: '',
       isFromEstimated: false,
@@ -91,8 +91,8 @@ export class SwapTab extends React.Component<
 
     if (sortedStringify(previousProps.tokens) !== sortedStringify(this.props.tokens)) {
       const fromToken = Object.keys(this.props.tokens)[0];
-      const toToken = Object.keys(this.props.tokens)[1];
-
+      // const toToken = Object.keys(this.props.tokens)[1];
+      const toToken = '';
       this.setState({
         fromToken,
         toToken,
@@ -184,10 +184,13 @@ export class SwapTab extends React.Component<
   }
 
   render() {
-    const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    // const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
+    // const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    const pair = this.props.selectedPair;
 
-    const ask_pool = new BigNumber(this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`] as BigNumber);
+    const ask_pool = pair
+      ? new BigNumber(this.props.balances[`${this.state.toToken}-${pair.identifier()}`] as BigNumber)
+      : new BigNumber(0);
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
       this.props.balances[this.state.toToken],
@@ -247,7 +250,7 @@ export class SwapTab extends React.Component<
                     fromInput: this.state.toInput,
                     toInput: this.state.fromInput,
                   },
-                  () => this.updateInputs(),
+                  //) => this.updateInputs(),
                 );
               } else {
                 this.setState(
@@ -257,8 +260,12 @@ export class SwapTab extends React.Component<
                     isFromEstimated: true,
                     isToEstimated: false,
                   },
-                  () => this.updateInputs(),
+                  //() => this.updateInputs(),
                 );
+              }
+
+              if (this.state.fromToken && this.state.toToken) {
+                this.props.onSetTokens(this.state.fromToken, this.state.toToken);
               }
             }}
             amount={this.state.fromInput}
@@ -337,7 +344,7 @@ export class SwapTab extends React.Component<
                     fromInput: this.state.toInput,
                     toInput: this.state.fromInput,
                   },
-                  () => this.updateInputs(),
+                  //() => this.updateInputs(),
                 );
               } else {
                 this.setState(
@@ -347,8 +354,11 @@ export class SwapTab extends React.Component<
                     isToEstimated: true,
                     isFromEstimated: false,
                   },
-                  () => this.updateInputs(),
+                  // () => this.updateInputs(),
                 );
+              }
+              if (this.state.fromToken && this.state.toToken) {
+                this.props.onSetTokens(this.state.fromToken, this.state.toToken);
               }
             }}
             amount={this.state.toInput}

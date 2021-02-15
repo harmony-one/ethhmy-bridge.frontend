@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -10,7 +10,7 @@ import * as styles from '../EthBridge/styles.styl';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
 import { divDecimals } from '../../utils';
-import { InfoModalEarn } from './../../components/InfoModalEarn';
+import { InfoModalEarn } from '../../components/InfoModalEarn';
 import { Icon } from 'components/Base/components/Icons';
 
 export const EarnRewards = observer((props: any) => {
@@ -40,7 +40,7 @@ export const EarnRewards = observer((props: any) => {
             backgroundColor: '#F5F8FE',
             zIndex: -1,
           }}
-        ></div>
+        />
         <div
           style={{
             display: 'flex',
