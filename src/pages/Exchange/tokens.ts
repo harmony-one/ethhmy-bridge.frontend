@@ -54,6 +54,12 @@ export const tokensMainnet = [
     image: 'https://etherscan.io/token/images/leo_28_2.png',
   },
   {
+    label: 'YF Link (YFL)',
+    href:
+      'https://etherscan.io/token/0x28cb7e841ee97947a86B06fA4090C8451f64c0be',
+    image: 'https://etherscan.io/token/images/yflink_32.png',
+  },
+  {
     label: 'HuobiToken (HT)',
     href:
       'https://etherscan.io/token/0x6f259637dcd74c767781e37bc6133cd6a68aa161',
