@@ -15,9 +15,7 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
         <a
           style={{ cursor: 'pointer' }}
           onClick={() => {
-            secretjs.execute(process.env.SSCRT_CONTRACT, { deposit: {} }, '', [
-              { amount: String(10_000_000), denom: 'uscrt' },
-            ]);
+            secretjs.execute(process.env.SSCRT_CONTRACT, { deposit: {} }, '', [{ amount: '10000000', denom: 'uscrt' }]);
           }}
         >
           click here
