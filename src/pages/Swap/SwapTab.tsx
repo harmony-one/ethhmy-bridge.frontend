@@ -464,7 +464,7 @@ export class SwapTab extends React.Component<
                         denom: 'uscrt',
                       },
                     ],
-                    getFeeForExecute(350_000),
+                    getFeeForExecute(500_000),
                   );
 
                   const sent = displayHumanizedBalance(
@@ -497,7 +497,7 @@ export class SwapTab extends React.Component<
                     },
                     '',
                     [],
-                    getFeeForExecute(350_000),
+                    getFeeForExecute(500_000),
                   );
                   const sent = displayHumanizedBalance(
                     humanizeBalance(new BigNumber(extractValueFromLogs(result, 'offer_amount')), fromDecimals),

@@ -357,19 +357,35 @@ export class SwapRouter extends React.Component<
         await sleep(100);
       }
 
+      // Register for SCRT events
+      const myAddress = this.props.user.address;
+      const scrtQueries = [
+        `message.sender='${myAddress}'` /* sent a tx (gas) */,
+        `message.signer='${myAddress}'` /* executed a contract (gas) */,
+        `transfer.recipient='${myAddress}'` /* received SCRT */,
+      ];
+
+      for (const query of scrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'SCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
+
       // Register for token or SCRT events
       for (const token of [
         this.state.allTokens[this.state.selectedToken0],
         this.state.allTokens[this.state.selectedToken1],
       ]) {
-        if (token.symbol === 'SCRT') {
-          const myAddress = this.props.user.address;
-          const scrtQueries = [
-            `message.sender='${myAddress}'` /* sent a tx (gas) */,
-            `message.signer='${myAddress}'` /* executed a contract (gas) */,
-            `transfer.recipient='${myAddress}'` /* received SCRT */,
-          ];
-
+        const tokenAddress = token.address;
+        const tokenQueries = [
+          `message.contract_address='${tokenAddress}'`,
+          `wasm.contract_address='${tokenAddress}'`,
+        ];
           for (const query of scrtQueries) {
             this.ws.send(
               JSON.stringify({
@@ -380,26 +396,7 @@ export class SwapRouter extends React.Component<
               }),
             );
           }
-        } else {
-          // Any tx on the token's contract
-          const tokenAddress = token.address;
-          const tokenQueries = [
-            `message.contract_address='${tokenAddress}'`,
-            `wasm.contract_address='${tokenAddress}'`,
-          ];
-
-          for (const query of tokenQueries) {
-            this.ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: token.symbol, // jsonrpc id
-                method: 'subscribe',
-                params: { query },
-              }),
-            );
-          }
         }
-      }
 
       // Register for pair events
       // Token events aren't enough because of a bug in x/compute (x/wasmd)
@@ -640,8 +637,16 @@ export class SwapRouter extends React.Component<
             }
             content={<WalletOverview tokens={this.state.allTokens} balances={this.state.balances} />}
             position="left center"
+            basic
             on="click"
-            trigger={<Image src="/keplr.svg" size="mini" />}
+            trigger={
+              <Button basic style={{ padding: 0, borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Image src="/keplr.svg" size="mini" />
+                  <span style={{ margin: '0 0.3em' }}>My Wallet</span>
+                </div>
+              </Button>
+            }
           />
         </div>
         <PageContainer>
