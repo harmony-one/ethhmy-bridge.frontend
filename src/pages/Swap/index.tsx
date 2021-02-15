@@ -23,8 +23,6 @@ import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge/scrt';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import { WalletOverview } from './WalletOverview';
-import { Icon } from 'components/Base';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import { CopyWithFeedback } from './CopyWithFeedback';
 
 type DisplayTokenRecord = Record<string, TokenDisplay>;
@@ -293,26 +291,29 @@ export class SwapRouter extends React.Component<
         await sleep(100);
       }
 
-      // Register for token or SCRT events
+      // Register for SCRT events
+      const myAddress = this.props.user.address;
+      const scrtQueries = [
+        `message.sender='${myAddress}'` /* sent a tx (gas) */,
+        `message.signer='${myAddress}'` /* executed a contract (gas) */,
+        `transfer.recipient='${myAddress}'` /* received SCRT */,
+      ];
+
+      for (const query of scrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'SCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
+
+      // Register for token events
       for (const tokenSymbol of Object.keys(tokens)) {
         if (tokenSymbol === 'SCRT') {
-          const myAddress = this.props.user.address;
-          const scrtQueries = [
-            `message.sender='${myAddress}'` /* sent a tx (gas) */,
-            `message.signer='${myAddress}'` /* executed a contract (gas) */,
-            `transfer.recipient='${myAddress}'` /* received SCRT */,
-          ];
-
-          for (const query of scrtQueries) {
-            this.ws.send(
-              JSON.stringify({
-                jsonrpc: '2.0',
-                id: 'SCRT', // jsonrpc id
-                method: 'subscribe',
-                params: { query },
-              }),
-            );
-          }
+          continue;
         } else {
           // Any tx on the token's contract
           const tokenAddress = tokens[tokenSymbol].address;
