@@ -22,7 +22,7 @@ export const App: React.FC = () => (
         {/*<Route exact path="/swap" component={SwapPage} />*/}
         <Route exact path="/tokens" component={Tokens} />
         <Route exact path="/faq" component={FAQPage} />
-        <Route exact path="/" component={FinancePage} />
+        <Route exact path="/finance" component={FinancePage} />
         {/* <Route exact path="/info" component={InfoPage} /> */}
         <Route exact path="/explorer" component={Explorer} />
         <Route exact path="/earn" component={EarnRewards} />
