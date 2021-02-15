@@ -361,12 +361,12 @@ export class ProvideTab extends React.Component<
 
     if (!pair) {
       return ProvideState.CREATE_NEW_PAIR;
-    } else if (!(balanceA instanceof BigNumber && balanceB instanceof BigNumber)) {
-      return ProvideState.UNLOCK_TOKENS;
     } else if (this.getPoolA().isZero() && this.getPoolB().isZero()) {
       return ProvideState.PAIR_LIQUIDITY_ZERO;
     } else if (this.state.inputA === '' || this.state.inputB === '') {
       return ProvideState.WAITING_FOR_INPUT;
+    } else if (!(balanceA instanceof BigNumber && balanceB instanceof BigNumber)) {
+      return ProvideState.READY;
     } else if (compareNormalize(this.state.inputA, { amount: balanceA, decimals: decimalsA })) {
       return ProvideState.INSUFFICIENT_A_BALANCE;
     } else if (compareNormalize(this.state.inputB, { amount: balanceB, decimals: decimalsB })) {
