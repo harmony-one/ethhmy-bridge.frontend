@@ -58,7 +58,7 @@ export const AssetRow = ({
           {isEstimated ? ` (estimated)` : null}
         </span>
         {flexRowSpace}
-        <>
+        <div hidden={!token}>
           {'Balance: '}
           {(() => {
             if (balance === undefined) {
@@ -75,11 +75,11 @@ export const AssetRow = ({
             }
 
             return displayHumanizedBalance(
-              humanizeBalance(new BigNumber(balance as BigNumber), tokens[token].decimals),
+              humanizeBalance(new BigNumber(balance as BigNumber), tokens.get(token).decimals),
               BigNumber.ROUND_DOWN,
             );
           })()}
-        </>
+        </div>
       </div>
       <div
         style={{
@@ -111,7 +111,7 @@ export const AssetRow = ({
               padding: '0rem 0.4rem',
             }}
             onClick={() => {
-              const { decimals } = tokens[token];
+              const { decimals } = tokens.get(token);
 
               setAmount(humanizeBalance(new BigNumber(balance as any), decimals).toFixed(decimals));
             }}
@@ -121,8 +121,8 @@ export const AssetRow = ({
         )}
         <TokenSelector
           secretjs={secretjs}
-          tokens={Object.values(tokens)}
-          token={token ? tokens[token] : undefined}
+          tokens={Array.from(tokens.values())}
+          token={token ? tokens.get(token) : undefined}
           onClick={token => {
             setToken(token);
           }}

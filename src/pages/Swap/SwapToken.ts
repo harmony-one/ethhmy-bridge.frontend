@@ -23,10 +23,11 @@ export const TokenMapfromITokenInfo = (tokens: ITokenInfo[]): SwapTokenMap => {
       : '';
     let swapToken: SwapToken = {
       identifier: secretAddress,
-      symbol: t.symbol,
+      symbol: t.display_props.symbol,
       logo: t.display_props.image,
       decimals: Number(t.decimals),
       name: t.name,
+      address: secretAddress,
     };
 
     swapTokens.set(swapToken.identifier, swapToken);

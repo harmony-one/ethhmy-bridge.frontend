@@ -1,10 +1,11 @@
 import BigNumber from 'bignumber.js';
 import { UserStoreEx } from 'stores/UserStore';
-import { ERROR_WRONG_VIEWING_KEY } from '.';
 import React from 'react';
 import Style from 'style-it';
 import { humanizeBalance } from '../../utils';
 import { SigningCosmWasmClient } from 'secretjs';
+
+export const ERROR_WRONG_VIEWING_KEY = 'Viewing Key Error';
 
 export async function getNativeBalance(walletAddress: string, secretjs: SigningCosmWasmClient) {
   return secretjs.getAccount(walletAddress).then(account => {
@@ -16,13 +17,8 @@ export async function getNativeBalance(walletAddress: string, secretjs: SigningC
   });
 }
 
-export async function getTokenBalance(
-  walletAddress: string,
-  tokenAddress: string,
-  viewingKey: string,
-  userStore: UserStoreEx,
-): Promise<BigNumber | JSX.Element> {
-  const unlockJsx = Style.it(
+export const unlockJsx = (props: { onClick: any }) =>
+  Style.it(
     `.view-token-button {
       cursor: pointer;
       border-radius: 30px;
@@ -35,20 +31,25 @@ export async function getTokenBalance(
     .view-token-button:hover {
       background: whitesmoke;
     }`,
-    <span
-      className="view-token-button"
-      onClick={async e => {
-        await userStore.keplrWallet.suggestToken(userStore.chainId, tokenAddress);
-        // TODO trigger balance refresh if this was an "advanced set" that didn't
-        // result in an on-chain transaction
-      }}
-    >
+    <span className="view-token-button" onClick={props.onClick}>
       🔍 View
     </span>,
   );
 
+export async function getTokenBalance(
+  walletAddress: string,
+  tokenAddress: string,
+  viewingKey: string,
+  userStore: UserStoreEx,
+): Promise<BigNumber | JSX.Element> {
   if (!viewingKey) {
-    return unlockJsx;
+    return unlockJsx({
+      onClick: async e => {
+        await userStore.keplrWallet.suggestToken(userStore.chainId, tokenAddress);
+        // TODO trigger balance refresh if this was an "advanced set" that didn't
+        // result in an on-chain transaction
+      },
+    });
   }
 
   // todo: replace this with the function from blockchain-bridge/scrt/snip20
@@ -81,7 +82,13 @@ export async function getTokenBalance(
       result,
       error,
     );
-    return unlockJsx;
+    return unlockJsx({
+      onClick: async e => {
+        await userStore.keplrWallet.suggestToken(userStore.chainId, tokenAddress);
+        // TODO trigger balance refresh if this was an "advanced set" that didn't
+        // result in an on-chain transaction
+      },
+    });
   }
 }
 

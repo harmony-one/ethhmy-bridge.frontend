@@ -77,7 +77,7 @@ export const TokenSelector = (props: {
                   key={t.address}
                   token={t}
                   onClick={() => {
-                    props?.onClick ? props.onClick(t.symbol) : (() => {})();
+                    props?.onClick ? props.onClick(t.identifier) : (() => {})();
                     setOpen(false);
                   }}
                 />

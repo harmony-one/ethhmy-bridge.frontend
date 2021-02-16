@@ -345,6 +345,10 @@ export class UserStoreEx extends StoreConstructor {
       address: snip20Address,
     });
 
+    if (!viewingKey) {
+      return 'Unlock';
+    }
+
     return await Snip20GetBalance({
       secretjs: this.secretjs,
       token: snip20Address,
@@ -367,15 +371,13 @@ export class UserStoreEx extends StoreConstructor {
       address: snip20Address,
     });
 
-    const result = await QueryRewards({
+    return await QueryRewards({
       cosmJS: this.secretjs,
       contract: snip20Address,
       address: this.address,
       key: viewingKey,
       height: String(height),
     });
-
-    return result;
   };
 
   @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
