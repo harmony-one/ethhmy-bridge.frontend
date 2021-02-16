@@ -658,7 +658,12 @@ export class ProvideTab extends React.Component<
   }
 
   private async createNewPairAction(tokenA: Asset, tokenB: Asset): Promise<string> {
-    const result = await CreateNewPair({ secretjs: this.props.secretjs, tokenA, tokenB });
+    const result = await CreateNewPair({
+      secretjs: this.props.secretjs,
+      tokenA,
+      tokenB,
+      notify: this.props.notify,
+    });
 
     return result.contractAddress;
   }
