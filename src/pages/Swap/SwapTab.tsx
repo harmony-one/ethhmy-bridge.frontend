@@ -457,12 +457,14 @@ export class SwapTab extends React.Component<
                     getFeeForExecute(500_000),
                   );
 
-                  const sent = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'offer_amount')), fromDecimals),
-                  );
-                  const received = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'return_amount')), toDecimals),
-                  );
+                  const sent = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'offer_amount')),
+                    fromDecimals,
+                  ).toFixed();
+                  const received = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'return_amount')),
+                    toDecimals,
+                  ).toFixed();
 
                   this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
                 } else {
@@ -489,14 +491,16 @@ export class SwapTab extends React.Component<
                     [],
                     getFeeForExecute(500_000),
                   );
-                  const sent = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'offer_amount')), fromDecimals),
-                  );
-                  const recived = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'return_amount')), toDecimals),
-                  );
+                  const sent = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'offer_amount')),
+                    fromDecimals,
+                  ).toFixed();
+                  const received = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'return_amount')),
+                    toDecimals,
+                  ).toFixed();
 
-                  this.props.notify('success', `Swapped ${sent} ${fromToken} for ${recived} ${toToken}`);
+                  this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
                 }
               } catch (error) {
                 console.error('Swap error', error);
