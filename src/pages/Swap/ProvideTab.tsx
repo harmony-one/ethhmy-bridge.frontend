@@ -643,15 +643,14 @@ export class ProvideTab extends React.Component<
               const assetA = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenA]);
               const assetB = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenB]);
 
-              await this.createNewPairAction(assetA, assetB)
-                .catch(e => {
-                  console.log('hello');
-                  this.props.notify('error', e);
-                })
-                .then(() => {
-                  window.dispatchEvent(new Event('updatePairsAndTokens'));
-                  this.props.notify('success', 'Pair created successfully');
-                });
+              try {
+                await this.createNewPairAction(assetA, assetB);
+                window.dispatchEvent(new Event('updatePairsAndTokens'));
+                this.props.notify('success', `${assetA.symbol}/${assetB.symbol} pair created successfully`);
+              } catch (error) {
+                console.log('hello');
+                this.props.notify('error', `Error creating pair ${assetA.symbol}/${assetB.symbol}: ${error.message}`);
+              }
             }
           }}
         >
