@@ -3,6 +3,10 @@ import { SigningCosmWasmClient } from 'secretjs';
 import { Message } from 'semantic-ui-react';
 
 export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) => {
+  if (process.env.ENV === 'MAINNET') {
+    return null;
+  }
+
   return (
     <Message warning>
       <Message.Header>Hello beta testers! 👋</Message.Header>

@@ -15,8 +15,6 @@ import { WithdrawTab } from './WithdrawTab';
 import preloadedTokens from './tokens.json';
 import { Button, Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
-import 'react-notifications/lib/notifications.css';
 import { getBalance } from './utils';
 import { BetaWarning } from './BetaWarning';
 import { SwapFooter } from './Footer';
@@ -24,6 +22,7 @@ import { GetSnip20Params } from '../../blockchain-bridge/scrt';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import { WalletOverview } from './WalletOverview';
 import { CopyWithFeedback } from './CopyWithFeedback';
+import cogoToast from 'cogo-toast';
 
 type DisplayTokenRecord = Record<string, TokenDisplay>;
 
@@ -477,8 +476,15 @@ export class SwapRouter extends React.Component<
     return { pairs, pairFromSymbol, tokens };
   };
 
-  notify(type: 'success' | 'error', msg: string, closesAfterMs: number = 120_000) {
-    NotificationManager[type](undefined, msg, closesAfterMs);
+  notify(type: 'success' | 'error', msg: string, hideAfterSec: number = 120) {
+    const { hide } = cogoToast[type](msg, {
+      position: 'top-right',
+      hideAfter: hideAfterSec,
+      onClick: () => {
+        hide();
+      },
+    });
+    // NotificationManager[type](undefined, msg, closesAfterMs);
   }
 
   render() {
@@ -580,7 +586,6 @@ export class SwapRouter extends React.Component<
             <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
         </PageContainer>
-        <NotificationContainer />
       </BaseContainer>
     );
   }
