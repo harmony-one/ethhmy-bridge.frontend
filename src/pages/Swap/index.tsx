@@ -109,7 +109,7 @@ export class NewPair {
 }
 
 const pairIdFromTokenIds = (id0: string, id1: string): string => {
-  return id0.localeCompare(id1) ? `${id0}-${id1}` : `${id1}-${id0}`;
+  return id0.localeCompare(id1) === -1 ? `${id0}-${id1}` : `${id1}-${id0}`;
 };
 
 const getIdentifiersFromPair = (pair: Pair): string[] => {
@@ -137,8 +137,6 @@ export type TokenDisplay = {
   address?: string;
   token_code_hash?: string;
 };
-
-export const flexRowSpace = <span style={{ flex: 1 }} />;
 
 export const swapContainerStyle = {
   zIndex: '10',
@@ -210,12 +208,17 @@ export class SwapRouter extends React.Component<
     window.addEventListener('storage', this.updateTokens);
     window.addEventListener('updatePairsAndTokens', this.updatePairs);
 
+    if (!this.props.user.secretjs) {
+      await this.updateTokens();
+    }
+
     while (!this.props.user.secretjs) {
       await sleep(100);
     }
 
     //const { pairs, tokens } = await this.updatePairs();
     await this.updatePairs();
+
     await this.refreshBalances({ tokenSymbols: Array.from(this.state.allTokens.keys()) });
 
     this.props.user.websocketTerminate(true);
@@ -259,7 +262,7 @@ export class SwapRouter extends React.Component<
 
     // these will return a list of promises, which we will flatten then map to a single object
     if (pair) {
-      balanceTasks.push(this.refreshLpTokenBalance(pair.identifier(), pair));
+      balanceTasks.push(this.refreshLpTokenBalance(pair));
       balanceTasks.push(this.refreshPoolBalance(pair));
     }
 
@@ -284,6 +287,14 @@ export class SwapRouter extends React.Component<
       const data = JSON.parse(event.data);
 
       const symbols: Array<string> = data.id.split('-');
+
+      // refresh selected token balances as well (because why not?)
+      if (this.state.selectedToken0) {
+        symbols.push(this.state.allTokens.get(this.state.selectedToken0).identifier);
+      }
+      if (this.state.selectedToken1) {
+        symbols.push(this.state.allTokens.get(this.state.selectedToken1).identifier);
+      }
 
       // todo: move this to another function
       const height = SwapRouter.getHeightFromEvent(data);
@@ -330,12 +341,11 @@ export class SwapRouter extends React.Component<
     this.symbolUpdateHeightCache[tokenSymbol] = height;
 
     let userBalancePromise; //balance.includes(unlockToken)
-    if (tokenSymbol !== 'uscrt' && tokenSymbol !== 'SCRT') {
+    if (tokenSymbol !== 'uscrt') {
       // todo: move this inside getTokenBalance?
       const tokenAddress = this.state.allTokens.get(tokenSymbol).address;
-      const decimals = this.state.allTokens.get(tokenSymbol).decimals;
 
-      let balance = await this.props.user.getSnip20Balance(tokenAddress, decimals);
+      let balance = await this.props.user.getSnip20Balance(tokenAddress);
 
       if (balance.includes(unlockToken)) {
         balance = unlockJsx({
@@ -356,23 +366,36 @@ export class SwapRouter extends React.Component<
     return { [tokenSymbol]: userBalancePromise };
   }
 
-  private async refreshLpTokenBalance(pairSymbol: string, pair: NewPair) {
+  private async refreshLpTokenBalance(pair: NewPair) {
+    const pairSymbol = pair.identifier();
     console.log('Refresh LP token for', pairSymbol);
     // update my LP token balance
     const lpTokenSymbol = `LP-${pairSymbol}`;
     const lpTokenAddress = pair.liquidity_token;
     let lpTotalSupply = new BigNumber(0);
-    let lpDecimals = 0;
     try {
       const result = await GetSnip20Params({ address: pair.liquidity_token, secretjs: this.props.user.secretjs });
-      lpDecimals = result.decimals;
       lpTotalSupply = new BigNumber(result.total_supply);
     } catch (error) {
       console.error(`Error trying to get LP token total supply of ${pairSymbol}`, pair, error);
       return [];
     }
 
-    const lpBalance = await this.props.user.getSnip20Balance(lpTokenAddress, lpDecimals);
+    let balanceResult = await this.props.user.getSnip20Balance(lpTokenAddress);
+    let lpBalance;
+    if (balanceResult.includes(unlockToken)) {
+      balanceResult = unlockJsx({
+        onClick: async e => {
+          await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, lpTokenAddress);
+          // TODO trigger balance refresh if this was an "advanced set" that didn't
+          // result in an on-chain transaction
+        },
+      });
+      lpBalance = balanceResult;
+    } else {
+      lpBalance = new BigNumber(balanceResult);
+    }
+
     return [
       {
         [lpTokenSymbol]: lpBalance,
@@ -409,7 +432,7 @@ export class SwapRouter extends React.Component<
       this.ws.send(
         JSON.stringify({
           jsonrpc: '2.0',
-          id: 'SCRT', // jsonrpc id
+          id: 'uscrt', // jsonrpc id
           method: 'subscribe',
           params: { query },
         }),
@@ -428,7 +451,7 @@ export class SwapRouter extends React.Component<
         this.ws.send(
           JSON.stringify({
             jsonrpc: '2.0',
-            id: 'SCRT', // jsonrpc id
+            id: token.identifier, // jsonrpc id
             method: 'subscribe',
             params: { query },
           }),
@@ -489,7 +512,7 @@ export class SwapRouter extends React.Component<
     // }
 
     //load hardcoded tokens (scrt, atom, etc.)
-    for (const t of loadTokensFromList(this.props.user.chainId)) {
+    for (const t of loadTokensFromList(this.props.user.chainId || process.env.CHAIN_ID)) {
       swapTokens.set(t.identifier, t);
     }
 
@@ -619,11 +642,11 @@ export class SwapRouter extends React.Component<
                   tokens={this.state.allTokens}
                   balances={this.state.balances}
                   selectedPair={this.state.selectedPair}
+                  selectedToken0={this.state.selectedToken0}
+                  selectedToken1={this.state.selectedToken1}
                   //pairFromSymbol={this.state.pairFromSymbol}
                   notify={this.notify}
-                  onSetTokens={async (token0, token1) => {
-                    await this.setCurrentPair(token0, token1);
-                  }}
+                  onSetTokens={async (token0, token1) => await this.onSetTokens(token0, token1)}
                 />
               )}
               {isProvide && (
@@ -633,8 +656,10 @@ export class SwapRouter extends React.Component<
                   tokens={this.state.allTokens}
                   balances={this.state.balances}
                   //pairs={this.state.pairs}
-                  pairs={[]}
-                  pairFromSymbol={this.state.pairFromSymbol}
+                  pairs={this.state.pairs}
+                  selectedPair={this.state.selectedPair}
+                  selectedToken0={this.state.selectedToken0}
+                  selectedToken1={this.state.selectedToken1}
                   notify={this.notify}
                 />
               )}
@@ -645,9 +670,19 @@ export class SwapRouter extends React.Component<
                   tokens={this.state.allTokens}
                   balances={this.state.balances}
                   //pairs={this.state.pairs}
-                  pairs={[]}
-                  pairFromSymbol={this.state.pairFromSymbol}
+                  pairs={this.state.pairs}
+                  //pairFromSymbol={this.state.pairFromSymbol}
                   notify={this.notify}
+                  updateToken={async pair => {
+                    const results = await this.refreshLpTokenBalance(pair);
+                    this.setState(currentState => ({
+                      balances: {
+                        ...currentState.balances,
+                        ...results[0],
+                        ...results[1],
+                      },
+                    }));
+                  }}
                 />
               )}
             </Box>
@@ -659,4 +694,15 @@ export class SwapRouter extends React.Component<
       </BaseContainer>
     );
   }
+
+  private onSetTokens = async (token0, token1) => {
+    this.setState(currentState => ({
+      ...currentState,
+      selectedToken0: token0,
+      selectedToken1: token1,
+    }));
+    if (token0 && token1) {
+      await this.setCurrentPair(token0, token1);
+    }
+  };
 }

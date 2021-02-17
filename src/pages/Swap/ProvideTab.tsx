@@ -2,7 +2,7 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
-import { flexRowSpace, Pair, swapContainerStyle } from '.';
+import { NewPair, Pair, swapContainerStyle, PairMap } from '.';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from './PriceRow';
@@ -10,10 +10,11 @@ import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
 import { compareNormalize } from './utils';
-import { getFeeForExecute } from '../../blockchain-bridge';
+import { GetContractCodeHash, getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
 import { Asset } from './trade';
 import { SwapTokenMap } from './SwapToken';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
 const plus = (
   <svg
@@ -89,10 +90,10 @@ export class ProvideTab extends React.Component<
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };
-    pairs: Array<Pair>;
-    pairFromSymbol: {
-      [symbol: string]: Pair;
-    };
+    pairs: PairMap;
+    selectedPair: NewPair;
+    selectedToken0: string;
+    selectedToken1: string;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   },
   {
@@ -109,15 +110,14 @@ export class ProvideTab extends React.Component<
     loadingApproveA: boolean;
     loadingApproveB: boolean;
     provideState: ProvideState;
-    selectedPairSymbol: string;
   }
 > {
   constructor(props) {
     super(props);
 
     this.state = {
-      tokenA: '',
-      tokenB: '',
+      tokenA: this.props.selectedToken0 || this.props.tokens.values().next()?.value?.identifier || '',
+      tokenB: this.props.selectedToken1 || '',
       inputA: '',
       inputB: '',
       allowanceA: new BigNumber(0),
@@ -129,18 +129,15 @@ export class ProvideTab extends React.Component<
       loadingApproveA: false,
       loadingApproveB: false,
       provideState: ProvideState.UNLOCK_TOKENS,
-      selectedPairSymbol: '',
     };
   }
 
   componentDidMount() {
-    const firstPairSymbol = Object.keys(this.props.pairFromSymbol)[0];
-    if (firstPairSymbol) {
-      const [tokenA, tokenB] = firstPairSymbol.split('/');
+    if (this.props.selectedPair) {
+      const [tokenA, tokenB] = this.props.selectedPair.assetIds();
       this.setState({ tokenA, tokenB }, () => {
-        const pair = this.props.pairFromSymbol[firstPairSymbol];
-        this.updateAllowance(pair, tokenA);
-        this.updateAllowance(pair, tokenB);
+        this.updateAllowance(tokenA);
+        this.updateAllowance(tokenB);
       });
     }
   }
@@ -150,27 +147,21 @@ export class ProvideTab extends React.Component<
       this.updateInputs();
     }
 
-    if (sortedStringify(previousProps.pairFromSymbol) !== sortedStringify(this.props.pairFromSymbol)) {
-      const firstPairSymbol = Object.keys(this.props.pairFromSymbol)[0];
-      if (firstPairSymbol) {
-        const [tokenA, tokenB] = firstPairSymbol.split('/');
-        this.setState(
-          {
-            tokenA,
-            tokenB,
-          },
-          () => {
-            const pair = this.props.pairFromSymbol[`${tokenA}/${tokenB}`];
-            this.updateAllowance(pair, tokenA);
-            this.updateAllowance(pair, tokenB);
-          },
-        );
-      }
+    if (previousProps.selectedPair !== this.props.selectedPair) {
+      const [tokenA, tokenB] = this.props.selectedPair.assetIds();
+      this.setState(
+        {
+          tokenA,
+          tokenB,
+        },
+        () => {
+          this.updateAllowance(tokenA);
+          this.updateAllowance(tokenB);
+        },
+      );
     }
 
-    const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    const newProvideState = this.getProvideState(pair);
+    const newProvideState = this.getProvideState(this.props.selectedPair);
     if (newProvideState !== this.state.provideState) {
       this.setState({ provideState: newProvideState });
     }
@@ -181,14 +172,19 @@ export class ProvideTab extends React.Component<
   }
 
   private getDecimalsB(): number {
-    return this.props.tokens[this.state.tokenB]?.decimals;
+    return this.props.tokens.get(this.state.tokenB)?.decimals;
   }
 
   private getDecimalsA(): number {
-    return this.props.tokens[this.state.tokenA]?.decimals;
+    return this.props.tokens.get(this.state.tokenA)?.decimals;
   }
 
-  async updateAllowance(pair: Pair, symbol: string) {
+  async updateAllowance(symbol: string) {
+    if (!this.props.selectedPair) {
+      //console.error('updateAllowance for non-existent pair');
+      return;
+    }
+
     let stateField: string;
     if (this.state.tokenA === symbol) {
       stateField = 'allowanceA';
@@ -199,13 +195,8 @@ export class ProvideTab extends React.Component<
       return;
     }
 
-    if (symbol === 'SCRT') {
+    if (symbol === 'uscrt') {
       this.setState<never>({ [stateField]: new BigNumber(Infinity) });
-      return;
-    }
-
-    if (!pair) {
-      console.error('updateAllowance for non-existent pair');
       return;
     }
 
@@ -216,10 +207,10 @@ export class ProvideTab extends React.Component<
         allowance: string;
         expiration: number;
       };
-    } = await this.props.secretjs.queryContractSmart(this.props.tokens[symbol].address, {
+    } = await this.props.secretjs.queryContractSmart(this.props.tokens.get(symbol).address, {
       allowance: {
         owner: this.props.user.address,
-        spender: pair.contract_addr,
+        spender: this.props.selectedPair.contract_addr,
         key: 'SecretSwap',
       },
     });
@@ -235,14 +226,13 @@ export class ProvideTab extends React.Component<
   }
 
   async updateInputs() {
-    const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
+    //const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
 
-    if (selectedPairSymbol !== this.state.selectedPairSymbol) {
-      this.setState({ selectedPairSymbol });
-    }
+    // if (selectedPairSymbol !== this.state.selectedPairSymbol) {
+    //   this.setState({ selectedPairSymbol });
+    // }
 
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
-    if (!pair) {
+    if (!this.props.selectedPair) {
       this.setState({
         inputA: '',
         isEstimatedA: false,
@@ -273,7 +263,7 @@ export class ProvideTab extends React.Component<
         });
       } else {
         const nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: this.props.tokens[this.state.tokenB].decimals,
+          maximumFractionDigits: this.getDecimalsB(),
           useGrouping: false,
         });
         this.setState({
@@ -295,7 +285,7 @@ export class ProvideTab extends React.Component<
         });
       } else {
         const nf = new Intl.NumberFormat('en-US', {
-          maximumFractionDigits: this.props.tokens[this.state.tokenA].decimals,
+          maximumFractionDigits: this.getDecimalsA(),
           useGrouping: false,
         });
         this.setState({
@@ -307,7 +297,7 @@ export class ProvideTab extends React.Component<
     }
   }
 
-  async approveOnClick(pair: Pair, symbol: string) {
+  async approveOnClick(pair: NewPair, symbol: string) {
     let stateFieldSuffix: string;
     if (this.state.tokenA === symbol) {
       stateFieldSuffix = 'A';
@@ -324,7 +314,7 @@ export class ProvideTab extends React.Component<
 
     try {
       await this.props.secretjs.execute(
-        this.props.tokens[symbol].address,
+        this.props.tokens.get(symbol).address,
         {
           increase_allowance: {
             spender: pair.contract_addr,
@@ -338,7 +328,7 @@ export class ProvideTab extends React.Component<
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
       });
-      this.props.notify('success', `${symbol} approved for ${this.state.tokenA}/${this.state.tokenB}`);
+      this.props.notify('success', `${symbol} approved for ${this.props.selectedPair.identifier()}`);
     } catch (error) {
       console.error('Error while trying to approve', symbol, error);
       this.props.notify('error', `Error approving ${symbol}: ${error.message}`);
@@ -349,7 +339,7 @@ export class ProvideTab extends React.Component<
     });
   }
 
-  getProvideState(pair: Pair): ProvideState {
+  getProvideState(pair: NewPair): ProvideState {
     const [balanceA, balanceB] = this.getTokenBalances();
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
@@ -376,9 +366,6 @@ export class ProvideTab extends React.Component<
   }
 
   render() {
-    const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
-
     const buttonMessage = ButtonMessage(this.state.provideState);
 
     const [balanceA, balanceB] = this.getTokenBalances();
@@ -394,11 +381,15 @@ export class ProvideTab extends React.Component<
     const amountA = canonicalizeBalance(new BigNumber(this.state.inputA), decimalsA);
     const amountB = canonicalizeBalance(new BigNumber(this.state.inputB), decimalsB);
 
-    const showApproveAButton: boolean = this.state.tokenA !== 'SCRT' && pair && this.state.allowanceA.lt(amountA);
-    const showApproveBButton: boolean = this.state.tokenB !== 'SCRT' && pair && this.state.allowanceB.lt(amountB);
+    const showApproveAButton: boolean =
+      this.state.tokenA !== 'uscrt' && this.props.selectedPair && this.state.allowanceA.lt(amountA);
+    const showApproveBButton: boolean =
+      this.state.tokenB !== 'uscrt' && this.props.selectedPair && this.state.allowanceB.lt(amountB);
 
-    const lpTokenBalance = this.props.balances[`LP-${selectedPairSymbol}`];
-    const lpTokenTotalSupply = new BigNumber(this.props.balances[`LP-${selectedPairSymbol}-total-supply`] as BigNumber);
+    const lpTokenBalance = this.props.balances[`LP-${this.props.selectedPair?.identifier()}`];
+    const lpTokenTotalSupply = new BigNumber(
+      this.props.balances[`LP-${this.props.selectedPair?.identifier()}-total-supply`] as BigNumber,
+    );
     const currentShareOfPool = lpTokenTotalSupply.isZero()
       ? lpTokenTotalSupply
       : new BigNumber(lpTokenBalance as BigNumber).dividedBy(lpTokenTotalSupply);
@@ -445,9 +436,8 @@ export class ProvideTab extends React.Component<
                 () => {
                   this.updateInputs();
 
-                  const pair = this.props.pairFromSymbol[`${this.state.tokenA}/${this.state.tokenB}`];
-                  this.updateAllowance(pair, this.state.tokenA);
-                  this.updateAllowance(pair, this.state.tokenB);
+                  this.updateAllowance(this.state.tokenA);
+                  this.updateAllowance(this.state.tokenB);
                 },
               );
             }
@@ -482,9 +472,9 @@ export class ProvideTab extends React.Component<
             alignContent: 'center',
           }}
         >
-          {flexRowSpace}
+          <FlexRowSpace />
           <span>{plus}</span>
-          {flexRowSpace}
+          <FlexRowSpace />
         </div>
         <AssetRow
           secretjs={this.props.secretjs}
@@ -520,11 +510,8 @@ export class ProvideTab extends React.Component<
                 () => {
                   this.updateInputs();
 
-                  const pair = this.props.pairFromSymbol[`${this.state.tokenA}/${this.state.tokenB}`];
-                  if (pair) {
-                    this.updateAllowance(pair, this.state.tokenA);
-                    this.updateAllowance(pair, this.state.tokenB);
-                  }
+                  this.updateAllowance(this.state.tokenA);
+                  this.updateAllowance(this.state.tokenB);
                 },
               );
             }
@@ -553,7 +540,11 @@ export class ProvideTab extends React.Component<
           }}
         />
         {!price.isNaN() && (
-          <PriceRow fromToken={this.state.tokenA} toToken={this.state.tokenB} price={price.toNumber()} />
+          <PriceRow
+            fromToken={this.props.tokens.get(this.state.tokenA)?.symbol}
+            toToken={this.props.tokens.get(this.state.tokenB)?.symbol}
+            price={price.toNumber()}
+          />
         )}
         {lpTokenBalance !== undefined && (
           <div
@@ -563,7 +554,7 @@ export class ProvideTab extends React.Component<
             }}
           >
             Your Current Share of Pool
-            {flexRowSpace}
+            <FlexRowSpace />
             {(() => {
               if (JSON.stringify(lpTokenBalance).includes('View')) {
                 return lpTokenBalance;
@@ -581,7 +572,7 @@ export class ProvideTab extends React.Component<
             }}
           >
             Expected Gain in Your Share of Pool
-            {flexRowSpace}
+            <FlexRowSpace />
             {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
           </div>
         )}
@@ -589,8 +580,8 @@ export class ProvideTab extends React.Component<
           <NewPoolWarning
             inputA={this.state.inputA}
             inputB={this.state.inputB}
-            tokenA={this.state.tokenA}
-            tokenB={this.state.tokenB}
+            tokenA={this.props.tokens.get(this.state.tokenA)?.symbol}
+            tokenB={this.props.tokens.get(this.state.tokenB)?.symbol}
           />
         </div>
         <div hidden={!showApproveAButton}>
@@ -598,9 +589,9 @@ export class ProvideTab extends React.Component<
             disabled={this.state.loadingApproveA}
             loading={this.state.loadingApproveA}
             onClick={() => {
-              this.approveOnClick(pair, this.state.tokenA).then(() => {});
+              this.approveOnClick(this.props.selectedPair, this.state.tokenA).then(() => {});
             }}
-            token={this.state.tokenA}
+            token={this.props.tokens.get(this.state.tokenA)?.symbol}
           />
         </div>
         <div hidden={!showApproveBButton}>
@@ -608,9 +599,9 @@ export class ProvideTab extends React.Component<
             disabled={this.state.loadingApproveB}
             loading={this.state.loadingApproveB}
             onClick={() => {
-              this.approveOnClick(pair, this.state.tokenB).then(() => {});
+              this.approveOnClick(this.props.selectedPair, this.state.tokenB).then(() => {});
             }}
-            token={this.state.tokenB}
+            token={this.props.tokens.get(this.state.tokenB)?.symbol}
           />
         </div>
         <Button
@@ -629,14 +620,13 @@ export class ProvideTab extends React.Component<
           style={buttonStyle}
           onClick={async () => {
             if (this.isReadyForProvide()) {
-              await this.provideLiquidityAction(pair);
+              await this.provideLiquidityAction(this.props.selectedPair);
             } else if (this.isReadyForNewPool()) {
-              const assetA = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenA]);
-              const assetB = Asset.fromTokenDisplay(this.props.tokens[this.state.tokenB]);
+              const assetA = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenA));
+              const assetB = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenB));
 
               await this.createNewPairAction(assetA, assetB)
                 .catch(e => {
-                  console.log('hello');
                   this.props.notify('error', e);
                 })
                 .then(() => {
@@ -662,7 +652,7 @@ export class ProvideTab extends React.Component<
     return result.contractAddress;
   }
 
-  private async provideLiquidityAction(pair: Pair) {
+  private async provideLiquidityAction(pair: NewPair) {
     this.setState({
       loadingProvide: true,
     });
@@ -675,7 +665,7 @@ export class ProvideTab extends React.Component<
 
     let transferAmount: Array<Coin> = [];
     for (const i of ['A', 'B']) {
-      const { decimals } = this.props.tokens[this.state['token' + i]];
+      const { decimals } = this.props.tokens.get(this.state['token' + i]);
 
       const amount: string = canonicalizeBalance(new BigNumber(this.state['input' + i]), decimals).toFixed(
         0,
@@ -686,7 +676,7 @@ export class ProvideTab extends React.Component<
           */
       );
 
-      if (this.state['token' + i] === 'SCRT') {
+      if (this.state['token' + i] === 'uscrt') {
         msg.provide_liquidity.assets.push({
           info: {
             native_token: {
@@ -697,12 +687,31 @@ export class ProvideTab extends React.Component<
         });
         transferAmount = [{ amount: amount, denom: 'uscrt' }];
       } else {
-        const token = this.props.tokens[this.state['token' + i]];
+        const token = this.props.tokens.get(this.state['token' + i]);
+
+        let token_code_hash = '';
+
+        try {
+          token_code_hash = await GetContractCodeHash({ secretjs: this.props.secretjs, address: token.address });
+        } catch (error) {
+          console.error('Error while trying to add liquidity', error);
+          this.props.notify(
+            'error',
+            `Error providing to ${this.props.selectedPair.identifier()} - error getting token information`,
+          );
+
+          this.setState({
+            loadingProvide: false,
+          });
+
+          return;
+        }
+
         msg.provide_liquidity.assets.push({
           info: {
             token: {
               contract_addr: token.address,
-              token_code_hash: token.token_code_hash,
+              token_code_hash: token_code_hash,
               viewing_key: '',
             },
           },
@@ -756,13 +765,13 @@ export class ProvideTab extends React.Component<
 
   private getPoolA() {
     return new BigNumber(
-      this.props.balances[`${this.state.tokenA}-${this.state.tokenA}/${this.state.tokenB}`] as BigNumber,
+      this.props.balances[`${this.state.tokenA}-${this.props.selectedPair?.identifier()}`] as BigNumber,
     );
   }
 
   private getPoolB() {
     return new BigNumber(
-      this.props.balances[`${this.state.tokenB}-${this.state.tokenA}/${this.state.tokenB}`] as BigNumber,
+      this.props.balances[`${this.state.tokenB}-${this.props.selectedPair?.identifier()}`] as BigNumber,
     );
   }
 }

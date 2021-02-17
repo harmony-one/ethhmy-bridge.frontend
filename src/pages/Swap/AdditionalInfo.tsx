@@ -2,8 +2,6 @@ import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
 
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
-
 export const AdditionalInfo = ({
   minimumReceived,
   maximumSold,

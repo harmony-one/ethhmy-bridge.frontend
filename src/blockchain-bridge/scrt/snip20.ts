@@ -37,9 +37,8 @@ export const Snip20GetBalance = async (params: {
   token: string;
   address: string;
   key: string;
-  decimals: number;
 }) => {
-  const { secretjs, address, token, key, decimals } = params;
+  const { secretjs, address, token, key } = params;
 
   let balanceResponse;
   try {
@@ -61,7 +60,7 @@ export const Snip20GetBalance = async (params: {
   if (Number(balanceResponse.balance.amount) === 0) {
     return '0';
   }
-  return divDecimals(balanceResponse.balance.amount, decimals);
+  return balanceResponse.balance.amount;
 };
 
 export const Snip20SendToBridge = async (params: {

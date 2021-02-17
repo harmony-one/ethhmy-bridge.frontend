@@ -1,4 +1,5 @@
 import { TokenDisplay } from './index';
+import { SwapToken } from './SwapToken';
 
 export enum TradeType {
   EXACT_INPUT,
@@ -62,6 +63,15 @@ export class Asset {
   }
 
   static fromTokenDisplay(token: TokenDisplay): Asset {
+    let tokenInfo: TokenInfo = {
+      symbol: token.symbol,
+      address: token?.address,
+    };
+
+    return Asset.fromTokenInfo(tokenInfo);
+  }
+
+  static fromSwapToken(token: SwapToken): Asset {
     let tokenInfo: TokenInfo = {
       symbol: token.symbol,
       address: token?.address,

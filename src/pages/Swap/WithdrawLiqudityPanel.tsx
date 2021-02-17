@@ -4,24 +4,22 @@ import { SigningCosmWasmClient } from 'secretjs';
 import { Container, Image, Button, Divider, Header, Accordion } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
-import { flexRowSpace, Pair, TokenDisplay } from '.';
+import { NewPair } from '.';
 import { PriceRow } from './PriceRow';
 import { downArrow } from './SwapTab';
-import { getFeeForExecute } from '../../blockchain-bridge/scrt';
+import { getFeeForExecute } from '../../blockchain-bridge';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { SwapTokenMap } from './SwapToken';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
     lpTokenSymbol: string;
-    tokens: {
-      [symbol: string]: TokenDisplay;
-    };
+    tokens: SwapTokenMap;
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };
     secretjs: SigningCosmWasmClient;
-    pairFromSymbol: {
-      [symbol: string]: Pair;
-    };
+    selectedPair: NewPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   },
   {
@@ -42,12 +40,12 @@ export class WithdrawLiquidityPanel extends React.Component<
 
   render() {
     const pairSymbol = this.props.lpTokenSymbol.replace('LP-', '');
-    const pair = this.props.pairFromSymbol[pairSymbol];
+    //const pair = this.props.pairs;
 
-    const [tokenA, tokenB] = pairSymbol.split('/');
+    const [tokenA, tokenB] = this.props.selectedPair.assetIds();
 
-    const decimalsA = this.props.tokens[tokenA].decimals;
-    const decimalsB = this.props.tokens[tokenB].decimals;
+    const decimalsA = this.props.tokens.get(tokenA)?.decimals;
+    const decimalsB = this.props.tokens.get(tokenB)?.decimals;
 
     const lpTokenBalance = this.props.balances[this.props.lpTokenSymbol];
     const lpTokenTotalSupply = this.props.balances[this.props.lpTokenSymbol + '-total-supply'] as BigNumber;
@@ -85,7 +83,7 @@ export class WithdrawLiquidityPanel extends React.Component<
 
     const getLogo = (symbol: string) => (
       <Image
-        src={this.props.tokens[symbol].logo}
+        src={this.props.tokens.get(symbol)?.logo}
         avatar
         style={{
           boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px',
@@ -139,15 +137,15 @@ export class WithdrawLiquidityPanel extends React.Component<
                   margin: 'auto',
                 }}
               >
-                {pairSymbol}
+                {this.props.selectedPair.asset_infos[0].symbol}-{this.props.selectedPair.asset_infos[1].symbol}
               </strong>
-              {flexRowSpace}
+              <FlexRowSpace />
             </div>
           </Accordion.Title>
           <Accordion.Content active={this.state.isActive}>
             <div style={rowStyle}>
               <span>Your Total Pool Tokens</span>
-              {flexRowSpace}
+              <FlexRowSpace />
               {lpTokenBalanceNum.isNaN()
                 ? lpTokenBalance
                 : displayHumanizedBalance(humanizeBalance(lpTokenBalanceNum, 6))}
@@ -156,19 +154,19 @@ export class WithdrawLiquidityPanel extends React.Component<
               <>
                 <div style={rowStyle}>
                   <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>
-                  {flexRowSpace}
+                  <FlexRowSpace />
                   <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenA}</span>
                   {getLogo(tokenA)}
                 </div>
                 <div style={rowStyle}>
                   <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}`}</span>
-                  {flexRowSpace}
+                  <FlexRowSpace />
                   <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenB}</span>
                   {getLogo(tokenB)}
                 </div>
                 <div style={rowStyle}>
                   <span>Your Pool Share</span>
-                  {flexRowSpace}
+                  <FlexRowSpace />
                   {lpShareJsxElement}
                 </div>
                 {lpTokenBalanceString === '0' ? null : (
@@ -183,9 +181,9 @@ export class WithdrawLiquidityPanel extends React.Component<
                         paddingBottom: '0.2em',
                       }}
                     >
-                      {flexRowSpace}
+                      <FlexRowSpace />
                       {`${new BigNumber(this.state.withdrawPercentage * 100).toFixed(0)}%`}
-                      {flexRowSpace}
+                      <FlexRowSpace />
                     </div>
                     <div style={{ ...rowStyle, paddingBottom: '0.2em' }}>
                       <input
@@ -267,13 +265,13 @@ export class WithdrawLiquidityPanel extends React.Component<
                       </Button>
                     </div>
                     <div style={rowStyle}>
-                      {flexRowSpace}
+                      <FlexRowSpace />
                       {downArrow}
-                      {flexRowSpace}
+                      <FlexRowSpace />
                     </div>
                     <div style={rowStyle}>
                       <span style={{ margin: 'auto' }}>{tokenA}</span>
-                      {flexRowSpace}
+                      <FlexRowSpace />
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                         {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
                         {displayHumanizedBalance(
@@ -284,7 +282,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                     </div>
                     <div style={rowStyle}>
                       <span style={{ margin: 'auto' }}>{tokenB}</span>
-                      {flexRowSpace}
+                      <FlexRowSpace />
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                         {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
                         {displayHumanizedBalance(
@@ -293,9 +291,15 @@ export class WithdrawLiquidityPanel extends React.Component<
                       </span>
                       {getLogo(tokenB)}
                     </div>
-                    {!price.isNaN() && <PriceRow fromToken={tokenA} toToken={tokenB} price={price.toNumber()} />}
+                    {!price.isNaN() && (
+                      <PriceRow
+                        fromToken={this.props.tokens.get(tokenA)?.symbol}
+                        toToken={this.props.tokens.get(tokenB)?.symbol}
+                        price={price.toNumber()}
+                      />
+                    )}
                     <div style={rowStyle}>
-                      {flexRowSpace}
+                      <FlexRowSpace />
                       <Button
                         primary
                         loading={this.state.isLoading}
@@ -313,10 +317,10 @@ export class WithdrawLiquidityPanel extends React.Component<
 
                           try {
                             const result = await this.props.secretjs.execute(
-                              pair.liquidity_token,
+                              this.props.selectedPair.liquidity_token,
                               {
                                 send: {
-                                  recipient: pair.contract_addr,
+                                  recipient: this.props.selectedPair.contract_addr,
                                   amount: amountInTokenDenom,
                                   msg: btoa(
                                     JSON.stringify({
@@ -355,7 +359,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                       >
                         Withdraw
                       </Button>
-                      {flexRowSpace}
+                      <FlexRowSpace />
                     </div>
                   </>
                 )}

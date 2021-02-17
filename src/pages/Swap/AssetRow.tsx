@@ -7,8 +7,7 @@ import { TokenSelector } from './TokenSelector';
 import { SwapInput } from '../../components/Swap/SwapInput';
 import { SigningCosmWasmClient } from 'secretjs';
 import { SwapTokenMap } from './SwapToken';
-
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
 export const AssetRow = ({
   tokens,
@@ -57,7 +56,7 @@ export const AssetRow = ({
           {label}
           {isEstimated ? ` (estimated)` : null}
         </span>
-        {flexRowSpace}
+        <FlexRowSpace />
         <div hidden={!token}>
           {'Balance: '}
           {(() => {
@@ -96,7 +95,7 @@ export const AssetRow = ({
             setAmount(value);
           }}
         />
-        {flexRowSpace}
+        <FlexRowSpace />
         {maxButton && token && (
           <Button
             basic
