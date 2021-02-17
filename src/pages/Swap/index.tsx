@@ -524,7 +524,7 @@ export class SwapRouter extends React.Component<
               </div>
             }
             content={<WalletOverview tokens={this.state.tokens} balances={this.state.balances} />}
-            position="left center"
+            position="bottom left"
             basic
             on="click"
             trigger={
