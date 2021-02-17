@@ -483,7 +483,7 @@ export class SwapRouter extends React.Component<
   notify(type: 'success' | 'error', msg: string, hideAfterSec: number = 120) {
     if (type === 'error') {
       msg = msg.replaceAll('Failed to decrypt the following error message: ', '');
-      msg = msg.replaceAll('. Decryption error of the error message: ', '');
+      msg = msg.replace(/\. Decryption error of the error message:.+?/, '');
     }
 
     const { hide } = cogoToast[type](msg, {
