@@ -29,10 +29,7 @@ const ScrtTokenBalanceSingleLine = (props: {
   } else {
     return (
       <>
-        {balanceNumberFormat.format(
-          toFixedTrunc(Number(props.value.replace(/,/g, '')), 6),
-        )}{' '}
-        {props.currency}
+        {balanceNumberFormat.format(toFixedTrunc(Number(props.value.replace(/,/g, '')), 6))} {props.currency}
       </>
     );
   }

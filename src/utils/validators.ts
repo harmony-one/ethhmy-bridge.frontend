@@ -1,16 +1,8 @@
 import * as _ from 'lodash';
 
-export function createValidate(
-  func: (value: any, data?: any) => boolean,
-  error: any,
-) {
+export function createValidate(func: (value: any, data?: any) => boolean, error: any) {
   return {
-    validator(
-      rule: any[],
-      value: any,
-      callback: (errors: any[]) => void,
-      storeData?: any,
-    ) {
+    validator(rule: any[], value: any, callback: (errors: any[]) => void, storeData?: any) {
       const errors = [];
 
       if (func(value, storeData)) {
@@ -25,11 +17,7 @@ interface ValidatorFunc<T = string> {
   (rule: any[], value: T, callback: (errors: any[]) => void): void;
 }
 
-export const maxLength = (length: number, msg?: string): ValidatorFunc => (
-  _,
-  value,
-  callback,
-) => {
+export const maxLength = (length: number, msg?: string): ValidatorFunc => (_, value, callback) => {
   const errors = [];
 
   if (value.length > length) {
@@ -40,11 +28,7 @@ export const maxLength = (length: number, msg?: string): ValidatorFunc => (
   callback(errors);
 };
 
-export const maxAmount = (amount: number, msg?: string): ValidatorFunc => (
-  _,
-  value,
-  callback,
-) => {
+export const maxAmount = (amount: number, msg?: string): ValidatorFunc => (_, value, callback) => {
   const errors = [];
 
   if (value && Number(value) > amount) {
@@ -57,19 +41,12 @@ export const maxAmount = (amount: number, msg?: string): ValidatorFunc => (
 
 export const isTheSameAs = (fieldName: string, err: string) => {
   return {
-    ...createValidate(
-      (value, formData) => _.get(formData, fieldName) !== value,
-      err,
-    ),
+    ...createValidate((value, formData) => _.get(formData, fieldName) !== value, err),
     validateType: 'requiredValidator',
   };
 };
 
-export const nonEmptyFilesRule = (
-  _: any,
-  value: File[],
-  cb: (errors: any[]) => void,
-) => {
+export const nonEmptyFilesRule = (_: any, value: File[], cb: (errors: any[]) => void) => {
   const errors = [];
 
   if (!value || value.length === 0) {
@@ -81,12 +58,7 @@ export const nonEmptyFilesRule = (
 
 export const isLengthBetween = (minLength: number, maxLength: number) => {
   return {
-    validator(
-      rule: any[],
-      value: string,
-      callback: (errors: any[]) => void,
-      storeData?: any,
-    ) {
+    validator(rule: any[], value: string, callback: (errors: any[]) => void, storeData?: any) {
       const errors = [];
 
       if (!value || value.length < minLength || value.length > maxLength) {
@@ -103,8 +75,7 @@ export const isLengthBetween = (minLength: number, maxLength: number) => {
   };
 };
 
-export const limitLength = (value: string | number, limit = 19) =>
-  String(value).slice(0, limit);
+export const limitLength = (value: string | number, limit = 19) => String(value).slice(0, limit);
 
 export const oneOfLengths = (
   lengths: number[],
@@ -123,12 +94,7 @@ export const hasWords = (count: number, message: string) =>
   }, message);
 
 export const moreThanZero = {
-  validator(
-    rule: any[],
-    value: any,
-    callback: (errors: any[]) => void,
-    storeData?: any,
-  ) {
+  validator(rule: any[], value: any, callback: (errors: any[]) => void, storeData?: any) {
     const errors = [];
 
     if (!value || Number(value) <= 0) {

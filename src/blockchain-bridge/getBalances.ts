@@ -14,10 +14,7 @@ export const getEthBalance = (ethAddress): Promise<string> => {
 };
 
 // Source: https://medium.com/@piyopiyo/how-to-get-erc20-token-balance-with-web3-js-206df52f2561
-export const getErc20Balance = async (
-  ethAddress,
-  tokenAddress,
-): Promise<string> => {
+export const getErc20Balance = async (ethAddress, tokenAddress): Promise<string> => {
   // The minimum ABI to get ERC20 Token balance
   const minimumErc20Abi = [
     // balanceOf

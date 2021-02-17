@@ -2,7 +2,7 @@ import React from 'react';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 
-const SoftTitleValue = props => {
+const SoftTitleValue = (props: { title: string | JSX.Element; subTitle?: string | JSX.Element }) => {
   if (props.subTitle) {
     return (
       <div>

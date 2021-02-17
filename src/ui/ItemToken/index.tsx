@@ -17,10 +17,7 @@ export const ItemToken = ({ selected, onClick, tokenType }) => {
 
   return (
     <Box direction="row">
-      <Box
-        className={cn(styles.itemToken, selected ? styles.selected : '')}
-        onClick={() => onClick(tokenType)}
-      >
+      <Box className={cn(styles.itemToken, selected ? styles.selected : '')} onClick={() => onClick(tokenType)}>
         <img className={styles.imgToken} src={icon} />
         <Text>{tokenType.toUpperCase()}</Text>
       </Box>

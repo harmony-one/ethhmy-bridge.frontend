@@ -18,9 +18,7 @@ const ClaimButton = (props: {
     <Button
       loading={loading}
       className={cn(styles.button, 'ui', 'blue', 'basic', 'button', 'circular')}
-      disabled={
-        typeof props.available === 'undefined' || props.available === '0'
-      }
+      disabled={typeof props.available === 'undefined' || props.available === '0'}
       onClick={async () => {
         setLoading(true);
         try {

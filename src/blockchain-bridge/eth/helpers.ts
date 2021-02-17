@@ -11,9 +11,7 @@ export const getGasPrice = async (web3: Web3) => {
   let gasPriceApi = 0;
 
   try {
-    const info = await agent.get(
-      `https://www.etherchain.org/api/gasPriceOracle`,
-    );
+    const info = await agent.get(`https://www.etherchain.org/api/gasPriceOracle`);
 
     gasPriceApi = mulDecimals(info.body.standard, 8);
   } catch (e) {

@@ -18,11 +18,7 @@ const buttonStyle = {
   backgroundColor: 'transparent',
 };
 
-const AmountButton = (props: {
-  balance: string;
-  multiplier: string;
-  onChange: CallableFunction;
-}) => {
+const AmountButton = (props: { balance: string; multiplier: string; onChange: CallableFunction }) => {
   return (
     <Button.Group className={cn(styles.amountButton)}>
       <Button
@@ -41,9 +37,7 @@ const AmountButton = (props: {
 const changeInput = (balance, percentage, onChange) => {
   const event = {
     target: {
-      value: String(
-        parseFloat(percentage) * parseFloat(balance.replace(/,/g, '')),
-      ),
+      value: String(parseFloat(percentage) * parseFloat(balance.replace(/,/g, ''))),
     },
   };
   onChange(event);
@@ -66,36 +60,15 @@ const DepositContainer = props => {
           <div className={cn(styles.subtitle)}>{props.balanceText}</div>
         </div>
         <div>
-          <Input
-            placeholder="0.0"
-            className={cn(styles.form)}
-            value={props.value}
-            onChange={props.onChange}
-          >
+          <Input placeholder="0.0" className={cn(styles.form)} value={props.value} onChange={props.onChange}>
             <input style={{ borderRadius: '100px', height: '47px' }} />
           </Input>
         </div>
         <div className={styles.amountRow}>
-          <AmountButton
-            balance={props.balance}
-            onChange={props.onChange}
-            multiplier={'0.25'}
-          />
-          <AmountButton
-            balance={props.balance}
-            onChange={props.onChange}
-            multiplier={'0.5'}
-          />
-          <AmountButton
-            balance={props.balance}
-            onChange={props.onChange}
-            multiplier={'0.75'}
-          />
-          <AmountButton
-            balance={props.balance}
-            onChange={props.onChange}
-            multiplier={'1'}
-          />
+          <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'0.25'} />
+          <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'0.5'} />
+          <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'0.75'} />
+          <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'1'} />
         </div>
         {props.action}
       </div>

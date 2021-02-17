@@ -10,9 +10,7 @@ interface Props<TStores> {
 export function createStoresContext<T>() {
   const StoresContext = React.createContext<T | null>(null);
   function StoresProvider({ stores, children }: Props<T>) {
-    return (
-      <StoresContext.Provider value={stores}>{children}</StoresContext.Provider>
-    );
+    return <StoresContext.Provider value={stores}>{children}</StoresContext.Provider>;
   }
   const useStores = () => {
     const stores = useContext(StoresContext);

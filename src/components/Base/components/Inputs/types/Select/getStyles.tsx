@@ -20,10 +20,7 @@ export const getStyles: GetStyles = (type, customStyles) => {
   return result;
 };
 
-const injectCustomStyles = (
-  source: StylesConfig,
-  customStyles: SelectCustomStyles
-): StylesConfig => {
+const injectCustomStyles = (source: StylesConfig, customStyles: SelectCustomStyles): StylesConfig => {
   const result = { ...source };
   const customizedParts = Object.keys(customStyles) as [keyof StylesConfig];
 

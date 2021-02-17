@@ -118,12 +118,7 @@ export const CustomHeader = (props: IHeaderProps) => {
         </div>
       </div>
       {hasAnyActiveFilter && (
-        <SubHeader
-          filter={filter}
-          column={column}
-          onChange={removeFilterByKey}
-          updateManyFilters={updateManyFilters}
-        />
+        <SubHeader filter={filter} column={column} onChange={removeFilterByKey} updateManyFilters={updateManyFilters} />
       )}
     </div>
   );

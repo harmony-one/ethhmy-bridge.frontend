@@ -14,24 +14,24 @@ const allowedHost = urls.lanUrlForConfig;
 const ignoredFiles = require('react-dev-utils/ignoredFiles');
 
 function onProxyRes(proxyResponse) {
-    if (proxyResponse.headers['set-cookie']) {
-        const cookies = proxyResponse.headers['set-cookie'].map(cookie =>
-            cookie.replace(/; (secure|HttpOnly|SameSite=Strict)/gi, '')
-        );
+  if (proxyResponse.headers['set-cookie']) {
+    const cookies = proxyResponse.headers['set-cookie'].map(cookie =>
+      cookie.replace(/; (secure|HttpOnly|SameSite=Strict)/gi, ''),
+    );
 
-        proxyResponse.headers['set-cookie'] = cookies;
-    }
+    proxyResponse.headers['set-cookie'] = cookies;
+  }
 }
 
 function onProxyReq(proxyResponse, req) {
-    if (req.headers.cookie) {
-        proxyResponse.setHeader('cookie', req.headers.cookie);
-    }
+  if (req.headers.cookie) {
+    proxyResponse.setHeader('cookie', req.headers.cookie);
+  }
 }
 
 module.exports = function() {
   return {
-    stats: "errors-only",
+    stats: 'errors-only',
     // disableHostCheck: !proxy ||
     //   process.env.DANGEROUSLY_DISABLE_HOST_CHECK === 'true',
     disableHostCheck: true,

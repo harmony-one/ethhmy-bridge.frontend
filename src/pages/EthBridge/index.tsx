@@ -24,10 +24,7 @@ const LargeButton = (props: {
       direction="column"
       align="center"
       justify="center"
-      className={cn(
-        styles.largeButtonContainer,
-        props.isActive ? styles.active : '',
-      )}
+      className={cn(styles.largeButtonContainer, props.isActive ? styles.active : '')}
       onClick={props.onClick}
       gap="10px"
     >
@@ -67,9 +64,7 @@ export const EthBridge = observer((props: any) => {
     rewards.fetch();
 
     if (props.match.params.token) {
-      if (
-        [TOKEN.LINK, TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)
-      ) {
+      if ([TOKEN.LINK, TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {
         exchange.setToken(props.match.params.token);
       } else {
         routing.push(TOKEN.ETH);
@@ -85,19 +80,8 @@ export const EthBridge = observer((props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="between"
-          align="start"
-        >
-          <Box
-            direction="column"
-            align="center"
-            justify="center"
-            className={styles.base}
-          >
+        <Box direction="row" wrap={true} fill={true} justify="between" align="start">
+          <Box direction="column" align="center" justify="center" className={styles.base}>
             {/*<Box*/}
             {/*  direction="row"*/}
             {/*  justify="center"*/}

@@ -50,13 +50,7 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
 
     return (
       <PaginationWrap>
-        <Pager
-          current={currentPage}
-          total={totalPages}
-          offset={2}
-          activeColor={activeColor}
-          goToPage={this.goToPage}
-        />
+        <Pager current={currentPage} total={totalPages} offset={2} activeColor={activeColor} goToPage={this.goToPage} />
         <Box width="266px">
           <Select
             name="pageSize"

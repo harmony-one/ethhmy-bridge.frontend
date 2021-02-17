@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { action, observable } from 'mobx';
 import { guid } from 'utils';
-import {statusFetching} from "../constants";
+import { statusFetching } from '../constants';
 
 export type ActionModalBody = (data: {
   actionData?: any;
@@ -33,10 +33,7 @@ export class ActionModalsStore {
   @observable public pool: Array<ActionModalConfig> = [];
 
   @action.bound
-  public open = (
-    render: ActionModalBody | any,
-    options?: ActionModalOptions,
-  ): Promise<any> => {
+  public open = (render: ActionModalBody | any, options?: ActionModalOptions): Promise<any> => {
     const id = guid();
 
     const modalConfig: ActionModalConfig = { render, options, id };

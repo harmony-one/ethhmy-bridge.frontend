@@ -16,10 +16,8 @@ const types: Record<
 > = {
   integer: {
     mask: props => (props.min >= 0 ? `^[0-9]+$` : `(^[-]{1}$|[-]?[0-9]+$)`),
-    getValue: props =>
-      pipe(value => limitNumber(value, props.min, props.max), limitLength, normalizeNumber),
-    onChange: props =>
-      pipe(normalizeNumber, limitLength, value => limitNumber(value, props.min, props.max)),
+    getValue: props => pipe(value => limitNumber(value, props.min, props.max), limitLength, normalizeNumber),
+    onChange: props => pipe(normalizeNumber, limitLength, value => limitNumber(value, props.min, props.max)),
   },
   decimal: {
     mask: props =>
@@ -31,14 +29,14 @@ const types: Record<
         value => limitNumber(value, props.min, props.max),
         limitLength,
         normalizeNumber,
-        value => String(value).replace('.', props.delimiter || ',')
+        value => String(value).replace('.', props.delimiter || ','),
       ),
     onChange: props =>
       pipe(
         value => String(value).replace(props.delimiter || ',', '.'),
         normalizeNumber,
         limitLength,
-        value => limitNumber(value, props.min, props.max)
+        value => limitNumber(value, props.min, props.max),
       ),
   },
   currency: {
@@ -48,14 +46,14 @@ const types: Record<
         value => limitNumber(value, 0, props.max),
         limitLength,
         normalizeNumber,
-        value => String(value).replace('.', props.delimiter || ',')
+        value => String(value).replace('.', props.delimiter || ','),
       ),
     onChange: props =>
       pipe(
         value => String(value).replace(props.delimiter || ',', '.'),
         normalizeNumber,
         limitLength,
-        value => limitNumber(value, 0, props.max)
+        value => limitNumber(value, 0, props.max),
       ),
   },
 };

@@ -1,9 +1,4 @@
-export type statusFetching =
-  | 'init'
-  | 'fetching'
-  | 'success'
-  | 'error'
-  | 'first_fetching';
+export type statusFetching = 'init' | 'fetching' | 'success' | 'error' | 'first_fetching';
 
 export enum SwapStatus {
   SWAP_UNSIGNED = 1,
@@ -14,5 +9,5 @@ export enum SwapStatus {
   SWAP_RETRY,
   SWAP_WAIT_SEND,
   SWAP_WAIT_APPROVE,
-  SWAP_SENT
+  SWAP_SENT,
 }

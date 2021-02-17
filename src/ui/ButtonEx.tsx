@@ -4,14 +4,7 @@ import { Spinner2 } from './Spinner2';
 
 export const ButtonEx = ({
   textRender = null,
-  spinnerRender = (
-    <Spinner2
-      height="20px"
-      width="20px"
-      color="white"
-      style={{ marginRight: 5 }}
-    />
-  ),
+  spinnerRender = <Spinner2 height="20px" width="20px" color="white" style={{ marginRight: 5 }} />,
   isLoading,
   children,
   onClick,

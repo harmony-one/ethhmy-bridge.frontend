@@ -25,19 +25,10 @@ export function getInputBorder(props: IInputWrapProps & { theme: any }, placemen
   const { theme } = props;
   const { input } = theme.styled;
 
-  return (
-    props[`border${placement}`] ||
-    input[`border${placement}`] ||
-    props.border ||
-    input.border ||
-    'none'
-  );
+  return props[`border${placement}`] || input[`border${placement}`] || props.border || input.border || 'none';
 }
 
-export function getInputBorderRadius(
-  props: IInputWrapProps & { theme: any },
-  placement: TBRadiusPlacement
-) {
+export function getInputBorderRadius(props: IInputWrapProps & { theme: any }, placement: TBRadiusPlacement) {
   const { theme } = props;
   const { input = {} } = get(theme, 'styled', {});
 
@@ -72,8 +63,7 @@ interface IInputWrapProps {
 
 const InputWrap = styled.div<IInputWrapProps>`
   display: flex;
-  background-color: ${props =>
-    getColor(props.bgColor || props.theme.styled.input.bgColor, props.theme.palette)};
+  background-color: ${props => getColor(props.bgColor || props.theme.styled.input.bgColor, props.theme.palette)};
   color: ${props => getColor(props.theme.styled.input.textColor, props.theme.palette)};
   border-top: ${props => getInputBorder(props, 'Top')};
   border-right: ${props => getInputBorder(props, 'Right')};

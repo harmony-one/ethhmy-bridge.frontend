@@ -4,10 +4,7 @@
     "outDir": "build/dist",
     "module": "commonjs",
     "target": "es6",
-    "lib": [
-      "es6",
-      "dom"
-    ],
+    "lib": ["esnext", "es6", "dom"],
     "sourceMap": true,
     "allowJs": false,
     "jsx": "react",
@@ -23,7 +20,7 @@
     "suppressImplicitAnyIndexErrors": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "node_modules",

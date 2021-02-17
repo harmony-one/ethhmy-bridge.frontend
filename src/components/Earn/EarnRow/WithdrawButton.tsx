@@ -18,10 +18,7 @@ const WithdrawButton = ({ props, value, changeValue }) => {
         await Redeem({
           secretjs: props.userStore.secretjs,
           address: props.token.rewardsContract,
-          amount: valueToDecimals(
-            Number(value).toFixed(6),
-            props.token.decimals,
-          ),
+          amount: valueToDecimals(Number(value).toFixed(6), props.token.decimals),
         })
           .then(_ =>
             changeValue({

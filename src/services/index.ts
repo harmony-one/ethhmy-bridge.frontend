@@ -1,9 +1,4 @@
-import {
-  IOperation,
-  IRewardPool,
-  ISwap,
-  ITokenInfo,
-} from '../stores/interfaces';
+import { IOperation, IRewardPool, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
@@ -39,14 +34,10 @@ export const getStatus = async (params): Promise<SwapStatus> => {
   }
 };
 
-export const getOperation = async (
-  params,
-): Promise<{ operation: IOperation; swap: ISwap }> => {
+export const getOperation = async (params): Promise<{ operation: IOperation; swap: ISwap }> => {
   const url = backendUrl(`/operations/${params.id}`);
 
-  const res = await agent.get<{ body: { operation: IOperation; swap: ISwap } }>(
-    url,
-  );
+  const res = await agent.get<{ body: { operation: IOperation; swap: ISwap } }>(url);
 
   return res.body;
 };
@@ -59,9 +50,7 @@ export const getSwap = async (id): Promise<IOperation> => {
   return res.body;
 };
 
-export const getOperations = async (
-  params: any,
-): Promise<{ content: ISwap[] }> => {
+export const getOperations = async (params: any): Promise<{ content: ISwap[] }> => {
   const url = backendUrl('/swaps/');
 
   const res = await agent.get<{ body: ISwap[] }>(url, params);
@@ -71,9 +60,7 @@ export const getOperations = async (
   return { content: content };
 };
 
-export const getTokensInfo = async (
-  params: any,
-): Promise<{ content: ITokenInfo[] }> => {
+export const getTokensInfo = async (params: any): Promise<{ content: ITokenInfo[] }> => {
   const url = backendUrl('/tokens/');
 
   const res = await agent.get<{ body: { tokens: ITokenInfo[] } }>(url, params);
@@ -94,9 +81,7 @@ export const getTokensInfo = async (
   return { ...res.body, content };
 };
 
-export const getRewardsInfo = async (
-  params: any,
-): Promise<{ content: IRewardPool[] }> => {
+export const getRewardsInfo = async (params: any): Promise<{ content: IRewardPool[] }> => {
   const url = backendUrl('/rewards/');
 
   const res = await agent.get<{ body: { tokens: IRewardPool[] } }>(url, params);
