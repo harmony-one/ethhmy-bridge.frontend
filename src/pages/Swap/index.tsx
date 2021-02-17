@@ -420,13 +420,17 @@ export class SwapRouter extends React.Component<
       [symbol: string]: Pair;
     };
   }> => {
-    const {
-      pairs,
-    }: {
-      pairs: Array<Pair>;
-    } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
-      pairs: {},
-    });
+    let pairs: Array<Pair> = [];
+    try {
+      const result: {
+        pairs: Array<Pair>;
+      } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+        pairs: {},
+      });
+      pairs = result.pairs;
+    } catch (error) {
+      this.notify('error', `Cannot fetch list of pairs: ${error.message}`);
+    }
 
     const pairFromSymbol: { [symbol: string]: Pair } = {};
 

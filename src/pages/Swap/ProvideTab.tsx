@@ -625,7 +625,11 @@ export class ProvideTab extends React.Component<
               showApproveBButton)
           }
           loading={this.state.loadingProvide}
-          primary={this.isReadyForProvide() && !showApproveAButton && !showApproveBButton}
+          primary={
+            (this.isReadyForProvide() || this.state.provideState === ProvideState.CREATE_NEW_PAIR) &&
+            !showApproveAButton &&
+            !showApproveBButton
+          }
           fluid
           style={buttonStyle}
           onClick={async () => {
