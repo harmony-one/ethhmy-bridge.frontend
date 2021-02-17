@@ -1,9 +1,7 @@
 import * as React from 'react';
 import styled, { keyframes } from 'styled-components';
 
-const SpinnerSVG: React.FC<React.SVGAttributes<SVGElement>> = (
-  props: React.SVGProps<SVGSVGElement>,
-) => (
+const SpinnerSVG: React.FC<React.SVGAttributes<SVGElement>> = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 20 20" height="20px" width="20px" fill="none" {...props}>
     <path d="M10.0001 0C9.67647 0 9.41412 0.262344 9.41412 0.585938V4.35156C9.41412 4.67516 9.67647 4.9375 10.0001 4.9375C10.3237 4.9375 10.586 4.67516 10.586 4.35156V0.585938C10.586 0.262344 10.3237 0 10.0001 0Z" />
     <path d="M15.0001 1.33975C14.7198 1.17787 14.3614 1.27393 14.1997 1.5542L12.3169 4.81526C12.1551 5.09549 12.2511 5.45385 12.5314 5.61565C12.6236 5.66893 12.7244 5.69424 12.8238 5.69424C13.0263 5.69424 13.2232 5.58916 13.3317 5.40119L15.2145 2.14014C15.3763 1.8599 15.2803 1.50155 15.0001 1.33975Z" />

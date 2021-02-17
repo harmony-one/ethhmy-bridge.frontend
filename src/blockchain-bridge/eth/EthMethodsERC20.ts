@@ -4,7 +4,10 @@ import { mulDecimals } from '../../utils';
 import { getGasPrice } from './helpers';
 
 const BN = require('bn.js');
-const MAX_UINT = Web3.utils.toBN(2).pow(Web3.utils.toBN(256)).sub(Web3.utils.toBN(1));
+const MAX_UINT = Web3.utils
+  .toBN(2)
+  .pow(Web3.utils.toBN(256))
+  .sub(Web3.utils.toBN(1));
 
 export interface IEthMethodsInitParams {
   web3: Web3;
@@ -28,14 +31,9 @@ export class EthMethodsERC20 {
     const accounts = await ethereum.enable();
 
     const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(
-      MyERC20Json.abi,
-      erc20Address,
-    );
+    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
-    return await erc20Contract.methods
-      .allowance(accounts[0], this.ethManagerAddress)
-      .call();
+    return await erc20Contract.methods.allowance(accounts[0], this.ethManagerAddress).call();
   };
 
   callApprove = async (erc20Address, amount, decimals) => {
@@ -43,24 +41,19 @@ export class EthMethodsERC20 {
     const accounts = await ethereum.enable();
 
     const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(
-      MyERC20Json.abi,
-      erc20Address,
-    );
+    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
     amount = Number(mulDecimals(amount, decimals));
 
     const allowance = await this.getAllowance(erc20Address);
 
     if (Number(allowance) < Number(amount)) {
-      await erc20Contract.methods
-        .approve(this.ethManagerAddress, MAX_UINT)
-        .send({
-          from: accounts[0],
-          gas: process.env.ETH_GAS_LIMIT,
-          gasPrice: await getGasPrice(this.web3),
-          amount: amount,
-        });
+      await erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT).send({
+        from: accounts[0],
+        gas: process.env.ETH_GAS_LIMIT,
+        gasPrice: await getGasPrice(this.web3),
+        amount: amount,
+      });
     }
   };
 
@@ -75,10 +68,7 @@ export class EthMethodsERC20 {
       .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
       .estimateGas({ from: accounts[0] });
 
-    const gasLimit = Math.max(
-      estimateGas + estimateGas * 0.3,
-      Number(process.env.ETH_GAS_LIMIT),
-    );
+    const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
 
     return await this.ethManagerContract.methods
       .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
@@ -91,10 +81,7 @@ export class EthMethodsERC20 {
 
   checkEthBalance = async (erc20Address, addr) => {
     const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(
-      MyERC20Json.abi,
-      erc20Address,
-    );
+    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
     return await erc20Contract.methods.balanceOf(addr).call();
   };
@@ -105,17 +92,14 @@ export class EthMethodsERC20 {
     }
 
     const MyERC20Json = require('../out/MyERC20.json');
-    const erc20Contract = new this.web3.eth.Contract(
-      MyERC20Json.abi,
-      erc20Address,
-    );
+    const erc20Contract = new this.web3.eth.Contract(MyERC20Json.abi, erc20Address);
 
-    let name = "";
-    let symbol = "";
+    let name = '';
+    let symbol = '';
     // maker has some weird encoding for these.. so whatever
     if (erc20Address === '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2') {
-      name = "Maker";
-      symbol = "MKR";
+      name = 'Maker';
+      symbol = 'MKR';
     } else {
       name = await erc20Contract.methods.name().call();
       symbol = await erc20Contract.methods.symbol().call();

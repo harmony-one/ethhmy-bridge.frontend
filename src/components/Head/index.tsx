@@ -36,9 +36,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
-        routing.push(
-          `/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`,
-        );
+        routing.push(`/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`);
       } else {
         routing.push(`/${exchange.token || TOKEN.ETH}`);
       }
@@ -93,13 +91,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo &&
-                  !isFaq &&
-                  !isExplorer &&
-                  !isGetTokens &&
-                  !isTokens &&
-                  !isSwap &&
-                  !isEarn
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isSwap && !isEarn
                   ? styles.selected
                   : '',
               )}
@@ -107,15 +99,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             >
               <Text>Bridge</Text>
             </Box>
-
-            {/*<Box*/}
-            {/*  className={cn(styles.itemToken, isSwap ? styles.selected : '')}*/}
-            {/*  onClick={() => {*/}
-            {/*    routing.push(`/swap`);*/}
-            {/*  }}*/}
-            {/*>*/}
-            {/*  <Text>Swap</Text>*/}
-            {/*</Box>*/}
 
             <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
@@ -127,10 +110,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
-              className={cn(
-                styles.itemToken,
-                isExplorer ? styles.selected : '',
-              )}
+              className={cn(styles.itemToken, isExplorer ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/explorer`);
               }}
@@ -145,40 +125,22 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Info</Text>
             </Box> */}
 
-            <Box
-              className={cn(styles.itemToken, isEarn ? styles.selected : '')}
-              onClick={() => routing.push('/earn')}
-            >
+            <Box className={cn(styles.itemToken, isEarn ? styles.selected : '')} onClick={() => routing.push('/earn')}>
               <Text>Earn</Text>
             </Box>
 
             <Box
-              className={cn(styles.itemToken, isFaq ? styles.selected : '')}
-              onClick={() => routing.push('/faq')}
+              className={cn(styles.itemToken, isSwap ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/swap`);
+              }}
             >
-              <Text>FAQ</Text>
+              <Text>Swap</Text>
             </Box>
 
-            {/*<Box*/}
-            {/*  direction="column"*/}
-            {/*  align="center"*/}
-            {/*  gap="10px"*/}
-            {/*  style={{ maxWidth: 300 }}*/}
-            {/*  margin={{ left: '50px' }}*/}
-            {/*>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total BUSD locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyBUSDBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*  <Box direction="row" fill={true} justify="between">*/}
-            {/*    Total LINK locked:{' '}*/}
-            {/*    <b style={{ marginLeft: 10 }}>*/}
-            {/*      {formatWithTwoDecimals(user.hmyLINKBalanceManager)}*/}
-            {/*    </b>*/}
-            {/*  </Box>*/}
-            {/*</Box>*/}
+            <Box className={cn(styles.itemToken, isFaq ? styles.selected : '')} onClick={() => routing.push('/faq')}>
+              <Text>FAQ</Text>
+            </Box>
           </Box>
         </Box>
       </Box>

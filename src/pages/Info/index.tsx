@@ -10,10 +10,7 @@ export const InfoPage = () => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          className={styles.faqContainer}
-          pad={{ horizontal: 'large', top: 'large' }}
-        >
+        <Box className={styles.faqContainer} pad={{ horizontal: 'large', top: 'large' }}>
           <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
             <Title
               style={{
@@ -26,10 +23,7 @@ export const InfoPage = () => {
               {'Ethereum <> 𝕊ecret Bridge'}
             </Title>
           </Box>
-          <Box
-            style={{ background: 'white', borderRadius: 5 }}
-            pad={{ bottom: 'medium' }}
-          >
+          <Box style={{ background: 'white', borderRadius: 5 }} pad={{ bottom: 'medium' }}>
             <Info title="" />
           </Box>
         </Box>

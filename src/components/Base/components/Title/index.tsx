@@ -44,8 +44,7 @@ const TitleWrap = styled.div<ITitleProps>`
   font-size: ${props => getFontSize(props.size, props.theme)};
   font-weight: ${props => (props.bold ? '700' : '500')};
   text-align: left;
-  color: ${props =>
-    props.theme.palette[props.color] || props.color || props.theme.titleColor || 'black'};
+  color: ${props => props.theme.palette[props.color] || props.color || props.theme.titleColor || 'black'};
 
   ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
   ${props => props.margin && getMarginCSS(props.margin, props.theme)}

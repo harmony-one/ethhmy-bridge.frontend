@@ -65,38 +65,19 @@ export const EarnRewards = observer((props: any) => {
               display: 'inline-block',
             }}
           >
-            If you have created viewing keys for secretTokens and secretSCRT,
-            you should be able to see secretTokens locked in the rewards
-            contract and your rewards. If you can't see these figures please
-            refresh your browser.
+            If you have created viewing keys for secretTokens and secretSCRT, you should be able to see secretTokens
+            locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
           </p>
         </div>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="between"
-          align="start"
-        >
-          <Box
-            direction="column"
-            align="center"
-            justify="center"
-            className={styles.base}
-          >
+        <Box direction="row" wrap={true} fill={true} justify="between" align="start">
+          <Box direction="column" align="center" justify="center" className={styles.base}>
             {rewards.allData
               .sort((a, b) => {
                 /* ETH first then UNI LP WSCRT-ETH */
-                if (
-                  a.inc_token.symbol === 'sETH' &&
-                  b.inc_token.symbol === 'sUNILP-WSCRT-ETH'
-                ) {
+                if (a.inc_token.symbol === 'sETH' && b.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
                   return -1;
                 }
-                if (
-                  b.inc_token.symbol === 'sETH' &&
-                  a.inc_token.symbol === 'sUNILP-WSCRT-ETH'
-                ) {
+                if (b.inc_token.symbol === 'sETH' && a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
                   return 1;
                 }
                 if (a.inc_token.symbol === 'sETH') {
@@ -113,10 +94,7 @@ export const EarnRewards = observer((props: any) => {
                   return null;
                 }
 
-                let token = tokens.allData.find(
-                  element =>
-                    element.dst_address === rewardToken.inc_token.address,
-                );
+                let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address);
                 if (!token) {
                   return null;
                 }
@@ -134,14 +112,8 @@ export const EarnRewards = observer((props: any) => {
                     rewardToken.inc_token.decimals,
                   ),
                   rewardsDecimals: String(rewardToken.rewards_token.decimals),
-                  rewards:
-                    user.balanceRewards[
-                      rewardsKey(rewardToken.inc_token.symbol)
-                    ],
-                  deposit:
-                    user.balanceRewards[
-                      rewardsDepositKey(rewardToken.inc_token.symbol)
-                    ],
+                  rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
+                  deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
                   balance: user.balanceToken[token.src_coin],
                   decimals: token.decimals,
                   name: token.name,
@@ -152,13 +124,7 @@ export const EarnRewards = observer((props: any) => {
                   deadline: Number(rewardToken.deadline),
                 };
 
-                return (
-                  <EarnRow
-                    key={rewardToken.inc_token.symbol}
-                    userStore={user}
-                    token={rewardsToken}
-                  />
-                );
+                return <EarnRow key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
               })}
           </Box>
         </Box>

@@ -1,4 +1,4 @@
-import { IStores } from "stores";
+import { IStores } from 'stores';
 import Web3 from 'web3';
 
 declare global {

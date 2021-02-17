@@ -22,19 +22,22 @@ function filterSearch(
   option: string,
   searchText: string,
   renderMap: Record<string, string>,
-  normalize?: (v: string) => string
+  normalize?: (v: string) => string,
 ) {
   let optionText = renderMap ? renderMap[option] : option;
   optionText = normalize ? normalize(option) : optionText;
 
-  return !searchText || String(optionText).toLowerCase().indexOf(searchText.toLowerCase()) > -1;
+  return (
+    !searchText ||
+    String(optionText)
+      .toLowerCase()
+      .indexOf(searchText.toLowerCase()) > -1
+  );
 }
 
-export const CheckboxOptions: React.FunctionComponent<
-  CommonFilterBodyProps & {
-    normalize?: (v: string) => string;
-  }
-> = ({ value, fieldName, renderMap, normalize, onChange, renderOptions }) => {
+export const CheckboxOptions: React.FunctionComponent<CommonFilterBodyProps & {
+  normalize?: (v: string) => string;
+}> = ({ value, fieldName, renderMap, normalize, onChange, renderOptions }) => {
   const [filters, setFilters] = useState<string[]>(value || []);
   const [searchText, setSearchText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -61,11 +64,7 @@ export const CheckboxOptions: React.FunctionComponent<
 
   if (isLoading) {
     return (
-      <Box
-        style={{ flex: '1 0 auto', height: '100%', minHeight: '244px' }}
-        justify="center"
-        align="center"
-      >
+      <Box style={{ flex: '1 0 auto', height: '100%', minHeight: '244px' }} justify="center" align="center">
         <Spinner style={{ width: 24, height: 24 }} color="#4740A1" />
       </Box>
     );
@@ -81,10 +80,7 @@ export const CheckboxOptions: React.FunctionComponent<
 
   return (
     <Box>
-      <Box
-        pad={{ horizontal: 'xsmall', vertical: 'xsmall' }}
-        style={{ borderBottom: '1px solid #e7ecf7' }}
-      >
+      <Box pad={{ horizontal: 'xsmall', vertical: 'xsmall' }} style={{ borderBottom: '1px solid #e7ecf7' }}>
         <TextInput
           value={searchText}
           size="full"
@@ -93,9 +89,7 @@ export const CheckboxOptions: React.FunctionComponent<
           border="none"
           placeholder="Найти в списке"
           renderLeft={<Icon glyph="Search" size="16px" color="Basic300" />}
-          renderRight={
-            <Icon glyph="Close" size="16px" onClick={() => setSearchText('')} color="Basic300" />
-          }
+          renderRight={<Icon glyph="Close" size="16px" onClick={() => setSearchText('')} color="Basic300" />}
         />
       </Box>
 

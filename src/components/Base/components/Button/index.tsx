@@ -117,8 +117,7 @@ const StyledButton = styled.button<IStyledButtonProps & any>`
   }
 
   &:hover {
-    background-color: ${props =>
-      props.bgHoverColor || lighten(props.disabled ? 0 : 0.07, getButtonBgColor(props))};
+    background-color: ${props => props.bgHoverColor || lighten(props.disabled ? 0 : 0.07, getButtonBgColor(props))};
     color: ${props => lighten(props.disabled ? 0 : 0.07, getButtonTextColor(props))};
   }
 `;

@@ -51,17 +51,9 @@ const CheckboxClass = (props: ICheckboxProps) => {
     <Label style={style} theme={theme} size={size}>
       <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', marginRight: 5 }}>
         {value ? (
-          <Icon
-            glyph="CheckBox"
-            onClick={() => onChange(false)}
-            color={disabled ? disabledColor : colorPrimary}
-          />
+          <Icon glyph="CheckBox" onClick={() => onChange(false)} color={disabled ? disabledColor : colorPrimary} />
         ) : (
-          <Icon
-            glyph="CheckBoxEmpty"
-            onClick={() => onChange(true)}
-            color={disabled ? disabledColor : colorPrimary}
-          />
+          <Icon glyph="CheckBoxEmpty" onClick={() => onChange(true)} color={disabled ? disabledColor : colorPrimary} />
         )}
       </div>
       <HiddenInput

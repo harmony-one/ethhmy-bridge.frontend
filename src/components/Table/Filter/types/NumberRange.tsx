@@ -4,8 +4,12 @@ import { useState } from 'react';
 import { NumberInput, Text, Button } from 'components/Base';
 import { CommonFilterBodyProps } from './common';
 
-export const NumberRange: React.FunctionComponent<CommonFilterBodyProps> =
-  ({ value, fieldName, onChange, onClose }) => {
+export const NumberRange: React.FunctionComponent<CommonFilterBodyProps> = ({
+  value,
+  fieldName,
+  onChange,
+  onClose,
+}) => {
   const { fromFilter, toFilter } = value || {};
 
   const [fromValue, setFrom] = useState<string>(fromFilter || '');
@@ -63,12 +67,7 @@ export const NumberRange: React.FunctionComponent<CommonFilterBodyProps> =
         >
           Отменить
         </Button>
-        <Button
-          fontSize="13px"
-          size="small"
-          padding="7px 16px"
-          onClick={handleFilterChange}
-        >
+        <Button fontSize="13px" size="small" padding="7px 16px" onClick={handleFilterChange}>
           Применить
         </Button>
       </Box>

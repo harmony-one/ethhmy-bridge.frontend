@@ -14,22 +14,22 @@ export const InfoModal = observer(() => {
       return;
     }
 
-    if (!user.isInfoReading) {
-      actionModals.open(
-        () => <Info title="Welcome to Ethereum <> 𝕊ecret Bridge" />,
-        {
-          title: '',
-          applyText: 'Got it',
-          closeText: '',
-          noValidation: true,
-          showOther: true,
-          onApply: () => {
-            user.setInfoReading();
-            return Promise.resolve();
-          },
-        },
-      );
-    }
+    // if (!user.isInfoReading) {
+    //   actionModals.open(
+    //     () => <Info title="Welcome to Ethereum <> 𝕊ecret Bridge" />,
+    //     {
+    //       title: '',
+    //       applyText: 'Got it',
+    //       closeText: '',
+    //       noValidation: true,
+    //       showOther: true,
+    //       onApply: () => {
+    //         user.setInfoReading();
+    //         return Promise.resolve();
+    //       },
+    //     },
+    //   );
+    // }
   }, [user.isInfoReading]);
 
   return <></>;

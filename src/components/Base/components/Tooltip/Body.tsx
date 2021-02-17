@@ -39,7 +39,7 @@ class TooltipBody extends React.Component<ITooltipProps> {
       <Tooltip style={this.getStyledPosition()} offset={offset}>
         {text}
       </Tooltip>,
-      document.body
+      document.body,
     );
   }
 }

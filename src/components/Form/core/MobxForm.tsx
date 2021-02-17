@@ -133,8 +133,7 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
 
   @autobind
   public getFieldDecorator(name: string, customFieldOption = {}) {
-    return (element: any) =>
-      React.cloneElement(element, this.getFieldProps(name, customFieldOption));
+    return (element: any) => React.cloneElement(element, this.getFieldProps(name, customFieldOption));
   }
 
   @autobind
@@ -222,9 +221,7 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
 
   @autobind
   public getFieldValue(path: string, defaultValue?: any) {
-    return toJS(
-      _.get(this.store, this.prefix ? [this.prefix, path].join('.') : path, defaultValue)
-    );
+    return toJS(_.get(this.store, this.prefix ? [this.prefix, path].join('.') : path, defaultValue));
   }
 
   @action.bound
@@ -250,14 +247,8 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
 
     let allowFieldRules = rules;
 
-    if (
-      _.isArray(allowFieldRules) &&
-      _.isArray(validateFieldsOnly) &&
-      validateFieldsOnly.indexOf(fieldName) === -1
-    ) {
-      allowFieldRules = allowFieldRules.filter(
-        rule => !rule.required && !(rule.validateType === 'requiredValidator')
-      );
+    if (_.isArray(allowFieldRules) && _.isArray(validateFieldsOnly) && validateFieldsOnly.indexOf(fieldName) === -1) {
+      allowFieldRules = allowFieldRules.filter(rule => !rule.required && !(rule.validateType === 'requiredValidator'));
     }
 
     return allowFieldRules;
@@ -308,7 +299,7 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
         }
         this.errors = ErrorMap;
         return Promise.reject(errors);
-      })
+      }),
     );
   }
 
@@ -327,7 +318,7 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
         action((err: IErrorField[], fields: IErrorFields) => {
           this.errors.set(name, err || []);
           res();
-        }) as any
+        }) as any,
       );
     });
   }
@@ -384,6 +375,6 @@ export class MobxForm<T = {}> extends React.Component<IMobxFormProps & T, any> {
 
   public render() {
     const WrappedComponent = this.WrappedComponent as any;
-    return <WrappedComponent key={" "} {...this.props} form={this} ref={this.props.rootRef} />;
+    return <WrappedComponent key={' '} {...this.props} form={this} ref={this.props.rootRef} />;
   }
 }

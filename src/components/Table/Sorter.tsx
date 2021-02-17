@@ -14,7 +14,7 @@ export type sortType = 'none' | 'asc' | 'desc';
 export const Sorter: React.FunctionComponent<ISorterProps> = props => {
   const { sortable, value, onChange } = props;
 
-  if(!sortable) {
+  if (!sortable) {
     return null;
   }
 
@@ -24,9 +24,7 @@ export const Sorter: React.FunctionComponent<ISorterProps> = props => {
       align="center"
       margin={{ left: 'xsmall' }}
       onClick={() => {
-        const newDirection = value === 'none'
-          ? 'asc'
-          : value === 'asc' ? 'desc' : 'none';
+        const newDirection = value === 'none' ? 'asc' : value === 'asc' ? 'desc' : 'none';
 
         onChange(newDirection);
       }}

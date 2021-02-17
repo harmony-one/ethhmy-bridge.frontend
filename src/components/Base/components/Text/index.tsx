@@ -44,8 +44,7 @@ const TextWrap = styled.div<ITitleProps>`
   font-family: ${props => getFont(props.fontFamily, props.theme)}};
   font-size: ${props => getFontSize(props.size, props.theme)};
   font-weight: ${props => (props.bold ? '700' : '500')};
-  color: ${props =>
-    props.theme.palette[props.color] || props.color || props.theme.textColor || 'black'};
+  color: ${props => props.theme.palette[props.color] || props.color || props.theme.textColor || 'black'};
 
   ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
   ${props => props.margin && getMarginCSS(props.margin, props.theme)}

@@ -58,24 +58,14 @@ const Modal = styled.div`
   }
 `;
 
-export const ModalView: React.FC<
-  {
-    width: string;
-    onClose: () => void;
-    style: CSSProperties;
-    children: React.ReactNode;
-    isOverlayClose?: boolean;
-    config?: any;
-  } & IWrapProps
-> = ({
-  width = '700px',
-  position = 'center',
-  onClose,
-  style,
-  children,
-  isOverlayClose,
-  config,
-}) => {
+export const ModalView: React.FC<{
+  width: string;
+  onClose: () => void;
+  style: CSSProperties;
+  children: React.ReactNode;
+  isOverlayClose?: boolean;
+  config?: any;
+} & IWrapProps> = ({ width = '700px', position = 'center', onClose, style, children, isOverlayClose, config }) => {
   const overlayRef = React.useRef(null);
   const modalWrapRef = React.useRef(null);
   React.useEffect(() => {
@@ -85,12 +75,7 @@ export const ModalView: React.FC<
   }, []);
 
   return ReactDOM.createPortal(
-    <ModalOverlay
-      ref={overlayRef}
-      position={position}
-      onClick={() => isOverlayClose && onClose()}
-      style={style}
-    >
+    <ModalOverlay ref={overlayRef} position={position} onClick={() => isOverlayClose && onClose()} style={style}>
       <ModalWrap ref={modalWrapRef}>
         <Modal
           style={{ width }}
@@ -102,7 +87,7 @@ export const ModalView: React.FC<
         </Modal>
       </ModalWrap>
     </ModalOverlay>,
-    document.body
+    document.body,
   );
 };
 ModalView.displayName = 'ModalView';

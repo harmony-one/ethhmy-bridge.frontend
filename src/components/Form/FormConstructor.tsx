@@ -60,7 +60,9 @@ export class FormConstructor extends MobxForm<IFormConstructorProps<any>> {
     }
 
     if (this.props.onValidSubmit) {
-      this.validateFields().then(this.props.onValidSubmit).catch();
+      this.validateFields()
+        .then(this.props.onValidSubmit)
+        .catch();
     }
   };
 
@@ -92,9 +94,7 @@ export class FormConstructor extends MobxForm<IFormConstructorProps<any>> {
       }
     });
 
-  WrappedComponent: IWrappedComponent<IFormConstructorProps<any>> = (
-    props: IFormConstructorProps<any>
-  ) => {
+  WrappedComponent: IWrappedComponent<IFormConstructorProps<any>> = (props: IFormConstructorProps<any>) => {
     const { renderElement } = props;
     const renderTagName = renderElement || 'form';
 
@@ -102,10 +102,6 @@ export class FormConstructor extends MobxForm<IFormConstructorProps<any>> {
       onSubmit: renderTagName === 'form' ? this.handlerOnSubmit : null,
     };
 
-    return React.createElement(
-      renderTagName,
-      { ...props, ...formProps },
-      this.renderFormOptions(this.props.config)
-    );
+    return React.createElement(renderTagName, { ...props, ...formProps }, this.renderFormOptions(this.props.config));
   };
 }

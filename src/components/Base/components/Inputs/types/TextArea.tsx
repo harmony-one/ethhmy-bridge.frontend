@@ -69,5 +69,5 @@ class TextAreaClass extends React.Component<ICommonInputProps & ITextAreaProps> 
 
 export const TextArea: React.ComponentType<ITextAreaProps> = withTheme(
   // @ts-ignore
-  TextAreaClass
+  TextAreaClass,
 );

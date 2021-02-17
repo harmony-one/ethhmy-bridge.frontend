@@ -4,8 +4,7 @@ import styled from 'styled-components';
 
 const MainBox = styled(Box)<any>`
   * {
-    font-family: ${props =>
-      props.theme.fontBase || 'Roboto-Medium", sans-serif'};
+    font-family: ${props => props.theme.fontBase || 'Roboto-Medium", sans-serif'};
   }
 `;
 
@@ -21,26 +20,14 @@ export interface IFieldWrapperProps {
 }
 
 export const FieldWrapper = (props: IFieldWrapperProps) => {
-  const {
-    title,
-    label,
-    children,
-    className,
-    help,
-    visible = true,
-    isRowLabel,
-    margin,
-  } = props;
+  const { title, label, children, className, help, visible = true, isRowLabel, margin } = props;
 
   const text = title || label;
 
   return (
     <>
       {visible && (
-        <MainBox
-          margin={margin ? margin : { bottom: 'small' }}
-          className={className}
-        >
+        <MainBox margin={margin ? margin : { bottom: 'small' }} className={className}>
           {!isRowLabel && (
             <Box justify="center">
               {text && (
@@ -49,7 +36,7 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
                   style={{
                     fontSize: '18px',
                     color: '#212D5E',
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                   }}
                 >
                   {text}

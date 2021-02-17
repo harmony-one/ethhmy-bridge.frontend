@@ -127,12 +127,7 @@ export class MobxFormItem extends React.Component<IMobxFormItemProps> {
       ...otherProps
     } = this.props;
 
-    const {
-      component: Component,
-      wrapper: Wrapper,
-      wrapperParams = {},
-      componentParams = {},
-    } = fieldParams;
+    const { component: Component, wrapper: Wrapper, wrapperParams = {}, componentParams = {} } = fieldParams;
 
     const userComponentProps: any = {};
     if (componentClassName) {
@@ -173,9 +168,7 @@ export class MobxFormItem extends React.Component<IMobxFormItemProps> {
       wrapperProps.validateStatus = 'error';
       wrapperProps.help = err.length ? err[0].message : '';
     } else {
-      wrapperProps.validateStatus = componentProps.value
-        ? (wrapperProps.validateStatus = 'success')
-        : '';
+      wrapperProps.validateStatus = componentProps.value ? (wrapperProps.validateStatus = 'success') : '';
     }
 
     let onValueChange = componentProps.onChange;

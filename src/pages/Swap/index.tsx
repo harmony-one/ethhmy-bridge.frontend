@@ -1,574 +1,592 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
-import {
-  Button,
-  Container,
-  Input,
-  Dropdown,
-  Icon,
-  Popup,
-} from 'semantic-ui-react';
 import { useStores } from 'stores';
-import tokens from './tokens.json';
 import './override.css';
-import { balanceNumberFormat, inputNumberFormat, priceNumberFormat } from '../../utils';
+import { sleep } from 'utils';
+import { NativeToken, Token } from './trade';
+import { UserStoreEx } from 'stores/UserStore';
+import { observer } from 'mobx-react';
+import { SwapTab } from './SwapTab';
+import { ProvideTab } from './ProvideTab';
+import { WithdrawTab } from './WithdrawTab';
+import preloadedTokens from './tokens.json';
+import { Button, Image, Popup } from 'semantic-ui-react';
+import { BigNumber } from 'bignumber.js';
+import { getBalance } from './utils';
+import { BetaWarning } from './BetaWarning';
+import { SwapFooter } from './Footer';
+import { GetSnip20Params } from '../../blockchain-bridge/scrt';
+import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import { WalletOverview } from './WalletOverview';
+import { CopyWithFeedback } from './CopyWithFeedback';
+import cogoToast from 'cogo-toast';
 
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
-const downArrow = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#00ADE8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <polyline points="19 12 12 19 5 12"></polyline>
-  </svg>
-);
+type DisplayTokenRecord = Record<string, TokenDisplay>;
 
-const tokenShadow = 'rgba(0, 0, 0, 0.075) 0px 6px 10px';
-
-const FromRow = ({
-  fromToken,
-  setFromToken,
-  fromAmount,
-  setFromAmount,
-  isEstimated,
-}) => {
-  const [balance, setBalance] = useState(0);
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
-
-  return (
-    <Container
-      style={{
-        padding: '1rem',
-        borderRadius: '20px',
-        border: '1px solid rgb(247, 248, 250)',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <span style={font}>From{isEstimated ? ` (estimated)` : null}</span>
-        {flexRowSpace}
-        <span
-          style={Object.assign({ cursor: 'pointer' }, font)}
-          onClick={() => {}}
-        >
-          Secret Balance: {balanceNumberFormat.format(balance)}
-        </span>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Input
-          style={{
-            padding: 0,
-            width: '180px',
-          }}
-          transparent
-          size="massive"
-          placeholder="0.0"
-          value={fromAmount}
-          onChange={(_, { value }) => {
-            if (isNaN(Number(value))) {
-              return;
-            }
-            setFromAmount(value);
-          }}
-        />
-        {flexRowSpace}
-        <Button
-          primary
-          style={{
-            borderRadius: '15px',
-            fontSize: '1rem',
-            fontWeight: 500,
-            height: '30px',
-            padding: '0rem 0.3rem',
-          }}
-        >
-          MAX
-        </Button>
-        <Dropdown
-          style={{
-            border: 'none',
-            borderRadius: '15px',
-            background: dropdownBackground,
-          }}
-          onMouseEnter={() => setDropdownBackground('whitesmoke')}
-          onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(t => ({
-            key: t.symbol,
-            text: t.symbol,
-            value: t.symbol,
-            image: {
-              src: t.logo,
-              style: { boxShadow: tokenShadow, borderRadius: '24px' },
-            },
-          }))}
-          value={fromToken}
-          onChange={(_, { value }) => setFromToken(value)}
-        />
-      </div>
-    </Container>
-  );
+export type Pair = {
+  asset_infos: Array<NativeToken | Token>;
+  contract_addr: string;
+  liquidity_token: string;
+  token_code_hash: string;
 };
 
-const ToRow = ({ toToken, setToToken, toAmount, setToAmount, isEstimated }) => {
-  const [balance, setBalance] = useState(0);
-  const [dropdownBackground, setDropdownBackground] = useState(undefined);
-
-  const font = { fontWeight: 500, fontSize: '14px', color: 'rgb(86, 90, 105)' };
-
-  return (
-    <Container
-      style={{
-        padding: '1rem',
-        borderRadius: '20px',
-        border: '1px solid rgb(247, 248, 250)',
-        backgroundColor: 'white',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <span style={font}>To{isEstimated ? ` (estimated)` : null}</span>
-        {flexRowSpace}
-        <span
-          style={Object.assign({ cursor: 'pointer' }, font)}
-          onClick={() => {}}
-        >
-          Secret Balance: {balanceNumberFormat.format(balance)}
-        </span>{' '}
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-        }}
-      >
-        <Input
-          style={{
-            padding: 0,
-            width: '180px',
-          }}
-          transparent
-          size="massive"
-          placeholder="0.0"
-          value={toAmount}
-          onChange={(_, { value }) => {
-            if (isNaN(Number(value))) {
-              return;
-            }
-            setToAmount(value);
-          }}
-        />
-        {flexRowSpace}
-        <Dropdown
-          style={{
-            border: 'none',
-            borderRadius: '15px',
-            background: dropdownBackground,
-          }}
-          onMouseEnter={() => setDropdownBackground('whitesmoke')}
-          onMouseLeave={() => setDropdownBackground(undefined)}
-          options={Object.values(tokens).map(t => ({
-            key: t.symbol,
-            text: t.symbol,
-            value: t.symbol,
-            image: {
-              src: t.logo,
-              style: { boxShadow: tokenShadow, borderRadius: '24px' },
-            },
-          }))}
-          value={toToken}
-          onChange={(_, { value }) => setToToken(value)}
-        />
-      </div>
-    </Container>
-  );
+export type TokenDisplay = {
+  symbol: string;
+  logo: string;
+  decimals?: number;
+  address?: string;
+  token_code_hash?: string;
 };
 
+export const ERROR_WRONG_VIEWING_KEY = 'Viewing Key Error';
 
+export const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
-const PriceRow = ({ price, fromToken, toToken }) => {
-  const [tokens, setTokens] = useState({
-    from: fromToken,
-    to: toToken,
-    price: priceNumberFormat.format(price),
-    priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
-  });
-  const [iconBackground, setIconBackground] = useState('whitesmoke');
-
-  useEffect(() => {
-    setTokens({
-      from: fromToken,
-      to: toToken,
-      price: priceNumberFormat.format(price),
-      priceInvert: priceNumberFormat.format(1 / price), // prevents price distortion by multiple clicks
-    });
-  }, [fromToken, toToken, price]);
-
-  return (
-    <div
-      style={{
-        padding: '1rem',
-        display: 'flex',
-        flexDirection: 'row',
-        alignContent: 'center',
-      }}
-    >
-      {' '}
-      Price
-      {flexRowSpace}
-      {`${tokens.price} ${tokens.from} per ${tokens.to}`}
-      <Icon
-        circular
-        size="small"
-        name="exchange"
-        style={{
-          margin: '0 0 0 0.3em',
-          background: iconBackground,
-          cursor: 'pointer',
-        }}
-        onMouseEnter={() => setIconBackground('rgb(237, 238, 242)')}
-        onMouseLeave={() => setIconBackground('whitesmoke')}
-        onClick={() => {
-          setTokens({
-            from: tokens.to,
-            to: tokens.from,
-            price: tokens.priceInvert,
-            priceInvert: tokens.price, // prevents price distortion by multiple clicks
-          });
-        }}
-      />
-    </div>
-  );
+export const swapContainerStyle = {
+  zIndex: '10',
+  borderRadius: '30px',
+  backgroundColor: 'white',
+  padding: '2em',
+  boxShadow:
+    'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
 };
 
-const AdditionalDetails = ({
-  minimumReceived,
-  liquidityProviderFee,
-  priceImpact,
-  token,
-}) => {
-  const [
-    minimumReceivedIconBackground,
-    setMinimumreceivedIconBackground,
-  ] = useState('whitesmoke');
-  const [
-    liquidityProviderFeeIconBackground,
-    setLiquidityProviderFeeIconBackground,
-  ] = useState('whitesmoke');
-  const [priceImpactIconBackground, setPriceImpactIconBackground] = useState(
-    'whitesmoke',
-  );
-
-  return (
-    <div style={{ maxWidth: '400px', minWidth: '400px' }}>
-      <Container
-        style={{
-          marginTop: '-2rem',
-          borderBottomLeftRadius: '20px',
-          borderBottomRightRadius: '20px',
-          backgroundColor: 'rgba(255, 255, 255, 0.6)',
-          padding: 'calc(16px + 2rem) 2rem 2rem 2rem',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Minimum received
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: minimumReceivedIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setMinimumreceivedIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setMinimumreceivedIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>{minimumReceived}</strong>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Price Impact
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: priceImpactIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setPriceImpactIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setPriceImpactIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="The difference between the market price and estimated price due to trade size."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>{`${priceImpact * 100}%`}</strong>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>
-            Liquidity Provider Fee
-            <Popup
-              trigger={
-                <Icon
-                  name="help"
-                  circular
-                  size="tiny"
-                  style={{
-                    marginLeft: '0.5rem',
-                    background: liquidityProviderFeeIconBackground,
-                  }}
-                  onMouseEnter={() =>
-                    setLiquidityProviderFeeIconBackground('rgb(237, 238, 242)')
-                  }
-                  onMouseLeave={() =>
-                    setLiquidityProviderFeeIconBackground('whitesmoke')
-                  }
-                />
-              }
-              content="A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive."
-              position="top center"
-            />
-          </span>
-          {flexRowSpace}
-          <strong>
-            {balanceNumberFormat.format(liquidityProviderFee)} {token}
-          </strong>
-        </div>
-      </Container>
-    </div>
-  );
-};
-
-export const SwapPage = () => {
+export const SwapPageWrapper = observer(() => {
+  // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   const { user } = useStores();
-  const [tokens, setTokens] = useState({ from: 'ETH', to: 'SCRT' });
-  const [amounts, setAmounts] = useState({
-    from: '',
-    to: '',
-    isFromEstimated: false,
-    isToEstimated: false,
-  });
-  const [buttonMessage, setButtonMessage] = useState('Enter an amount');
-  const [price, SetPrice] = useState(123456); /* TODO */
-  const [minimumReceived, SetMinimumReceived] = useState(123456); /* TODO */
-  const [priceImpact, SetPriceImpact] = useState(0.02); /* TODO */
-  const [liquidityProviderFee, SetLiquidityProviderFee] = useState(
-    17.3,
-  ); /* TODO */
 
-  useEffect(() => {
-    // Setup Keplr
-    user.signIn();
-  }, []);
+  return <SwapRouter user={user} />;
+});
 
-  useEffect(() => {
-    // Keplr is ready
-  }, [user.secretjs]);
+export class SwapRouter extends React.Component<
+  { user: UserStoreEx },
+  {
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    balances: {
+      [symbol: string]: BigNumber | JSX.Element;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  }
+> {
+  private symbolUpdateHeightCache: { [symbol: string]: number } = {};
+  private ws: WebSocket;
+  public state: {
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    balances: {
+      [symbol: string]: BigNumber | JSX.Element;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  } = {
+    tokens: {},
+    balances: {},
+    pairs: [],
+    pairFromSymbol: {},
+  };
 
-  useEffect(() => {
-    // Update buttonMessage
-    // TODO: Insufficient liquidity for this trade
-    // TODO: Insufficient XXX balance
+  constructor(props: { user: UserStoreEx }) {
+    super(props);
+    window.onhashchange = this.onHashChange;
+  }
 
-    if (amounts.from === '' && amounts.to === '') {
-      setButtonMessage('Enter an amount');
-    } else {
-      setButtonMessage('Swap');
+  onHashChange = () => {
+    this.forceUpdate();
+  };
+
+  async componentDidMount() {
+    window.addEventListener('storage', this.updateTokens);
+    window.addEventListener('updatePairsAndTokens', this.updatePairsAndTokens);
+
+    while (!this.props.user.secretjs) {
+      await sleep(100);
     }
-  }, [amounts.from, amounts.to]);
 
-  return (
-    <BaseContainer>
-      <PageContainer>
-        <Box
-          className={styles.faqContainer}
-          pad={{ horizontal: 'large', top: 'large' }}
-          style={{ alignItems: 'center' }}
+    const { pairs, tokens, pairFromSymbol } = await this.updatePairsAndTokens();
+
+    this.props.user.websocketTerminate(true);
+
+    this.ws = new WebSocket(process.env.SECRET_WS);
+
+    this.ws.onmessage = async event => {
+      try {
+        const data = JSON.parse(event.data);
+
+        const symbols: Array<string> = data.id.split('/');
+
+        const heightFromEvent =
+          data?.result?.data?.value?.TxResult?.height || data?.result?.data?.value?.block?.header?.height || 0;
+        const height = Number(heightFromEvent);
+
+        if (isNaN(height)) {
+          console.error(
+            `height is NaN for some reason. Unexpected behavior from here on out: got heightFromEvent=${heightFromEvent}`,
+          );
+        }
+
+        console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
+
+        const getViewingKey = async (symbol: string, tokenAddress: string) => {
+          let viewingKey: string;
+          const currentBalance: string = JSON.stringify(this.state.balances[symbol]);
+
+          if (typeof currentBalance === 'string' && currentBalance.includes(ERROR_WRONG_VIEWING_KEY)) {
+            // In case this tx was set_viewing_key in order to correct the wrong viewing key error
+            // Allow Keplr time to locally save the new viewing key
+            await sleep(1000);
+          }
+
+          // Retry getSecret20ViewingKey 3 times
+          // Sometimes this event is fired before Keplr stores the viewing key
+          let tries = 0;
+          while (true) {
+            tries += 1;
+            try {
+              viewingKey = await this.props.user.keplrWallet.getSecret20ViewingKey(
+                this.props.user.chainId,
+                tokenAddress,
+              );
+            } catch (error) {}
+            if (viewingKey || tries === 3) {
+              break;
+            }
+            await sleep(100);
+          }
+          return viewingKey;
+        };
+
+        const pairSymbol = data.id;
+        const pair = pairFromSymbol[pairSymbol];
+        if (pair) {
+          console.log('Refresh LP token for', pairSymbol);
+          // update my LP token balance
+          const lpTokenSymbol = `LP-${pairSymbol}`;
+          const viewingKey = await getViewingKey(lpTokenSymbol, pair.liquidity_token);
+          const lpBalance = await getBalance(
+            lpTokenSymbol,
+            this.props.user.address,
+            {
+              [lpTokenSymbol]: {
+                address: pair.liquidity_token,
+                decimals: 6,
+                symbol: lpTokenSymbol,
+                logo: '',
+              },
+            },
+            viewingKey,
+            this.props.user,
+          );
+
+          // update LP token total supply
+          let lpTotalSupply = new BigNumber(0);
+          try {
+            const result: {
+              token_info: {
+                name: string;
+                symbol: string;
+                decimals: number;
+                total_supply: string;
+              };
+            } = await this.props.user.secretjs.queryContractSmart(pair.liquidity_token, {
+              token_info: {},
+            });
+
+            lpTotalSupply = new BigNumber(result.token_info.total_supply);
+          } catch (error) {
+            console.error(`Error trying to get LP token total supply of ${pairSymbol}`, pair, error);
+          }
+
+          // Using a callbak to setState prevents a race condition
+          // where two tokens gets updated after the same block
+          // and they start this update with the same this.state.balances
+          // (Atomic setState)
+          this.setState(currentState => {
+            return {
+              balances: Object.assign({}, currentState.balances, {
+                [lpTokenSymbol]: lpBalance,
+                [`${lpTokenSymbol}-total-supply`]: lpTotalSupply,
+              }),
+            };
+          });
+        }
+
+        for (const tokenSymbol of symbols) {
+          if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
+            console.log(`${tokenSymbol} already fresh for height ${height}`);
+            continue;
+          }
+          this.symbolUpdateHeightCache[tokenSymbol] = height;
+
+          let viewingKey: string;
+          if (tokenSymbol !== 'SCRT') {
+            viewingKey = await getViewingKey(tokenSymbol, tokens[tokenSymbol].address);
+          }
+
+          const userBalancePromise = getBalance(
+            tokenSymbol,
+            this.props.user.address,
+            tokens,
+            viewingKey,
+            this.props.user,
+          );
+
+          // get all pairs with this token
+          const pairs = Object.keys(pairFromSymbol).filter(pairSymbol => pairSymbol.startsWith(`${tokenSymbol}/`));
+
+          // for each pair, update the pool balance of this token
+          const poolsBalancesPromises = pairs.map(pairSymbol =>
+            getBalance(tokenSymbol, pairFromSymbol[pairSymbol].contract_addr, tokens, 'SecretSwap', this.props.user),
+          );
+
+          const freshBalances = await Promise.all([userBalancePromise].concat(poolsBalancesPromises));
+
+          const pairSymbolToFreshBalances: {
+            [symbol: string]: BigNumber | JSX.Element;
+          } = {};
+          for (let i = 0; i < pairs.length; i++) {
+            const pairSymbol = pairs[i];
+            const [a, b] = pairSymbol.split('/');
+            const invertedPairSymbol = `${b}/${a}`;
+
+            pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] = freshBalances[i + 1];
+            pairSymbolToFreshBalances[`${tokenSymbol}-${invertedPairSymbol}`] = freshBalances[i + 1];
+          }
+
+          // Using a callbak to setState prevents a race condition
+          // where two tokens gets updated after the same block
+          // and they start this update with the same this.state.balances
+          // (Atomic setState)
+          this.setState(currentState => ({
+            balances: Object.assign(
+              {},
+              currentState.balances,
+              {
+                [tokenSymbol]: freshBalances[0],
+              },
+              pairSymbolToFreshBalances,
+            ),
+          }));
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    this.ws.onopen = async () => {
+      // Here we register for token related events
+      // Then in onmessage we know when to refresh all the balances
+      while (!this.props.user.address) {
+        await sleep(100);
+      }
+
+      // Register for SCRT events
+      const myAddress = this.props.user.address;
+      const scrtQueries = [
+        `message.sender='${myAddress}'` /* sent a tx (gas) */,
+        `message.signer='${myAddress}'` /* executed a contract (gas) */,
+        `transfer.recipient='${myAddress}'` /* received SCRT */,
+      ];
+
+      for (const query of scrtQueries) {
+        this.ws.send(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            id: 'SCRT', // jsonrpc id
+            method: 'subscribe',
+            params: { query },
+          }),
+        );
+      }
+
+      // Register for token events
+      for (const tokenSymbol of Object.keys(tokens)) {
+        if (tokenSymbol === 'SCRT') {
+          continue;
+        } else {
+          // Any tx on the token's contract
+          const tokenAddress = tokens[tokenSymbol].address;
+          const tokenQueries = [
+            `message.contract_address='${tokenAddress}'`,
+            `wasm.contract_address='${tokenAddress}'`,
+          ];
+
+          for (const query of tokenQueries) {
+            this.ws.send(
+              JSON.stringify({
+                jsonrpc: '2.0',
+                id: tokenSymbol, // jsonrpc id
+                method: 'subscribe',
+                params: { query },
+              }),
+            );
+          }
+        }
+      }
+
+      // Register for pair events
+      // Token events aren't enough because of a bug in x/compute (x/wasmd)
+      // See: https://github.com/CosmWasm/wasmd/pull/386
+      const uniquePairSymbols: Array<string> = Object.values(
+        Object.keys(pairFromSymbol).reduce((symbolFromPair, symbol) => {
+          const pair = JSON.stringify(pairFromSymbol[symbol]);
+          if (pair in symbolFromPair) {
+            return symbolFromPair;
+          }
+
+          return Object.assign(symbolFromPair, {
+            [pair]: symbol,
+          });
+        }, {}),
+      );
+
+      for (const pairSymbol of uniquePairSymbols) {
+        const pairAddress = pairFromSymbol[pairSymbol].contract_addr;
+        const lpTokenAddress = pairFromSymbol[pairSymbol].liquidity_token;
+
+        const pairQueries = [
+          `message.contract_address='${pairAddress}'`,
+          `wasm.contract_address='${pairAddress}'`,
+          `message.contract_address='${lpTokenAddress}'`,
+          `wasm.contract_address='${lpTokenAddress}'`,
+        ];
+
+        for (const query of pairQueries) {
+          this.ws.send(
+            JSON.stringify({
+              jsonrpc: '2.0',
+              id: pairSymbol, // jsonrpc id
+              method: 'subscribe',
+              params: { query },
+            }),
+          );
+        }
+      }
+    };
+
+    this.setState({
+      pairs,
+      pairFromSymbol,
+      tokens,
+    });
+  }
+
+  async componentWillUnmount() {
+    this.props.user.websocketInit();
+
+    if (this.ws) {
+      while (this.ws.readyState === WebSocket.CONNECTING) {
+        await sleep(100);
+      }
+
+      if (this.ws.readyState === WebSocket.OPEN) {
+        this.ws.close(1000 /* Normal Closure */, 'See ya');
+      }
+    }
+
+    window.removeEventListener('storage', this.updateTokens);
+    window.removeEventListener('updatePairsAndTokens', this.updatePairsAndTokens);
+  }
+
+  updateTokens = () => {
+    const tokens: DisplayTokenRecord = LocalStorageTokens.get();
+
+    this.setState(currentState => {
+      return {
+        tokens: {
+          ...currentState.tokens,
+          ...tokens,
+        },
+      };
+    });
+  };
+
+  updatePairsAndTokens = async (): Promise<{
+    tokens: {
+      [symbol: string]: TokenDisplay;
+    };
+    pairs: Array<Pair>;
+    pairFromSymbol: {
+      [symbol: string]: Pair;
+    };
+  }> => {
+    const {
+      pairs,
+    }: {
+      pairs: Array<Pair>;
+    } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+      pairs: {},
+    });
+
+    const pairFromSymbol: { [symbol: string]: Pair } = {};
+
+    const tokens: {
+      [symbol: string]: TokenDisplay;
+    } = {
+      ...(await pairs.reduce(async (tokensFromPairs: Promise<DisplayTokenRecord>, pair: Pair) => {
+        let unwrapedTokensFromPairs: DisplayTokenRecord = await tokensFromPairs; // reduce with async/await
+
+        const symbols = [];
+        for (const t of pair.asset_infos) {
+          if ('native_token' in t) {
+            unwrapedTokensFromPairs['SCRT'] = preloadedTokens['SCRT'];
+            symbols.push('SCRT');
+            continue;
+          }
+
+          const tokenInfoResponse = await GetSnip20Params({
+            secretjs: this.props.user.secretjs,
+            address: t.token.contract_addr,
+          });
+
+          const symbol = tokenInfoResponse.symbol;
+
+          const displaySymbol = preloadedTokens[symbol]?.symbol || symbol;
+          if (!(symbol in unwrapedTokensFromPairs)) {
+            unwrapedTokensFromPairs[displaySymbol] = {
+              symbol: displaySymbol,
+              decimals: tokenInfoResponse.decimals,
+              logo: preloadedTokens[symbol] ? preloadedTokens[symbol].logo : '/unknown.png',
+              address: t.token.contract_addr,
+              token_code_hash: t.token.token_code_hash,
+            };
+          }
+          symbols.push(displaySymbol);
+        }
+        pairFromSymbol[`${symbols[0]}/${symbols[1]}`] = pair;
+        pairFromSymbol[`${symbols[1]}/${symbols[0]}`] = pair;
+
+        return unwrapedTokensFromPairs;
+      }, Promise.resolve({}) /* reduce with async/await */)),
+      ...LocalStorageTokens.get(),
+    };
+
+    this.setState({ pairs, pairFromSymbol, tokens });
+
+    return { pairs, pairFromSymbol, tokens };
+  };
+
+  notify(type: 'success' | 'error', msg: string, hideAfterSec: number = 120) {
+    const { hide } = cogoToast[type](msg, {
+      position: 'top-right',
+      hideAfter: hideAfterSec,
+      onClick: () => {
+        hide();
+      },
+    });
+    // NotificationManager[type](undefined, msg, closesAfterMs);
+  }
+
+  render() {
+    const isSwap = window.location.hash === '#Swap';
+    const isProvide = window.location.hash === '#Provide';
+    const isWithdraw = window.location.hash === '#Withdraw';
+    const isPools = window.location.hash === '#Pool';
+
+    if (!isSwap && !isProvide && !isWithdraw && !isPools) {
+      window.location.hash = 'Swap';
+      return <></>;
+    }
+
+    return (
+      <BaseContainer>
+        <div
+          style={{ position: 'absolute', right: '10%', cursor: 'pointer' }}
+          onClick={() => {
+            if (this.props.user.secretjs) {
+              return;
+            }
+
+            this.props.user.signIn(true);
+          }}
         >
-          <Box
-            style={{
-              maxWidth: '420px',
-              minWidth: '420px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-            }}
-            pad={{ bottom: 'medium' }}
-          >
-            <Container
-              style={{
-                zIndex: '10',
-                borderRadius: '30px',
-                backgroundColor: 'white',
-                padding: '2rem',
-                boxShadow:
-                  'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
-              }}
-            >
-              <FromRow
-                fromToken={tokens.from}
-                setFromToken={(value: string) =>
-                  setTokens({ from: value, to: tokens.to })
-                }
-                fromAmount={amounts.from}
-                isEstimated={amounts.isFromEstimated}
-                setFromAmount={(value: string) => {
-                  if (value === '' || Number(value) === 0) {
-                    setAmounts({
-                      from: value,
-                      isFromEstimated: false,
-                      to: '',
-                      isToEstimated: false,
-                    });
-                  } else {
-                    setAmounts({
-                      from: value,
-                      isFromEstimated: false,
-                      to: inputNumberFormat.format(Number(value) / price),
-                      isToEstimated: true,
-                    });
-                  }
-                }}
-              />
-              <div
-                style={{
-                  padding: '1rem',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignContent: 'center',
-                }}
-              >
-                {flexRowSpace}
-                <span
-                  style={{ cursor: 'pointer' }}
-                  onClick={() =>
-                    setTokens({ to: tokens.from, from: tokens.to })
-                  }
-                >
-                  {downArrow}
+          <Popup
+            header={
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <strong>{this.props.user.address}</strong>
+                <span style={{ marginLeft: '0.3em' }}>
+                  <CopyWithFeedback text={this.props.user.address} />
                 </span>
-                {flexRowSpace}
               </div>
-              <ToRow
-                toToken={tokens.to}
-                setToToken={(value: string) =>
-                  setTokens({ to: value, from: tokens.from })
-                }
-                toAmount={amounts.to}
-                isEstimated={amounts.isToEstimated}
-                setToAmount={(value: string) => {
-                  if (value === '' || Number(value) === 0) {
-                    setAmounts({
-                      to: value,
-                      isToEstimated: false,
-                      from: '',
-                      isFromEstimated: false,
-                    });
-                  } else {
-                    setAmounts({
-                      to: value,
-                      isToEstimated: false,
-                      from: inputNumberFormat.format(Number(value) * price),
-                      isFromEstimated: true,
-                    });
-                  }
-                }}
-              />
-              <PriceRow
-                toToken={tokens.to}
-                fromToken={tokens.from}
-                price={price}
-              />
-              <Button
-                disabled={buttonMessage !== 'Swap'}
-                primary={buttonMessage === 'Swap'}
-                fluid
-                style={{
-                  borderRadius: '12px',
-                  padding: '18px',
-                  fontSize: '20px',
-                }}
-              >
-                {buttonMessage}
+            }
+            content={<WalletOverview tokens={this.state.tokens} balances={this.state.balances} />}
+            position="left center"
+            basic
+            on="click"
+            trigger={
+              <Button basic style={{ padding: 0, borderRadius: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <Image src="/keplr.svg" size="mini" />
+                  <span style={{ margin: '0 0.3em' }}>My Wallet</span>
+                </div>
               </Button>
-            </Container>
-            <AdditionalDetails
-              token={tokens.from}
-              liquidityProviderFee={liquidityProviderFee}
-              priceImpact={priceImpact}
-              minimumReceived={minimumReceived}
-            />
+            }
+          />
+        </div>
+        <PageContainer>
+          <Box
+            className={styles.faqContainer}
+            pad={{ horizontal: 'large', top: 'large' }}
+            style={{ alignItems: 'center' }}
+          >
+            <Box
+              style={{
+                maxWidth: '420px',
+                minWidth: '420px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+              pad={{ bottom: 'medium' }}
+            >
+              {isSwap && (
+                <SwapTab
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
+                />
+              )}
+              {isProvide && (
+                <ProvideTab
+                  user={this.props.user}
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
+                />
+              )}
+              {isWithdraw && (
+                <WithdrawTab
+                  user={this.props.user}
+                  secretjs={this.props.user.secretjs}
+                  tokens={this.state.tokens}
+                  balances={this.state.balances}
+                  pairs={this.state.pairs}
+                  pairFromSymbol={this.state.pairFromSymbol}
+                  notify={this.notify}
+                />
+              )}
+            </Box>
+            <SwapFooter />
+            <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
-        </Box>
-      </PageContainer>
-    </BaseContainer>
-  );
-};
+        </PageContainer>
+      </BaseContainer>
+    );
+  }
+}
