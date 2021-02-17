@@ -541,8 +541,6 @@ export class SwapRouter extends React.Component<
     // gather tokens from our list, and from local storage
     await this.updateTokens();
 
-    // todo: check if keplr is connected
-
     let { pairs }: { pairs: Array<Pair> } = await GetAllPairs({ secretjs: this.props.user.secretjs });
 
     // filter all pairs that aren't known tokens
@@ -644,7 +642,6 @@ export class SwapRouter extends React.Component<
                   selectedPair={this.state.selectedPair}
                   selectedToken0={this.state.selectedToken0}
                   selectedToken1={this.state.selectedToken1}
-                  //pairFromSymbol={this.state.pairFromSymbol}
                   notify={this.notify}
                   onSetTokens={async (token0, token1) => await this.onSetTokens(token0, token1)}
                 />
@@ -655,7 +652,6 @@ export class SwapRouter extends React.Component<
                   secretjs={this.props.user.secretjs}
                   tokens={this.state.allTokens}
                   balances={this.state.balances}
-                  //pairs={this.state.pairs}
                   pairs={this.state.pairs}
                   selectedPair={this.state.selectedPair}
                   selectedToken0={this.state.selectedToken0}
@@ -669,9 +665,7 @@ export class SwapRouter extends React.Component<
                   secretjs={this.props.user.secretjs}
                   tokens={this.state.allTokens}
                   balances={this.state.balances}
-                  //pairs={this.state.pairs}
                   pairs={this.state.pairs}
-                  //pairFromSymbol={this.state.pairFromSymbol}
                   notify={this.notify}
                   updateToken={async pair => {
                     const results = await this.refreshLpTokenBalance(pair);
