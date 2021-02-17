@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js';
 import { compareNormalize } from './utils';
 import { getFeeForExecute } from '../../blockchain-bridge/scrt';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
-import { Asset, NativeToken, Token } from './trade';
+import { Asset } from './trade';
 
 const plus = (
   <svg
@@ -457,12 +457,14 @@ export class ProvideTab extends React.Component<
           isEstimated={false}
           setAmount={(value: string) => {
             if (value === '' || Number(value) === 0) {
-              this.setState({
-                inputA: value,
-                isEstimatedA: false,
-                inputB: '',
-                isEstimatedB: false,
-              });
+              this.setState(
+                {
+                  inputA: value,
+                  isEstimatedA: false,
+                  isEstimatedB: false,
+                },
+                () => this.updateInputs(),
+              );
               return;
             }
 
@@ -534,12 +536,14 @@ export class ProvideTab extends React.Component<
           isEstimated={false}
           setAmount={(value: string) => {
             if (value === '' || Number(value) === 0) {
-              this.setState({
-                inputA: '',
-                isEstimatedA: false,
-                inputB: value,
-                isEstimatedB: false,
-              });
+              this.setState(
+                {
+                  isEstimatedA: false,
+                  inputB: value,
+                  isEstimatedB: false,
+                },
+                () => this.updateInputs(),
+              );
               return;
             }
 
