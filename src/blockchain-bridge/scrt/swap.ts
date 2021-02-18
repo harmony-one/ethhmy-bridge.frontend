@@ -303,7 +303,7 @@ interface GetAllPairsResponse {
 export const GetAllPairs = async (params: { secretjs: SigningCosmWasmClient }): Promise<GetAllPairsResponse> => {
   const { secretjs } = params;
   return await secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
-    pairs: {},
+    pairs: { limit: 30 },
   });
 };
 
