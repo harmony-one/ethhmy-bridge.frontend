@@ -2,7 +2,6 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
-import { PairMap } from '.';
 import * as styles from './styles.styl';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
@@ -17,7 +16,7 @@ import { Asset, Token } from './types/trade';
 import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import cn from 'classnames';
-import { SwapPair } from './types/SwapPair';
+import { PairMap, SwapPair } from './types/SwapPair';
 
 const plus = (
   <svg

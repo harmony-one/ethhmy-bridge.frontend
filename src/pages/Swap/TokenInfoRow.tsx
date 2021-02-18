@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SoftTitleValue from '../../components/Earn/SoftTitleValue';
-import { TokenDisplay } from './index';
 import { Image } from 'semantic-ui-react';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 
 import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { SwapToken } from './types/SwapToken';
 
-export const TokenInfoRow = (props: { token: TokenDisplay; balance?: number; onClick?: any }) => {
+export const TokenInfoRow = (props: { token: SwapToken; balance?: number; onClick?: any }) => {
   return (
     <div style={{ display: 'flex' }}>
       <div className={cn(styles.tokenInfoRow)} onClick={props.onClick}>

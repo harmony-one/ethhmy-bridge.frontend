@@ -3,13 +3,13 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
-import { PairMap } from '.';
 import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
 import Loader from 'react-loader-spinner';
 import { SwapTokenMap } from './types/SwapToken';
 import cn from 'classnames';
 import * as styles from './styles.styl';
+import { PairMap } from './types/SwapPair';
 
 export class WithdrawTab extends React.Component<{
   user: UserStoreEx;

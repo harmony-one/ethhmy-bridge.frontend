@@ -91,3 +91,4 @@ const getIdentifiersFromPair = (pair: Pair): string[] => {
 export const pairIdFromTokenIds = (id0: string, id1: string): string => {
   return id0.localeCompare(id1) === -1 ? `${id0}-${id1}` : `${id1}-${id0}`;
 };
+export type PairMap = Map<string, SwapPair>;

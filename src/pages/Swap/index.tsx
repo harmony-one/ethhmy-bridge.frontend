@@ -19,24 +19,14 @@ import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
 import { WalletOverview } from './WalletOverview';
 import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
-import { loadTokensFromList } from './LoadTokensFromList';
+import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
 import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
-import { pairIdFromTokenIds, SwapPair } from './types/SwapPair';
-
-export type PairMap = Map<string, SwapPair>;
-
-export type TokenDisplay = {
-  symbol: string;
-  logo: string;
-  decimals?: number;
-  address?: string;
-  token_code_hash?: string;
-};
+import { pairIdFromTokenIds, PairMap, SwapPair } from './types/SwapPair';
 
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
@@ -45,7 +35,6 @@ export const SwapPageWrapper = observer(() => {
   return <SwapRouter user={user} tokens={tokens} />;
 });
 
-//tokens: { [symbol: string]: TokenDisplay };
 export class SwapRouter extends React.Component<
   { user: UserStoreEx; tokens: Tokens },
   {
