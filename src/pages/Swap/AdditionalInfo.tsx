@@ -146,7 +146,7 @@ export const AdditionalInfo = ({
               maximumFractionDigits: 6,
               useGrouping: true,
             }).format(liquidityProviderFee)}{' '}
-            {fromToken}
+            {toToken}
           </strong>
         </div>
         {/*   <div
