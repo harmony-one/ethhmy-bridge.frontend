@@ -696,7 +696,12 @@ export class ProvideTab extends React.Component<
     try {
       await this.props.secretjs.execute(pair.contract_addr, msg, '', transferAmount, getFeeForExecute(500_000));
 
-      this.props.notify('success', `Provided ${inputA} ${tokenA} + ${inputB} ${tokenB}`);
+      this.props.notify(
+        'success',
+        `Provided ${inputA} ${this.props.tokens.get(tokenA).symbol} + ${inputB} ${
+          this.props.tokens.get(tokenB).symbol
+        }`,
+      );
 
       this.setState({
         inputA: '',

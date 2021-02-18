@@ -24,6 +24,7 @@ export class WithdrawLiquidityPanel extends React.Component<
     selectedPair: SwapPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
     getBalance: CallableFunction;
+    onCloseTab: CallableFunction;
   },
   {
     isLoading: boolean;
@@ -127,8 +128,12 @@ export class WithdrawLiquidityPanel extends React.Component<
               this.setState({ isActive: !this.state.isActive });
               if (!this.state.isActive) {
                 await this.setState({ isLoadingBalance: true });
+                // get balances and subscribe for events for this pair
                 await this.props.getBalance(this.props.selectedPair);
                 await this.setState({ isLoadingBalance: false });
+              } else {
+                // unsubscribe
+                this.props.onCloseTab(this.props.selectedPair);
               }
             }}
           >
