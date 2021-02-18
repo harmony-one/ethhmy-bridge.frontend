@@ -59,7 +59,7 @@ export class SwapRouter extends React.Component<
     balances: {},
     pairs: new Map<string, SwapPair>(),
     selectedPair: undefined,
-    selectedToken0: '',
+    selectedToken0: process.env.SSCRT_CONTRACT,
     selectedToken1: '',
   };
 
@@ -83,7 +83,7 @@ export class SwapRouter extends React.Component<
       tokensToRefresh.push(this.state.selectedToken1);
     }
 
-    if (this.state.selectedToken0 && !this.state.balances[this.state.selectedToken1]) {
+    if (this.state.selectedToken0 && !this.state.balances[this.state.selectedToken0]) {
       tokensToRefresh.push(this.state.selectedToken0);
     }
 
@@ -103,6 +103,15 @@ export class SwapRouter extends React.Component<
     while (!this.props.user.secretjs) {
       await sleep(100);
     }
+
+    // if (!this.state.selectedToken0) {
+    //   this.setState(currentState => {
+    //     return {
+    //       ...currentState,
+    //
+    //     };
+    //   });
+    // }
 
     //const { pairs, tokens } = await this.updatePairs();
     await this.updatePairs();

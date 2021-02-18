@@ -55,7 +55,7 @@ export class SwapTab extends React.Component<
     super(props);
 
     this.state = {
-      fromToken: this.props.selectedToken0 || this.props.tokens.values().next()?.value?.identifier || '',
+      fromToken: this.props.selectedToken0 || this.props.tokens.get(process.env.SSCRT_CONTRACT)?.identifier || '',
       toToken: this.props.selectedToken1 || '',
       fromInput: '',
       toInput: '',
@@ -76,14 +76,14 @@ export class SwapTab extends React.Component<
     }
 
     //initial load
-    if (previousProps.tokens.size !== this.props.tokens.size) {
-      const fromToken = this.props.tokens.values().next().value.identifier;
-      const toToken = '';
-      this.setState({
-        fromToken,
-        toToken,
-      });
-    }
+    // if (previousProps.tokens.size !== this.props.tokens.size) {
+    //   const fromToken = this.props.tokens.values().next().value.identifier;
+    //   const toToken = '';
+    //   this.setState({
+    //     fromToken,
+    //     toToken,
+    //   });
+    // }
   }
 
   async updateInputs() {

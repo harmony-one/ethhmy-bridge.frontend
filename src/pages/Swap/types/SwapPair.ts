@@ -1,5 +1,5 @@
 import { Asset, NativeToken, Token } from './trade';
-import { Pair } from '../../../blockchain-bridge/scrt/swap';
+import { getSymbolsFromPair, Pair } from '../../../blockchain-bridge/scrt/swap';
 import { SwapTokenMap } from './SwapToken';
 
 export class SwapPair {
@@ -50,7 +50,7 @@ export class SwapPair {
   }
 
   static fromPair(pair: Pair, tokenMap: SwapTokenMap) {
-    const identifiers = getIdentifiersFromPair(pair);
+    const identifiers = getSymbolsFromPair(pair);
 
     const symbol0 = tokenMap.get(identifiers[0]).symbol;
     const symbol1 = tokenMap.get(identifiers[1]).symbol;
@@ -69,24 +69,6 @@ export class SwapPair {
     );
   }
 }
-
-const getIdentifiersFromPair = (pair: Pair): string[] => {
-  let identifiers = [];
-
-  if (pair.asset_infos[0].type === 'native_token') {
-    identifiers.push(pair.asset_infos[0].native_token.denom);
-  } else {
-    identifiers.push(pair.asset_infos[0].token.contract_addr);
-  }
-
-  if (pair.asset_infos[1].type === 'native_token') {
-    identifiers.push(pair.asset_infos[1].native_token.denom);
-  } else {
-    identifiers.push(pair.asset_infos[1].token.contract_addr);
-  }
-
-  return identifiers;
-};
 
 export const pairIdFromTokenIds = (id0: string, id1: string): string => {
   return id0.localeCompare(id1) === -1 ? `${id0}-${id1}` : `${id1}-${id0}`;
