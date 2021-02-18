@@ -57,28 +57,30 @@ export const AssetRow = ({
           {isEstimated ? ` (estimated)` : null}
         </span>
         <FlexRowSpace />
-        <div hidden={!token}>
-          {'Balance: '}
-          {(() => {
-            if (balance === undefined) {
-              return (
-                <>
-                  <span style={{ marginRight: '0.5em' }} />
-                  <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" style={{ margin: 'auto' }} />
-                </>
+        {token && (
+          <div style={{ display: 'flex' }}>
+            {'Balance: '}
+            {(() => {
+              if (balance === undefined) {
+                return (
+                  <>
+                    <span style={{ marginRight: '0.5em' }} />
+                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" style={{ margin: 'auto' }} />
+                  </>
+                );
+              }
+
+              if (JSON.stringify(balance).includes('View')) {
+                return balance;
+              }
+
+              return displayHumanizedBalance(
+                humanizeBalance(new BigNumber(balance as BigNumber), tokens.get(token).decimals),
+                BigNumber.ROUND_DOWN,
               );
-            }
-
-            if (JSON.stringify(balance).includes('View')) {
-              return balance;
-            }
-
-            return displayHumanizedBalance(
-              humanizeBalance(new BigNumber(balance as BigNumber), tokens.get(token).decimals),
-              BigNumber.ROUND_DOWN,
-            );
-          })()}
-        </div>
+            })()}
+          </div>
+        )}
       </div>
       <div
         style={{
