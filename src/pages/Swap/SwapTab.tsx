@@ -225,6 +225,7 @@ export class SwapTab extends React.Component<
       this.state.buttonMessage === BUTTON_MSG_LOADING_PRICE ||
       this.state.buttonMessage === BUTTON_MSG_NOT_ENOUGH_LIQUIDITY ||
       this.state.buttonMessage === BUTTON_MSG_NO_TRADNIG_PAIR;
+    const price = Number(this.state.fromInput) / Number(this.state.toInput);
 
     return (
       <>
@@ -379,13 +380,7 @@ export class SwapTab extends React.Component<
               );
             }}
           />
-          {!hidePriceRow && (
-            <PriceRow
-              toToken={this.state.toToken}
-              fromToken={this.state.fromToken}
-              price={Number(this.state.fromInput) / Number(this.state.toInput)}
-            />
-          )}
+          {!hidePriceRow && <PriceRow toToken={this.state.toToken} fromToken={this.state.fromToken} price={price} />}
           <Button
             disabled={buttonMessage !== BUTTON_MSG_SWAP || this.state.loadingSwap}
             loading={this.state.loadingSwap}
@@ -529,7 +524,7 @@ export class SwapTab extends React.Component<
           <AdditionalInfo
             fromToken={this.state.fromToken}
             toToken={this.state.toToken}
-            liquidityProviderFee={this.state.commission}
+            liquidityProviderFee={this.state.commission * price}
             priceImpact={this.state.priceImpact}
             minimumReceived={new BigNumber(this.state.toInput).multipliedBy(
               new BigNumber(1).minus(this.state.slippageTolerance),

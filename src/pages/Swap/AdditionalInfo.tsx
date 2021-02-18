@@ -2,8 +2,6 @@ import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
 
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
-
 export const AdditionalInfo = ({
   minimumReceived,
   maximumSold,
@@ -146,7 +144,7 @@ export const AdditionalInfo = ({
               maximumFractionDigits: 6,
               useGrouping: true,
             }).format(liquidityProviderFee)}{' '}
-            {toToken}
+            {fromToken}
           </strong>
         </div>
         {/*   <div
