@@ -10,8 +10,8 @@ export const WalletOverview: React.FC<{
   balances: { [symbol: string]: BigNumber | JSX.Element };
 }> = ({ tokens, balances }) => {
   // const tokenSymbols = Object.keys(walletTokens);
-  const tokenSymbols = Array.from(tokens.keys());
-  if (tokenSymbols.length === 0) {
+  const tokenAddresses = Array.from(tokens.keys());
+  if (tokenAddresses.length === 0) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '1em 0' }}>
         <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
@@ -21,19 +21,20 @@ export const WalletOverview: React.FC<{
 
   return (
     <>
-      {tokenSymbols
+      {tokenAddresses
         .sort(a => (a.toLowerCase().includes('scrt') ? -1 : 1))
-        .map(symbol => {
-          const token = tokens.get(symbol);
-          const balance = balances[symbol];
+        .filter(address => balances[address])
+        .map(address => {
+          const token = tokens.get(address);
+          const balance = balances[address];
 
-          if (!balance) {
-            return { token, balance: <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> };
-          }
+          // if (!balance) {
+          //   return { token, balance: <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> };
+          // }
 
-          const balanceNum = new BigNumber(balances[symbol] as BigNumber);
+          const balanceNum = new BigNumber(balances[address] as BigNumber);
           if (balanceNum.isNaN()) {
-            return { token, balance: balances[symbol] };
+            return { token, balance: balances[address] };
           }
 
           return {
