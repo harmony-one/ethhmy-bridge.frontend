@@ -231,15 +231,17 @@ interface CreatePairResponse {
   contractAddress: string;
 }
 
-export const CreateNewPair = async (params: {
+export const CreateNewPair = async ({
+  secretjs,
+  tokenA,
+  tokenB,
+  notify,
+}: {
   secretjs: SigningCosmWasmClient;
   tokenA: Asset;
   tokenB: Asset;
+  notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
 }): Promise<CreatePairResponse> => {
-  const { secretjs, tokenA, tokenB } = params;
-  //TokenInfo
-  //const assetInfos = AssetInfo
-
   let asset_infos = [];
   for (const t of [tokenA, tokenB]) {
     // is a token
@@ -247,8 +249,12 @@ export const CreateNewPair = async (params: {
       if (!validateBech32Address(t.info.token.contract_addr)) {
         throw new Error('Token address is not valid');
       }
-      let token = t.info.token;
-      token.token_code_hash = await GetContractCodeHash({ secretjs, address: token.contract_addr });
+      const token = t.info.token;
+      try {
+        token.token_code_hash = await GetContractCodeHash({ secretjs, address: token.contract_addr });
+      } catch (e) {
+        notify('error', `Error fetching code hash for ${t.symbol} ${t.info.token.contract_addr}: ${e.message}`);
+      }
 
       asset_infos.push({ token });
     } else {

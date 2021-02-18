@@ -446,12 +446,14 @@ export class ProvideTab extends React.Component<
           isEstimated={false}
           setAmount={(value: string) => {
             if (value === '' || Number(value) === 0) {
-              this.setState({
-                inputA: value,
-                isEstimatedA: false,
-                inputB: '',
-                isEstimatedB: false,
-              });
+              this.setState(
+                {
+                  inputA: value,
+                  isEstimatedA: false,
+                  isEstimatedB: false,
+                },
+                () => this.updateInputs(),
+              );
               return;
             }
 
@@ -520,12 +522,14 @@ export class ProvideTab extends React.Component<
           isEstimated={false}
           setAmount={(value: string) => {
             if (value === '' || Number(value) === 0) {
-              this.setState({
-                inputA: '',
-                isEstimatedA: false,
-                inputB: value,
-                isEstimatedB: false,
-              });
+              this.setState(
+                {
+                  isEstimatedA: false,
+                  inputB: value,
+                  isEstimatedB: false,
+                },
+                () => this.updateInputs(),
+              );
               return;
             }
 
@@ -615,7 +619,11 @@ export class ProvideTab extends React.Component<
               showApproveBButton)
           }
           loading={this.state.loadingProvide}
-          primary={this.isReadyForProvide() && !showApproveAButton && !showApproveBButton}
+          primary={
+            (this.isReadyForProvide() || this.state.provideState === ProvideState.CREATE_NEW_PAIR) &&
+            !showApproveAButton &&
+            !showApproveBButton
+          }
           fluid
           style={buttonStyle}
           onClick={async () => {
@@ -625,14 +633,14 @@ export class ProvideTab extends React.Component<
               const assetA = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenA));
               const assetB = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenB));
 
-              await this.createNewPairAction(assetA, assetB)
-                .catch(e => {
-                  this.props.notify('error', e);
-                })
-                .then(() => {
-                  window.dispatchEvent(new Event('updatePairsAndTokens'));
-                  this.props.notify('success', 'Pair created successfully');
-                });
+              try {
+                await this.createNewPairAction(assetA, assetB);
+                window.dispatchEvent(new Event('updatePairsAndTokens'));
+                this.props.notify('success', `${assetA.symbol}/${assetB.symbol} pair created successfully`);
+              } catch (error) {
+                console.log('hello');
+                this.props.notify('error', `Error creating pair ${assetA.symbol}/${assetB.symbol}: ${error.message}`);
+              }
             }
           }}
         >
@@ -647,7 +655,12 @@ export class ProvideTab extends React.Component<
   }
 
   private async createNewPairAction(tokenA: Asset, tokenB: Asset): Promise<string> {
-    const result = await CreateNewPair({ secretjs: this.props.secretjs, tokenA, tokenB });
+    const result = await CreateNewPair({
+      secretjs: this.props.secretjs,
+      tokenA,
+      tokenB,
+      notify: this.props.notify,
+    });
 
     return result.contractAddress;
   }

@@ -71,43 +71,61 @@ export const EarnRewards = observer((props: any) => {
         </div>
         <Box direction="row" wrap={true} fill={true} justify="between" align="start">
           <Box direction="column" align="center" justify="center" className={styles.base}>
-            {rewards.allData.map(rewardToken => {
-              if (rewardToken.pending_rewards === '0') {
-                return null;
-              }
+            {rewards.allData
+              .sort((a, b) => {
+                /* ETH first then UNI LP WSCRT-ETH */
+                if (a.inc_token.symbol === 'sETH' && b.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
+                  return -1;
+                }
+                if (b.inc_token.symbol === 'sETH' && a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
+                  return 1;
+                }
+                if (a.inc_token.symbol === 'sETH') {
+                  return -1;
+                }
+                if (a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
+                  return -1;
+                }
 
-              let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address);
-              if (!token) {
-                return null;
-              }
+                return 0;
+              })
+              .map(rewardToken => {
+                if (rewardToken.pending_rewards === '0') {
+                  return null;
+                }
 
-              if (token.display_props.symbol === 'BAC') {
-                token.price = '0.76';
-              }
+                let token = tokens.allData.find(element => element.dst_address === rewardToken.inc_token.address);
+                if (!token) {
+                  return null;
+                }
 
-              const rewardsToken = {
-                rewardsContract: rewardToken.pool_address,
-                lockedAsset: rewardToken.inc_token.symbol,
-                lockedAssetAddress: token.dst_address,
-                totalLockedRewards: divDecimals(
-                  Number(rewardToken.total_locked) * Number(token.price),
-                  rewardToken.inc_token.decimals,
-                ),
-                rewardsDecimals: String(rewardToken.rewards_token.decimals),
-                rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
-                deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
-                balance: user.balanceToken[token.src_coin],
-                decimals: token.decimals,
-                name: token.name,
-                price: token.price,
-                rewardsPrice: String(rewardToken.rewards_token.price),
-                display_props: token.display_props,
-                remainingLockedRewards: rewardToken.pending_rewards,
-                deadline: Number(rewardToken.deadline),
-              };
+                if (token.display_props.symbol === 'BAC') {
+                  token.price = '0.76';
+                }
 
-              return <EarnRow key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
-            })}
+                const rewardsToken = {
+                  rewardsContract: rewardToken.pool_address,
+                  lockedAsset: rewardToken.inc_token.symbol,
+                  lockedAssetAddress: token.dst_address,
+                  totalLockedRewards: divDecimals(
+                    Number(rewardToken.total_locked) * Number(token.price),
+                    rewardToken.inc_token.decimals,
+                  ),
+                  rewardsDecimals: String(rewardToken.rewards_token.decimals),
+                  rewards: user.balanceRewards[rewardsKey(rewardToken.inc_token.symbol)],
+                  deposit: user.balanceRewards[rewardsDepositKey(rewardToken.inc_token.symbol)],
+                  balance: user.balanceToken[token.src_coin],
+                  decimals: token.decimals,
+                  name: token.name,
+                  price: token.price,
+                  rewardsPrice: String(rewardToken.rewards_token.price),
+                  display_props: token.display_props,
+                  remainingLockedRewards: rewardToken.pending_rewards,
+                  deadline: Number(rewardToken.deadline),
+                };
+
+                return <EarnRow key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
+              })}
           </Box>
         </Box>
         <InfoModalEarn />

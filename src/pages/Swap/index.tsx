@@ -28,6 +28,8 @@ import { Tokens } from '../../stores/Tokens';
 import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import cogoToast from 'cogo-toast';
+
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -567,7 +569,13 @@ export class SwapRouter extends React.Component<
     // gather tokens from our list, and from local storage
     await this.updateTokens();
 
-    let { pairs }: { pairs: Array<Pair> } = await GetAllPairs({ secretjs: this.props.user.secretjs });
+    let pairs = [];
+    try {
+      pairs = (await GetAllPairs({ secretjs: this.props.user.secretjs })).pairs;
+    } catch (error) {
+      this.notify('error', `Cannot fetch list of pairs: ${error.message}`);
+      return;
+    }
 
     // filter all pairs that aren't known tokens
     pairs = pairs.filter(p => {
@@ -594,8 +602,20 @@ export class SwapRouter extends React.Component<
     this.setState({ pairs: newPairs });
   };
 
-  notify(type: 'success' | 'error', msg: string, closesAfterMs: number = 120_000) {
-    NotificationManager[type](undefined, msg, closesAfterMs);
+  notify(type: 'success' | 'error', msg: string, hideAfterSec: number = 120) {
+    if (type === 'error') {
+      msg = msg.replaceAll('Failed to decrypt the following error message: ', '');
+      msg = msg.replace(/\. Decryption error of the error message:.+?/, '');
+    }
+
+    const { hide } = cogoToast[type](msg, {
+      position: 'top-right',
+      hideAfter: hideAfterSec,
+      onClick: () => {
+        hide();
+      },
+    });
+    // NotificationManager[type](undefined, msg, closesAfterMs);
   }
 
   render() {
@@ -631,7 +651,7 @@ export class SwapRouter extends React.Component<
               </div>
             }
             content={<WalletOverview tokens={this.state.allTokens} balances={this.state.balances} />}
-            position="left center"
+            position="bottom left"
             basic
             on="click"
             trigger={
@@ -710,7 +730,9 @@ export class SwapRouter extends React.Component<
             <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
         </PageContainer>
-        <NotificationContainer />
+        { process.env.ENV !== 'MAINNET' ?
+          <NotificationContainer /> : <></>
+        }
       </BaseContainer>
     );
   }

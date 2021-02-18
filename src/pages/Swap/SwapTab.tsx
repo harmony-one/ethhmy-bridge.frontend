@@ -195,6 +195,8 @@ export class SwapTab extends React.Component<
     const ask_pool = pair
       ? new BigNumber(this.props.balances[`${this.state.toToken}-${pair.identifier()}`] as BigNumber)
       : new BigNumber(0);
+    const offer_pool = new BigNumber(this.props.balances[`${this.state.fromToken}-${pair.identifier()}`] as any);
+
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
       this.props.balances[this.state.toToken],
@@ -215,7 +217,7 @@ export class SwapTab extends React.Component<
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
     } else if (new BigNumber(fromBalance as BigNumber).isLessThan(canonFromInput)) {
       buttonMessage = `Insufficient ${this.state.fromToken} balance`;
-    } else if (ask_pool.isLessThan(canonToInput)) {
+    } else if (offer_pool.isZero() || ask_pool.isZero() || ask_pool.isLessThan(canonToInput)) {
       buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_LOADING_PRICE;
@@ -376,12 +378,14 @@ export class SwapTab extends React.Component<
                     getFeeForExecute(500_000),
                   );
 
-                  const sent = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'offer_amount')), fromDecimals),
-                  );
-                  const received = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'return_amount')), toDecimals),
-                  );
+                  const sent = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'offer_amount')),
+                    fromDecimals,
+                  ).toFixed();
+                  const received = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'return_amount')),
+                    toDecimals,
+                  ).toFixed();
 
                   this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
                 } else {
@@ -408,12 +412,14 @@ export class SwapTab extends React.Component<
                     [],
                     getFeeForExecute(500_000),
                   );
-                  const sent = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'offer_amount')), fromDecimals),
-                  );
-                  const received = displayHumanizedBalance(
-                    humanizeBalance(new BigNumber(extractValueFromLogs(result, 'return_amount')), toDecimals),
-                  );
+                  const sent = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'offer_amount')),
+                    fromDecimals,
+                  ).toFixed();
+                  const received = humanizeBalance(
+                    new BigNumber(extractValueFromLogs(result, 'return_amount')),
+                    toDecimals,
+                  ).toFixed();
 
                   this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
                 }
