@@ -14,7 +14,6 @@ import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import { Button, Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
-import { NotificationContainer, NotificationManager } from 'react-notifications';
 import 'react-notifications/lib/notifications.css';
 import { getNativeBalance, getTokenBalance, unlockJsx } from './utils';
 import { BetaWarning } from './BetaWarning';
@@ -29,7 +28,6 @@ import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
-
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -730,9 +728,6 @@ export class SwapRouter extends React.Component<
             <BetaWarning secretjs={this.props.user.secretjs} />
           </Box>
         </PageContainer>
-        { process.env.ENV !== 'MAINNET' ?
-          <NotificationContainer /> : <></>
-        }
       </BaseContainer>
     );
   }
