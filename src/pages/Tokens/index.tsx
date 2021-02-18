@@ -121,7 +121,7 @@ export const Tokens = observer((props: any) => {
     columns = allColumns
       .filter(c => /Symbol|Locked|TVL/i.test(c.title))
       .map(c => {
-        if (c.title == 'Total Locked') {
+        if (c.title === 'Total Locked') {
           c.title = 'TVL';
         }
         delete c.width;

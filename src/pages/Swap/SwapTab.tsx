@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
-import './override.css';
 import { canonicalizeBalance, humanizeBalance, sortedStringify } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';

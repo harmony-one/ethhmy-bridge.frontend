@@ -18,28 +18,9 @@ import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import cn from 'classnames';
 import { PairMap, SwapPair } from './types/SwapPair';
 import { PairAnalyticsLink } from './PairAnalyticsLink';
-
-const plus = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#00ADE8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-);
-
-enum TokenSelector {
-  TokenA,
-  TokenB,
-}
+import { ApproveButton } from '../../components/Swap/ApproveButton';
+import { SwapPlus } from '../../components/Swap/SwapPlus';
+import { NewPoolWarning } from '../../components/Swap/NewPoolWarning';
 
 const buttonStyle = {
   margin: '0.5em 0 0 0',
@@ -47,6 +28,11 @@ const buttonStyle = {
   padding: '18px',
   fontSize: '20px',
 };
+
+enum TokenSelector {
+  TokenA,
+  TokenB,
+}
 
 // const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 // const BUTTON_MSG_NO_TRADNIG_PAIR = ;
@@ -429,7 +415,9 @@ export class ProvideTab extends React.Component<
           }}
         >
           <FlexRowSpace />
-          <span>{plus}</span>
+          <span>
+            <SwapPlus />
+          </span>
           <FlexRowSpace />
         </div>
         <AssetRow
@@ -617,8 +605,8 @@ export class ProvideTab extends React.Component<
 
     // we use 'symbol' instead of this.state.tokenB/A since the setState that sets the state happens after this
     token === TokenSelector.TokenA
-      ? await this.props.onSetTokens(this.state.tokenA, symbol)
-      : await this.props.onSetTokens(symbol, this.state.tokenB);
+      ? await this.props.onSetTokens(symbol, this.state.tokenB)
+      : await this.props.onSetTokens(this.state.tokenA, symbol);
   }
 
   private isReadyForNewPool() {
@@ -727,7 +715,6 @@ export class ProvideTab extends React.Component<
   }
 
   private showPoolWarning(): boolean {
-    console.log(this.state.provideState);
     return (
       this.state.provideState === ProvideState.PAIR_NOT_EXIST ||
       this.state.provideState === ProvideState.CREATE_NEW_PAIR ||
@@ -759,32 +746,3 @@ export class ProvideTab extends React.Component<
     );
   }
 }
-
-const ApproveButton = (props: { disabled: boolean; loading: boolean; onClick: any; token: string }) => (
-  <Button disabled={props.disabled} loading={props.loading} primary fluid style={buttonStyle} onClick={props.onClick}>
-    {`Approve ${props.token}`}
-  </Button>
-);
-
-const NewPoolWarning = (props: { inputA: string; inputB: string; tokenA: string; tokenB: string }) => {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        paddingTop: '0.5rem',
-      }}
-    >
-      <Message warning style={{ borderRadius: '20px' }}>
-        <Message.Header>Pair without liquidity!</Message.Header>
-        <p>This trading pair has no liquidity. By providing liquidity you are setting the price.</p>
-        {(() => {
-          const newPrice = new BigNumber(props.inputA).dividedBy(props.inputB);
-
-          return newPrice.isNaN() ? null : (
-            <PriceRow fromToken={props.tokenA} toToken={props.tokenB} price={newPrice.toNumber()} labelPrefix="New " />
-          );
-        })()}
-      </Message>
-    </div>
-  );
-};

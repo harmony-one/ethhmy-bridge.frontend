@@ -44,7 +44,7 @@ export const AddTokenModal = (props: { tokens: SwapToken[]; token: SwapToken; ad
         </div>
       </Modal.Header>
       <Modal.Content>
-        <SwapInput value={address} setValue={setAddress} placeholder={'secret1.....'} width={'600px'} />
+        <SwapInput key={address} value={address} setValue={setAddress} placeholder={'secret1.....'} width={'600px'} />
         <IsValid isValid={isValidAddress} />
       </Modal.Content>
       <Modal.Actions>

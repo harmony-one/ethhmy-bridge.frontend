@@ -71,10 +71,11 @@ export const TokenSelector = (props: {
         {props.tokens.length > 0 ? (
           props.tokens
             .sort(a => (a.symbol.toLowerCase().includes('scrt') ? -1 : 1))
+            .sort(a => (a.identifier === 'uscrt' ? -1 : 1)) // consider removing if we don't care about scrt, or do this more efficiently?
             .map(t => {
               return (
                 <TokenInfoRow
-                  key={t.address}
+                  key={t.identifier}
                   token={t}
                   onClick={() => {
                     props?.onClick ? props.onClick(t.identifier) : (() => {})();
