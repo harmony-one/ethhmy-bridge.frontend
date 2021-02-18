@@ -425,7 +425,7 @@ export class SwapRouter extends React.Component<
       const result: {
         pairs: Array<Pair>;
       } = await this.props.user.secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
-        pairs: {},
+        pairs: { limit: 30 },
       });
       pairs = result.pairs;
     } catch (error) {
