@@ -25,6 +25,10 @@ export class SwapPair {
     this.pair_identifier = pair_identifier;
   }
 
+  lpTokenSymbol(): string {
+    return `LP-${this.identifier()}`;
+  }
+
   identifier(): string {
     return this.pair_identifier;
   }

@@ -148,13 +148,13 @@ export class WithdrawLiquidityPanel extends React.Component<
             {!lpTokenBalanceNum.isNaN() && (
               <>
                 <div style={rowStyle}>
-                  <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>
+                  <span style={{ margin: 'auto' }}>{`Pooled ${this.props.tokens.get(tokenA)?.symbol}`}</span>
                   <FlexRowSpace />
                   <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenA}</span>
                   {getLogo(tokenA)}
                 </div>
                 <div style={rowStyle}>
-                  <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}`}</span>
+                  <span style={{ margin: 'auto' }}>{`Pooled ${this.props.tokens.get(tokenB)?.symbol}`}</span>
                   <FlexRowSpace />
                   <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenB}</span>
                   {getLogo(tokenB)}
@@ -265,7 +265,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                       <FlexRowSpace />
                     </div>
                     <div style={rowStyle}>
-                      <span style={{ margin: 'auto' }}>{tokenA}</span>
+                      <span style={{ margin: 'auto' }}>{this.props.tokens.get(tokenA)?.symbol}</span>
                       <FlexRowSpace />
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                         {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
@@ -276,7 +276,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                       {getLogo(tokenA)}
                     </div>
                     <div style={rowStyle}>
-                      <span style={{ margin: 'auto' }}>{tokenB}</span>
+                      <span style={{ margin: 'auto' }}>{this.props.tokens.get(tokenB)?.symbol}</span>
                       <FlexRowSpace />
                       <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
                         {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}

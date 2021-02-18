@@ -5,11 +5,11 @@ import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
 import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
-import Loader from 'react-loader-spinner';
 import { SwapTokenMap } from './types/SwapToken';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 import { PairMap } from './types/SwapPair';
+import Loader from 'react-loader-spinner';
 
 export class WithdrawTab extends React.Component<{
   user: UserStoreEx;
@@ -40,32 +40,9 @@ export class WithdrawTab extends React.Component<{
   }
 
   render() {
-    const withdrawPanelList = Object.keys(this.props.balances)
-      .filter(lpTokenSymbol => lpTokenSymbol.startsWith('LP') && !lpTokenSymbol.includes('total-supply'))
-      .map(lpTokenSymbol => {
-        const pairSymbol = lpTokenSymbol.replace('LP-', '');
-        const selectedPair = this.props.pairs.get(pairSymbol);
+    const pairs = Array.from(this.props.pairs.values());
 
-        if (selectedPair) {
-          return (
-            <span key={lpTokenSymbol}>
-              <WithdrawLiquidityPanel
-                lpTokenSymbol={lpTokenSymbol}
-                tokens={this.props.tokens}
-                selectedPair={selectedPair}
-                balances={this.props.balances}
-                secretjs={this.props.secretjs}
-                notify={this.props.notify}
-              />
-              <div style={{ minHeight: '1em' }} />
-            </span>
-          );
-        } else {
-          return <></>;
-        }
-      });
-
-    if (withdrawPanelList.length === 0) {
+    if (pairs.length === 0) {
       return (
         <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
@@ -79,7 +56,21 @@ export class WithdrawTab extends React.Component<{
     return (
       <Container className={cn(styles.swapContainerStyle)}>
         <TabsHeader />
-        {withdrawPanelList}
+        {pairs.map(p => {
+          return (
+            <span key={p.lpTokenSymbol()}>
+              <WithdrawLiquidityPanel
+                lpTokenSymbol={p.lpTokenSymbol()}
+                tokens={this.props.tokens}
+                selectedPair={p}
+                balances={this.props.balances}
+                secretjs={this.props.secretjs}
+                notify={this.props.notify}
+              />
+              <div style={{ minHeight: '1em' }} />
+            </span>
+          );
+        })}
       </Container>
     );
   }
