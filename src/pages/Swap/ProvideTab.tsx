@@ -17,6 +17,7 @@ import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import cn from 'classnames';
 import { PairMap, SwapPair } from './types/SwapPair';
+import { PairAnalyticsLink } from './PairAnalyticsLink';
 
 const plus = (
   <svg
@@ -155,7 +156,7 @@ export class ProvideTab extends React.Component<
       this.updateInputs();
     }
 
-    if (previousProps.selectedPair !== this.props.selectedPair) {
+    if (this.props.selectedPair && previousProps.selectedPair !== this.props.selectedPair) {
       const [tokenA, tokenB] = this.props.selectedPair.assetIds();
       this.setState(
         {
@@ -484,6 +485,7 @@ export class ProvideTab extends React.Component<
             {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
           </div>
         )}
+        <PairAnalyticsLink pairAddress={this.props.selectedPair?.contract_addr} />
         <div hidden={!this.showPoolWarning()}>
           <NewPoolWarning
             inputA={this.state.inputA}
