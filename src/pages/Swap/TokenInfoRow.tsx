@@ -5,7 +5,7 @@ import { Image } from 'semantic-ui-react';
 import cn from 'classnames';
 import * as styles from './styles.styl';
 
-import { CopyWithFeedback } from './CopyWithFeedback';
+import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
 export const TokenInfoRow = (props: { token: TokenDisplay; balance?: number; onClick?: any }) => {

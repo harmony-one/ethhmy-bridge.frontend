@@ -6,7 +6,6 @@ import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
 import './override.css';
 import { sleep, unlockToken } from 'utils';
-import { Asset, NativeToken, Token } from './trade';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
@@ -14,122 +13,22 @@ import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import { Button, Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
-import 'react-notifications/lib/notifications.css';
 import { getNativeBalance, getTokenBalance, unlockJsx } from './utils';
-import { BetaWarning } from './BetaWarning';
+import { BetaWarning } from '../../components/Swap/BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
 import { WalletOverview } from './WalletOverview';
-import { CopyWithFeedback } from './CopyWithFeedback';
+import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { loadTokensFromList } from './LoadTokensFromList';
 import { ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
 import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
-import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './SwapToken';
+import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
+import { pairIdFromTokenIds, SwapPair } from './types/SwapPair';
 
-export type Pair = {
-  asset_infos: Array<NativeToken | Token>;
-  contract_addr: string;
-  liquidity_token: string;
-  token_code_hash: string;
-};
-
-export type PairMap = Map<string, NewPair>;
-
-export class NewPair {
-  pair_identifier: string;
-  asset_infos: Asset[];
-  contract_addr: string;
-  liquidity_token: string;
-  //token_code_hash: string;
-
-  constructor(
-    symbol0: string,
-    asset0: NativeToken | Token,
-    symbol1: string,
-    asset1: NativeToken | Token,
-    contract_addr,
-    liquidity_token,
-    pair_identifier,
-  ) {
-    this.asset_infos = [];
-    //const symbol0 = asset0.type === 'native_token' ? asset0.native_token.denom : asset0.token.contract_addr;
-    this.asset_infos.push(new Asset(symbol0, asset0));
-    this.asset_infos.push(new Asset(symbol1, asset1));
-    this.contract_addr = contract_addr;
-    this.liquidity_token = liquidity_token;
-    this.pair_identifier = pair_identifier;
-    //this.token_code_hash = token_code_hash;
-  }
-
-  identifier(): string {
-    return this.pair_identifier;
-  }
-
-  assetIds(): string[] {
-    return this.pair_identifier.split('-');
-  }
-
-  isSymbolInPair(symbol: string): boolean {
-    return symbol.toUpperCase() === this.asset_infos[0].symbol || symbol.toUpperCase() === this.asset_infos[1].symbol;
-  }
-
-  isIdInPair(id: string): boolean {
-    const pairIdentifiers = this.pair_identifier.split('-');
-
-    for (const pId in pairIdentifiers) {
-      if (pId.toLowerCase() === id) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  static fromPair(pair: Pair, tokenMap: SwapTokenMap) {
-    const identifiers = getIdentifiersFromPair(pair);
-
-    const symbol0 = tokenMap.get(identifiers[0]).symbol;
-    const symbol1 = tokenMap.get(identifiers[1]).symbol;
-
-    const pair_identifier = pairIdFromTokenIds(identifiers[0], identifiers[1]);
-
-    //const symbol0 = asset0.type === 'native_token' ? asset0.native_token.denom : asset0.token.contract_addr;
-    return new NewPair(
-      symbol0,
-      pair.asset_infos[0],
-      symbol1,
-      pair.asset_infos[1],
-      pair.contract_addr,
-      pair.liquidity_token,
-      pair_identifier,
-    );
-  }
-}
-
-const pairIdFromTokenIds = (id0: string, id1: string): string => {
-  return id0.localeCompare(id1) === -1 ? `${id0}-${id1}` : `${id1}-${id0}`;
-};
-
-const getIdentifiersFromPair = (pair: Pair): string[] => {
-  let identifiers = [];
-
-  if (pair.asset_infos[0].type === 'native_token') {
-    identifiers.push(pair.asset_infos[0].native_token.denom);
-  } else {
-    identifiers.push(pair.asset_infos[0].token.contract_addr);
-  }
-
-  if (pair.asset_infos[1].type === 'native_token') {
-    identifiers.push(pair.asset_infos[1].native_token.denom);
-  } else {
-    identifiers.push(pair.asset_infos[1].token.contract_addr);
-  }
-
-  return identifiers;
-};
+export type PairMap = Map<string, SwapPair>;
 
 export type TokenDisplay = {
   symbol: string;
@@ -137,15 +36,6 @@ export type TokenDisplay = {
   decimals?: number;
   address?: string;
   token_code_hash?: string;
-};
-
-export const swapContainerStyle = {
-  zIndex: '10',
-  borderRadius: '30px',
-  backgroundColor: 'white',
-  padding: '2em',
-  boxShadow:
-    'rgba(0, 0, 0, 0.01) 0px 0px 1px, rgba(0, 0, 0, 0.04) 0px 4px 8px, rgba(0, 0, 0, 0.04) 0px 16px 24px, rgba(0, 0, 0, 0.01) 0px 24px 32px',
 };
 
 export const SwapPageWrapper = observer(() => {
@@ -162,7 +52,6 @@ export class SwapRouter extends React.Component<
     allTokens: SwapTokenMap;
     balances: { [symbol: string]: BigNumber | JSX.Element };
     pairs: PairMap;
-    pairFromSymbol: { [symbol: string]: Pair };
   }
 > {
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
@@ -173,17 +62,13 @@ export class SwapRouter extends React.Component<
       [symbol: string]: BigNumber | JSX.Element;
     };
     pairs: PairMap;
-    pairFromSymbol: {
-      [symbol: string]: Pair;
-    };
-    selectedPair: NewPair | undefined;
+    selectedPair: SwapPair | undefined;
     selectedToken0: string;
     selectedToken1: string;
   } = {
     allTokens: new Map<string, SwapToken>(),
     balances: {},
-    pairs: new Map<string, NewPair>(),
-    pairFromSymbol: {},
+    pairs: new Map<string, SwapPair>(),
     selectedPair: undefined,
     selectedToken0: '',
     selectedToken1: '',
@@ -201,17 +86,6 @@ export class SwapRouter extends React.Component<
   async componentDidUpdate(previousProps) {
     if (previousProps.tokens.allData.length !== this.props.tokens.allData.length) {
       await this.updateTokens();
-
-      // const tokensToRefresh = [];
-      // if (this.state.selectedToken1) {
-      //   tokensToRefresh.push(this.state.selectedToken1);
-      // }
-      //
-      // if (this.state.selectedToken0) {
-      //   tokensToRefresh.push(this.state.selectedToken0);
-      // }
-      //
-      // await this.refreshBalances({ tokenSymbols: tokensToRefresh });
     }
 
     const tokensToRefresh = [];
@@ -273,7 +147,7 @@ export class SwapRouter extends React.Component<
     };
   }
 
-  private async refreshBalances(params: { tokenSymbols: string[]; pair?: NewPair; height?: number }) {
+  private async refreshBalances(params: { tokenSymbols: string[]; pair?: SwapPair; height?: number }) {
     let { height, pair, tokenSymbols } = params;
 
     if (!height) {
@@ -315,10 +189,10 @@ export class SwapRouter extends React.Component<
 
       // refresh selected token balances as well (because why not?)
       if (this.state.selectedToken0) {
-        symbols.push(this.state.allTokens.get(this.state.selectedToken0).identifier);
+        symbols.push(this.state.allTokens.get(this.state.selectedToken0)?.identifier);
       }
       if (this.state.selectedToken1) {
-        symbols.push(this.state.allTokens.get(this.state.selectedToken1).identifier);
+        symbols.push(this.state.allTokens.get(this.state.selectedToken1)?.identifier);
       }
 
       // todo: move this to another function
@@ -339,7 +213,7 @@ export class SwapRouter extends React.Component<
     }
   }
 
-  private async refreshPoolBalance(pair: NewPair) {
+  private async refreshPoolBalance(pair: SwapPair) {
     const tokens = pair.assetIds();
     // refresh pool balances
     let balances = [];
@@ -391,7 +265,7 @@ export class SwapRouter extends React.Component<
     return { [tokenSymbol]: userBalancePromise };
   }
 
-  private async refreshLpTokenBalance(pair: NewPair) {
+  private async refreshLpTokenBalance(pair: SwapPair) {
     const pairSymbol = pair.identifier();
     console.log('Refresh LP token for', pairSymbol);
     // update my LP token balance
@@ -550,7 +424,7 @@ export class SwapRouter extends React.Component<
   };
 
   setCurrentPair = async (token0: string, token1: string) => {
-    const selectedPair: NewPair = this.state.pairs.get(pairIdFromTokenIds(token0, token1));
+    const selectedPair: SwapPair = this.state.pairs.get(pairIdFromTokenIds(token0, token1));
 
     this.setState(currentState => {
       return {
@@ -590,10 +464,10 @@ export class SwapRouter extends React.Component<
       return true;
     });
 
-    const newPairs: PairMap = new Map<string, NewPair>();
+    const newPairs: PairMap = new Map<string, SwapPair>();
 
     for (const p of pairs) {
-      const newPair = NewPair.fromPair(p, this.state.allTokens);
+      const newPair = SwapPair.fromPair(p, this.state.allTokens);
       newPairs.set(newPair.identifier(), newPair);
     }
 
@@ -701,6 +575,7 @@ export class SwapRouter extends React.Component<
                   selectedToken0={this.state.selectedToken0}
                   selectedToken1={this.state.selectedToken1}
                   notify={this.notify}
+                  onSetTokens={async (token0, token1) => await this.onSetTokens(token0, token1)}
                 />
               )}
               {isWithdraw && (

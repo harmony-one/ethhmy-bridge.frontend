@@ -1,15 +1,15 @@
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import { Container, Image, Button, Divider, Header, Accordion } from 'semantic-ui-react';
+import { Accordion, Button, Container, Divider, Header, Image } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
-import { NewPair } from '.';
-import { PriceRow } from './PriceRow';
-import { downArrow } from './SwapTab';
+import { PriceRow } from '../../components/Swap/PriceRow';
 import { getFeeForExecute } from '../../blockchain-bridge';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
-import { SwapTokenMap } from './SwapToken';
+import { SwapTokenMap } from './types/SwapToken';
+import { SwapPair } from './types/SwapPair';
+import { DownArrow } from '../../ui/Icons/DownArrow';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
@@ -19,7 +19,7 @@ export class WithdrawLiquidityPanel extends React.Component<
       [symbol: string]: BigNumber | JSX.Element;
     };
     secretjs: SigningCosmWasmClient;
-    selectedPair: NewPair;
+    selectedPair: SwapPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   },
   {
@@ -28,10 +28,6 @@ export class WithdrawLiquidityPanel extends React.Component<
     isActive: boolean;
   }
 > {
-  constructor(props) {
-    super(props);
-  }
-
   state = {
     isLoading: false,
     withdrawPercentage: 0,
@@ -40,7 +36,6 @@ export class WithdrawLiquidityPanel extends React.Component<
 
   render() {
     const pairSymbol = this.props.lpTokenSymbol.replace('LP-', '');
-    //const pair = this.props.pairs;
 
     const [tokenA, tokenB] = this.props.selectedPair.assetIds();
 
@@ -266,7 +261,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                     </div>
                     <div style={rowStyle}>
                       <FlexRowSpace />
-                      {downArrow}
+                      <DownArrow />
                       <FlexRowSpace />
                     </div>
                     <div style={rowStyle}>

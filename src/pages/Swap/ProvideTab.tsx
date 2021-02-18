@@ -2,19 +2,22 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
-import { NewPair, Pair, swapContainerStyle, PairMap } from '.';
+import { PairMap } from '.';
+import * as styles from './styles.styl';
 import { AssetRow } from './AssetRow';
 import { TabsHeader } from './TabsHeader';
-import { PriceRow } from './PriceRow';
+import { PriceRow } from '../../components/Swap/PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
 import { compareNormalize } from './utils';
 import { GetContractCodeHash, getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
-import { Asset } from './trade';
-import { SwapTokenMap } from './SwapToken';
+import { Asset, Token } from './types/trade';
+import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import cn from 'classnames';
+import { SwapPair } from './types/SwapPair';
 
 const plus = (
   <svg
@@ -32,6 +35,11 @@ const plus = (
     <line x1="5" y1="12" x2="19" y2="12"></line>
   </svg>
 );
+
+enum TokenSelector {
+  TokenA,
+  TokenB,
+}
 
 const buttonStyle = {
   margin: '0.5em 0 0 0',
@@ -91,10 +99,11 @@ export class ProvideTab extends React.Component<
       [symbol: string]: BigNumber | JSX.Element;
     };
     pairs: PairMap;
-    selectedPair: NewPair;
+    selectedPair: SwapPair;
     selectedToken0: string;
     selectedToken1: string;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+    onSetTokens: CallableFunction;
   },
   {
     tokenA: string;
@@ -226,12 +235,6 @@ export class ProvideTab extends React.Component<
   }
 
   async updateInputs() {
-    //const selectedPairSymbol = `${this.state.tokenA}/${this.state.tokenB}`;
-
-    // if (selectedPairSymbol !== this.state.selectedPairSymbol) {
-    //   this.setState({ selectedPairSymbol });
-    // }
-
     if (!this.props.selectedPair) {
       this.setState({
         inputA: '',
@@ -297,7 +300,7 @@ export class ProvideTab extends React.Component<
     }
   }
 
-  async approveOnClick(pair: NewPair, symbol: string) {
+  async approveOnClick(pair: SwapPair, symbol: string) {
     let stateFieldSuffix: string;
     if (this.state.tokenA === symbol) {
       stateFieldSuffix = 'A';
@@ -339,7 +342,7 @@ export class ProvideTab extends React.Component<
     });
   }
 
-  getProvideState(pair: NewPair): ProvideState {
+  getProvideState(pair: SwapPair): ProvideState {
     const [balanceA, balanceB] = this.getTokenBalances();
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
@@ -400,7 +403,7 @@ export class ProvideTab extends React.Component<
     );
 
     return (
-      <Container style={swapContainerStyle}>
+      <Container className={cn(styles.swapContainerStyle)}>
         <TabsHeader />
         <AssetRow
           secretjs={this.props.secretjs}
@@ -409,62 +412,13 @@ export class ProvideTab extends React.Component<
           balance={balanceA}
           tokens={this.props.tokens}
           token={this.state.tokenA}
-          setToken={(symbol: string) => {
-            if (symbol === this.state.tokenB) {
-              // switch
-              this.setState(
-                {
-                  tokenA: symbol,
-                  isEstimatedA: this.state.isEstimatedB,
-                  inputA: this.state.inputB,
-                  allowanceA: this.state.allowanceB,
-                  tokenB: this.state.tokenA,
-                  isEstimatedB: this.state.isEstimatedA,
-                  inputB: this.state.inputA,
-                  allowanceB: this.state.allowanceA,
-                },
-                () => this.updateInputs(),
-              );
-            } else {
-              this.setState(
-                {
-                  tokenA: symbol,
-                  inputA: '',
-                  isEstimatedA: true,
-                  isEstimatedB: false,
-                },
-                () => {
-                  this.updateInputs();
-
-                  this.updateAllowance(this.state.tokenA);
-                  this.updateAllowance(this.state.tokenB);
-                },
-              );
-            }
+          setToken={async (symbol: string) => {
+            await this.setToken(symbol, TokenSelector.TokenA);
           }}
           amount={this.state.inputA}
           isEstimated={false}
           setAmount={(value: string) => {
-            if (value === '' || Number(value) === 0) {
-              this.setState(
-                {
-                  inputA: value,
-                  isEstimatedA: false,
-                  isEstimatedB: false,
-                },
-                () => this.updateInputs(),
-              );
-              return;
-            }
-
-            this.setState(
-              {
-                inputA: value,
-                isEstimatedA: false,
-                isEstimatedB: true,
-              },
-              () => this.updateInputs(),
-            );
+            this.setAmount(value, TokenSelector.TokenA);
           }}
         />
         <div
@@ -485,62 +439,13 @@ export class ProvideTab extends React.Component<
           balance={balanceB}
           tokens={this.props.tokens}
           token={this.state.tokenB}
-          setToken={(symbol: string) => {
-            if (symbol === this.state.tokenA) {
-              // switch
-              this.setState(
-                {
-                  tokenB: symbol,
-                  isEstimatedB: this.state.isEstimatedA,
-                  inputB: this.state.inputA,
-                  allowanceB: this.state.allowanceA,
-                  tokenA: this.state.tokenB,
-                  isEstimatedA: this.state.isEstimatedB,
-                  inputA: this.state.inputB,
-                  allowanceA: this.state.allowanceB,
-                },
-                () => this.updateInputs(),
-              );
-            } else {
-              this.setState(
-                {
-                  tokenB: symbol,
-                  inputB: '',
-                  isEstimatedB: true,
-                  isEstimatedA: false,
-                },
-                () => {
-                  this.updateInputs();
-
-                  this.updateAllowance(this.state.tokenA);
-                  this.updateAllowance(this.state.tokenB);
-                },
-              );
-            }
+          setToken={async (symbol: string) => {
+            await this.setToken(symbol, TokenSelector.TokenB);
           }}
           amount={this.state.inputB}
           isEstimated={false}
           setAmount={(value: string) => {
-            if (value === '' || Number(value) === 0) {
-              this.setState(
-                {
-                  isEstimatedA: false,
-                  inputB: value,
-                  isEstimatedB: false,
-                },
-                () => this.updateInputs(),
-              );
-              return;
-            }
-
-            this.setState(
-              {
-                inputB: value,
-                isEstimatedB: false,
-                isEstimatedA: true,
-              },
-              () => this.updateInputs(),
-            );
+            this.setAmount(value, TokenSelector.TokenB);
           }}
         />
         {!price.isNaN() && (
@@ -650,6 +555,71 @@ export class ProvideTab extends React.Component<
     );
   }
 
+  private setAmount(value: string, token: TokenSelector) {
+    if (value === '' || Number(value) === 0) {
+      this.setState(
+        {
+          inputA: token === TokenSelector.TokenA ? value : this.state.inputA,
+          inputB: token === TokenSelector.TokenB ? value : this.state.inputB,
+          isEstimatedA: false,
+          isEstimatedB: false,
+        },
+        () => this.updateInputs(),
+      );
+      return;
+    }
+
+    this.setState(
+      {
+        inputA: token === TokenSelector.TokenA ? value : this.state.inputA,
+        inputB: token === TokenSelector.TokenB ? value : this.state.inputB,
+        isEstimatedA: token !== TokenSelector.TokenA,
+        isEstimatedB: token !== TokenSelector.TokenB,
+      },
+      () => this.updateInputs(),
+    );
+  }
+
+  private async setToken(symbol: string, token: TokenSelector) {
+    if (token === TokenSelector.TokenA ? symbol === this.state.tokenB : symbol === this.state.tokenA) {
+      // switch
+      this.setState(
+        {
+          tokenA: token === TokenSelector.TokenA ? symbol : this.state.tokenB,
+          isEstimatedA: this.state.isEstimatedB,
+          inputA: this.state.inputB,
+          allowanceA: this.state.allowanceB,
+          tokenB: token === TokenSelector.TokenA ? this.state.tokenA : symbol,
+          isEstimatedB: this.state.isEstimatedA,
+          inputB: this.state.inputA,
+          allowanceB: this.state.allowanceA,
+        },
+        () => this.updateInputs(),
+      );
+    } else {
+      this.setState(
+        {
+          tokenA: token === TokenSelector.TokenA ? symbol : this.state.tokenA,
+          tokenB: token === TokenSelector.TokenB ? symbol : this.state.tokenB,
+          inputA: token === TokenSelector.TokenA ? '' : this.state.inputA,
+          inputB: token === TokenSelector.TokenB ? '' : this.state.inputB,
+          isEstimatedA: token === TokenSelector.TokenA,
+          isEstimatedB: token === TokenSelector.TokenB,
+        },
+        () => {
+          this.updateInputs();
+
+          this.updateAllowance(token === TokenSelector.TokenA ? this.state.tokenA : this.state.inputB);
+        },
+      );
+    }
+
+    // we use 'symbol' instead of this.state.tokenB/A since the setState that sets the state happens after this
+    token === TokenSelector.TokenA
+      ? await this.props.onSetTokens(this.state.tokenA, symbol)
+      : await this.props.onSetTokens(symbol, this.state.tokenB);
+  }
+
   private isReadyForNewPool() {
     return this.state.provideState === ProvideState.CREATE_NEW_PAIR;
   }
@@ -665,7 +635,7 @@ export class ProvideTab extends React.Component<
     return result.contractAddress;
   }
 
-  private async provideLiquidityAction(pair: NewPair) {
+  private async provideLiquidityAction(pair: SwapPair) {
     this.setState({
       loadingProvide: true,
     });

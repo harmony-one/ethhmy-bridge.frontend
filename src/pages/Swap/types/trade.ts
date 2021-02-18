@@ -1,4 +1,4 @@
-import { TokenDisplay } from './index';
+import { TokenDisplay } from '../index';
 import { SwapToken } from './SwapToken';
 
 export enum TradeType {

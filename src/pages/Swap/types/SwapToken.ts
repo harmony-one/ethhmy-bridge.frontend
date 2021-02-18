@@ -1,5 +1,5 @@
-import { ITokenInfo } from '../../stores/interfaces';
-import { validateBech32Address } from '../../blockchain-bridge';
+import { ITokenInfo } from '../../../stores/interfaces';
+import { validateBech32Address } from '../../../blockchain-bridge';
 
 export type SwapTokenMap = Map<string, SwapToken>;
 

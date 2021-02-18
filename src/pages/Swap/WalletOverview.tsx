@@ -5,7 +5,7 @@ import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { TokenDisplay } from '.';
 import { Image } from 'semantic-ui-react';
 import preloadedTokens from './tokens.json';
-import { SwapTokenMap } from './SwapToken';
+import { SwapTokenMap } from './types/SwapToken';
 
 export const WalletOverview: React.FC<{
   tokens: SwapTokenMap;

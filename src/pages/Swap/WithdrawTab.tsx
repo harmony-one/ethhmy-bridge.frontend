@@ -3,11 +3,13 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
-import { PairMap, swapContainerStyle } from '.';
+import { PairMap } from '.';
 import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
 import Loader from 'react-loader-spinner';
-import { SwapTokenMap } from './SwapToken';
+import { SwapTokenMap } from './types/SwapToken';
+import cn from 'classnames';
+import * as styles from './styles.styl';
 
 export class WithdrawTab extends React.Component<{
   user: UserStoreEx;
@@ -65,7 +67,7 @@ export class WithdrawTab extends React.Component<{
 
     if (withdrawPanelList.length === 0) {
       return (
-        <Container style={swapContainerStyle}>
+        <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
@@ -75,7 +77,7 @@ export class WithdrawTab extends React.Component<{
     }
 
     return (
-      <Container style={swapContainerStyle}>
+      <Container className={cn(styles.swapContainerStyle)}>
         <TabsHeader />
         {withdrawPanelList}
       </Container>

@@ -1,35 +1,21 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import './override.css';
-import { canonicalizeBalance, displayHumanizedBalance, humanizeBalance, sortedStringify } from 'utils';
+import { canonicalizeBalance, humanizeBalance, sortedStringify } from 'utils';
 import { AssetRow } from './AssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
-import { PriceRow } from './PriceRow';
+import { PriceRow } from '../../components/Swap/PriceRow';
 import { compute_offer_amount, compute_swap } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
-import { NewPair, swapContainerStyle } from '.';
 import { BigNumber } from 'bignumber.js';
 import { extractValueFromLogs, getFeeForExecute } from '../../blockchain-bridge';
-import { SwapTokenMap } from './SwapToken';
+import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
-
-export const downArrow = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#00ADE8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <polyline points="19 12 12 19 5 12"></polyline>
-  </svg>
-);
+import { SwapPair } from './types/SwapPair';
+import { DownArrow } from '../../ui/Icons/DownArrow';
+import cn from 'classnames';
+import * as styles from './styles.styl';
 
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
@@ -46,10 +32,7 @@ export class SwapTab extends React.Component<
     };
     selectedToken0?: string;
     selectedToken1?: string;
-    selectedPair: NewPair;
-    // pairFromSymbol: {
-    //   [symbol: string]: Pair;
-    // };
+    selectedPair: SwapPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
     onSetTokens: CallableFunction;
   },
@@ -95,7 +78,6 @@ export class SwapTab extends React.Component<
     //initial load
     if (previousProps.tokens.size !== this.props.tokens.size) {
       const fromToken = this.props.tokens.values().next().value.identifier;
-      // const toToken = Object.keys(this.props.tokens)[1];
       const toToken = '';
       this.setState({
         fromToken,
@@ -122,7 +104,7 @@ export class SwapTab extends React.Component<
 
     // we normalize offer_pool & ask_pool
     // we could also canonicalize offer_amount & ask_amount
-    // but this way is less code because we get the results normilized
+    // but this way is less code because we get the results normalized
     const offer_pool = humanizeBalance(
       new BigNumber(this.props.balances[`${this.state.fromToken}-${pair.identifier()}`] as any),
       fromDecimals,
@@ -193,9 +175,9 @@ export class SwapTab extends React.Component<
     const pair = this.props.selectedPair;
 
     const ask_pool = pair
-      ? new BigNumber(this.props.balances[`${this.state.toToken}-${pair.identifier()}`] as BigNumber)
+      ? new BigNumber(this.props.balances[`${this.state.toToken}-${pair?.identifier()}`] as BigNumber)
       : new BigNumber(0);
-    const offer_pool = new BigNumber(this.props.balances[`${this.state.fromToken}-${pair.identifier()}`] as any);
+    const offer_pool = new BigNumber(this.props.balances[`${this.state.fromToken}-${pair?.identifier()}`] as any);
 
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
@@ -235,7 +217,7 @@ export class SwapTab extends React.Component<
 
     return (
       <>
-        <Container style={swapContainerStyle}>
+        <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
           <AssetRow
             secretjs={this.props.secretjs}
@@ -278,7 +260,7 @@ export class SwapTab extends React.Component<
                 );
               }}
             >
-              {downArrow}
+              <DownArrow />
             </span>
             <FlexRowSpace />
           </div>
@@ -328,7 +310,7 @@ export class SwapTab extends React.Component<
               }
 
               this.setState({ loadingSwap: true });
-              const { fromInput, toInput, fromToken, toToken } = this.state;
+              const { fromInput, fromToken, toToken } = this.state;
               const pair = this.props.selectedPair;
 
               try {
@@ -346,8 +328,8 @@ export class SwapTab extends React.Component<
                 // ask_amount: roughly how much we're getting
                 // expected_return: at least ask_amount minus some slippage
 
-                const ask_amount = canonToInput;
-                const expected_return = ask_amount
+                //const ask_amount = canonToInput;
+                const expected_return = canonToInput
                   .multipliedBy(new BigNumber(1).minus(this.state.slippageTolerance))
                   .toFormat(0, { groupSeparator: '' });
 

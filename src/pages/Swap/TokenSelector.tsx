@@ -9,7 +9,7 @@ import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import Loader from 'react-loader-spinner';
 import { ClearCustomTokensButton } from './TokenSelector/ClearCustomTokens';
 import { ExitIcon } from '../../ui/Icons/ExitIcon';
-import { SwapToken } from './SwapToken';
+import { SwapToken } from './types/SwapToken';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;

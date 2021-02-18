@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'semantic-ui-react';
-import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { FlexRowSpace } from './FlexRowSpace';
 
 const numberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,

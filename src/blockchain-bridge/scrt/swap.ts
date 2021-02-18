@@ -1,7 +1,6 @@
 import BigNumber from 'bignumber.js';
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
-import { Asset, Currency, Trade, TradeType } from '../../pages/Swap/trade';
-import { Pair } from '../../pages/Swap';
+import { Asset, Currency, NativeToken, Token, Trade, TradeType } from '../../pages/Swap/types/trade';
 import { GetContractCodeHash } from './snip20';
 import { extractValueFromLogs, getFeeForExecute, validateBech32Address } from './utils';
 
@@ -306,4 +305,11 @@ export const GetAllPairs = async (params: { secretjs: SigningCosmWasmClient }): 
   return await secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
     pairs: {},
   });
+};
+
+export type Pair = {
+  asset_infos: Array<NativeToken | Token>;
+  contract_addr: string;
+  liquidity_token: string;
+  token_code_hash: string;
 };
