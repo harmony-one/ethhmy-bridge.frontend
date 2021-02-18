@@ -19,25 +19,26 @@ export class WithdrawTab extends React.Component<{
   pairs: PairMap;
   notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
   updateToken: CallableFunction;
+  onCloseTab: CallableFunction;
 }> {
-  async componentDidUpdate(
-    prevProps: Readonly<{
-      user: UserStoreEx;
-      secretjs: SigningCosmWasmClient;
-      tokens: SwapTokenMap;
-      balances: { [p: string]: BigNumber | JSX.Element };
-      pairs: PairMap;
-      notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
-      updateToken: CallableFunction;
-    }>,
-    prevState: Readonly<{}>,
-    snapshot?: any,
-  ) {
-    if (prevProps.pairs.size !== this.props.pairs.size) {
-      const tasks = Array.from(this.props.pairs.values()).map(pair => this.props.updateToken(pair));
-      await Promise.all(tasks);
-    }
-  }
+  // async componentDidUpdate(
+  //   prevProps: Readonly<{
+  //     user: UserStoreEx;
+  //     secretjs: SigningCosmWasmClient;
+  //     tokens: SwapTokenMap;
+  //     balances: { [p: string]: BigNumber | JSX.Element };
+  //     pairs: PairMap;
+  //     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+  //     updateToken: CallableFunction;
+  //   }>,
+  //   prevState: Readonly<{}>,
+  //   snapshot?: any,
+  // ) {
+  //   if (prevProps.pairs.size !== this.props.pairs.size) {
+  //     const tasks = Array.from(this.props.pairs.values()).map(pair => this.props.updateToken(pair));
+  //     await Promise.all(tasks);
+  //   }
+  // }
 
   render() {
     const pairs = Array.from(this.props.pairs.values());
@@ -67,6 +68,7 @@ export class WithdrawTab extends React.Component<{
                 secretjs={this.props.secretjs}
                 notify={this.props.notify}
                 getBalance={this.props.updateToken}
+                onCloseTab={this.props.onCloseTab}
               />
               <div style={{ minHeight: '1em' }} />
             </span>

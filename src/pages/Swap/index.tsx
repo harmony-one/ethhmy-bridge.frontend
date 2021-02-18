@@ -55,6 +55,7 @@ export class SwapRouter extends React.Component<
     selectedPair: SwapPair | undefined;
     selectedToken0: string;
     selectedToken1: string;
+    queries: string[];
   } = {
     allTokens: new Map<string, SwapToken>(),
     balances: {},
@@ -62,6 +63,7 @@ export class SwapRouter extends React.Component<
     selectedPair: undefined,
     selectedToken0: process.env.SSCRT_CONTRACT,
     selectedToken1: '',
+    queries: [],
   };
 
   constructor(props: { user: UserStoreEx; tokens: Tokens }) {
@@ -73,7 +75,7 @@ export class SwapRouter extends React.Component<
     this.forceUpdate();
   };
 
-  async componentDidUpdate(previousProps) {
+  async componentDidUpdate(previousProps, prevState) {
     if (previousProps.tokens.allData.length !== this.props.tokens.allData.length) {
       await this.updateTokens();
     }
@@ -91,7 +93,22 @@ export class SwapRouter extends React.Component<
     if (tokensToRefresh.length > 0) {
       await this.refreshBalances({ tokenSymbols: tokensToRefresh });
     }
+
+    if (
+      prevState.selectedToken0 !== this.state.selectedToken0 ||
+      prevState.selectedToken1 !== this.state.selectedToken1
+    ) {
+      this.unSubscribeAll();
+
+      // Register for token or SCRT events
+      this.registerTokenQueries(this.state.selectedToken0, this.state.selectedToken1);
+
+      // Register for pair events
+      this.registerPairQueries(this.state.selectedPair);
+    }
   }
+
+  async reRegisterPairHooks() {}
 
   async componentDidMount() {
     window.addEventListener('storage', this.updateTokens);
@@ -105,19 +122,7 @@ export class SwapRouter extends React.Component<
       await sleep(100);
     }
 
-    // if (!this.state.selectedToken0) {
-    //   this.setState(currentState => {
-    //     return {
-    //       ...currentState,
-    //
-    //     };
-    //   });
-    // }
-
-    //const { pairs, tokens } = await this.updatePairs();
     await this.updatePairs();
-
-    //await this.refreshBalances({ tokenSymbols: Array.from(this.state.allTokens.keys()) });
 
     this.props.user.websocketTerminate(true);
 
@@ -138,10 +143,10 @@ export class SwapRouter extends React.Component<
       this.registerSCRTQueries();
 
       // Register for token or SCRT events
-      this.registerTokenQueries();
-
-      // Register for pair events
-      this.registerPairQueries();
+      // this.registerTokenQueries();
+      //
+      // // Register for pair events
+      // this.registerPairQueries();
       //}
     };
   }
@@ -153,7 +158,7 @@ export class SwapRouter extends React.Component<
       height = await this.props.user.secretjs.getHeight();
     }
 
-    console.log(`Hello from refreshBalances for height: ${height}`);
+    //console.log(`Hello from refreshBalances for height: ${height}`);
     let balanceTasks = tokenSymbols.map(s => {
       return this.refreshTokenBalance(height, s);
     });
@@ -183,6 +188,10 @@ export class SwapRouter extends React.Component<
   private async onMessage(event: WebSocketMessageEvent | MessageEvent<any>) {
     try {
       const data = JSON.parse(event.data);
+
+      if (data.id === -1) {
+        return;
+      }
 
       const symbols: Array<string> = data.id.split('-');
 
@@ -233,7 +242,7 @@ export class SwapRouter extends React.Component<
 
   private async refreshTokenBalance(height: number, tokenSymbol: string) {
     if (height <= this.symbolUpdateHeightCache[tokenSymbol]) {
-      console.log(`${tokenSymbol} already fresh for height ${height}`);
+      //console.log(`${tokenSymbol} already fresh for height ${height}`);
       return {};
     }
     this.symbolUpdateHeightCache[tokenSymbol] = height;
@@ -287,6 +296,7 @@ export class SwapRouter extends React.Component<
           await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, lpTokenAddress);
           // TODO trigger balance refresh if this was an "advanced set" that didn't
           // result in an on-chain transaction
+          await this.refreshLpTokenBalance(pair);
         },
       });
       lpBalance = balanceResult;
@@ -338,11 +348,9 @@ export class SwapRouter extends React.Component<
     }
   }
 
-  private registerTokenQueries() {
-    for (const token of [
-      this.state.allTokens.get(this.state.selectedToken0),
-      this.state.allTokens.get(this.state.selectedToken1),
-    ]) {
+  private registerTokenQueries(token0: string, token1: string) {
+    for (const token of [this.state.allTokens.get(token0), this.state.allTokens.get(token1)]) {
+      console.log(`Registering queries for ${token.symbol}`);
       const tokenAddress = token.address;
       const tokenQueries = [`message.contract_address='${tokenAddress}'`, `wasm.contract_address='${tokenAddress}'`];
       for (const query of tokenQueries) {
@@ -354,13 +362,20 @@ export class SwapRouter extends React.Component<
             params: { query },
           }),
         );
+        this.state.queries.push(token.identifier);
       }
     }
   }
 
-  private registerPairQueries() {
-    const pairAddress = this.state.selectedPair.contract_addr;
-    const lpTokenAddress = this.state.selectedPair.liquidity_token;
+  private registerPairQueries(pair?: SwapPair) {
+    const registerPair = pair || this.state.selectedPair;
+    if (!registerPair) {
+      console.log('Tried to register queries for empty pair');
+      return;
+    }
+
+    const pairAddress = registerPair.contract_addr;
+    const lpTokenAddress = registerPair.liquidity_token;
 
     const pairQueries = [
       `message.contract_address='${pairAddress}'`,
@@ -373,9 +388,34 @@ export class SwapRouter extends React.Component<
       this.ws.send(
         JSON.stringify({
           jsonrpc: '2.0',
-          id: this.state.selectedPair.identifier(), // jsonrpc id
+          id: registerPair.identifier(), // jsonrpc id
           method: 'subscribe',
           params: { query },
+        }),
+      );
+      this.state.queries.push(registerPair.identifier());
+    }
+  }
+
+  unSubscribePair(pair: SwapPair) {
+    console.log(`Unsubscribing queries for ${pair.identifier()}`);
+    this.ws.send(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: pair.identifier(),
+        method: 'unsubscribe',
+      }),
+    );
+  }
+
+  unSubscribeAll() {
+    for (const query of this.state.queries) {
+      console.log(`Unsubscribing queries for ${query}`);
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: query,
+          method: 'unsubscribe',
         }),
       );
     }
@@ -550,6 +590,7 @@ export class SwapRouter extends React.Component<
                   pairs={this.state.pairs}
                   notify={this.notify}
                   updateToken={async pair => {
+                    await this.registerPairQueries(pair);
                     const results = await this.refreshLpTokenBalance(pair);
                     this.setState(currentState => ({
                       balances: {
@@ -558,6 +599,9 @@ export class SwapRouter extends React.Component<
                         ...results[1],
                       },
                     }));
+                  }}
+                  onCloseTab={pair => {
+                    this.unSubscribePair(pair);
                   }}
                 />
               )}
