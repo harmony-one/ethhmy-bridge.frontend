@@ -66,6 +66,7 @@ export class WithdrawTab extends React.Component<{
                 balances={this.props.balances}
                 secretjs={this.props.secretjs}
                 notify={this.props.notify}
+                getBalance={this.props.updateToken}
               />
               <div style={{ minHeight: '1em' }} />
             </span>

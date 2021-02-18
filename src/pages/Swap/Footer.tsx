@@ -7,7 +7,7 @@ export const SwapFooter = () => {
   return (
     <div>
       Secured by{' '}
-      <a href="https://scrt.network" target="_blank">
+      <a href="https://scrt.network" target="_blank" rel="noreferrer">
         Secret Network
       </a>
       <Popup

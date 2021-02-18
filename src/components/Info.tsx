@@ -30,6 +30,7 @@ export const Info = ({ title }: { title: string }) => (
         <a
           href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap?hl=en"
           target="_blank"
+          rel="noreferrer"
         >
           using this link
         </a>{' '}
@@ -71,7 +72,7 @@ export const Info = ({ title }: { title: string }) => (
         <b>Issues</b>
         <br />
         Report any issues in the <strong>#🌉bridge-support</strong> channel on the{' '}
-        <a href="https://chat.scrt.network/" target="_blank">
+        <a href="https://chat.scrt.network/" target="_blank" rel="noreferrer">
           Secret Network Discord server
         </a>{' '}
         with one or more of the following information:

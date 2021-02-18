@@ -79,6 +79,7 @@ const actionColumns: IColumn<IAction>[] = [
             : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
         }
         target="_blank"
+        rel="noreferrer"
       >
         {truncateAddressString(action.transactionHash, 10)}
       </a>
@@ -195,6 +196,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
                 }
                 target="_blank"
+                rel="noreferrer"
               >
                 {truncateAddressString(action.transactionHash, 9)}
               </a>

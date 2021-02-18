@@ -18,7 +18,7 @@ export const PairAnalyticsLink: React.FC<{ pairAddress: string }> = ({ pairAddre
         padding: '6px',
       }}
     >
-      <a href={`https://secretanalytics.xyz/secretswap/${pairAddress}`} target="_blank">
+      <a href={`https://secretanalytics.xyz/secretswap/${pairAddress}`} target="_blank" rel={'noreferrer'}>
         <strong>View pair analytics ↗</strong>
       </a>
     </div>

@@ -15,8 +15,13 @@ import { isMobile } from 'react-device-detect';
 
 const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a className={styles.addressLink} href={`${process.env.ETH_EXPLORER_URL}/token/${value}`} target="_blank">
+    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" alt={'scrt'} />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
+      target="_blank"
+      rel={'noreferrer'}
+    >
       {truncateAddressString(value, num)}
     </a>
   </Box>
@@ -24,8 +29,13 @@ const ethAddress = (value, num = 10) => (
 
 const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
-    <a className={styles.addressLink} href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`} target="_blank">
+    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" alt={'scrt'} />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
+      target="_blank"
+      rel={'noreferrer'}
+    >
       {truncateAddressString(value, num)}
     </a>
   </Box>
