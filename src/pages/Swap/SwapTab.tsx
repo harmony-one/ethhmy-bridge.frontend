@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify } from 'utils';
-import { AssetRow } from './AssetRow';
+import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
 import { PriceRow } from '../../components/Swap/PriceRow';
 import { compute_offer_amount, compute_swap } from '../../blockchain-bridge/scrt/swap';
@@ -219,7 +219,7 @@ export class SwapTab extends React.Component<
       <>
         <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
-          <AssetRow
+          <SwapAssetRow
             secretjs={this.props.secretjs}
             label="From"
             maxButton={true}
@@ -264,7 +264,7 @@ export class SwapTab extends React.Component<
             </span>
             <FlexRowSpace />
           </div>
-          <AssetRow
+          <SwapAssetRow
             secretjs={this.props.secretjs}
             label="To"
             maxButton={false}

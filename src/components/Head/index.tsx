@@ -9,6 +9,7 @@ import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
+import { KeplrButton } from '../Secret/KeplrButton';
 // import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
@@ -86,7 +87,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               </Box>
             </a>
           </Box>
-
           <Box direction="row" align="center" gap="15px">
             <Box
               className={cn(

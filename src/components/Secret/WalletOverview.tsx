@@ -3,7 +3,7 @@ import React from 'react';
 import Loader from 'react-loader-spinner';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { Image } from 'semantic-ui-react';
-import { SwapToken, SwapTokenMap } from './types/SwapToken';
+import { SwapToken, SwapTokenMap } from '../../pages/Swap/types/SwapToken';
 
 export const WalletOverview: React.FC<{
   tokens: SwapTokenMap;

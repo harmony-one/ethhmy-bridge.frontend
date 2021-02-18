@@ -3,13 +3,13 @@ import React from 'react';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { Button, Container } from 'semantic-ui-react';
 import Loader from 'react-loader-spinner';
-import { TokenSelector } from './TokenSelector';
+import { TokenSelector } from './TokenSelector/TokenSelector';
 import { SwapInput } from '../../components/Swap/SwapInput';
 import { SigningCosmWasmClient } from 'secretjs';
 import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
-export const AssetRow = ({
+export const SwapAssetRow = ({
   tokens,
   token,
   setToken,

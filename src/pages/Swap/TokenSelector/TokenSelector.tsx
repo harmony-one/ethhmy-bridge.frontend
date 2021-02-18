@@ -1,15 +1,15 @@
 import React from 'react';
 import { Modal } from 'semantic-ui-react';
 import { TokenInfoRow } from './TokenInfoRow';
-import { TokenSelectorButton } from './TokenSelector/TokenSelectorButton';
-import { AddTokenModal } from './TokenSelector/AddTokenModal';
-import { GetSnip20Params, Snip20TokenInfo } from '../../blockchain-bridge';
+import { TokenSelectorButton } from './TokenSelectorButton';
+import { AddTokenModal } from './AddTokenModal';
+import { GetSnip20Params, Snip20TokenInfo } from '../../../blockchain-bridge';
 import { SigningCosmWasmClient } from 'secretjs';
-import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import LocalStorageTokens from '../../../blockchain-bridge/scrt/CustomTokens';
 import Loader from 'react-loader-spinner';
-import { ClearCustomTokensButton } from './TokenSelector/ClearCustomTokens';
-import { ExitIcon } from '../../ui/Icons/ExitIcon';
-import { SwapToken } from './types/SwapToken';
+import { ClearCustomTokensButton } from './ClearCustomTokens';
+import { ExitIcon } from '../../../ui/Icons/ExitIcon';
+import { SwapToken } from '../types/SwapToken';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;

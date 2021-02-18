@@ -10,7 +10,7 @@ import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import { SwapTokenMap } from './types/SwapToken';
 import { SwapPair } from './types/SwapPair';
 import { DownArrow } from '../../ui/Icons/DownArrow';
-import { PairAnalyticsLink } from './PairAnalyticsLink';
+import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 import Loader from 'react-loader-spinner';
 
 export class WithdrawLiquidityPanel extends React.Component<

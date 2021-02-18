@@ -3,7 +3,7 @@ import { SigningCosmWasmClient } from 'secretjs';
 import { Button, Container, Message } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
 import * as styles from './styles.styl';
-import { AssetRow } from './AssetRow';
+import { SwapAssetRow } from './SwapAssetRow';
 import { TabsHeader } from './TabsHeader';
 import { PriceRow } from '../../components/Swap/PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
@@ -17,7 +17,7 @@ import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import cn from 'classnames';
 import { PairMap, SwapPair } from './types/SwapPair';
-import { PairAnalyticsLink } from './PairAnalyticsLink';
+import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 import { ApproveButton } from '../../components/Swap/ApproveButton';
 import { SwapPlus } from '../../components/Swap/SwapPlus';
 import { NewPoolWarning } from '../../components/Swap/NewPoolWarning';
@@ -391,7 +391,7 @@ export class ProvideTab extends React.Component<
     return (
       <Container className={cn(styles.swapContainerStyle)}>
         <TabsHeader />
-        <AssetRow
+        <SwapAssetRow
           secretjs={this.props.secretjs}
           label="Input"
           maxButton={true}
@@ -420,7 +420,7 @@ export class ProvideTab extends React.Component<
           </span>
           <FlexRowSpace />
         </div>
-        <AssetRow
+        <SwapAssetRow
           secretjs={this.props.secretjs}
           label="Input"
           maxButton={true}

@@ -16,7 +16,7 @@ import { getNativeBalance, getTokenBalance, unlockJsx } from './utils';
 import { BetaWarning } from '../../components/Swap/BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
-import { WalletOverview } from './WalletOverview';
+import { WalletOverview } from '../../components/Secret/WalletOverview';
 import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ITokenInfo } from '../../stores/interfaces';
@@ -26,6 +26,8 @@ import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapTok
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
 import { pairIdFromTokenIds, PairMap, SwapPair } from './types/SwapPair';
+import { KeplrButton } from '../../components/Secret/KeplrButton';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
@@ -496,39 +498,6 @@ export class SwapRouter extends React.Component<
 
     return (
       <BaseContainer>
-        <div
-          style={{ position: 'absolute', right: '10%', cursor: 'pointer' }}
-          onClick={() => {
-            if (this.props.user.secretjs) {
-              return;
-            }
-
-            this.props.user.signIn(true);
-          }}
-        >
-          <Popup
-            header={
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <strong>{this.props.user.address}</strong>
-                <span style={{ marginLeft: '0.3em' }}>
-                  <CopyWithFeedback text={this.props.user.address} />
-                </span>
-              </div>
-            }
-            content={<WalletOverview tokens={this.state.allTokens} balances={this.state.balances} />}
-            position="bottom left"
-            basic
-            on="click"
-            trigger={
-              <Button basic style={{ padding: 0, borderRadius: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <Image src="/keplr.svg" size="mini" />
-                  <span style={{ margin: '0 0.3em' }}>My Wallet</span>
-                </div>
-              </Button>
-            }
-          />
-        </div>
         <PageContainer>
           <Box
             className={styles.faqContainer}
@@ -545,6 +514,7 @@ export class SwapRouter extends React.Component<
               }}
               pad={{ bottom: 'medium' }}
             >
+              <KeplrButton />
               {isSwap && (
                 <SwapTab
                   secretjs={this.props.user.secretjs}
