@@ -2,15 +2,14 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
 import { Button, Container } from 'semantic-ui-react';
-import { TokenDisplay } from '.';
 import Loader from 'react-loader-spinner';
-import { TokenSelector } from './TokenSelector';
+import { TokenSelector } from './TokenSelector/TokenSelector';
 import { SwapInput } from '../../components/Swap/SwapInput';
 import { SigningCosmWasmClient } from 'secretjs';
+import { SwapTokenMap } from './types/SwapToken';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
-
-export const AssetRow = ({
+export const SwapAssetRow = ({
   tokens,
   token,
   setToken,
@@ -22,7 +21,7 @@ export const AssetRow = ({
   maxButton,
   secretjs,
 }: {
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   token: string;
   setToken: (symbol: string) => void;
   amount: string;
@@ -57,29 +56,31 @@ export const AssetRow = ({
           {label}
           {isEstimated ? ` (estimated)` : null}
         </span>
-        {flexRowSpace}
-        <>
-          {'Balance: '}
-          {(() => {
-            if (balance === undefined) {
-              return (
-                <>
-                  <span style={{ marginRight: '0.5em' }} />
-                  <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" style={{ margin: 'auto' }} />
-                </>
+        <FlexRowSpace />
+        {token && (
+          <div style={{ display: 'flex' }}>
+            {'Balance: '}
+            {(() => {
+              if (balance === undefined) {
+                return (
+                  <>
+                    <span style={{ marginRight: '0.5em' }} />
+                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" style={{ margin: 'auto' }} />
+                  </>
+                );
+              }
+
+              if (JSON.stringify(balance).includes('View')) {
+                return balance;
+              }
+
+              return displayHumanizedBalance(
+                humanizeBalance(new BigNumber(balance as BigNumber), tokens.get(token).decimals),
+                BigNumber.ROUND_DOWN,
               );
-            }
-
-            if (JSON.stringify(balance).includes('View')) {
-              return balance;
-            }
-
-            return displayHumanizedBalance(
-              humanizeBalance(new BigNumber(balance as BigNumber), tokens[token].decimals),
-              BigNumber.ROUND_DOWN,
-            );
-          })()}
-        </>
+            })()}
+          </div>
+        )}
       </div>
       <div
         style={{
@@ -96,7 +97,7 @@ export const AssetRow = ({
             setAmount(value);
           }}
         />
-        {flexRowSpace}
+        <FlexRowSpace />
         {maxButton && token && (
           <Button
             basic
@@ -111,7 +112,7 @@ export const AssetRow = ({
               padding: '0rem 0.4rem',
             }}
             onClick={() => {
-              const { decimals } = tokens[token];
+              const { decimals } = tokens.get(token);
 
               setAmount(humanizeBalance(new BigNumber(balance as any), decimals).toFixed(decimals));
             }}
@@ -121,8 +122,8 @@ export const AssetRow = ({
         )}
         <TokenSelector
           secretjs={secretjs}
-          tokens={Object.values(tokens)}
-          token={token ? tokens[token] : undefined}
+          tokens={Array.from(tokens.values())}
+          token={token ? tokens.get(token) : undefined}
           onClick={token => {
             setToken(token);
           }}

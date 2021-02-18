@@ -39,7 +39,7 @@ export const MainFooter: typeof Box = props => (
       }}
     >
       <Box direction="row" align="baseline">
-        <a href="https://scrt.network/" style={{ textDecoration: 'none' }} target="_blank">
+        <a href="https://scrt.network/" style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
           <img style={{ width: 140 }} src="../secret-logo.svg" />
         </a>
       </Box>
@@ -52,6 +52,7 @@ export const MainFooter: typeof Box = props => (
             href="https://forum.scrt.network/"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>Forum</Text>
           </a>
@@ -59,6 +60,7 @@ export const MainFooter: typeof Box = props => (
             href="https://discord.gg/7t7PqPZFJq"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>Discord</Text>
           </a>
@@ -66,6 +68,7 @@ export const MainFooter: typeof Box = props => (
             href="https://github.com/enigmampc"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>Github</Text>
           </a>
@@ -73,6 +76,7 @@ export const MainFooter: typeof Box = props => (
             href="https://scrt.network/blog"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>Blog</Text>
           </a>
@@ -85,6 +89,7 @@ export const MainFooter: typeof Box = props => (
             href="https://puzzle.report/"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>Puzzle</Text>
           </a>
@@ -92,6 +97,7 @@ export const MainFooter: typeof Box = props => (
             href="http://www.secretanalytics.xyz/"
             style={{ textDecoration: 'none', marginTop: '16px', color: '#fff' }}
             target="_blank"
+            rel="noreferrer"
           >
             <Text>SecretAnalytics</Text>
           </a>

@@ -1,53 +1,51 @@
 import BigNumber from 'bignumber.js';
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import { Container, Image, Button, Divider, Header, Accordion } from 'semantic-ui-react';
+import { Accordion, Button, Container, Divider, Header, Image } from 'semantic-ui-react';
 import { CSSProperties } from 'styled-components';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
-import { flexRowSpace, Pair, TokenDisplay } from '.';
-import { PriceRow } from './PriceRow';
-import { downArrow } from './SwapTab';
-import { getFeeForExecute } from '../../blockchain-bridge/scrt';
+import { PriceRow } from '../../components/Swap/PriceRow';
+import { getFeeForExecute } from '../../blockchain-bridge';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { SwapTokenMap } from './types/SwapToken';
+import { SwapPair } from './types/SwapPair';
+import { DownArrow } from '../../ui/Icons/DownArrow';
+import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
+import Loader from 'react-loader-spinner';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
     lpTokenSymbol: string;
-    tokens: {
-      [symbol: string]: TokenDisplay;
-    };
+    tokens: SwapTokenMap;
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };
     secretjs: SigningCosmWasmClient;
-    pairFromSymbol: {
-      [symbol: string]: Pair;
-    };
+    selectedPair: SwapPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+    getBalance: CallableFunction;
   },
   {
     isLoading: boolean;
     withdrawPercentage: number;
     isActive: boolean;
+    isLoadingBalance: boolean;
   }
 > {
-  constructor(props) {
-    super(props);
-  }
-
   state = {
     isLoading: false,
     withdrawPercentage: 0,
     isActive: false,
+    isLoadingBalance: false,
   };
 
   render() {
     const pairSymbol = this.props.lpTokenSymbol.replace('LP-', '');
-    const pair = this.props.pairFromSymbol[pairSymbol];
 
-    const [tokenA, tokenB] = pairSymbol.split('/');
+    const [tokenA, tokenB] = this.props.selectedPair.assetIds();
 
-    const decimalsA = this.props.tokens[tokenA].decimals;
-    const decimalsB = this.props.tokens[tokenB].decimals;
+    const decimalsA = this.props.tokens.get(tokenA)?.decimals;
+    const decimalsB = this.props.tokens.get(tokenB)?.decimals;
 
     const lpTokenBalance = this.props.balances[this.props.lpTokenSymbol];
     const lpTokenTotalSupply = this.props.balances[this.props.lpTokenSymbol + '-total-supply'] as BigNumber;
@@ -85,7 +83,7 @@ export class WithdrawLiquidityPanel extends React.Component<
 
     const getLogo = (symbol: string) => (
       <Image
-        src={this.props.tokens[symbol].logo}
+        src={this.props.tokens.get(symbol)?.logo}
         avatar
         style={{
           boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px',
@@ -125,7 +123,14 @@ export class WithdrawLiquidityPanel extends React.Component<
         <Accordion fluid>
           <Accordion.Title
             active={this.state.isActive}
-            onClick={() => this.setState({ isActive: !this.state.isActive })}
+            onClick={async () => {
+              this.setState({ isActive: !this.state.isActive });
+              if (!this.state.isActive) {
+                await this.setState({ isLoadingBalance: true });
+                await this.props.getBalance(this.props.selectedPair);
+                await this.setState({ isLoadingBalance: false });
+              }
+            }}
           >
             <div
               style={{
@@ -139,228 +144,242 @@ export class WithdrawLiquidityPanel extends React.Component<
                   margin: 'auto',
                 }}
               >
-                {pairSymbol}
+                {this.props.selectedPair.asset_infos[0].symbol}-{this.props.selectedPair.asset_infos[1].symbol}
               </strong>
-              {flexRowSpace}
+              <FlexRowSpace />
             </div>
           </Accordion.Title>
           <Accordion.Content active={this.state.isActive}>
-            <div style={rowStyle}>
-              <span>Your Total Pool Tokens</span>
-              {flexRowSpace}
-              {lpTokenBalanceNum.isNaN()
-                ? lpTokenBalance
-                : displayHumanizedBalance(humanizeBalance(lpTokenBalanceNum, 6))}
-            </div>
-            {!lpTokenBalanceNum.isNaN() && (
-              <>
-                <div style={rowStyle}>
-                  <span style={{ margin: 'auto' }}>{`Pooled ${tokenA}`}</span>
-                  {flexRowSpace}
-                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenA}</span>
-                  {getLogo(tokenA)}
-                </div>
-                <div style={rowStyle}>
-                  <span style={{ margin: 'auto' }}>{`Pooled ${tokenB}`}</span>
-                  {flexRowSpace}
-                  <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenB}</span>
-                  {getLogo(tokenB)}
-                </div>
-                <div style={rowStyle}>
-                  <span>Your Pool Share</span>
-                  {flexRowSpace}
-                  {lpShareJsxElement}
-                </div>
-                {lpTokenBalanceString === '0' ? null : (
-                  <>
-                    <Divider horizontal>
-                      <Header as="h4">Withdraw</Header>
-                    </Divider>
-                    <div
+            {this.state.isLoadingBalance ? (
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
+              </div>
+            ) : null}
+            <div hidden={this.state.isLoadingBalance}>
+              <div style={rowStyle}>
+                <span>Your Total Pool Tokens</span>
+                <FlexRowSpace />
+                {lpTokenBalanceNum.isNaN()
+                  ? lpTokenBalance
+                  : displayHumanizedBalance(humanizeBalance(lpTokenBalanceNum, 6))}
+              </div>
+              {!lpTokenBalanceNum.isNaN() && (
+                <>
+                  <div style={rowStyle}>
+                    <span style={{ margin: 'auto' }}>{`Pooled ${this.props.tokens.get(tokenA)?.symbol}`}</span>
+                    <FlexRowSpace />
+                    <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenA}</span>
+                    {getLogo(tokenA)}
+                  </div>
+                  <div style={rowStyle}>
+                    <span style={{ margin: 'auto' }}>{`Pooled ${this.props.tokens.get(tokenB)?.symbol}`}</span>
+                    <FlexRowSpace />
+                    <span style={{ margin: 'auto', paddingRight: '0.3em' }}>{pooledTokenB}</span>
+                    {getLogo(tokenB)}
+                  </div>
+                  <div style={rowStyle}>
+                    <span>Your Pool Share</span>
+                    <FlexRowSpace />
+                    {lpShareJsxElement}
+                  </div>
+                </>
+              )}
+              <PairAnalyticsLink pairAddress={this.props.selectedPair?.contract_addr} />
+              {lpTokenBalanceNum.isNaN() || lpTokenBalanceString === '0' ? null : (
+                <>
+                  <Divider horizontal>
+                    <Header as="h4">Withdraw</Header>
+                  </Divider>
+                  <div
+                    style={{
+                      ...rowStyle,
+                      fontSize: '50px',
+                      paddingBottom: '0.2em',
+                    }}
+                  >
+                    <FlexRowSpace />
+                    {`${new BigNumber(this.state.withdrawPercentage * 100).toFixed(0)}%`}
+                    <FlexRowSpace />
+                  </div>
+                  <div style={{ ...rowStyle, paddingBottom: '0.2em' }}>
+                    <input
                       style={{
-                        ...rowStyle,
-                        fontSize: '50px',
-                        paddingBottom: '0.2em',
+                        flex: 1,
+                        margin: '0 3px',
+                      }}
+                      type="range"
+                      min={0}
+                      max={1}
+                      step={0.01}
+                      value={this.state.withdrawPercentage}
+                      onChange={e => {
+                        this.setState({
+                          withdrawPercentage: Number(e.target.value),
+                        });
+                      }}
+                    />
+                  </div>
+                  <div style={rowStyle}>
+                    <Button
+                      basic
+                      color="blue"
+                      style={{
+                        flex: 1,
+                        borderRadius: '12px',
+                        padding: '10px',
+                      }}
+                      onClick={async () => {
+                        this.setState({ withdrawPercentage: 0.25 });
                       }}
                     >
-                      {flexRowSpace}
-                      {`${new BigNumber(this.state.withdrawPercentage * 100).toFixed(0)}%`}
-                      {flexRowSpace}
-                    </div>
-                    <div style={{ ...rowStyle, paddingBottom: '0.2em' }}>
-                      <input
-                        style={{
-                          flex: 1,
-                          margin: '0 3px',
-                        }}
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={this.state.withdrawPercentage}
-                        onChange={e => {
-                          this.setState({
-                            withdrawPercentage: Number(e.target.value),
-                          });
-                        }}
-                      />
-                    </div>
-                    <div style={rowStyle}>
-                      <Button
-                        basic
-                        color="blue"
-                        style={{
-                          flex: 1,
-                          borderRadius: '12px',
-                          padding: '10px',
-                        }}
-                        onClick={async () => {
-                          this.setState({ withdrawPercentage: 0.25 });
-                        }}
-                      >
-                        25%
-                      </Button>
-                      <Button
-                        basic
-                        color="blue"
-                        style={{
-                          flex: 1,
-                          borderRadius: '12px',
-                          padding: '10px',
-                          marginLeft: '1em',
-                        }}
-                        onClick={async () => {
-                          this.setState({ withdrawPercentage: 0.5 });
-                        }}
-                      >
-                        50%
-                      </Button>
-                      <Button
-                        basic
-                        color="blue"
-                        style={{
-                          flex: 1,
-                          borderRadius: '12px',
-                          padding: '10px',
-                          marginLeft: '1em',
-                        }}
-                        onClick={async () => {
-                          this.setState({ withdrawPercentage: 0.75 });
-                        }}
-                      >
-                        75%
-                      </Button>
-                      <Button
-                        basic
-                        color="blue"
-                        style={{
-                          flex: 1,
-                          borderRadius: '12px',
-                          padding: '10px',
-                          marginLeft: '1em',
-                        }}
-                        onClick={async () => {
-                          this.setState({ withdrawPercentage: 1 });
-                        }}
-                      >
-                        MAX
-                      </Button>
-                    </div>
-                    <div style={rowStyle}>
-                      {flexRowSpace}
-                      {downArrow}
-                      {flexRowSpace}
-                    </div>
-                    <div style={rowStyle}>
-                      <span style={{ margin: 'auto' }}>{tokenA}</span>
-                      {flexRowSpace}
-                      <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                        {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
-                        {displayHumanizedBalance(
-                          new BigNumber(pooledTokenA.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
-                        )}
-                      </span>
-                      {getLogo(tokenA)}
-                    </div>
-                    <div style={rowStyle}>
-                      <span style={{ margin: 'auto' }}>{tokenB}</span>
-                      {flexRowSpace}
-                      <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
-                        {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
-                        {displayHumanizedBalance(
-                          new BigNumber(pooledTokenB.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
-                        )}
-                      </span>
-                      {getLogo(tokenB)}
-                    </div>
-                    {!price.isNaN() && <PriceRow fromToken={tokenA} toToken={tokenB} price={price.toNumber()} />}
-                    <div style={rowStyle}>
-                      {flexRowSpace}
-                      <Button
-                        primary
-                        loading={this.state.isLoading}
-                        disabled={this.state.isLoading || amountInTokenDenom === '0'}
-                        style={{
-                          margin: '0.5em 0 0 0',
-                          borderRadius: '12px',
-                          padding: '18px',
-                          fontSize: '20px',
-                        }}
-                        onClick={async () => {
-                          this.setState({ isLoading: true });
+                      25%
+                    </Button>
+                    <Button
+                      basic
+                      color="blue"
+                      style={{
+                        flex: 1,
+                        borderRadius: '12px',
+                        padding: '10px',
+                        marginLeft: '1em',
+                      }}
+                      onClick={async () => {
+                        this.setState({ withdrawPercentage: 0.5 });
+                      }}
+                    >
+                      50%
+                    </Button>
+                    <Button
+                      basic
+                      color="blue"
+                      style={{
+                        flex: 1,
+                        borderRadius: '12px',
+                        padding: '10px',
+                        marginLeft: '1em',
+                      }}
+                      onClick={async () => {
+                        this.setState({ withdrawPercentage: 0.75 });
+                      }}
+                    >
+                      75%
+                    </Button>
+                    <Button
+                      basic
+                      color="blue"
+                      style={{
+                        flex: 1,
+                        borderRadius: '12px',
+                        padding: '10px',
+                        marginLeft: '1em',
+                      }}
+                      onClick={async () => {
+                        this.setState({ withdrawPercentage: 1 });
+                      }}
+                    >
+                      MAX
+                    </Button>
+                  </div>
+                  <div style={rowStyle}>
+                    <FlexRowSpace />
+                    <DownArrow />
+                    <FlexRowSpace />
+                  </div>
+                  <div style={rowStyle}>
+                    <span style={{ margin: 'auto' }}>{this.props.tokens.get(tokenA)?.symbol}</span>
+                    <FlexRowSpace />
+                    <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
+                      {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
+                      {displayHumanizedBalance(
+                        new BigNumber(pooledTokenA.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
+                      )}
+                    </span>
+                    {getLogo(tokenA)}
+                  </div>
+                  <div style={rowStyle}>
+                    <span style={{ margin: 'auto' }}>{this.props.tokens.get(tokenB)?.symbol}</span>
+                    <FlexRowSpace />
+                    <span style={{ margin: 'auto', paddingRight: '0.3em' }}>
+                      {this.state.withdrawPercentage === 0 || this.state.withdrawPercentage === 1 ? null : '~'}
+                      {displayHumanizedBalance(
+                        new BigNumber(pooledTokenB.replace(/,/g, '')).multipliedBy(this.state.withdrawPercentage),
+                      )}
+                    </span>
+                    {getLogo(tokenB)}
+                  </div>
+                  {!price.isNaN() && (
+                    <PriceRow
+                      fromToken={this.props.tokens.get(tokenA)?.symbol}
+                      toToken={this.props.tokens.get(tokenB)?.symbol}
+                      price={price.toNumber()}
+                    />
+                  )}
+                  <div style={rowStyle}>
+                    <FlexRowSpace />
+                    <Button
+                      primary
+                      loading={this.state.isLoading}
+                      disabled={this.state.isLoading || amountInTokenDenom === '0'}
+                      style={{
+                        margin: '0.5em 0 0 0',
+                        borderRadius: '12px',
+                        padding: '18px',
+                        fontSize: '20px',
+                      }}
+                      onClick={async () => {
+                        this.setState({ isLoading: true });
 
-                          const { withdrawPercentage } = this.state;
+                        const { withdrawPercentage } = this.state;
 
-                          try {
-                            const result = await this.props.secretjs.execute(
-                              pair.liquidity_token,
-                              {
-                                send: {
-                                  recipient: pair.contract_addr,
-                                  amount: amountInTokenDenom,
-                                  msg: btoa(
-                                    JSON.stringify({
-                                      withdraw_liquidity: {},
-                                    }),
-                                  ),
-                                },
+                        try {
+                          const result = await this.props.secretjs.execute(
+                            this.props.selectedPair.liquidity_token,
+                            {
+                              send: {
+                                recipient: this.props.selectedPair.contract_addr,
+                                amount: amountInTokenDenom,
+                                msg: btoa(
+                                  JSON.stringify({
+                                    withdraw_liquidity: {},
+                                  }),
+                                ),
                               },
-                              '',
-                              [],
-                              getFeeForExecute(500_000),
-                            );
+                            },
+                            '',
+                            [],
+                            getFeeForExecute(500_000),
+                          );
 
-                            this.props.notify(
-                              'success',
-                              `Withdrawn ${100 * withdrawPercentage}% from your pooled ${pairSymbol}`,
-                            );
-
-                            this.setState({
-                              withdrawPercentage: 0,
-                            });
-                          } catch (error) {
-                            this.props.notify(
-                              'error',
-                              `Error withdrawing ${100 * withdrawPercentage}% from your pooled ${pairSymbol}: ${
-                                error.message
-                              }`,
-                            );
-                            console.error(error);
-                          }
+                          this.props.notify(
+                            'success',
+                            `Withdrawn ${100 * withdrawPercentage}% from your pooled ${pairSymbol}`,
+                          );
 
                           this.setState({
-                            isLoading: false,
+                            withdrawPercentage: 0,
                           });
-                        }}
-                      >
-                        Withdraw
-                      </Button>
-                      {flexRowSpace}
-                    </div>
-                  </>
-                )}
-              </>
-            )}{' '}
+                        } catch (error) {
+                          this.props.notify(
+                            'error',
+                            `Error withdrawing ${100 * withdrawPercentage}% from your pooled ${pairSymbol}: ${
+                              error.message
+                            }`,
+                          );
+                          console.error(error);
+                        }
+
+                        this.setState({
+                          isLoading: false,
+                        });
+                      }}
+                    >
+                      Withdraw
+                    </Button>
+                    <FlexRowSpace />
+                  </div>
+                </>
+              )}
+            </div>
           </Accordion.Content>
         </Accordion>
       </Container>

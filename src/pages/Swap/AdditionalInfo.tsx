@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
-
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
+import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 
 export const AdditionalInfo = ({
   minimumReceived,
@@ -11,6 +10,7 @@ export const AdditionalInfo = ({
   priceImpact,
   fromToken,
   toToken,
+  pairAddress,
 }: {
   minimumReceived?: BigNumber;
   maximumSold?: BigNumber;
@@ -18,6 +18,7 @@ export const AdditionalInfo = ({
   priceImpact: number;
   fromToken: string;
   toToken: string;
+  pairAddress: string;
 }) => {
   const [minReceivedIconBackground, setMinReceivedIconBackground] = useState<string>('whitesmoke');
   const [liqProvFeeIconBackground, setLiqProvFeeIconBackground] = useState<string>('whitesmoke');
@@ -40,7 +41,7 @@ export const AdditionalInfo = ({
           borderBottomLeftRadius: '20px',
           borderBottomRightRadius: '20px',
           backgroundColor: 'rgba(255, 255, 255, 0.6)',
-          padding: 'calc(16px + 2rem) 2rem 2rem 2rem',
+          padding: 'calc(16px + 2rem) 2rem 1rem 2rem',
           display: 'flex',
           flexDirection: 'column',
         }}
@@ -149,15 +150,7 @@ export const AdditionalInfo = ({
             {fromToken}
           </strong>
         </div>
-        {/*   <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            paddingTop: '0.2rem',
-          }}
-        >
-          <span>TODO link to pair analytics</span>
-        </div> */}
+        <PairAnalyticsLink pairAddress={pairAddress} />
       </Container>
     </div>
   );

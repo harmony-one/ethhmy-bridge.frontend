@@ -5,14 +5,13 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ISwap, ITokenInfo, TOKEN } from 'stores/interfaces';
+import { ISwap, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { ERC20Token, FormatWithDecimals, SecretToken } from './Components';
-import { Checkbox } from 'components/Base/components/Inputs';
 import { SwapStatus } from '../../constants';
-import { getScrtAddress } from '../../blockchain-bridge/scrt';
+import { getScrtAddress } from '../../blockchain-bridge';
 import { SearchInput } from '../../components/Search';
 
 const ethAddress = value => (
@@ -47,24 +46,6 @@ const swapToText = (status: SwapStatus): string => {
 };
 
 const getColumns = ({ user }): IColumn<ISwap>[] => [
-  // {
-  //   title: 'Type',
-  //   key: 'type',
-  //   dataIndex: 'type',
-  //   width: 180,
-  //   render: value => <OperationType type={value} />,
-  // },
-
-  // {
-  //   title: 'From',
-  //   key: 'src_address',
-  //   dataIndex: 'src_address',
-  //   width: 280,
-  //   render: (value, data) =>
-  //     data.src_network === "Ethereum"
-  //       ? ethAddress(value)
-  //       : oneAddress(value),
-  // },
   {
     title: 'Recipient',
     key: 'dst_address',
@@ -72,47 +53,6 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     width: 200,
     render: (value, data) => (data.src_network === 'Ethereum' ? secretAddress(value) : ethAddress(value)),
   },
-  // {
-  //   title: 'To',
-  //   key: 'dst_address',
-  //   dataIndex: 'dst_address',
-  //   width: 200,
-  //   render: (value, data) =>
-  //     data.type === EXCHANGE_MODE.ETH_TO_SCRT
-  //       ? oneAddress(data.oneAddress)
-  //       : ethAddress(data.ethAddress),
-  // },
-
-  // {
-  //   title: 'Eth address',
-  //   key: 'ethAddress',
-  //   dataIndex: 'ethAddress',
-  //   width: 160,
-  //   render: value => (
-  //     <a
-  //       className={styles.addressLink}
-  //       href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
-  //       target="_blank"
-  //     >
-  //       {truncateAddressString(value, 5)}
-  //     </a>
-  //   ),
-  // },
-  // {
-  //   title: 'One address',
-  //   key: 'oneAddress',
-  //   dataIndex: 'oneAddress',
-  //   width: 160,
-  //   render: value => (
-  //     <a
-  //       className={styles.addressLink}
-  //       href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`}
-  //       target="_blank"
-  //     >
-  //       {truncateAddressString(value, 5)}
-  //     </a>
-  //   ),
-  // },
   {
     title: 'Status',
     key: 'status',
@@ -168,25 +108,11 @@ const getColumns = ({ user }): IColumn<ISwap>[] => [
     width: 180,
     render: value => dateTimeFormat(value),
   },
-  // {
-  //   title: 'Txn fee',
-  //   key: 'fee',
-  //   dataIndex: 'fee',
-  //   className: styles.rightHeader,
-  //   width: 180,
-  //   render: (value, data) => {
-  //     const fee = getOperationFee(data);
-  //     const isETH = data.type === EXCHANGE_MODE.ETH_TO_SCRT;
-  //
-  //     return <Price value={fee} isEth={isETH} />;
-  //   },
-  // },
 ];
 
 export const Explorer = observer((props: any) => {
-  const { operations, user, tokens, userMetamask } = useStores();
+  const { operations, user, tokens } = useStores();
 
-  const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
   const [search, setSearch] = useState('');
 
@@ -233,21 +159,6 @@ export const Explorer = observer((props: any) => {
     <BaseContainer>
       <PageContainer>
         <Box direction="row" wrap={true} fill={true} justify="center" align="start" margin={{ top: 'xlarge' }}>
-          {/*    {isAuthorized ? (
-            <Box
-              direction="row"
-              pad={{ horizontal: 'large' }}
-              justify="end"
-              fill={true}
-              margin={{ bottom: '14px' }}
-            >
-              <Checkbox
-                label="Only my transactions"
-                value={hasFilters}
-                onChange={setMyOperationsHandler}
-              />
-            </Box>
-          ) : null} */}
           <Box
             className={styles.search}
             justify="end"
@@ -267,12 +178,6 @@ export const Explorer = observer((props: any) => {
             onRowClicked={() => {}}
             tableParams={{
               rowKey: (data: any) => data.id,
-              // expandable: {
-              //   expandedRowKeys,
-              //   onExpandedRowsChange: setExpandedRowKeys,
-              //   expandedRowRender: (data: any) => <ExpandedRow data={data} />,
-              //   expandRowByClick: true,
-              // },
             }}
           />
         </Box>

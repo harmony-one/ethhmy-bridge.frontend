@@ -112,6 +112,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   className={styles.addressLink}
                   href={process.env.ETH_EXPLORER_URL + '/token/' + token.src_address}
                   target="_blank"
+                  rel="noreferrer"
                 >
                   {token.symbol}
                 </a>
@@ -120,6 +121,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   className={styles.addressLink}
                   href={process.env.SCRT_EXPLORER_URL + '/contracts/' + token.dst_address}
                   target="_blank"
+                  rel="noreferrer"
                 >
                   1{token.symbol}
                 </a>
@@ -134,6 +136,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                       : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
                   }
                   target="_blank"
+                  rel="noreferrer"
                 >
                   {truncateAddressString(action.transactionHash, 9)}
                 </a>

@@ -1,13 +1,13 @@
-import { TokenDisplay } from '../index';
 import React, { useEffect } from 'react';
 import { Button, Modal } from 'semantic-ui-react';
 import { SwapInput } from '../../../components/Swap/SwapInput';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { IsValid } from './IsValid';
-import { validateBech32Address } from '../../../blockchain-bridge/scrt';
-import { Text } from '../../../components/Base/components/Text';
+import { validateBech32Address } from '../../../blockchain-bridge';
+import { Text } from '../../../components/Base';
 import { ExitIcon } from '../../../ui/Icons/ExitIcon';
+import { SwapToken } from '../types/SwapToken';
 
 const AddTokenButton = (props: { onClick?: any }) => {
   return (
@@ -17,7 +17,7 @@ const AddTokenButton = (props: { onClick?: any }) => {
   );
 };
 
-export const AddTokenModal = (props: { tokens: TokenDisplay[]; token: TokenDisplay; addToken: any; onClick?: any }) => {
+export const AddTokenModal = (props: { tokens: SwapToken[]; token: SwapToken; addToken: any; onClick?: any }) => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [address, setAddress] = React.useState<string>('');
   const [isValidAddress, setisValidAddress] = React.useState<boolean>(false);
@@ -44,7 +44,7 @@ export const AddTokenModal = (props: { tokens: TokenDisplay[]; token: TokenDispl
         </div>
       </Modal.Header>
       <Modal.Content>
-        <SwapInput value={address} setValue={setAddress} placeholder={'secret1.....'} width={'600px'} />
+        <SwapInput key={address} value={address} setValue={setAddress} placeholder={'secret1.....'} width={'600px'} />
         <IsValid isValid={isValidAddress} />
       </Modal.Content>
       <Modal.Actions>

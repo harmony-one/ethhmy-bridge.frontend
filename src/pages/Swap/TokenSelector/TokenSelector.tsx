@@ -1,25 +1,25 @@
 import React from 'react';
 import { Modal } from 'semantic-ui-react';
-import { TokenDisplay } from './index';
 import { TokenInfoRow } from './TokenInfoRow';
-import { TokenSelectorButton } from './TokenSelector/TokenSelectorButton';
-import { AddTokenModal } from './TokenSelector/AddTokenModal';
-import { GetSnip20Params, Snip20TokenInfo } from '../../blockchain-bridge/scrt';
+import { TokenSelectorButton } from './TokenSelectorButton';
+import { AddTokenModal } from './AddTokenModal';
+import { GetSnip20Params, Snip20TokenInfo } from '../../../blockchain-bridge';
 import { SigningCosmWasmClient } from 'secretjs';
-import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
+import LocalStorageTokens from '../../../blockchain-bridge/scrt/CustomTokens';
 import Loader from 'react-loader-spinner';
-import { ClearCustomTokensButton } from './TokenSelector/ClearCustomTokens';
-import { ExitIcon } from '../../ui/Icons/ExitIcon';
+import { ClearCustomTokensButton } from './ClearCustomTokens';
+import { ExitIcon } from '../../../ui/Icons/ExitIcon';
+import { SwapToken } from '../types/SwapToken';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;
-  tokens: TokenDisplay[];
-  token?: TokenDisplay;
+  tokens: SwapToken[];
+  token?: SwapToken;
   onClick?: any;
 }) => {
   const [open, setOpen] = React.useState(false);
   const [localToken, setLocalToken] = React.useState<string>('');
-  const [localStorageTokens, setLocalStorageToken] = React.useState<Record<string, TokenDisplay>>(null);
+  const [localStorageTokens, setLocalStorageToken] = React.useState<SwapToken[]>(null);
   //   JSON.parse(localStorage.getItem('customToken')),
   // );
 
@@ -31,11 +31,13 @@ export const TokenSelector = (props: {
           address: localToken,
         });
 
-        const customTokenInfo: TokenDisplay = {
+        const customTokenInfo: SwapToken = {
           symbol: tokenInfo.symbol,
           address: localToken,
           decimals: tokenInfo.decimals,
           logo: '/unknown.png',
+          identifier: localToken,
+          name: tokenInfo.name,
         };
 
         LocalStorageTokens.store(customTokenInfo);
@@ -69,13 +71,14 @@ export const TokenSelector = (props: {
         {props.tokens.length > 0 ? (
           props.tokens
             .sort(a => (a.symbol.toLowerCase().includes('scrt') ? -1 : 1))
+            .sort(a => (a.identifier === 'uscrt' ? -1 : 1)) // consider removing if we don't care about scrt, or do this more efficiently?
             .map(t => {
               return (
                 <TokenInfoRow
-                  key={t.address}
+                  key={t.identifier}
                   token={t}
                   onClick={() => {
-                    props?.onClick ? props.onClick(t.symbol) : (() => {})();
+                    props?.onClick ? props.onClick(t.identifier) : (() => {})();
                     setOpen(false);
                   }}
                 />

@@ -6,7 +6,7 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, truncateAddressString } from 'utils';
 import { STEPS_TITLE } from './steps-constants';
-import { IColumn, Table } from '../../components/Table';
+import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 
@@ -79,6 +79,7 @@ const actionColumns: IColumn<IAction>[] = [
             : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
         }
         target="_blank"
+        rel="noreferrer"
       >
         {truncateAddressString(action.transactionHash, 10)}
       </a>
@@ -195,6 +196,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     : process.env.SCRT_EXPLORER_URL + '/transactions/') + action.transactionHash
                 }
                 target="_blank"
+                rel="noreferrer"
               >
                 {truncateAddressString(action.transactionHash, 9)}
               </a>

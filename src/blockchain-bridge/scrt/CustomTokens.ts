@@ -1,4 +1,4 @@
-import { TokenDisplay } from '../../pages/Swap';
+import { SwapToken } from '../../pages/Swap/types/SwapToken';
 
 const LOCAL_STORAGE_KEY = 'SwapLocalStorageTokens';
 
@@ -6,24 +6,20 @@ const setLocalStorage = item => localStorage.setItem(LOCAL_STORAGE_KEY, JSON.str
 const getLocalStorage = () => JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
 class LocalStorageTokens {
-  static store(token: TokenDisplay) {
-    let tokens: Record<string, TokenDisplay> | null = getLocalStorage();
+  static store(token: SwapToken) {
+    let tokens: SwapToken[] = getLocalStorage();
 
-    // todo: handle overwriting tokens with the same symbol
-    if (!tokens) {
-      tokens = {};
-    }
-    tokens[token.symbol] = token;
+    tokens = tokens.concat(token);
 
     setLocalStorage(tokens);
     window.dispatchEvent(new Event('storage'));
   }
 
-  static get(): Record<string, TokenDisplay> | null {
+  static get(): SwapToken[] {
     try {
-      return getLocalStorage();
+      return getLocalStorage() || [];
     } catch {
-      return null;
+      return [];
     }
   }
 

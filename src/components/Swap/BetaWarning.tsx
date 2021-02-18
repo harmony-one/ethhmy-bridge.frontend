@@ -4,7 +4,19 @@ import { Message } from 'semantic-ui-react';
 
 export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) => {
   if (process.env.ENV === 'MAINNET') {
-    return null;
+    return (
+      <Message warning>
+        <Message.Header>Hello early birds! 👋</Message.Header>
+        <p>
+          <strong>Converting SCRT to sSCRT:</strong> Use{' '}
+          <a href="https://wallet.keplr.app/#/secret-2/secret-secret" target="_blank">
+            this tool
+          </a>{' '}
+          by Keplr
+        </p>
+        <p>Enjoy your front-running resistant swaps!</p>
+      </Message>
+    );
   }
 
   return (
@@ -40,17 +52,17 @@ export const BetaWarning = ({ secretjs }: { secretjs: SigningCosmWasmClient }) =
           </a>
         </li>
         <li>
-          <a href="https://discord.com/channels/360051864110235648/805840792303960155" target="_blank">
+          <a href="https://discord.com/channels/360051864110235648/805840792303960155" target="_blank" rel="noreferrer">
             #🔀amm-support
           </a>{' '}
           on{' '}
-          <a href="https://chat.scrt.network" target="_blank">
+          <a href="https://chat.scrt.network" target="_blank" rel="noreferrer">
             Discord
           </a>
         </li>
         <li>
           Tag @assafmo on{' '}
-          <a href="https://t.me/SCRTCommunity" target="_blank">
+          <a href="https://t.me/SCRTCommunity" target="_blank" rel="noreferrer">
             Telegram
           </a>
         </li>

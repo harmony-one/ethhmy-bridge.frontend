@@ -162,6 +162,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(({ show
             href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
             style={{ textDecoration: 'none' }}
             target="_blank"
+            rel="noreferrer"
           >
             <AssetRow label="Transaction hash" value={exchange.txHash} address={true} />
           </a>

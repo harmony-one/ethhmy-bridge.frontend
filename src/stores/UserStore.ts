@@ -329,14 +329,9 @@ export class UserStoreEx extends StoreConstructor {
     }
   }
 
-  @action public getSnip20Balance = async (snip20Address: string, decimals: string | number): Promise<string> => {
+  @action public getSnip20Balance = async (snip20Address: string, decimals?: string | number): Promise<string> => {
     if (!this.secretjs) {
       return '0';
-    }
-
-    const decimalsNum = Number(decimals);
-    if (!decimalsNum) {
-      throw new Error('Token not found');
     }
 
     const viewingKey = await getViewingKey({
@@ -345,13 +340,23 @@ export class UserStoreEx extends StoreConstructor {
       address: snip20Address,
     });
 
-    return await Snip20GetBalance({
+    if (!viewingKey) {
+      return 'Unlock';
+    }
+
+    let rawBalance = await Snip20GetBalance({
       secretjs: this.secretjs,
       token: snip20Address,
       address: this.address,
       key: viewingKey,
-      decimals: decimalsNum,
     });
+
+    if (decimals) {
+      const decimalsNum = Number(decimals);
+      return divDecimals(rawBalance, decimalsNum);
+    }
+
+    return rawBalance;
   };
 
   @action public getBridgeRewardsBalance = async (snip20Address: string): Promise<string> => {
@@ -367,15 +372,13 @@ export class UserStoreEx extends StoreConstructor {
       address: snip20Address,
     });
 
-    const result = await QueryRewards({
+    return await QueryRewards({
       cosmJS: this.secretjs,
       contract: snip20Address,
       address: this.address,
       key: viewingKey,
       height: String(height),
     });
-
-    return result;
   };
 
   @action public getBridgeDepositBalance = async (snip20Address: string): Promise<string> => {
