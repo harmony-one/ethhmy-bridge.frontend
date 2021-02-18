@@ -155,7 +155,7 @@ export class ProvideTab extends React.Component<
       this.updateInputs();
     }
 
-    if (previousProps.selectedPair !== this.props.selectedPair) {
+    if (this.props.selectedPair && previousProps.selectedPair !== this.props.selectedPair) {
       const [tokenA, tokenB] = this.props.selectedPair.assetIds();
       this.setState(
         {
