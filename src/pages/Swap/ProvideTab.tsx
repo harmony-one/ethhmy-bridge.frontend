@@ -13,6 +13,7 @@ import { compareNormalize } from './utils';
 import { getFeeForExecute } from '../../blockchain-bridge/scrt';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
 import { Asset } from './trade';
+import { PairAnalyticsLink } from './PairAnalyticsLink';
 
 const plus = (
   <svg
@@ -590,6 +591,7 @@ export class ProvideTab extends React.Component<
             {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
           </div>
         )}
+        <PairAnalyticsLink pairAddress={this.props.pairFromSymbol[selectedPairSymbol]?.contract_addr} />
         <div hidden={!this.showPoolWarning()}>
           <NewPoolWarning
             inputA={this.state.inputA}

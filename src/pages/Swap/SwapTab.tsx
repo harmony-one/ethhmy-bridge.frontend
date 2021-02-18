@@ -529,6 +529,7 @@ export class SwapTab extends React.Component<
             minimumReceived={new BigNumber(this.state.toInput).multipliedBy(
               new BigNumber(1).minus(this.state.slippageTolerance),
             )}
+            pairAddress={this.props.pairFromSymbol[selectedPairSymbol].contract_addr}
             /*
             maximumSold={
               this.state.isFromEstimated
