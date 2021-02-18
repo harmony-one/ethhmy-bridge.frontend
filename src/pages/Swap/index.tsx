@@ -22,7 +22,7 @@ import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
-import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
+import { GetAllPairs, getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
@@ -440,12 +440,8 @@ export class SwapRouter extends React.Component<
 
     // filter all pairs that aren't known tokens
     pairs = pairs.filter(p => {
-      if (p.asset_infos[0].type === 'native_token') {
-        if (!this.state.allTokens.has(p.asset_infos[0].native_token.denom)) {
-          return false;
-        }
-      } else {
-        if (!this.state.allTokens.has(p.asset_infos[0].token.contract_addr)) {
+      for (const s of getSymbolsFromPair(p)) {
+        if (!this.state.allTokens.has(s)) {
           return false;
         }
       }

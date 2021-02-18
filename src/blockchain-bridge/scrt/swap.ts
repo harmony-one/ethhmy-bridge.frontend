@@ -313,3 +313,20 @@ export type Pair = {
   liquidity_token: string;
   token_code_hash: string;
 };
+
+export const getSymbolsFromPair = (pair: Pair): string[] => {
+  const symbols = [];
+
+  if (pair.asset_infos[0].type === 'native_token') {
+    symbols.push(pair.asset_infos[0].native_token.denom);
+  } else {
+    symbols.push(pair.asset_infos[0].token.contract_addr);
+  }
+  if (pair.asset_infos[1].type === 'native_token') {
+    symbols.push(pair.asset_infos[1].native_token.denom);
+  } else {
+    symbols.push(pair.asset_infos[1].token.contract_addr);
+  }
+
+  return symbols;
+};
