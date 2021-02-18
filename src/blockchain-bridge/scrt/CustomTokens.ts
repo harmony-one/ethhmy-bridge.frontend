@@ -17,7 +17,7 @@ class LocalStorageTokens {
 
   static get(): SwapToken[] {
     try {
-      return getLocalStorage();
+      return getLocalStorage() || [];
     } catch {
       return [];
     }

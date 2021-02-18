@@ -27,6 +27,7 @@ import { ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
 import { GetAllPairs } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './SwapToken';
+import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 
 export type Pair = {
   asset_infos: Array<NativeToken | Token>;
@@ -200,7 +201,31 @@ export class SwapRouter extends React.Component<
   async componentDidUpdate(previousProps) {
     if (previousProps.tokens.allData.length !== this.props.tokens.allData.length) {
       await this.updateTokens();
-      await this.refreshBalances({ tokenSymbols: Array.from(this.state.allTokens.keys()) });
+
+      // const tokensToRefresh = [];
+      // if (this.state.selectedToken1) {
+      //   tokensToRefresh.push(this.state.selectedToken1);
+      // }
+      //
+      // if (this.state.selectedToken0) {
+      //   tokensToRefresh.push(this.state.selectedToken0);
+      // }
+      //
+      // await this.refreshBalances({ tokenSymbols: tokensToRefresh });
+    }
+
+    const tokensToRefresh = [];
+
+    if (this.state.selectedToken1 && !this.state.balances[this.state.selectedToken1]) {
+      tokensToRefresh.push(this.state.selectedToken1);
+    }
+
+    if (this.state.selectedToken0 && !this.state.balances[this.state.selectedToken1]) {
+      tokensToRefresh.push(this.state.selectedToken0);
+    }
+
+    if (tokensToRefresh.length > 0) {
+      await this.refreshBalances({ tokenSymbols: tokensToRefresh });
     }
   }
 
@@ -219,7 +244,7 @@ export class SwapRouter extends React.Component<
     //const { pairs, tokens } = await this.updatePairs();
     await this.updatePairs();
 
-    await this.refreshBalances({ tokenSymbols: Array.from(this.state.allTokens.keys()) });
+    //await this.refreshBalances({ tokenSymbols: Array.from(this.state.allTokens.keys()) });
 
     this.props.user.websocketTerminate(true);
 
@@ -507,9 +532,10 @@ export class SwapRouter extends React.Component<
     const swapTokens: SwapTokenMap = TokenMapfromITokenInfo(tokens); // [...TokenMapfromITokenInfo(tokens), ...loadTokensFromList('secret-2')];
 
     // load custom tokens
-    // for (const t of LocalStorageTokens.get()) {
-    //   swapTokens.set(t.identifier, t);
-    // }
+    const customTokens = LocalStorageTokens.get();
+    customTokens.forEach(t => {
+      swapTokens.set(t.identifier, t);
+    });
 
     //load hardcoded tokens (scrt, atom, etc.)
     for (const t of loadTokensFromList(this.props.user.chainId || process.env.CHAIN_ID)) {
