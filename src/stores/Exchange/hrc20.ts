@@ -23,18 +23,16 @@ export const sendHrc20Token = async (params: {
   const hmyMethods = stores.user.isMetamask
     ? hmyMethodsHRC20.hmyMethodsWeb3
     : hmyMethodsHRC20.hmyMethods;
-  
+
   const ethMethods = ethMethodsHRC20;
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {
     let approveEthManger = getActionByType(ACTION_TYPE.approveHRC20EthManger);
 
     if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-      const { amount } = transaction;
-
       ethMethods.approveEthManger(
         stores.userMetamask.erc20Address,
-        amount,
+        transaction.approveAmount,
         stores.userMetamask.erc20TokenDetails.decimals,
         hash => confirmCallback(hash, approveEthManger.type),
       );
@@ -88,7 +86,7 @@ export const sendHrc20Token = async (params: {
       if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
         await hmyMethods.approveHmyManger(
           hrc20Address,
-          transaction.amount,
+          transaction.approveAmount,
           stores.userMetamask.erc20TokenDetails.decimals,
           hash => confirmCallback(hash, approveHmyManger.type),
         );

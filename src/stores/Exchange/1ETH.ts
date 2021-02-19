@@ -48,7 +48,7 @@ export const send1ETHToken = async (params: {
     if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
       await hmyMethods.approveHmyManger(
         hrc20Address,
-        transaction.amount,
+        transaction.approveAmount,
         stores.userMetamask.erc20TokenDetails.decimals,
         hash => confirmCallback(hash, approveHmyManger.type),
       );

@@ -31,6 +31,11 @@ export class EthMethodsHRC20 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
+    if (Number(amount) === 0) {
+      sendTxCallback('skip');
+      return;
+    }
+
     const MyERC20Json = require('../out/MyERC20.json');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
@@ -133,5 +138,22 @@ export class EthMethodsHRC20 {
     );
 
     return await erc20Contract.methods.totalSupply().call();
+  };
+
+  allowance = async (addr: string, erc20Address: string) => {
+    if (!this.web3.utils.isAddress(erc20Address)) {
+      throw new Error('Invalid token address');
+    }
+
+    const MyERC20Json = require('../out/MyERC20.json');
+
+    const erc20Contract = new this.web3.eth.Contract(
+      MyERC20Json.abi,
+      erc20Address,
+    );
+
+    return await erc20Contract.methods
+      .allowance(addr, this.ethManagerAddress)
+      .call();
   };
 }

@@ -41,6 +41,11 @@ export class HmyMethodsHRC20Web3 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
+    if (Number(amount) === 0) {
+      sendTxCallback('skip');
+      return;
+    }
+
     const res = await hmyTokenContract.methods
       .approve(this.hmyManagerContractAddress, mulDecimals(amount, decimals))
       .send({
@@ -130,5 +135,19 @@ export class HmyMethodsHRC20Web3 {
       decimals: Number('0x' + decimals).toString(),
       erc20Address,
     };
+  };
+
+  allowance = async (addr: string, erc20Address: string) => {
+    const addrHex = getAddress(addr).checksum;
+
+    const tokenJson = require('../out/MyERC20.json');
+    const hmyTokenContract = new this.web3.eth.Contract(
+      tokenJson.abi,
+      erc20Address,
+    );
+
+    return await hmyTokenContract.methods
+      .allowance(addrHex, this.hmyManagerContractAddress)
+      .call();
   };
 }

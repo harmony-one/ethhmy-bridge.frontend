@@ -34,6 +34,11 @@ export class HmyMethodsWeb3 {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
+    if (Number(amount) === 0) {
+      sendTxCallback('skip');
+      return;
+    }
+
     const res = await this.hmyTokenContract.methods
       .approve(this.hmyManagerContractAddress, mulDecimals(amount, 18))
       .send({
@@ -72,5 +77,13 @@ export class HmyMethodsWeb3 {
 
   totalSupply = async () => {
     return await this.hmyTokenContract.methods.totalSupply().call();
+  };
+
+  allowance = async (addr: string) => {
+    const addrHex = getAddress(addr).checksum;
+
+    return await this.hmyTokenContract.methods
+      .allowance(addrHex, this.hmyManagerContractAddress)
+      .call();
   };
 }

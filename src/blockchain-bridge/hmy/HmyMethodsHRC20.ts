@@ -33,6 +33,11 @@ export class HmyMethodsHRC20 {
 
     return new Promise(async (resolve, reject) => {
       try {
+        if (Number(amount) === 0) {
+          sendTxCallback('skip');
+          return resolve();
+        }
+
         // TODO
         await connectToOneWallet(hmyTokenContract.wallet, null, reject);
 
@@ -131,5 +136,20 @@ export class HmyMethodsHRC20 {
     const decimals = await erc20Contract.methods.decimals().call(this.options);
 
     return { name, symbol, decimals: Number('0x' + decimals).toString(), erc20Address };
+  };
+
+  allowance = async (addr: string, erc20Address: string) => {
+    const tokenJson = require('../out/MyERC20.json');
+
+    const hmyTokenContract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      erc20Address,
+    );
+
+    const addrHex = this.hmy.crypto.getAddress(addr).checksum;
+
+    return await hmyTokenContract.methods
+      .allowance(addrHex, this.hmyManagerContract.address)
+      .call(this.options);
   };
 }

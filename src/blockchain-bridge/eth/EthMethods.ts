@@ -29,12 +29,17 @@ export class EthMethods {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
+    if (Number(amount) === 0) {
+      sendTxCallback('skip');
+      return;
+    }
+
     return await this.ethTokenContract.methods
       .approve(this.ethManagerAddress, mulDecimals(amount, 18))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: await getGasPrice(this.web3)
+        gasPrice: await getGasPrice(this.web3),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
   };
@@ -59,7 +64,7 @@ export class EthMethods {
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3)
+        gasPrice: await getGasPrice(this.web3),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 
@@ -85,11 +90,11 @@ export class EthMethods {
     //   Number(process.env.ETH_GAS_LIMIT),
     // );
 
-    const EthManagerJson = require("../out/EthManager.json");
+    const EthManagerJson = require('../out/EthManager.json');
 
     const managerContract = new this.web3.eth.Contract(
       EthManagerJson.abi,
-      process.env.ETH_MANAGER_CONTRACT
+      process.env.ETH_MANAGER_CONTRACT,
     );
 
     let response = await managerContract.methods
@@ -99,9 +104,15 @@ export class EthMethods {
         gas: process.env.ETH_GAS_LIMIT,
         gasPrice: await getGasPrice(this.web3),
         value: mulDecimals(amount, 18),
-      }).on('transactionHash', hash => sendTxCallback(hash));
-
+      })
+      .on('transactionHash', hash => sendTxCallback(hash));
 
     return response;
-  }
+  };
+
+  allowance = async (addr: string) => {
+    return await this.ethTokenContract.methods
+      .allowance(addr, this.ethManagerAddress)
+      .call();
+  };
 }

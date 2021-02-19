@@ -12,7 +12,7 @@ import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
 import { divDecimals, formatWithSixDecimals, moreThanZero } from 'utils';
-import { Spinner, Error } from 'ui';
+import { Spinner } from 'ui';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
@@ -23,6 +23,7 @@ import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 import { TokensField } from './AmountField';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
+import { ApproveAmountField } from './ApproveAmountField';
 
 export interface ITokenInfo {
   label: string;
@@ -540,6 +541,10 @@ export class Exchange extends React.Component<
               )}
             </Box>
           ) : null}
+
+          {exchange.step.id === EXCHANGE_STEPS.APPROVE ? (
+            <ApproveAmountField tokenInfo={this.tokenInfo} />
+          ) : null}
         </Form>
 
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
@@ -600,19 +605,23 @@ export class Exchange extends React.Component<
           justify="end"
           align="center"
         >
-          {exchange.step.buttons.map((conf, idx) => (
-            <Button
-              key={idx}
-              bgColor="#00ADE8"
-              style={{ width: conf.transparent ? 140 : 180 }}
-              onClick={() => {
-                this.onClickHandler(conf.validate, conf.onClick);
-              }}
-              transparent={!!conf.transparent}
-            >
-              {conf.title}
-            </Button>
-          ))}
+          {exchange.allowanceStatus === 'fetching' ? (
+            <Spinner />
+          ) : (
+            exchange.step.buttons.map((conf, idx) => (
+              <Button
+                key={idx}
+                bgColor="#00ADE8"
+                style={{ width: conf.transparent ? 140 : 180 }}
+                onClick={() => {
+                  this.onClickHandler(conf.validate, conf.onClick);
+                }}
+                transparent={!!conf.transparent}
+              >
+                {conf.title}
+              </Button>
+            ))
+          )}
         </Box>
       </Box>
     );

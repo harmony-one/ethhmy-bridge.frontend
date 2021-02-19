@@ -9,6 +9,7 @@ import {
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
+import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { sleep, uuid } from '../../utils';
@@ -18,11 +19,12 @@ import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
 import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
-import { getDepositAmount } from 'services';
+import { getContractMethods } from './helpers';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
   BASE = 'BASE',
+  APPROVE = 'APPROVE',
   CONFIRMATION = 'CONFIRMATION',
   SENDING = 'SENDING',
   RESULT = 'RESULT',
@@ -43,6 +45,7 @@ export interface ITransaction {
   oneAddress: string;
   ethAddress: string;
   amount: string | string[];
+  approveAmount: string;
   erc20Address?: string;
   hrc20Address?: string;
 }
@@ -60,6 +63,7 @@ export class Exchange extends StoreConstructor {
     oneAddress: '',
     ethAddress: '',
     amount: '0',
+    approveAmount: '0',
     erc20Address: '',
     hrc20Address: '',
   };
@@ -106,7 +110,25 @@ export class Exchange extends StoreConstructor {
         {
           title: 'Continue',
           onClick: async () => {
-            this.stepNumber = this.stepNumber + 1;
+            this.transaction.approveAmount = '0';
+
+            if (this.token === TOKEN.ERC721) {
+              this.stepNumber = this.stepNumber + 2;
+            } else {
+              await this.getAllowance();
+
+              if (
+                Number(this.allowance) / 1e18 >=
+                Number(this.transaction.amount)
+              ) {
+                this.stepNumber = this.stepNumber + 2;
+              } else {
+                this.transaction.approveAmount = String(
+                  this.transaction.amount,
+                );
+                this.stepNumber = this.stepNumber + 1;
+              }
+            }
             // this.transaction.oneAddress = this.stores.user.address;
 
             if (this.token === TOKEN.HRC20) {
@@ -139,11 +161,34 @@ export class Exchange extends StoreConstructor {
       ],
     },
     {
-      id: EXCHANGE_STEPS.CONFIRMATION,
+      id: EXCHANGE_STEPS.APPROVE,
       buttons: [
         {
           title: 'Back',
           onClick: () => (this.stepNumber = this.stepNumber - 1),
+          transparent: true,
+        },
+        {
+          title: 'Continue',
+          onClick: () => {
+            this.stepNumber = this.stepNumber + 1;
+          },
+          validate: true,
+        },
+      ],
+    },
+    {
+      id: EXCHANGE_STEPS.CONFIRMATION,
+      buttons: [
+        {
+          title: 'Back',
+          onClick: () => {
+            if (Number(this.transaction.approveAmount) > 0) {
+              this.stepNumber = this.stepNumber - 1;
+            } else {
+              this.stepNumber = 0;
+            }
+          },
           transparent: true,
         },
         {
@@ -227,7 +272,7 @@ export class Exchange extends StoreConstructor {
 
       case STATUS.WAITING:
       case STATUS.IN_PROGRESS:
-        this.stepNumber = 2;
+        this.stepNumber = 3;
         this.actionStatus = 'fetching';
         break;
     }
@@ -450,11 +495,11 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            const { amount, erc20Address } = this.transaction;
+            const { approveAmount, erc20Address } = this.transaction;
 
             ethMethods.approveEthManger(
               erc20Address,
-              amount,
+              approveAmount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveEthManger.type),
             );
@@ -501,7 +546,7 @@ export class Exchange extends StoreConstructor {
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(
               hrc20Address,
-              this.transaction.amount,
+              this.transaction.approveAmount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveHmyManger.type),
             );
@@ -544,7 +589,7 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            ethMethods.approveEthManger(this.transaction.amount, hash =>
+            ethMethods.approveEthManger(this.transaction.approveAmount, hash =>
               confirmCallback(hash, approveEthManger.type),
             );
           }
@@ -584,8 +629,9 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
-            await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.type),
+            await hmyMethods.approveHmyManger(
+              this.transaction.approveAmount,
+              hash => confirmCallback(hash, approveHmyManger.type),
             );
           }
 
@@ -633,6 +679,54 @@ export class Exchange extends StoreConstructor {
 
     this.stepNumber = this.stepsConfig.length - 1;
   }
+
+  @observable allowance = '0';
+  @observable allowanceStatus: statusFetching = 'init';
+  @observable allowanceError = '';
+
+  @computed get needToApprove() {
+    return Number(this.transaction.amount) > Number(this.allowance) / 1e18;
+  }
+
+  @action.bound
+  clearAllowance = () => {
+    this.allowance = '0';
+    this.allowanceStatus = 'fetching';
+    this.allowanceError = '';
+  };
+
+  @action.bound
+  getAllowance = async () => {
+    this.allowance = '0';
+    this.transaction.approveAmount = '0';
+    this.allowanceStatus = 'fetching';
+    this.allowanceError = '';
+
+    const { ethMethods, hmyMethods } = getContractMethods(
+      this.token,
+      this.stores.user.isMetamask,
+    );
+
+    try {
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        this.allowance = await hmyMethods.allowance(
+          this.transaction.oneAddress,
+          this.transaction.erc20Address,
+        );
+      }
+
+      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        this.allowance = await ethMethods.allowance(
+          this.transaction.ethAddress,
+          this.transaction.erc20Address,
+        );
+      }
+    } catch (e) {
+      this.allowanceError = e.message;
+    }
+
+    this.allowanceStatus = 'success';
+  };
 
   clear() {
     this.transaction = this.defaultTransaction;

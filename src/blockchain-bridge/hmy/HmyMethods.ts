@@ -29,6 +29,11 @@ export class HmyMethods {
   approveHmyManger = (amount, sendTxCallback?) => {
     return new Promise(async (resolve, reject) => {
       try {
+        if (Number(amount) === 0) {
+          sendTxCallback('skip');
+          return resolve();
+        }
+
         await connectToOneWallet(this.hmyTokenContract.wallet, null, reject);
 
         const res = await this.hmyTokenContract.methods
@@ -70,5 +75,13 @@ export class HmyMethods {
 
   totalSupply = async () => {
     return await this.hmyTokenContract.methods.totalSupply().call(this.options);
+  };
+
+  allowance = async (addr: string) => {
+    const addrHex = this.hmy.crypto.getAddress(addr).checksum;
+
+    return await this.hmyTokenContract.methods
+      .allowance(addrHex, this.hmyManagerContract.address)
+      .call(this.options);
   };
 }
