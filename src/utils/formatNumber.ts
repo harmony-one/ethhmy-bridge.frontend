@@ -54,6 +54,19 @@ export function ones(value: number | string) {
   return Number(value) / 1e18;
 }
 
+export function truncateSymbol(symbol: string, num: number = 6) {
+  if (!symbol) {
+    return '';
+  }
+
+  if (symbol.length <= 6) {
+    return symbol;
+  }
+
+  const first = symbol.slice(0, num);
+  return `${first}..`;
+}
+
 export function truncateAddressString(address: string, num = 12) {
   if (!address) {
     return '';
