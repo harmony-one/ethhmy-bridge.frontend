@@ -1,5 +1,5 @@
 import { ITokenInfo } from '../../../stores/interfaces';
-import { validateBech32Address } from '../../../blockchain-bridge';
+import { Snip20TokenInfo, validateBech32Address } from '../../../blockchain-bridge';
 
 export type SwapTokenMap = Map<string, SwapToken>;
 
@@ -10,6 +10,19 @@ export type SwapToken = {
   decimals?: number;
   address?: string;
   name?: string;
+};
+
+export const SwapTokenFromSnip20Params = (address: string, token: Snip20TokenInfo) => {
+  const customTokenInfo: SwapToken = {
+    symbol: token.symbol,
+    address: address,
+    decimals: token.decimals,
+    logo: '/unknown.png',
+    identifier: address,
+    name: token.name,
+  };
+
+  return customTokenInfo;
 };
 
 export const TokenMapfromITokenInfo = (tokens: ITokenInfo[]): SwapTokenMap => {
