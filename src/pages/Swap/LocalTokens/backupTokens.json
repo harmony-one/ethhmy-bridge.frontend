@@ -17,5 +17,12 @@
     }
   ],
   "secret-2": [
+    {
+      "symbol": "SCRT",
+      "logo": "/scrt.svg",
+      "decimals": 6,
+      "identifier": "uscrt",
+      "name": "Secret"
+    }
   ]
 }

@@ -20,8 +20,6 @@ export const TokenSelector = (props: {
   const [open, setOpen] = React.useState(false);
   const [localToken, setLocalToken] = React.useState<string>('');
   const [localStorageTokens, setLocalStorageToken] = React.useState<SwapToken[]>(null);
-  //   JSON.parse(localStorage.getItem('customToken')),
-  // );
 
   React.useEffect(() => {
     const addToken = async () => {
