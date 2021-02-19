@@ -110,6 +110,25 @@ export class Exchange extends StoreConstructor {
         {
           title: 'Continue',
           onClick: async () => {
+            // this.transaction.oneAddress = this.stores.user.address;
+
+            if (this.token === TOKEN.HRC20) {
+              this.transaction.hrc20Address = getAddress(
+                this.stores.user.hrc20Address,
+              ).checksum;
+            } else {
+              this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+            }
+
+            switch (this.mode) {
+              case EXCHANGE_MODE.ETH_TO_ONE:
+                this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
+                break;
+              case EXCHANGE_MODE.ONE_TO_ETH:
+                this.transaction.oneAddress = this.stores.user.address;
+                break;
+            }
+
             this.transaction.approveAmount = '0';
 
             if (this.token === TOKEN.ERC721) {
@@ -129,20 +148,9 @@ export class Exchange extends StoreConstructor {
                 this.stepNumber = this.stepNumber + 1;
               }
             }
-            // this.transaction.oneAddress = this.stores.user.address;
-
-            if (this.token === TOKEN.HRC20) {
-              this.transaction.hrc20Address = getAddress(
-                this.stores.user.hrc20Address,
-              ).checksum;
-            } else {
-              this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
-            }
 
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
-                this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-
                 this.isFeeLoading = true;
                 this.ethNetworkFee = await getNetworkFee();
                 this.isFeeLoading = false;
@@ -151,8 +159,6 @@ export class Exchange extends StoreConstructor {
                 this.isFeeLoading = true;
                 this.depositAmount = await getDepositAmount();
                 this.isFeeLoading = false;
-
-                this.transaction.oneAddress = this.stores.user.address;
                 break;
             }
           },
@@ -707,8 +713,11 @@ export class Exchange extends StoreConstructor {
       this.stores.user.isMetamask,
     );
 
+    debugger;
     try {
       if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        console.log(this.transaction.oneAddress, this.transaction.erc20Address);
+
         this.allowance = await hmyMethods.allowance(
           this.transaction.oneAddress,
           this.transaction.erc20Address,
@@ -716,6 +725,8 @@ export class Exchange extends StoreConstructor {
       }
 
       if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        console.log(this.transaction.ethAddress, this.transaction.erc20Address);
+
         this.allowance = await ethMethods.allowance(
           this.transaction.ethAddress,
           this.transaction.erc20Address,
