@@ -369,7 +369,12 @@ export class SwapTab extends React.Component<
                     toDecimals,
                   ).toFixed();
 
-                  this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
+                  this.props.notify(
+                    'success',
+                    `Swapped ${sent} ${this.props.tokens.get(fromToken)?.symbol} for ${received} ${
+                      this.props.tokens.get(toToken).symbol
+                    }`,
+                  );
                 } else {
                   const result = await this.props.secretjs.execute(
                     this.props.tokens.get(this.state.fromToken).address,
@@ -403,11 +408,21 @@ export class SwapTab extends React.Component<
                     toDecimals,
                   ).toFixed();
 
-                  this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
+                  this.props.notify(
+                    'success',
+                    `Swapped ${sent} ${this.props.tokens.get(fromToken).symbol} for ${received} ${
+                      this.props.tokens.get(toToken).symbol
+                    }`,
+                  );
                 }
               } catch (error) {
                 console.error('Swap error', error);
-                this.props.notify('error', `Error swapping ${fromInput} ${fromToken} for ${toToken}: ${error.message}`);
+                this.props.notify(
+                  'error',
+                  `Error swapping ${fromInput} ${this.props.tokens.get(fromToken).symbol} for ${
+                    this.props.tokens.get(toToken).symbol
+                  }: ${error.message}`,
+                );
                 this.setState({
                   loadingSwap: false,
                 });
