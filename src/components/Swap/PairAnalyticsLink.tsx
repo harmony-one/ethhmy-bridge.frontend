@@ -1,8 +1,6 @@
 import React from 'react';
 
 export const PairAnalyticsLink: React.FC<{ pairAddress: string }> = ({ pairAddress }) => {
-  return null; // until superfish fixes the site
-
   if (!pairAddress) {
     return null;
   }
