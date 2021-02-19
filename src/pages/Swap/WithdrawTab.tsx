@@ -3,44 +3,49 @@ import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
 import { Container } from 'semantic-ui-react';
 import { UserStoreEx } from 'stores/UserStore';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { WithdrawLiquidityPanel } from './WithdrawLiqudityPanel';
 import { TabsHeader } from './TabsHeader';
+import { SwapTokenMap } from './types/SwapToken';
+import cn from 'classnames';
+import * as styles from './styles.styl';
+import { PairMap } from './types/SwapPair';
 import Loader from 'react-loader-spinner';
 
 export class WithdrawTab extends React.Component<{
   user: UserStoreEx;
   secretjs: SigningCosmWasmClient;
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   balances: { [symbol: string]: BigNumber | JSX.Element };
-  pairs: Array<Pair>;
-  pairFromSymbol: { [symbol: string]: Pair };
+  pairs: PairMap;
   notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+  updateToken: CallableFunction;
+  onCloseTab: CallableFunction;
 }> {
-  constructor(props) {
-    super(props);
-  }
+  // async componentDidUpdate(
+  //   prevProps: Readonly<{
+  //     user: UserStoreEx;
+  //     secretjs: SigningCosmWasmClient;
+  //     tokens: SwapTokenMap;
+  //     balances: { [p: string]: BigNumber | JSX.Element };
+  //     pairs: PairMap;
+  //     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+  //     updateToken: CallableFunction;
+  //   }>,
+  //   prevState: Readonly<{}>,
+  //   snapshot?: any,
+  // ) {
+  //   if (prevProps.pairs.size !== this.props.pairs.size) {
+  //     const tasks = Array.from(this.props.pairs.values()).map(pair => this.props.updateToken(pair));
+  //     await Promise.all(tasks);
+  //   }
+  // }
 
   render() {
-    const withdrawPanelList = Object.keys(this.props.balances)
-      .filter(lpTokenSymbol => lpTokenSymbol.startsWith('LP') && !lpTokenSymbol.includes('total-supply'))
-      .map(lpTokenSymbol => (
-        <span key={lpTokenSymbol}>
-          <WithdrawLiquidityPanel
-            lpTokenSymbol={lpTokenSymbol}
-            tokens={this.props.tokens}
-            balances={this.props.balances}
-            secretjs={this.props.secretjs}
-            pairFromSymbol={this.props.pairFromSymbol}
-            notify={this.props.notify}
-          />
-          <div style={{ minHeight: '1em' }} />
-        </span>
-      ));
+    const pairs = Array.from(this.props.pairs.values());
 
-    if (withdrawPanelList.length === 0) {
+    if (pairs.length === 0) {
       return (
-        <Container style={swapContainerStyle}>
+        <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
@@ -50,9 +55,25 @@ export class WithdrawTab extends React.Component<{
     }
 
     return (
-      <Container style={swapContainerStyle}>
+      <Container className={cn(styles.swapContainerStyle)}>
         <TabsHeader />
-        {withdrawPanelList}
+        {pairs.map(p => {
+          return (
+            <span key={p.lpTokenSymbol()}>
+              <WithdrawLiquidityPanel
+                lpTokenSymbol={p.lpTokenSymbol()}
+                tokens={this.props.tokens}
+                selectedPair={p}
+                balances={this.props.balances}
+                secretjs={this.props.secretjs}
+                notify={this.props.notify}
+                getBalance={this.props.updateToken}
+                onCloseTab={this.props.onCloseTab}
+              />
+              <div style={{ minHeight: '1em' }} />
+            </span>
+          );
+        })}
       </Container>
     );
   }

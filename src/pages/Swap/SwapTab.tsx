@@ -1,33 +1,20 @@
 import React from 'react';
 import { Button, Container } from 'semantic-ui-react';
-import './override.css';
-import { canonicalizeBalance, displayHumanizedBalance, humanizeBalance, sortedStringify } from 'utils';
-import { AssetRow } from './AssetRow';
+import { canonicalizeBalance, humanizeBalance, sortedStringify } from 'utils';
+import { SwapAssetRow } from './SwapAssetRow';
 import { AdditionalInfo } from './AdditionalInfo';
-import { PriceRow } from './PriceRow';
-import { compute_swap, compute_offer_amount } from '../../blockchain-bridge/scrt/swap';
+import { PriceRow } from '../../components/Swap/PriceRow';
+import { compute_offer_amount, compute_swap } from '../../blockchain-bridge/scrt/swap';
 import { SigningCosmWasmClient } from 'secretjs';
 import { TabsHeader } from './TabsHeader';
-import { flexRowSpace, Pair, swapContainerStyle, TokenDisplay } from '.';
 import { BigNumber } from 'bignumber.js';
-import { extractValueFromLogs, getFeeForExecute } from '../../blockchain-bridge/scrt';
-
-export const downArrow = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="#00ADE8"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <polyline points="19 12 12 19 5 12"></polyline>
-  </svg>
-);
+import { extractValueFromLogs, getFeeForExecute } from '../../blockchain-bridge';
+import { SwapTokenMap } from './types/SwapToken';
+import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { SwapPair } from './types/SwapPair';
+import { DownArrow } from '../../ui/Icons/DownArrow';
+import cn from 'classnames';
+import * as styles from './styles.styl';
 
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
@@ -38,17 +25,15 @@ const BUTTON_MSG_SWAP = 'Swap';
 export class SwapTab extends React.Component<
   {
     secretjs: SigningCosmWasmClient;
-    tokens: {
-      [symbol: string]: TokenDisplay;
-    };
+    tokens: SwapTokenMap;
     balances: {
       [symbol: string]: BigNumber | JSX.Element;
     };
-    pairs: Array<Pair>;
-    pairFromSymbol: {
-      [symbol: string]: Pair;
-    };
+    selectedToken0?: string;
+    selectedToken1?: string;
+    selectedPair: SwapPair;
     notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
+    onSetTokens: CallableFunction;
   },
   {
     fromToken: string;
@@ -69,8 +54,8 @@ export class SwapTab extends React.Component<
     super(props);
 
     this.state = {
-      fromToken: Object.keys(this.props.tokens)[0] || '',
-      toToken: Object.keys(this.props.tokens)[1] || '',
+      fromToken: this.props.selectedToken0 || this.props.tokens.get(process.env.SSCRT_CONTRACT)?.identifier || '',
+      toToken: this.props.selectedToken1 || '',
       fromInput: '',
       toInput: '',
       isFromEstimated: false,
@@ -89,20 +74,20 @@ export class SwapTab extends React.Component<
       this.updateInputs();
     }
 
-    if (sortedStringify(previousProps.tokens) !== sortedStringify(this.props.tokens)) {
-      const fromToken = Object.keys(this.props.tokens)[0];
-      const toToken = Object.keys(this.props.tokens)[1];
-
-      this.setState({
-        fromToken,
-        toToken,
-      });
-    }
+    //initial load
+    // if (previousProps.tokens.size !== this.props.tokens.size) {
+    //   const fromToken = this.props.tokens.values().next().value.identifier;
+    //   const toToken = '';
+    //   this.setState({
+    //     fromToken,
+    //     toToken,
+    //   });
+    // }
   }
 
   async updateInputs() {
-    const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    //const selectedPairSymbol = `${this.state.fromToken}-${this.state.toToken}`;
+    const pair = this.props.selectedPair;
     if (!pair) {
       this.setState({
         fromInput: '',
@@ -113,18 +98,18 @@ export class SwapTab extends React.Component<
       return;
     }
 
-    const fromDecimals = this.props.tokens[this.state.fromToken].decimals;
-    const toDecimals = this.props.tokens[this.state.toToken].decimals;
+    const fromDecimals = this.props.tokens.get(this.state.fromToken).decimals;
+    const toDecimals = this.props.tokens.get(this.state.toToken).decimals;
 
     // we normalize offer_pool & ask_pool
     // we could also canonicalize offer_amount & ask_amount
-    // but this way is less code because we get the results normilized
+    // but this way is less code because we get the results normalized
     const offer_pool = humanizeBalance(
-      new BigNumber(this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`] as any),
+      new BigNumber(this.props.balances[`${this.state.fromToken}-${pair.identifier()}`] as any),
       fromDecimals,
     );
     const ask_pool = humanizeBalance(
-      new BigNumber(this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`] as any),
+      new BigNumber(this.props.balances[`${this.state.toToken}-${pair.identifier()}`] as any),
       toDecimals,
     );
 
@@ -184,11 +169,14 @@ export class SwapTab extends React.Component<
   }
 
   render() {
-    const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
-    const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    // const selectedPairSymbol = `${this.state.fromToken}/${this.state.toToken}`;
+    // const pair = this.props.pairFromSymbol[selectedPairSymbol];
+    const pair = this.props.selectedPair;
 
-    const ask_pool = new BigNumber(this.props.balances[`${this.state.toToken}-${selectedPairSymbol}`] as BigNumber);
-    const offer_pool = new BigNumber(this.props.balances[`${this.state.fromToken}-${selectedPairSymbol}`] as any);
+    const ask_pool = pair
+      ? new BigNumber(this.props.balances[`${this.state.toToken}-${pair?.identifier()}`] as BigNumber)
+      : new BigNumber(0);
+    const offer_pool = new BigNumber(this.props.balances[`${this.state.fromToken}-${pair?.identifier()}`] as any);
 
     const [fromBalance, toBalance] = [
       this.props.balances[this.state.fromToken],
@@ -196,8 +184,8 @@ export class SwapTab extends React.Component<
     ];
 
     const [fromDecimals, toDecimals] = [
-      this.props.tokens[this.state.fromToken]?.decimals,
-      this.props.tokens[this.state.toToken]?.decimals,
+      this.props.tokens.get(this.state.fromToken)?.decimals,
+      this.props.tokens.get(this.state.toToken)?.decimals,
     ];
 
     const canonFromInput = canonicalizeBalance(new BigNumber(this.state.fromInput), fromDecimals);
@@ -209,7 +197,7 @@ export class SwapTab extends React.Component<
     } else if (this.state.fromInput === '' && this.state.toInput === '') {
       buttonMessage = BUTTON_MSG_ENTER_AMOUNT;
     } else if (new BigNumber(fromBalance as BigNumber).isLessThan(canonFromInput)) {
-      buttonMessage = `Insufficient ${this.state.fromToken} balance`;
+      buttonMessage = `Insufficient ${this.props.tokens.get(this.state.fromToken)?.symbol} balance`;
     } else if (offer_pool.isZero() || ask_pool.isZero() || ask_pool.isLessThan(canonToInput)) {
       buttonMessage = BUTTON_MSG_NOT_ENOUGH_LIQUIDITY;
     } else if (this.state.fromInput === '' || this.state.toInput === '') {
@@ -229,68 +217,23 @@ export class SwapTab extends React.Component<
 
     return (
       <>
-        <Container style={swapContainerStyle}>
+        <Container className={cn(styles.swapContainerStyle)}>
           <TabsHeader />
-          <AssetRow
+          <SwapAssetRow
             secretjs={this.props.secretjs}
             label="From"
             maxButton={true}
             balance={fromBalance}
             tokens={this.props.tokens}
             token={this.state.fromToken}
-            setToken={(symbol: string) => {
-              if (symbol === this.state.toToken) {
-                // switch
-                this.setState(
-                  {
-                    fromToken: symbol,
-                    toToken: this.state.fromToken,
-                    isFromEstimated: this.state.isToEstimated,
-                    isToEstimated: this.state.isFromEstimated,
-                    fromInput: this.state.toInput,
-                    toInput: this.state.fromInput,
-                  },
-                  () => this.updateInputs(),
-                );
-              } else {
-                this.setState(
-                  {
-                    fromToken: symbol,
-                    fromInput: '',
-                    isFromEstimated: true,
-                    isToEstimated: false,
-                  },
-                  () => this.updateInputs(),
-                );
-              }
+            setToken={async (identifier: string) => {
+              await this.setFromToken(identifier);
             }}
             amount={this.state.fromInput}
             isEstimated={
               false /* Eventually From is the exact amount that will be sent, so even if we estimate it in updateInputs we don't show the "(estimated)" label to the user */
             }
-            setAmount={(value: string) => {
-              if (value === '' || Number(value) === 0) {
-                this.setState({
-                  fromInput: value,
-                  isFromEstimated: false,
-                  toInput: '',
-                  isToEstimated: false,
-                  spread: 0,
-                  commission: 0,
-                  priceImpact: 0,
-                });
-                return;
-              }
-
-              this.setState(
-                {
-                  fromInput: value,
-                  isFromEstimated: false,
-                  isToEstimated: true,
-                },
-                () => this.updateInputs(),
-              );
-            }}
+            setAmount={amount => this.setFromAmount(amount)}
           />
           <div
             style={{
@@ -299,7 +242,7 @@ export class SwapTab extends React.Component<
               alignContent: 'center',
             }}
           >
-            {flexRowSpace}
+            <FlexRowSpace />
             <span
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -317,70 +260,33 @@ export class SwapTab extends React.Component<
                 );
               }}
             >
-              {downArrow}
+              <DownArrow />
             </span>
-            {flexRowSpace}
+            <FlexRowSpace />
           </div>
-          <AssetRow
+          <SwapAssetRow
             secretjs={this.props.secretjs}
             label="To"
             maxButton={false}
             balance={toBalance}
             tokens={this.props.tokens}
             token={this.state.toToken}
-            setToken={(symbol: string) => {
-              if (symbol === this.state.fromToken) {
-                // switch
-                this.setState(
-                  {
-                    toToken: symbol,
-                    fromToken: this.state.toToken,
-                    isFromEstimated: this.state.isToEstimated,
-                    isToEstimated: this.state.isFromEstimated,
-                    fromInput: this.state.toInput,
-                    toInput: this.state.fromInput,
-                  },
-                  () => this.updateInputs(),
-                );
-              } else {
-                this.setState(
-                  {
-                    toToken: symbol,
-                    toInput: '',
-                    isToEstimated: true,
-                    isFromEstimated: false,
-                  },
-                  () => this.updateInputs(),
-                );
-              }
+            setToken={async (identifier: string) => {
+              await this.setToToken(identifier);
             }}
             amount={this.state.toInput}
             isEstimated={this.state.toInput !== '' /* this.state.isToEstimated */}
             setAmount={(value: string) => {
-              if (value === '' || Number(value) === 0) {
-                this.setState({
-                  toInput: value,
-                  isToEstimated: false,
-                  fromInput: '',
-                  isFromEstimated: false,
-                  spread: 0,
-                  commission: 0,
-                  priceImpact: 0,
-                });
-                return;
-              }
-
-              this.setState(
-                {
-                  toInput: value,
-                  isToEstimated: false,
-                  isFromEstimated: true,
-                },
-                () => this.updateInputs(),
-              );
+              this.setToAmount(value);
             }}
           />
-          {!hidePriceRow && <PriceRow toToken={this.state.toToken} fromToken={this.state.fromToken} price={price} />}
+          {!hidePriceRow && (
+            <PriceRow
+              fromToken={this.props.tokens.get(this.state.fromToken).symbol}
+              toToken={this.props.tokens.get(this.state.toToken).symbol}
+              price={price}
+            />
+          )}
           <Button
             disabled={buttonMessage !== BUTTON_MSG_SWAP || this.state.loadingSwap}
             loading={this.state.loadingSwap}
@@ -404,11 +310,11 @@ export class SwapTab extends React.Component<
               }
 
               this.setState({ loadingSwap: true });
-              const { fromInput, toInput, fromToken, toToken } = this.state;
-              const pair = this.props.pairFromSymbol[`${this.state.fromToken}/${this.state.toToken}`];
+              const { fromInput, fromToken, toToken } = this.state;
+              const pair = this.props.selectedPair;
 
               try {
-                const { decimals } = this.props.tokens[this.state.fromToken];
+                const { decimals } = this.props.tokens.get(this.state.fromToken);
                 const fromAmount = canonicalizeBalance(new BigNumber(this.state.fromInput), decimals).toFixed(
                   0,
                   BigNumber.ROUND_DOWN,
@@ -422,12 +328,12 @@ export class SwapTab extends React.Component<
                 // ask_amount: roughly how much we're getting
                 // expected_return: at least ask_amount minus some slippage
 
-                const ask_amount = canonToInput;
-                const expected_return = ask_amount
+                //const ask_amount = canonToInput;
+                const expected_return = canonToInput
                   .multipliedBy(new BigNumber(1).minus(this.state.slippageTolerance))
                   .toFormat(0, { groupSeparator: '' });
 
-                if (this.state.fromToken === 'SCRT') {
+                if (this.state.fromToken === 'uscrt') {
                   const result = await this.props.secretjs.execute(
                     pair.contract_addr,
                     {
@@ -466,7 +372,7 @@ export class SwapTab extends React.Component<
                   this.props.notify('success', `Swapped ${sent} ${fromToken} for ${received} ${toToken}`);
                 } else {
                   const result = await this.props.secretjs.execute(
-                    this.props.tokens[this.state.fromToken].address,
+                    this.props.tokens.get(this.state.fromToken).address,
                     {
                       send: {
                         recipient: pair.contract_addr,
@@ -522,14 +428,14 @@ export class SwapTab extends React.Component<
         </Container>
         {!hidePriceRow && (
           <AdditionalInfo
-            fromToken={this.state.fromToken}
-            toToken={this.state.toToken}
+            fromToken={this.props.tokens.get(this.state.fromToken).symbol}
+            toToken={this.props.tokens.get(this.state.toToken).symbol}
             liquidityProviderFee={this.state.commission * price}
             priceImpact={this.state.priceImpact}
             minimumReceived={new BigNumber(this.state.toInput).multipliedBy(
               new BigNumber(1).minus(this.state.slippageTolerance),
             )}
-            pairAddress={this.props.pairFromSymbol[selectedPairSymbol].contract_addr}
+            pairAddress={this.props.selectedPair?.contract_addr}
             /*
             maximumSold={
               this.state.isFromEstimated
@@ -542,5 +448,113 @@ export class SwapTab extends React.Component<
         )}
       </>
     );
+  }
+
+  private setToAmount(value: string) {
+    if (value === '' || Number(value) === 0) {
+      this.setState({
+        toInput: value,
+        isToEstimated: false,
+        fromInput: '',
+        isFromEstimated: false,
+        spread: 0,
+        commission: 0,
+        priceImpact: 0,
+      });
+      return;
+    }
+
+    this.setState(
+      {
+        toInput: value,
+        isToEstimated: false,
+        isFromEstimated: true,
+      },
+      () => this.updateInputs(),
+    );
+  }
+
+  private setFromAmount = (value: string) => {
+    if (value === '' || Number(value) === 0) {
+      this.setState({
+        fromInput: value,
+        isFromEstimated: false,
+        toInput: '',
+        isToEstimated: false,
+        spread: 0,
+        commission: 0,
+        priceImpact: 0,
+      });
+      return;
+    }
+
+    this.setState(
+      {
+        fromInput: value,
+        isFromEstimated: false,
+        isToEstimated: true,
+      },
+      () => this.updateInputs(),
+    );
+  };
+
+  private async setToToken(identifier: string) {
+    if (identifier === this.state.fromToken) {
+      // switch
+      this.setState(
+        {
+          toToken: identifier,
+          fromToken: this.state.toToken,
+          isFromEstimated: this.state.isToEstimated,
+          isToEstimated: this.state.isFromEstimated,
+          fromInput: this.state.toInput,
+          toInput: this.state.fromInput,
+        },
+        //() => this.updateInputs(),
+      );
+    } else {
+      this.setState(
+        {
+          toToken: identifier,
+          toInput: '',
+          isToEstimated: true,
+          isFromEstimated: false,
+        },
+        // () => this.updateInputs(),
+      );
+    }
+
+    await this.props.onSetTokens(this.state.fromToken, identifier);
+
+    if (this.state.fromToken) {
+      await this.updateInputs();
+    }
+  }
+
+  private async setFromToken(identifier: string) {
+    if (identifier === this.state.toToken) {
+      // switch
+      this.setState({
+        fromToken: identifier,
+        toToken: this.state.fromToken,
+        isFromEstimated: this.state.isToEstimated,
+        isToEstimated: this.state.isFromEstimated,
+        fromInput: this.state.toInput,
+        toInput: this.state.fromInput,
+      });
+    } else {
+      this.setState({
+        fromToken: identifier,
+        fromInput: '',
+        isFromEstimated: true,
+        isToEstimated: false,
+      });
+    }
+
+    await this.props.onSetTokens(identifier, this.state.toToken);
+
+    if (this.state.toToken) {
+      await this.updateInputs();
+    }
   }
 }

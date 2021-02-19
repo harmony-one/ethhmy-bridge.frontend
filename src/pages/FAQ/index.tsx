@@ -13,7 +13,7 @@ const faqConfig = [
       <p>
         The bridge allows users to lock their ETH or ERC20 in a smart contract on Ethereum and mint secretETH or
         secretERC20, which are wrapped tokens with privacy on the Secret Network based on{' '}
-        <a href="https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-20.md" target="_blank">
+        <a href="https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-20.md" target="_blank" rel="noreferrer">
           SNIP-20 standard
         </a>
         .
@@ -44,11 +44,11 @@ const faqConfig = [
       <>
         <p>
           In order to interact with Ethereum and Secret Network, users will have to use{' '}
-          <a href="https://metamask.io/" target="_blank">
+          <a href="https://metamask.io/" target="_blank" rel="noreferrer">
             Metamask
           </a>{' '}
           and{' '}
-          <a href="https://wallet.keplr.app/" target="_blank">
+          <a href="https://wallet.keplr.app/" target="_blank" rel="noreferrer">
             Keplr
           </a>{' '}
           wallets. Once the user connects the wallets to the application, she can use the bridge:
@@ -140,11 +140,11 @@ const faqConfig = [
         <br />
         <p>
           For more information on SNIP-20 please refer to the standard{' '}
-          <a href="https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-20.md" target="_blank">
+          <a href="https://github.com/SecretFoundation/SNIPs/blob/master/SNIP-20.md" target="_blank" rel="noreferrer">
             documentation
           </a>
           . You can see the bridge code{' '}
-          <a href="https://github.com/enigmampc/EthereumBridge" target="_blank">
+          <a href="https://github.com/enigmampc/EthereumBridge" target="_blank" rel="noreferrer">
             here
           </a>
           .
@@ -157,23 +157,23 @@ const faqConfig = [
     text: () => (
       <p>
         The bridge operators are very reputable staking operators:{' '}
-        <a href="https://figment.io/" target="_blank">
+        <a href="https://figment.io/" target="_blank" rel="noreferrer">
           Figment
         </a>
         ,{' '}
-        <a href="https://staked.us/" target="_blank">
+        <a href="https://staked.us/" target="_blank" rel="noreferrer">
           Staked
         </a>
         ,{' '}
-        <a href="https://bharvest.io/" target="_blank">
+        <a href="https://bharvest.io/" target="_blank" rel="noreferrer">
           B-Harvest
         </a>
         ,{' '}
-        <a href="https://citadel.one/" target="_blank">
+        <a href="https://citadel.one/" target="_blank" rel="noreferrer">
           Citadel.one
         </a>{' '}
         and{' '}
-        <a href="https://enigma.co/" target="_blank">
+        <a href="https://enigma.co/" target="_blank" rel="noreferrer">
           Enigma
         </a>
         .
@@ -186,7 +186,7 @@ const faqConfig = [
       <p>
         Currently the bridge supports ETH, OCEAN, YFI, UNI, TUSD, SNX, MKR, DAI, BAND, LINK, AAVE, COMP, KNC, USDT, WBTC
         and BAC. If you’d like to see support for other tokens, please fill{' '}
-        <a href="https://airtable.com/shrLzEMvRiRFS4LpZ" target="_blank">
+        <a href="https://airtable.com/shrLzEMvRiRFS4LpZ" target="_blank" rel="noreferrer">
           this form
         </a>
         .
@@ -249,7 +249,7 @@ const faqConfig = [
       <>
         <p>
           Report any issues in the <strong>#🌉bridge-support</strong> channel on the{' '}
-          <a href="http://chat.scrt.network/" target="_blank">
+          <a href="http://chat.scrt.network/" target="_blank" rel="noreferrer">
             Secret Network Discord server
           </a>{' '}
           with one or more of the following information:
@@ -275,7 +275,11 @@ const faqConfig = [
       <>
         <p>
           This site is based on{' '}
-          <a href="https://docs.harmony.one/home/general/showcases/crosschain/horizon-bridge" target="_blank">
+          <a
+            href="https://docs.harmony.one/home/general/showcases/crosschain/horizon-bridge"
+            target="_blank"
+            rel="noreferrer"
+          >
             Horizon Bridge by Harmony ONE
           </a>
           . We want to thank them for allowing us to fork their repository, and build off their work.

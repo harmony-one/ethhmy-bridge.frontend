@@ -2,18 +2,16 @@ import BigNumber from 'bignumber.js';
 import React from 'react';
 import Loader from 'react-loader-spinner';
 import { displayHumanizedBalance, humanizeBalance } from 'utils';
-import { TokenDisplay } from '.';
 import { Image } from 'semantic-ui-react';
-import preloadedTokens from './tokens.json';
+import { SwapToken, SwapTokenMap } from '../../pages/Swap/types/SwapToken';
 
 export const WalletOverview: React.FC<{
-  tokens: { [symbol: string]: TokenDisplay };
+  tokens: SwapTokenMap;
   balances: { [symbol: string]: BigNumber | JSX.Element };
 }> = ({ tokens, balances }) => {
-  const walletTokens = Object.assign({}, tokens, { SCRT: preloadedTokens['SCRT'] });
-  const tokenSymbols = Object.keys(walletTokens);
-
-  if (tokenSymbols.length === 0) {
+  // const tokenSymbols = Object.keys(walletTokens);
+  const tokenAddresses = Array.from(tokens.keys());
+  if (tokenAddresses.length === 0) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '1em 0' }}>
         <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
@@ -23,19 +21,20 @@ export const WalletOverview: React.FC<{
 
   return (
     <>
-      {tokenSymbols
+      {tokenAddresses
         .sort(a => (a.toLowerCase().includes('scrt') ? -1 : 1))
-        .map(symbol => {
-          const token = walletTokens[symbol];
-          const balance = balances[symbol];
+        .filter(address => balances[address])
+        .map(address => {
+          const token = tokens.get(address);
+          const balance = balances[address];
 
-          if (!balance) {
-            return { token, balance: <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> };
-          }
+          // if (!balance) {
+          //   return { token, balance: <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> };
+          // }
 
-          const balanceNum = new BigNumber(balances[symbol] as BigNumber);
+          const balanceNum = new BigNumber(balances[address] as BigNumber);
           if (balanceNum.isNaN()) {
-            return { token, balance: balances[symbol] };
+            return { token, balance: balances[address] };
           }
 
           return {
@@ -48,7 +47,7 @@ export const WalletOverview: React.FC<{
             ),
           };
         })
-        .map(({ token, balance }: { token: TokenDisplay; balance: JSX.Element }) => {
+        .map(({ token, balance }: { token: SwapToken; balance: JSX.Element }) => {
           return (
             <div key={token.symbol} style={{ display: 'flex', alignItems: 'center', marginTop: '1em' }}>
               <Image src={token.logo} avatar style={{ boxShadow: 'rgba(0, 0, 0, 0.075) 0px 6px 10px' }} />

@@ -8,7 +8,7 @@ export const AuthWarning = () => (
     <div>
       <p>
         Looks like you don't have the Keplr wallet browser extension installed yet. Head over to{' '}
-        <a href="https://wallet.keplr.app/" target="_blank" rel="noopener norefferer">
+        <a href="https://wallet.keplr.app/" target="_blank" rel="noreferrer noopener">
           Keplr
         </a>{' '}
         to quickly install the extension.

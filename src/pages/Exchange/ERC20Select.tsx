@@ -82,6 +82,7 @@ export const ERC20Select = observer(() => {
                     : `${process.env.SCRT_EXPLORER_URL}/contracts/${snip20}`
                 }
                 target="_blank"
+                rel="noreferrer"
               >
                 {truncateAddressString(exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? token : snip20, 16)}
               </a>

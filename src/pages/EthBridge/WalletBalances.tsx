@@ -92,7 +92,7 @@ const AssetRow = observer<any>(props => {
           {props.asset}
         </Text>
         {props.link ? (
-          <a href={props.link} target="_blank" style={{ textDecoration: 'none' }}>
+          <a href={props.link} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
             <Icon glyph="ExternalLink" style={{ width: 14, margin: '0 0 2px 10px' }} />
           </a>
         ) : null}

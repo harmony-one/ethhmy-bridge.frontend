@@ -1,8 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
-import { Currency, Trade, Asset, TradeType, Token, NativeToken } from '../../pages/Swap/trade';
-import { TokenDisplay } from '../../pages/Swap';
-import { GetContractCodeHash, Snip20TokenInfo } from './snip20';
+import { Asset, Currency, NativeToken, Token, Trade, TradeType } from '../../pages/Swap/types/trade';
+import { GetContractCodeHash } from './snip20';
 import { extractValueFromLogs, getFeeForExecute, validateBech32Address } from './utils';
 
 export const buildAssetInfo = (currency: Currency) => {
@@ -295,4 +294,39 @@ export const CreateNewPair = async ({
     console.error(`Failed to create pair: ${e}`);
     throw Error('Failed to create pair');
   }
+};
+
+interface GetAllPairsResponse {
+  pairs: Array<Pair>;
+}
+
+export const GetAllPairs = async (params: { secretjs: SigningCosmWasmClient }): Promise<GetAllPairsResponse> => {
+  const { secretjs } = params;
+  return await secretjs.queryContractSmart(process.env.AMM_FACTORY_CONTRACT, {
+    pairs: { limit: 30 },
+  });
+};
+
+export type Pair = {
+  asset_infos: Array<NativeToken | Token>;
+  contract_addr: string;
+  liquidity_token: string;
+  token_code_hash: string;
+};
+
+export const getSymbolsFromPair = (pair: Pair): string[] => {
+  const symbols = [];
+
+  if (pair.asset_infos[0].type === 'native_token') {
+    symbols.push(pair.asset_infos[0].native_token.denom);
+  } else {
+    symbols.push(pair.asset_infos[0].token.contract_addr);
+  }
+  if (pair.asset_infos[1].type === 'native_token') {
+    symbols.push(pair.asset_infos[1].native_token.denom);
+  } else {
+    symbols.push(pair.asset_infos[1].token.contract_addr);
+  }
+
+  return symbols;
 };

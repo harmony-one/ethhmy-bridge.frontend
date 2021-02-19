@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Icon } from 'semantic-ui-react';
+import { FlexRowSpace } from './FlexRowSpace';
 
 const numberFormat = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 6,
   useGrouping: true,
 });
-
-const flexRowSpace = <span style={{ flex: 1 }}></span>;
 
 export const PriceRow = ({
   price,
@@ -46,7 +45,7 @@ export const PriceRow = ({
         }}
       >
         {labelPrefix}Price
-        {flexRowSpace}
+        <FlexRowSpace />
         {`${tokens.price} ${tokens.from} per ${tokens.to}`}
         <Icon
           circular

@@ -6,17 +6,22 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo } from 'stores/interfaces';
-import { dateTimeAgoFormat, divDecimals, formatWithTwoDecimals, truncateAddressString } from 'utils';
+import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Title, Text } from 'components/Base';
+import { Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getScrtAddress } from '../../blockchain-bridge';
 import { isMobile } from 'react-device-detect';
 
 const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a className={styles.addressLink} href={`${process.env.ETH_EXPLORER_URL}/token/${value}`} target="_blank">
+    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" alt={'scrt'} />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
+      target="_blank"
+      rel={'noreferrer'}
+    >
       {truncateAddressString(value, num)}
     </a>
   </Box>
@@ -24,8 +29,13 @@ const ethAddress = (value, num = 10) => (
 
 const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
-    <a className={styles.addressLink} href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`} target="_blank">
+    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" alt={'scrt'} />
+    <a
+      className={styles.addressLink}
+      href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
+      target="_blank"
+      rel={'noreferrer'}
+    >
       {truncateAddressString(value, num)}
     </a>
   </Box>
@@ -111,7 +121,7 @@ export const Tokens = observer((props: any) => {
     columns = allColumns
       .filter(c => /Symbol|Locked|TVL/i.test(c.title))
       .map(c => {
-        if (c.title == 'Total Locked') {
+        if (c.title === 'Total Locked') {
           c.title = 'TVL';
         }
         delete c.width;

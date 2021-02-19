@@ -1,7 +1,7 @@
 import BigNumber from 'bignumber.js';
 import React, { useState } from 'react';
 import { Container, Popup, Icon } from 'semantic-ui-react';
-import { PairAnalyticsLink } from './PairAnalyticsLink';
+import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 
 export const AdditionalInfo = ({
   minimumReceived,
