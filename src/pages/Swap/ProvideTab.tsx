@@ -1,6 +1,6 @@
 import React from 'react';
 import { SigningCosmWasmClient } from 'secretjs';
-import { Button, Container, Message } from 'semantic-ui-react';
+import { Button, Container } from 'semantic-ui-react';
 import { canonicalizeBalance, humanizeBalance, sortedStringify, UINT128_MAX } from 'utils';
 import * as styles from './styles.styl';
 import { SwapAssetRow } from './SwapAssetRow';
@@ -12,7 +12,7 @@ import BigNumber from 'bignumber.js';
 import { compareNormalize } from './utils';
 import { GetContractCodeHash, getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
-import { Asset, Token } from './types/trade';
+import { Asset } from './types/trade';
 import { SwapTokenMap } from './types/SwapToken';
 import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
 import cn from 'classnames';
@@ -532,7 +532,6 @@ export class ProvideTab extends React.Component<
                 window.dispatchEvent(new Event('updatePairsAndTokens'));
                 this.props.notify('success', `${assetA.symbol}/${assetB.symbol} pair created successfully`);
               } catch (error) {
-                console.log('hello');
                 this.props.notify('error', `Error creating pair ${assetA.symbol}/${assetB.symbol}: ${error.message}`);
               }
             }

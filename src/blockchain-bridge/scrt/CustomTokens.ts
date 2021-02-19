@@ -1,13 +1,13 @@
 import { SwapToken } from '../../pages/Swap/types/SwapToken';
 
-const LOCAL_STORAGE_KEY = 'SwapLocalStorageTokens';
+const LOCAL_STORAGE_KEY = 'SwapLocalStorageTokensNew';
 
 const setLocalStorage = item => localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(item));
 const getLocalStorage = () => JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
 
 class LocalStorageTokens {
   static store(token: SwapToken) {
-    let tokens: SwapToken[] = getLocalStorage();
+    let tokens: SwapToken[] = LocalStorageTokens.get();
 
     tokens = tokens.concat(token);
 

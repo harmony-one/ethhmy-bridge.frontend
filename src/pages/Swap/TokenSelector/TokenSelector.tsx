@@ -9,13 +9,14 @@ import LocalStorageTokens from '../../../blockchain-bridge/scrt/CustomTokens';
 import Loader from 'react-loader-spinner';
 import { ClearCustomTokensButton } from './ClearCustomTokens';
 import { ExitIcon } from '../../../ui/Icons/ExitIcon';
-import { SwapToken } from '../types/SwapToken';
+import { SwapToken, SwapTokenFromSnip20Params } from '../types/SwapToken';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;
   tokens: SwapToken[];
   token?: SwapToken;
   onClick?: any;
+  notify?: CallableFunction;
 }) => {
   const [open, setOpen] = React.useState(false);
   const [localToken, setLocalToken] = React.useState<string>('');
@@ -29,14 +30,7 @@ export const TokenSelector = (props: {
           address: localToken,
         });
 
-        const customTokenInfo: SwapToken = {
-          symbol: tokenInfo.symbol,
-          address: localToken,
-          decimals: tokenInfo.decimals,
-          logo: '/unknown.png',
-          identifier: localToken,
-          name: tokenInfo.name,
-        };
+        const customTokenInfo = SwapTokenFromSnip20Params(localToken, tokenInfo);
 
         LocalStorageTokens.store(customTokenInfo);
         setLocalStorageToken(LocalStorageTokens.get());
