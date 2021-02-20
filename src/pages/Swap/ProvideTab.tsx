@@ -234,7 +234,16 @@ export class ProvideTab extends React.Component<
     const humanPoolA = humanizeBalance(this.getPoolA(), this.getDecimalsA());
     const humanPoolB = humanizeBalance(this.getPoolB(), this.getDecimalsB());
 
-    if (humanPoolA.isNaN() || humanPoolB.isNaN() || humanPoolA.isEqualTo(0) || humanPoolB.isEqualTo(0)) {
+    if (humanPoolA.isNaN() || humanPoolB.isNaN()) {
+      this.setState({
+        inputA: '',
+        isEstimatedA: false,
+        inputB: '',
+        isEstimatedB: false,
+      });
+      return;
+    }
+    if (humanPoolA.isEqualTo(0) || humanPoolB.isEqualTo(0)) {
       return;
     }
 
@@ -333,7 +342,7 @@ export class ProvideTab extends React.Component<
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
 
-    if (!(this.state.tokenB && this.state.tokenA)) {
+    if (!(this.state.tokenB && this.state.tokenA) || this.getPoolA().isNaN() || this.getPoolB().isNaN()) {
       return ProvideState.LOADING;
     }
 
