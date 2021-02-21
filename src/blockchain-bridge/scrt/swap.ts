@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { storeTxResultLocally } from 'pages/Swap/utils';
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 import { Asset, Currency, NativeToken, Token, Trade, TradeType } from '../../pages/Swap/types/trade';
 import { GetContractCodeHash } from './snip20';
@@ -276,6 +277,7 @@ export const CreateNewPair = async ({
       [],
       getFeeForExecute(1_000_000),
     );
+    storeTxResultLocally(response);
 
     if (extractValueFromLogs(response, 'create_pair')) {
       try {
@@ -317,12 +319,12 @@ export type Pair = {
 export const getSymbolsFromPair = (pair: Pair): string[] => {
   const symbols = [];
 
-  if (pair.asset_infos[0].type === 'native_token') {
+  if ('native_token' in pair.asset_infos[0]) {
     symbols.push(pair.asset_infos[0].native_token.denom);
   } else {
     symbols.push(pair.asset_infos[0].token.contract_addr);
   }
-  if (pair.asset_infos[1].type === 'native_token') {
+  if ('native_token' in pair.asset_infos[1]) {
     symbols.push(pair.asset_infos[1].native_token.denom);
   } else {
     symbols.push(pair.asset_infos[1].token.contract_addr);

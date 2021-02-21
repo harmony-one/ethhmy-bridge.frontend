@@ -15,6 +15,7 @@ import { SwapPair } from './types/SwapPair';
 import { DownArrow } from '../../ui/Icons/DownArrow';
 import cn from 'classnames';
 import * as styles from './styles.styl';
+import { storeTxResultLocally } from './utils';
 
 const BUTTON_MSG_ENTER_AMOUNT = 'Enter an amount';
 const BUTTON_MSG_NO_TRADNIG_PAIR = 'Trading pair does not exist';
@@ -359,6 +360,7 @@ export class SwapTab extends React.Component<
                     ],
                     getFeeForExecute(500_000),
                   );
+                  storeTxResultLocally(result);
 
                   const sent = humanizeBalance(
                     new BigNumber(extractValueFromLogs(result, 'offer_amount')),
@@ -399,6 +401,8 @@ export class SwapTab extends React.Component<
                     [],
                     getFeeForExecute(500_000),
                   );
+                  storeTxResultLocally(result);
+
                   const sent = humanizeBalance(
                     new BigNumber(extractValueFromLogs(result, 'offer_amount')),
                     fromDecimals,

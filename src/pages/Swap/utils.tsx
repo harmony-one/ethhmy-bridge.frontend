@@ -3,7 +3,7 @@ import { UserStoreEx } from 'stores/UserStore';
 import React from 'react';
 import Style from 'style-it';
 import { humanizeBalance } from '../../utils';
-import { SigningCosmWasmClient } from 'secretjs';
+import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 
 export const ERROR_WRONG_VIEWING_KEY = 'Viewing Key Error';
 
@@ -97,4 +97,12 @@ export function compareNormalize(
   number2: { amount: BigNumber.Value; decimals: number },
 ): boolean {
   return humanizeBalance(new BigNumber(number2.amount as any), number2.decimals).isLessThan(new BigNumber(number1));
+}
+
+export function storeTxResultLocally(txResult: ExecuteResult) {
+  if (!localStorage || !localStorage.setItem || !txResult.transactionHash) {
+    return;
+  }
+  const result = { data: Array.from(txResult.data), logs: txResult.logs };
+  localStorage.setItem(txResult.transactionHash, JSON.stringify(result));
 }

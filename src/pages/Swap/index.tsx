@@ -10,14 +10,11 @@ import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
-import { Button, Image, Popup } from 'semantic-ui-react';
 import { BigNumber } from 'bignumber.js';
-import { getNativeBalance, getTokenBalance, unlockJsx } from './utils';
+import { getNativeBalance, unlockJsx } from './utils';
 import { BetaWarning } from '../../components/Swap/BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
-import { WalletOverview } from '../../components/Secret/WalletOverview';
-import { CopyWithFeedback } from '../../components/Swap/CopyWithFeedback';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
@@ -27,7 +24,7 @@ import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
 import { pairIdFromTokenIds, PairMap, SwapPair } from './types/SwapPair';
 import { KeplrButton } from '../../components/Secret/KeplrButton';
-import { FlexRowSpace } from '../../components/Swap/FlexRowSpace';
+import { NativeToken, Token } from './types/trade';
 
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
@@ -222,21 +219,39 @@ export class SwapRouter extends React.Component<
   }
 
   private async refreshPoolBalance(pair: SwapPair) {
-    const tokens = pair.assetIds();
-    // refresh pool balances
     let balances = [];
+    try {
+      const res: {
+        assets: Array<{ amount: string; info: Token | NativeToken }>;
+        total_share: string;
+      } = await this.props.user.secretjs.queryContractSmart(pair.contract_addr, {
+        pool: {},
+      });
 
-    for (const t of tokens) {
-      try {
-        const bal = await getTokenBalance(pair.contract_addr, t, 'SecretSwap', this.props.user);
+      const amount0 = new BigNumber(res.assets[0].amount);
+      const amount1 = new BigNumber(res.assets[1].amount);
+      if ('native_token' in res.assets[0].info) {
         balances.push({
-          [`${t}-${pair.identifier()}`]: bal,
+          [`${res.assets[0].info.native_token.denom}-${pair.identifier()}`]: amount0,
         });
-      } catch (e) {
-        console.error(e);
+      } else {
+        balances.push({
+          [`${res.assets[0].info.token.contract_addr}-${pair.identifier()}`]: amount0,
+        });
       }
+      if ('native_token' in res.assets[1].info) {
+        balances.push({
+          [`${res.assets[1].info.native_token.denom}-${pair.identifier()}`]: amount1,
+        });
+      } else {
+        balances.push({
+          [`${res.assets[1].info.token.contract_addr}-${pair.identifier()}`]: amount1,
+        });
+      }
+    } catch (error) {
+      this.notify('error', `Error getting pools' balances for ${pair.identifier()}: ${error.message}`);
     }
-    //pairSymbolToFreshBalances[`${tokenSymbol}-${pairSymbol}`] = freshBalances[i + 1];
+
     return balances;
   }
 
@@ -250,13 +265,18 @@ export class SwapRouter extends React.Component<
     let userBalancePromise; //balance.includes(unlockToken)
     if (tokenSymbol !== 'uscrt') {
       // todo: move this inside getTokenBalance?
-      const tokenAddress = this.state.allTokens.get(tokenSymbol).address;
+      const tokenAddress = this.state.allTokens.get(tokenSymbol)?.address;
+
+      if (!tokenAddress) {
+        console.log('refreshTokenBalance: Cannot find token address for symbol', tokenSymbol);
+        return {};
+      }
 
       let balance = await this.props.user.getSnip20Balance(tokenAddress);
 
       if (balance.includes(unlockToken)) {
         balance = unlockJsx({
-          onClick: async e => {
+          onClick: async () => {
             await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, tokenAddress);
             // TODO trigger balance refresh if this was an "advanced set" that didn't
             // result in an on-chain transaction
@@ -292,7 +312,7 @@ export class SwapRouter extends React.Component<
     let lpBalance;
     if (balanceResult.includes(unlockToken)) {
       balanceResult = unlockJsx({
-        onClick: async e => {
+        onClick: async () => {
           await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, lpTokenAddress);
           // TODO trigger balance refresh if this was an "advanced set" that didn't
           // result in an on-chain transaction
