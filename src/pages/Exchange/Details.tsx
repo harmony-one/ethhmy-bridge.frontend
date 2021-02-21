@@ -6,12 +6,22 @@ import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
-const AssetRow = props => {
+const AssetRow = observer((
+  props: {
+    label?: string,
+    link?: string,
+    address?: boolean,
+    value?: string,
+    children?: any,
+    after?: any,
+
+  }) => {
+
   return (
     <Box direction="row" justify="between" margin={{ bottom: 'medium' }} align="start">
       <Box>
@@ -51,7 +61,7 @@ const AssetRow = props => {
       </Box>
     </Box>
   );
-};
+});
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(({ showTotal, children }) => {
   const { exchange, userMetamask } = useStores();

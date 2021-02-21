@@ -9,12 +9,25 @@ import * as styles from '../EthBridge/styles.styl';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import EarnRow from '../../components/Earn/EarnRow';
 import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
-import { divDecimals } from '../../utils';
+import { divDecimals, sleep } from '../../utils';
 import { InfoModalEarn } from '../../components/InfoModalEarn';
 import { Icon } from 'components/Base/components/Icons';
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
+
+  useEffect(() => {
+    const refreshAllTokens = async () => {
+      while (!user.secretjs || tokens.isPending) {
+        await sleep(100)
+      }
+      await Promise.all([
+        ...tokens.allData.map(token => user.updateBalanceForSymbol(token.display_props.symbol))]);
+    }
+
+    refreshAllTokens();
+
+  }, [user, tokens])
 
   useEffect(() => {
     rewards.init({
