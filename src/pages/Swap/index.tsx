@@ -208,10 +208,6 @@ export class SwapRouter extends React.Component<
       const pairSymbol = data.id;
       const pair = this.state.pairs.get(pairSymbol);
 
-      if (pair !== this.state.selectedPair) {
-        console.log(`Got message for pair other than the selected one ${pair} vs ${this.state.selectedPair}`);
-      }
-
       await this.refreshBalances({ height, tokenSymbols: symbols, pair });
     } catch (error) {
       console.log(`Failed to refresh balances: ${error}`);
