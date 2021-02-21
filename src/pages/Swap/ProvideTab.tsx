@@ -344,12 +344,14 @@ export class ProvideTab extends React.Component<
     const decimalsA = this.getDecimalsA();
     const decimalsB = this.getDecimalsB();
 
-    if (!(this.state.tokenB && this.state.tokenA) || this.getPoolA().isNaN() || this.getPoolB().isNaN()) {
+    if (!(this.state.tokenB && this.state.tokenA)) {
       return ProvideState.LOADING;
     }
 
     if (!pair) {
       return ProvideState.CREATE_NEW_PAIR;
+    } else if (this.getPoolA().isNaN() || this.getPoolB().isNaN()) {
+      return ProvideState.LOADING;
     } else if (this.getPoolA().isZero() && this.getPoolB().isZero()) {
       return ProvideState.PAIR_LIQUIDITY_ZERO;
     } else if (this.state.inputA === '' || this.state.inputB === '') {
@@ -515,13 +517,13 @@ export class ProvideTab extends React.Component<
         </div>
         <Button
           disabled={
-            !this.isReadyForNewPool() &&
-            (!this.isReadyForProvide() ||
-              this.state.inputA === '' ||
-              this.state.inputB === '' ||
-              this.state.loadingProvide ||
-              showApproveAButton ||
-              showApproveBButton)
+            this.state.loadingProvide ||
+            (!this.isReadyForNewPool() &&
+              (!this.isReadyForProvide() ||
+                this.state.inputA === '' ||
+                this.state.inputB === '' ||
+                showApproveAButton ||
+                showApproveBButton))
           }
           loading={this.state.loadingProvide}
           primary={
@@ -538,6 +540,8 @@ export class ProvideTab extends React.Component<
               const assetA = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenA));
               const assetB = Asset.fromSwapToken(this.props.tokens.get(this.state.tokenB));
 
+              this.setState({ loadingProvide: true });
+
               try {
                 await this.createNewPairAction(assetA, assetB);
                 window.dispatchEvent(new Event('updatePairsAndTokens'));
@@ -545,6 +549,8 @@ export class ProvideTab extends React.Component<
               } catch (error) {
                 this.props.notify('error', `Error creating pair ${assetA.symbol}/${assetB.symbol}: ${error.message}`);
               }
+
+              this.setState({ loadingProvide: false });
             }
           }}
         >
@@ -624,20 +630,17 @@ export class ProvideTab extends React.Component<
   }
 
   private async createNewPairAction(tokenA: Asset, tokenB: Asset): Promise<string> {
-    const result = await CreateNewPair({
+    const { contractAddress } = await CreateNewPair({
       secretjs: this.props.secretjs,
       tokenA,
       tokenB,
-      notify: this.props.notify,
     });
 
-    return result.contractAddress;
+    return contractAddress;
   }
 
   private async provideLiquidityAction(pair: SwapPair) {
-    this.setState({
-      loadingProvide: true,
-    });
+    this.setState({ loadingProvide: true });
 
     const msg = {
       provide_liquidity: {
@@ -682,9 +685,7 @@ export class ProvideTab extends React.Component<
             `Error providing to ${this.props.selectedPair.identifier()} - error getting token information`,
           );
 
-          this.setState({
-            loadingProvide: false,
-          });
+          this.setState({ loadingProvide: false });
 
           return;
         }
@@ -731,9 +732,7 @@ export class ProvideTab extends React.Component<
       this.props.notify('error', `Error providing to ${tokenA}/${tokenB}: ${error.message}`);
     }
 
-    this.setState({
-      loadingProvide: false,
-    });
+    this.setState({ loadingProvide: false });
   }
 
   private showPoolWarning(): boolean {
