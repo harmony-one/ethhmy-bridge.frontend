@@ -9,7 +9,7 @@ import { PriceRow } from '../../components/Swap/PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
-import { compareNormalize } from './utils';
+import { compareNormalize, storeTxResultLocally } from './utils';
 import { GetContractCodeHash, getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
 import { Asset } from './types/trade';
@@ -311,7 +311,7 @@ export class ProvideTab extends React.Component<
     });
 
     try {
-      await this.props.secretjs.execute(
+      const tx = await this.props.secretjs.execute(
         this.props.tokens.get(symbol).address,
         {
           increase_allowance: {
@@ -323,6 +323,8 @@ export class ProvideTab extends React.Component<
         [],
         getFeeForExecute(150_000),
       );
+      storeTxResultLocally(tx);
+
       this.setState<never>({
         [`allowance${stateFieldSuffix}`]: new BigNumber(Infinity),
       });
@@ -702,7 +704,14 @@ export class ProvideTab extends React.Component<
     const { inputA, inputB, tokenA, tokenB } = this.state;
 
     try {
-      await this.props.secretjs.execute(pair.contract_addr, msg, '', transferAmount, getFeeForExecute(500_000));
+      const tx = await this.props.secretjs.execute(
+        pair.contract_addr,
+        msg,
+        '',
+        transferAmount,
+        getFeeForExecute(500_000),
+      );
+      storeTxResultLocally(tx);
 
       this.props.notify(
         'success',

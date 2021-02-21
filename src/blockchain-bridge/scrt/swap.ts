@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { storeTxResultLocally } from 'pages/Swap/utils';
 import { ExecuteResult, SigningCosmWasmClient } from 'secretjs';
 import { Asset, Currency, NativeToken, Token, Trade, TradeType } from '../../pages/Swap/types/trade';
 import { GetContractCodeHash } from './snip20';
@@ -276,6 +277,7 @@ export const CreateNewPair = async ({
       [],
       getFeeForExecute(1_000_000),
     );
+    storeTxResultLocally(response);
 
     if (extractValueFromLogs(response, 'create_pair')) {
       try {

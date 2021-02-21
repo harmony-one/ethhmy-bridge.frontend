@@ -12,6 +12,7 @@ import { SwapPair } from './types/SwapPair';
 import { DownArrow } from '../../ui/Icons/DownArrow';
 import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 import Loader from 'react-loader-spinner';
+import { storeTxResultLocally } from './utils';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
@@ -354,6 +355,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                             [],
                             getFeeForExecute(500_000),
                           );
+                          storeTxResultLocally(result);
 
                           this.props.notify(
                             'success',

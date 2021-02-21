@@ -265,7 +265,12 @@ export class SwapRouter extends React.Component<
     let userBalancePromise; //balance.includes(unlockToken)
     if (tokenSymbol !== 'uscrt') {
       // todo: move this inside getTokenBalance?
-      const tokenAddress = this.state.allTokens.get(tokenSymbol).address;
+      const tokenAddress = this.state.allTokens.get(tokenSymbol)?.address;
+
+      if (!tokenAddress) {
+        console.log('refreshTokenBalance: Cannot find token address for symbol', tokenSymbol);
+        return {};
+      }
 
       let balance = await this.props.user.getSnip20Balance(tokenAddress);
 
