@@ -34,7 +34,7 @@ export class SwapPair {
   }
 
   assetIds(): string[] {
-    return this.pair_identifier.split('-');
+    return this.pair_identifier.split('/');
   }
 
   isSymbolInPair(symbol: string): boolean {
@@ -42,7 +42,7 @@ export class SwapPair {
   }
 
   isIdInPair(id: string): boolean {
-    const pairIdentifiers = this.pair_identifier.split('-');
+    const pairIdentifiers = this.pair_identifier.split('/');
 
     for (const pId in pairIdentifiers) {
       if (pId.toLowerCase() === id) {
@@ -75,6 +75,6 @@ export class SwapPair {
 }
 
 export const pairIdFromTokenIds = (id0: string, id1: string): string => {
-  return id0.localeCompare(id1) === -1 ? `${id0}-${id1}` : `${id1}-${id0}`;
+  return id0.localeCompare(id1) === -1 ? `${id0}/${id1}` : `${id1}/${id0}`;
 };
 export type PairMap = Map<string, SwapPair>;

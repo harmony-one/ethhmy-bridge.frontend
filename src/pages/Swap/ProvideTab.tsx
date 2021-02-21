@@ -465,12 +465,12 @@ export class ProvideTab extends React.Component<
               if (JSON.stringify(lpTokenBalance).includes('View')) {
                 return lpTokenBalance;
               } else {
-                return `${currentShareOfPool.multipliedBy(100).toFixed(2)}%`;
+                return `${currentShareOfPool.multipliedBy(100).toFixed(6)}%`;
               }
             })()}
           </div>
         )}
-        {gainedShareOfPool.isGreaterThan(0) && (
+        {!gainedShareOfPool.isNaN() && (
           <div
             style={{
               display: 'flex',
@@ -479,7 +479,7 @@ export class ProvideTab extends React.Component<
           >
             Expected Gain in Your Share of Pool
             <FlexRowSpace />
-            {`~${gainedShareOfPool.multipliedBy(100).toFixed(2)}%`}
+            {`~${gainedShareOfPool.multipliedBy(100).toFixed(6)}%`}
           </div>
         )}
         <PairAnalyticsLink pairAddress={this.props.selectedPair?.contract_addr} />
@@ -553,7 +553,7 @@ export class ProvideTab extends React.Component<
   }
 
   private setAmount(value: string, token: TokenSelector) {
-    if (value === '' || Number(value) === 0) {
+    if (value === '') {
       this.setState(
         {
           inputA: token === TokenSelector.TokenA ? value : this.state.inputA,

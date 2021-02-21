@@ -317,12 +317,12 @@ export type Pair = {
 export const getSymbolsFromPair = (pair: Pair): string[] => {
   const symbols = [];
 
-  if (pair.asset_infos[0].type === 'native_token') {
+  if ('native_token' in pair.asset_infos[0]) {
     symbols.push(pair.asset_infos[0].native_token.denom);
   } else {
     symbols.push(pair.asset_infos[0].token.contract_addr);
   }
-  if (pair.asset_infos[1].type === 'native_token') {
+  if ('native_token' in pair.asset_infos[1]) {
     symbols.push(pair.asset_infos[1].native_token.denom);
   } else {
     symbols.push(pair.asset_infos[1].token.contract_addr);
