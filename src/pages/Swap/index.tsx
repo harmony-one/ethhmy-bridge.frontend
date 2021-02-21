@@ -214,7 +214,7 @@ export class SwapRouter extends React.Component<
 
       await this.refreshBalances({ height, tokenSymbols: symbols, pair });
     } catch (error) {
-      console.log(error);
+      console.log(`Failed to refresh balances: ${error}`);
     }
   }
 

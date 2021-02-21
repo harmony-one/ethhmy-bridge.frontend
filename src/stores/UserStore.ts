@@ -150,7 +150,7 @@ export class UserStoreEx extends StoreConstructor {
         symbolUpdateHeightCache[symbol] = height;
         await this.updateBalanceForSymbol(symbol);
       } catch (error) {
-        console.log(error);
+        console.log(`Error parsing websocket event: ${error}`);
       }
     };
 
@@ -402,11 +402,36 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     await Promise.all([
-      ...this.stores.tokens.allData.map(token => this.updateBalanceForSymbol(token.display_props.symbol)),
+      //...this.stores.tokens.allData.map(token => this.updateBalanceForSymbol(token.display_props.symbol)),
       this.updateBalanceForSymbol('SCRT'),
       this.updateBalanceForSymbol('sSCRT'),
     ]);
   };
+
+  @action public updateScrtBalance = async () => {
+    this.secretjs.getAccount(this.address).then(account => {
+      try {
+        this.balanceSCRT = formatWithSixDecimals(divDecimals(account.balance[0].amount, 6));
+      } catch (e) {
+        this.balanceSCRT = '0';
+      }
+    });
+    return;
+  }
+
+  @action public updateSScrtBalance = async () => {
+    try {
+      const balance = await this.getSnip20Balance(process.env.SSCRT_CONTRACT, 6);
+      if (balance.includes(unlockToken)) {
+        this.balanceToken['sSCRT'] = balance;
+      } else {
+        this.balanceToken['sSCRT'] = formatWithSixDecimals(toFixedTrunc(balance, 6));
+      }
+    } catch (err) {
+      this.balanceToken['sSCRT'] = unlockToken;
+    }
+    return;
+  }
 
   @action public updateBalanceForSymbol = async (symbol: string, tokenAddress?: string) => {
     while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
@@ -427,32 +452,20 @@ export class UserStoreEx extends StoreConstructor {
       return;
     }
 
-    console.log('updating', symbol, 'balance');
-
     if (symbol === 'SCRT') {
-      this.secretjs.getAccount(this.address).then(account => {
-        try {
-          this.balanceSCRT = formatWithSixDecimals(divDecimals(account.balance[0].amount, 6));
-        } catch (e) {
-          this.balanceSCRT = '0';
-        }
-      });
-      return;
-    }
-    if (symbol === 'sSCRT') {
-      try {
-        const balance = await this.getSnip20Balance(process.env.SSCRT_CONTRACT, 6);
-        if (balance.includes(unlockToken)) {
-          this.balanceToken['sSCRT'] = balance;
-        } else {
-          this.balanceToken['sSCRT'] = formatWithSixDecimals(toFixedTrunc(balance, 6));
-        }
-      } catch (err) {
-        this.balanceToken['sSCRT'] = unlockToken;
-      }
-      return;
+      await this.updateScrtBalance();
     }
 
+    if (symbol === 'sSCRT') {
+      await this.updateSScrtBalance();
+    }
+
+    await this.refreshTokenBalance(symbol);
+
+    //await this.refreshRewardsBalances(symbol);
+  };
+
+  private async refreshTokenBalance(symbol: string) {
     const token = this.stores.tokens.allData.find(t => t.display_props.symbol === symbol);
 
     try {
@@ -469,65 +482,67 @@ export class UserStoreEx extends StoreConstructor {
     try {
       this.balanceTokenMin[token.src_coin] = token.display_props.min_from_scrt;
     } catch (e) {
-      // Ethereum?
+      console.log(`unknown error: ${e}`);
     }
+  }
 
-    const rewradsToken = this.stores.rewards.allData.find(t => t.inc_token.symbol === `s${symbol}`);
+  async refreshRewardsBalances(symbol: string) {
+    const rewardsToken = this.stores.rewards.allData.find(t => t.inc_token.symbol === `s${symbol}`);
 
-    if (!rewradsToken) {
+    if (!rewardsToken) {
       console.log('No rewards token for', symbol);
       return;
     }
 
     try {
-      const balance = await this.getBridgeRewardsBalance(rewradsToken.pool_address);
+      const balance = await this.getBridgeRewardsBalance(rewardsToken.pool_address);
 
       if (balance.includes(unlockToken)) {
-        this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = balance;
+        this.balanceRewards[rewardsKey(rewardsToken.inc_token.symbol)] = balance;
       } else {
         // rewards are in the rewards_token decimals
-        this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = divDecimals(
+        this.balanceRewards[rewardsKey(rewardsToken.inc_token.symbol)] = divDecimals(
           balance,
-          rewradsToken.rewards_token.decimals,
+          rewardsToken.rewards_token.decimals,
         ); //divDecimals(balance, token.inc_token.decimals);
       }
     } catch (err) {
-      this.balanceRewards[rewardsKey(rewradsToken.inc_token.symbol)] = unlockToken;
+      this.balanceRewards[rewardsKey(rewardsToken.inc_token.symbol)] = unlockToken;
     }
 
     try {
-      const balance = await this.getBridgeDepositBalance(rewradsToken.pool_address);
+      const balance = await this.getBridgeDepositBalance(rewardsToken.pool_address);
 
       if (balance.includes(unlockToken)) {
-        this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = balance;
+        this.balanceRewards[rewardsDepositKey(rewardsToken.inc_token.symbol)] = balance;
       } else {
-        this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = divDecimals(
+        this.balanceRewards[rewardsDepositKey(rewardsToken.inc_token.symbol)] = divDecimals(
           balance,
-          rewradsToken.inc_token.decimals,
+          rewardsToken.inc_token.decimals,
         );
       }
     } catch (err) {
-      this.balanceRewards[rewardsDepositKey(rewradsToken.inc_token.symbol)] = unlockToken;
+      this.balanceRewards[rewardsDepositKey(rewardsToken.inc_token.symbol)] = unlockToken;
     }
 
     try {
       const balance = await this.getSnip20Balance(
-        rewradsToken.rewards_token.address,
-        rewradsToken.rewards_token.decimals,
+        rewardsToken.rewards_token.address,
+        rewardsToken.rewards_token.decimals,
       );
 
       if (balance.includes(unlockToken)) {
-        this.balanceRewards[rewradsToken.rewards_token.symbol] = balance;
+        this.balanceRewards[rewardsToken.rewards_token.symbol] = balance;
       } else {
-        this.balanceRewards[rewradsToken.rewards_token.symbol] = divDecimals(
+        this.balanceRewards[rewardsToken.rewards_token.symbol] = divDecimals(
           balance,
-          rewradsToken.rewards_token.decimals,
+          rewardsToken.rewards_token.decimals,
         );
       }
     } catch (err) {
-      this.balanceRewards[rewradsToken.rewards_token.symbol] = unlockToken;
+      this.balanceRewards[rewardsToken.rewards_token.symbol] = unlockToken;
     }
-  };
+  }
 
   @action public signOut() {
     this.isAuthorized = false;
