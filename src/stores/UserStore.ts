@@ -150,7 +150,7 @@ export class UserStoreEx extends StoreConstructor {
         symbolUpdateHeightCache[symbol] = height;
         await this.updateBalanceForSymbol(symbol);
       } catch (error) {
-        console.log(error);
+        console.log(`Error parsing websocket event: ${error}`);
       }
     };
 
@@ -333,13 +333,12 @@ export class UserStoreEx extends StoreConstructor {
     if (!this.secretjs) {
       return '0';
     }
-    console.log(`hello I am here - ${snip20Address}`)
+
     const viewingKey = await getViewingKey({
       keplr: this.keplrWallet,
       chainId: this.chainId,
       address: snip20Address,
     });
-    console.log(`Got viewingKey - ${viewingKey}`)
 
     if (!viewingKey) {
       return 'Unlock';
@@ -351,8 +350,6 @@ export class UserStoreEx extends StoreConstructor {
       address: this.address,
       key: viewingKey,
     });
-
-    console.log(`Got balance - ${rawBalance}`)
 
     if (decimals) {
       const decimalsNum = Number(decimals);
