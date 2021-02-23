@@ -40,7 +40,7 @@ export const MainFooter: typeof Box = props => (
     >
       <Box direction="row" align="baseline">
         <a href="https://scrt.network/" style={{ textDecoration: 'none' }} target="_blank" rel="noreferrer">
-          <img style={{ width: 140 }} src="../secret-logo.svg" />
+          <img style={{ width: 140 }} src="../static/secret-logo.svg" />
         </a>
       </Box>
       <Box direction="row" align="baseline" gap="89px">

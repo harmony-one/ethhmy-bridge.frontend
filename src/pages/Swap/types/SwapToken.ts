@@ -17,7 +17,7 @@ export const SwapTokenFromSnip20Params = (address: string, token: Snip20TokenInf
     symbol: token.symbol,
     address: address,
     decimals: token.decimals,
-    logo: '/unknown.png',
+    logo: '/static/unknown.png',
     identifier: address,
     name: token.name,
   };

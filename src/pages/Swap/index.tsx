@@ -149,14 +149,15 @@ export class SwapRouter extends React.Component<
   }
 
   private async refreshBalances(params: { tokenSymbols: string[]; pair?: SwapPair; height?: number }) {
-    let { height, pair, tokenSymbols } = params;
+    const { pair, tokenSymbols } = params;
+    let { height } = params;
 
     if (!height) {
       height = await this.props.user.secretjs.getHeight();
     }
 
     //console.log(`Hello from refreshBalances for height: ${height}`);
-    let balanceTasks = tokenSymbols.map(s => {
+    const balanceTasks = tokenSymbols.map(s => {
       return this.refreshTokenBalance(height, s);
     });
 
@@ -166,7 +167,7 @@ export class SwapRouter extends React.Component<
       balanceTasks.push(this.refreshPoolBalance(pair));
     }
 
-    let results = await Promise.all([...balanceTasks]);
+    const results = await Promise.all([...balanceTasks]);
 
     // flatten array to a single object
     const newObject = Object.assign(
@@ -215,7 +216,7 @@ export class SwapRouter extends React.Component<
   }
 
   private async refreshPoolBalance(pair: SwapPair) {
-    let balances = [];
+    const balances = [];
     try {
       const res: {
         assets: Array<{ amount: string; info: Token | NativeToken }>;

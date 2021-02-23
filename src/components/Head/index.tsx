@@ -77,7 +77,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               margin={{ right: 'small' }}
               onClick={goToBridge}
             >
-              <MainLogo src="/scrt.svg" />
+              <MainLogo src="/static/scrt.svg" />
             </Box> */}
             <a href="/" style={{ textDecoration: 'none' }}>
               <Box>

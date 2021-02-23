@@ -15,7 +15,7 @@ import { isMobile } from 'react-device-detect';
 
 const ethAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" alt={'scrt'} />
+    <img className={styles.imgToken} style={{ height: 20 }} src="/static/eth.svg" alt={'scrt'} />
     <a
       className={styles.addressLink}
       href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
@@ -29,7 +29,7 @@ const ethAddress = (value, num = 10) => (
 
 const secretContractAddress = (value, num = 10) => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" alt={'scrt'} />
+    <img className={styles.imgToken} style={{ height: 18 }} src="/static/scrt.svg" alt={'scrt'} />
     <a
       className={styles.addressLink}
       href={`${process.env.SCRT_EXPLORER_URL}/contracts/${value}`}
