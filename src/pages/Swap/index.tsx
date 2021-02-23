@@ -4,7 +4,7 @@ import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
-import { sleep, unlockToken } from 'utils';
+import { isEmptyObject, sleep, unlockToken } from 'utils';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
@@ -187,11 +187,15 @@ export class SwapRouter extends React.Component<
     try {
       const data = JSON.parse(event.data);
 
+      if (isEmptyObject(data.result)) {
+        return;
+      }
+
       if (data.id === -1) {
         return;
       }
 
-      const symbols: Array<string> = data.id.split('-');
+      const symbols: Array<string> = data.id.split('/');
 
       // refresh selected token balances as well (because why not?)
       if (this.state.selectedToken0) {
@@ -201,15 +205,17 @@ export class SwapRouter extends React.Component<
         symbols.push(this.state.allTokens.get(this.state.selectedToken1)?.identifier);
       }
 
+      const filteredSymbols = [...new Set(symbols)];
+
       // todo: move this to another function
       const height = SwapRouter.getHeightFromEvent(data);
 
-      console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
+      console.log(`Refreshing ${filteredSymbols.join(' and ')} for height ${height}`);
 
       const pairSymbol = data.id;
       const pair = this.state.pairs.get(pairSymbol);
 
-      await this.refreshBalances({ height, tokenSymbols: symbols, pair });
+      await this.refreshBalances({ height, tokenSymbols: filteredSymbols, pair });
     } catch (error) {
       console.log(`Failed to refresh balances: ${error}`);
     }
@@ -257,7 +263,6 @@ export class SwapRouter extends React.Component<
       //console.log(`${tokenSymbol} already fresh for height ${height}`);
       return {};
     }
-    this.symbolUpdateHeightCache[tokenSymbol] = height;
 
     let userBalancePromise; //balance.includes(unlockToken)
     if (tokenSymbol !== 'uscrt') {
@@ -286,7 +291,7 @@ export class SwapRouter extends React.Component<
     } else {
       userBalancePromise = await getNativeBalance(this.props.user.address, this.props.user.secretjs);
     }
-
+    this.symbolUpdateHeightCache[tokenSymbol] = height;
     return { [tokenSymbol]: userBalancePromise };
   }
 
