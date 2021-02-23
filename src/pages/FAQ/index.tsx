@@ -25,9 +25,7 @@ const faqConfig = [
     text: () => (
       <>
         <p>
-          Relax. No matter what happens your Ethereum assets are safely stored in our multisig contract. If, for any
-          reason, there is an outage, error, or other issue with the swap, the bridge operators are ready to step in and
-          manually restore funds.
+          Relax. No matter what happens your Ethereum assets are safely stored in our multisig contract. As long as you've entered a Secret Network address that you control, your funds are safe.
         </p>
         <br />
         <p>
