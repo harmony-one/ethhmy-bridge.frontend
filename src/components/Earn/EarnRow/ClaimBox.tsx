@@ -20,7 +20,7 @@ const ClaimBox = (props: {
   }, [props.available]);
   return (
     <div className={cn(styles.claimBox)}>
-      <div>
+      <div style={{display: "contents"}}>
         <div className={cn(styles.items)}>
           <ScrtTokenBalance
             subtitle={'Available Rewards'}
