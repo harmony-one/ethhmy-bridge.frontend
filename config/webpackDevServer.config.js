@@ -52,5 +52,7 @@ module.exports = function() {
       disableDotRule: true,
     },
     public: allowedHost,
+    transportMode: 'ws',
+    injectClient: false,
   };
 };

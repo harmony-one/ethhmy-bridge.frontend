@@ -163,7 +163,7 @@ export class SwapTab extends React.Component<
           isFromEstimated: offer_amount.isGreaterThanOrEqualTo(0),
           spread: spread_amount.toNumber(),
           commission: commission_amount.toNumber(),
-          priceImpact: spread_amount.dividedBy(offer_amount).toNumber(),
+          priceImpact: spread_amount.dividedBy(ask_amount).toNumber(),
         });
       }
     }

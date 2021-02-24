@@ -4,7 +4,7 @@ import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
-import { sleep, unlockToken } from 'utils';
+import { isEmptyObject, sleep, unlockToken } from 'utils';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
@@ -149,14 +149,15 @@ export class SwapRouter extends React.Component<
   }
 
   private async refreshBalances(params: { tokenSymbols: string[]; pair?: SwapPair; height?: number }) {
-    let { height, pair, tokenSymbols } = params;
+    const { pair, tokenSymbols } = params;
+    let { height } = params;
 
     if (!height) {
       height = await this.props.user.secretjs.getHeight();
     }
 
     //console.log(`Hello from refreshBalances for height: ${height}`);
-    let balanceTasks = tokenSymbols.map(s => {
+    const balanceTasks = tokenSymbols.map(s => {
       return this.refreshTokenBalance(height, s);
     });
 
@@ -166,7 +167,7 @@ export class SwapRouter extends React.Component<
       balanceTasks.push(this.refreshPoolBalance(pair));
     }
 
-    let results = await Promise.all([...balanceTasks]);
+    const results = await Promise.all([...balanceTasks]);
 
     // flatten array to a single object
     const newObject = Object.assign(
@@ -186,11 +187,15 @@ export class SwapRouter extends React.Component<
     try {
       const data = JSON.parse(event.data);
 
+      if (isEmptyObject(data.result)) {
+        return;
+      }
+
       if (data.id === -1) {
         return;
       }
 
-      const symbols: Array<string> = data.id.split('-');
+      const symbols: Array<string> = data.id.split('/');
 
       // refresh selected token balances as well (because why not?)
       if (this.state.selectedToken0) {
@@ -200,26 +205,24 @@ export class SwapRouter extends React.Component<
         symbols.push(this.state.allTokens.get(this.state.selectedToken1)?.identifier);
       }
 
+      const filteredSymbols = [...new Set(symbols)];
+
       // todo: move this to another function
       const height = SwapRouter.getHeightFromEvent(data);
 
-      console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
+      console.log(`Refreshing ${filteredSymbols.join(' and ')} for height ${height}`);
 
       const pairSymbol = data.id;
       const pair = this.state.pairs.get(pairSymbol);
 
-      if (pair !== this.state.selectedPair) {
-        console.log(`Got message for pair other than the selected one ${pair} vs ${this.state.selectedPair}`);
-      }
-
-      await this.refreshBalances({ height, tokenSymbols: symbols, pair });
+      await this.refreshBalances({ height, tokenSymbols: filteredSymbols, pair });
     } catch (error) {
       console.log(`Failed to refresh balances: ${error}`);
     }
   }
 
   private async refreshPoolBalance(pair: SwapPair) {
-    let balances = [];
+    const balances = [];
     try {
       const res: {
         assets: Array<{ amount: string; info: Token | NativeToken }>;
@@ -260,7 +263,6 @@ export class SwapRouter extends React.Component<
       //console.log(`${tokenSymbol} already fresh for height ${height}`);
       return {};
     }
-    this.symbolUpdateHeightCache[tokenSymbol] = height;
 
     let userBalancePromise; //balance.includes(unlockToken)
     if (tokenSymbol !== 'uscrt') {
@@ -289,7 +291,7 @@ export class SwapRouter extends React.Component<
     } else {
       userBalancePromise = await getNativeBalance(this.props.user.address, this.props.user.secretjs);
     }
-
+    this.symbolUpdateHeightCache[tokenSymbol] = height;
     return { [tokenSymbol]: userBalancePromise };
   }
 

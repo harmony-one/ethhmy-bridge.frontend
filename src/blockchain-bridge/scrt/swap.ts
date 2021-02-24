@@ -235,12 +235,10 @@ export const CreateNewPair = async ({
   secretjs,
   tokenA,
   tokenB,
-  notify,
 }: {
   secretjs: SigningCosmWasmClient;
   tokenA: Asset;
   tokenB: Asset;
-  notify: (type: 'success' | 'error', msg: string, closesAfterMs?: number) => void;
 }): Promise<CreatePairResponse> => {
   let asset_infos = [];
   for (const t of [tokenA, tokenB]) {
@@ -253,7 +251,7 @@ export const CreateNewPair = async ({
       try {
         token.token_code_hash = await GetContractCodeHash({ secretjs, address: token.contract_addr });
       } catch (e) {
-        notify('error', `Error fetching code hash for ${t.symbol} ${t.info.token.contract_addr}: ${e.message}`);
+        throw `Error fetching code hash for ${t.symbol} ${t.info.token.contract_addr}: ${e.message}`;
       }
 
       asset_infos.push({ token });
@@ -264,38 +262,25 @@ export const CreateNewPair = async ({
 
   const factoryAddress = process.env.AMM_FACTORY_CONTRACT;
   const pairCodeId = Number(process.env.AMM_PAIR_CODE_ID);
-  let contractAddress;
+  const response: ExecuteResult = await secretjs.execute(
+    factoryAddress,
+    {
+      create_pair: { asset_infos },
+    },
+    '',
+    [],
+    getFeeForExecute(1_000_000),
+  );
+  storeTxResultLocally(response);
+
+  let contractAddress: string;
   try {
-    const response: ExecuteResult = await secretjs.execute(
-      factoryAddress,
-      {
-        create_pair: {
-          asset_infos,
-        },
-      },
-      '',
-      [],
-      getFeeForExecute(1_000_000),
-    );
-    storeTxResultLocally(response);
-
-    if (extractValueFromLogs(response, 'create_pair')) {
-      try {
-        contractAddress = extractValueFromLogs(response, 'contract_address');
-      } catch (_) {
-        if (!contractAddress) {
-          contractAddress = (await secretjs.getContracts(pairCodeId))[-1].address;
-        }
-      }
-    }
-
-    return {
-      contractAddress,
-    };
-  } catch (e) {
-    console.error(`Failed to create pair: ${e}`);
-    throw Error('Failed to create pair');
+    contractAddress = extractValueFromLogs(response, 'pair_contract_addr');
+  } catch (_) {
+    contractAddress = (await secretjs.getContracts(pairCodeId))[-1].address;
   }
+
+  return { contractAddress };
 };
 
 interface GetAllPairsResponse {

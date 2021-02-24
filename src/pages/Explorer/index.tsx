@@ -16,7 +16,7 @@ import { SearchInput } from '../../components/Search';
 
 const ethAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
+    <img className={styles.imgToken} style={{ height: 20 }} src="/static/eth.svg" />
     <a className={styles.addressLink} href={`${process.env.ETH_EXPLORER_URL}/address/${value}`} target="_blank">
       {truncateAddressString(value, 5)}
     </a>
@@ -25,7 +25,7 @@ const ethAddress = value => (
 
 const secretAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/scrt.svg" />
+    <img className={styles.imgToken} style={{ height: 18 }} src="/static/scrt.svg" />
     <a className={styles.addressLink} href={`${process.env.SCRT_EXPLORER_URL}/accounts/${value}`} target="_blank">
       {truncateAddressString(value, 5)}
     </a>

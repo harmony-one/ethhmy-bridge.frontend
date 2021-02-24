@@ -17,7 +17,7 @@ export const SwapTokenFromSnip20Params = (address: string, token: Snip20TokenInf
     symbol: token.symbol,
     address: address,
     decimals: token.decimals,
-    logo: '/unknown.png',
+    logo: '/static/unknown.png',
     identifier: address,
     name: token.name,
   };
@@ -34,9 +34,18 @@ export const TokenMapfromITokenInfo = (tokens: ITokenInfo[]): SwapTokenMap => {
       : validateBech32Address(t.src_address)
       ? t.src_address
       : '';
-    let swapToken: SwapToken = {
+    let symbol;
+    if (t.display_props.symbol === 'SCRT') {
+      symbol = 'SCRT';
+    } else if (t.display_props.symbol.toLowerCase() === 'sscrt') {
+      symbol = 'sSCRT';
+    } else {
+      symbol = 's' + t.display_props.symbol;
+    }
+
+    const swapToken: SwapToken = {
       identifier: secretAddress,
-      symbol: t.display_props.symbol,
+      symbol: symbol,
       logo: t.display_props.image,
       decimals: Number(t.decimals),
       name: t.name,

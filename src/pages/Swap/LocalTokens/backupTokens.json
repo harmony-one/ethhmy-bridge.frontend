@@ -2,14 +2,14 @@
   "holodeck-2": [
     {
       "symbol": "SCRT",
-      "logo": "/scrt.svg",
+      "logo": "/static/scrt.svg",
       "decimals": 6,
       "identifier": "uscrt",
       "name": "Secret"
     },
     {
       "symbol": "sSCRT",
-      "logo": "/scrt.svg",
+      "logo": "/static/scrt.svg",
       "address": "secret1s7c6xp9wltthk5r6mmavql4xld5me3g37guhsx",
       "name": "Secret-Secret",
       "decimals": 6,
@@ -19,7 +19,7 @@
   "secret-2": [
     {
       "symbol": "SCRT",
-      "logo": "/scrt.svg",
+      "logo": "/static/scrt.svg",
       "decimals": 6,
       "identifier": "uscrt",
       "name": "Secret"

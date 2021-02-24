@@ -110,46 +110,48 @@ export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals, exchange, tokens } = useStores();
 
   const [displayedTokens, setDisplayedTokens] = useState<Array<ITokenInfo>>([]);
-  const [displayedBalances, setdisplayedBalances] = useState({  });
+  const [displayedBalances, setdisplayedBalances] = useState({});
 
   useEffect(() => {
-
     const refreshSelectedToken = async () => {
       while (tokens.isPending || !user.secretjs) {
-        await sleep(100)
+        await sleep(100);
       }
 
-      exchange.token === TOKEN.ERC20 ?
-        setDisplayedTokens(tokens.allData
-          .filter(
-            token =>
-              token.display_props &&
-              exchange.token === TOKEN.ERC20 &&
-              user.snip20Address === token.dst_address &&
-              token.name !== 'WSCRT',
-          ))
-        :
-        setDisplayedTokens(tokens.allData.filter(token => token.src_coin === 'Ethereum'));
-    }
+      if (user.snip20Address === process.env.SSCRT_CONTRACT) {
+        user.snip20Balance = user.balanceToken['sSCRT'];
+        user.snip20BalanceMin = user.balanceTokenMin['sSCRT'];
+      }
+
+      exchange.token === TOKEN.ERC20
+        ? setDisplayedTokens(
+            tokens.allData.filter(
+              token =>
+                token.display_props &&
+                exchange.token === TOKEN.ERC20 &&
+                user.snip20Address === token.dst_address &&
+                token.name !== 'WSCRT',
+            ),
+          )
+        : setDisplayedTokens(tokens.allData.filter(token => token.src_coin === 'Ethereum'));
+    };
 
     refreshSelectedToken();
-
   }, [user.secretjs, tokens, user.snip20Address, exchange.token]);
 
   useEffect(() => {
     const updateBalanceForAddress = async () => {
       const balances = [];
       for (const token of displayedTokens) {
-
         await user.updateBalanceForSymbol(token.display_props.symbol);
 
-        console.log(`${user.balanceToken[token.src_coin]}`)
+        console.log(`${user.balanceToken[token.src_coin]}`);
 
         balances[token.display_props.symbol] = user.balanceToken[token.src_coin];
       }
 
       setdisplayedBalances(balances);
-    }
+    };
 
     updateBalanceForAddress();
   }, [user, displayedTokens]);
@@ -162,7 +164,7 @@ export const WalletBalances = observer(() => {
         <Box direction="column" margin={{ bottom: 'large' }}>
           <Box direction="row" align="center" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img className={styles.imgToken} src="/static/eth.svg" />
               <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
               <Text margin={{ top: '4px' }}>(Metamask)</Text>
             </Box>
@@ -223,7 +225,7 @@ export const WalletBalances = observer(() => {
         <Box direction="column">
           <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/scrt.svg" />
+              <img className={styles.imgToken} src="/static/scrt.svg" />
               <Title margin={{ right: 'xsmall' }}>Secret Network</Title>
               <Text margin={{ top: '4px' }}>(Keplr)</Text>
             </Box>
@@ -267,24 +269,23 @@ export const WalletBalances = observer(() => {
               {/*    selected={true}*/}
               {/*  />*/}
               {/*) : null}*/}
-              {displayedTokens
-                .map((token, idx) => {
-                  return (
-                    <AssetRow
-                      key={idx}
-                      asset={getTokenName(TOKEN.S20, token)}
-                      value={displayedBalances[token.display_props.symbol]}
-                      token={token}
-                      userStore={user}
-                      link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
-                      selected={
-                        exchange.token === TOKEN.ERC20 &&
-                        exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
-                        user.snip20Address === token.dst_address
-                      }
-                    />
-                  );
-                })}
+              {displayedTokens.map((token, idx) => {
+                return (
+                  <AssetRow
+                    key={idx}
+                    asset={getTokenName(TOKEN.S20, token)}
+                    value={displayedBalances[token.display_props.symbol]}
+                    token={token}
+                    userStore={user}
+                    link={`${process.env.SCRT_EXPLORER_URL}/contracts/${token.dst_address}`}
+                    selected={
+                      exchange.token === TOKEN.ERC20 &&
+                      exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH &&
+                      user.snip20Address === token.dst_address
+                    }
+                  />
+                );
+              })}
             </>
           ) : (
             <Box direction="row" align="baseline" justify="start">
