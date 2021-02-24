@@ -402,7 +402,6 @@ export class UserStoreEx extends StoreConstructor {
 
   @action public getBalances = async () => {
     await Promise.all([
-      //...this.stores.tokens.allData.map(token => this.updateBalanceForSymbol(token.display_props.symbol)),
       this.updateBalanceForSymbol('SCRT'),
       this.updateBalanceForSymbol('sSCRT'),
     ]);
@@ -433,30 +432,24 @@ export class UserStoreEx extends StoreConstructor {
     return;
   }
 
-  @action public updateBalanceForSymbol = async (symbol: string, tokenAddress?: string) => {
+  @action public updateBalanceForRewardsToken = async (tokenAddress: string) => {
+    while (!this.address && !this.secretjs && this.stores.tokens.isPending) {
+      await sleep(100);
+    }
+
+
+  }
+
+  @action public updateBalanceForSymbol = async (symbol: string) => {
     while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
       await sleep(100);
     }
 
-    if (!symbol && tokenAddress === process.env.SSCRT_CONTRACT) {
-      symbol = 'sSCRT';
-    }
-    if (!symbol && tokenAddress) {
-      try {
-        symbol = this.stores.tokens.allData.find(t => t.dst_address === tokenAddress).display_props.symbol;
-      } catch (error) {
-        console.error('Error finding symbol for SNIP20 address', tokenAddress, error);
-      }
-    }
     if (!symbol) {
       return;
-    }
-
-    if (symbol === 'SCRT') {
+    } else if (symbol === 'SCRT') {
       await this.updateScrtBalance();
-    }
-
-    if (symbol === 'sSCRT') {
+    } else if (symbol === 'sSCRT') {
       await this.updateSScrtBalance();
     }
 

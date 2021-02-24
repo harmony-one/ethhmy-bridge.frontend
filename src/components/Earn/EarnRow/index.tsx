@@ -103,7 +103,7 @@ class EarnRow extends Component<
     const newIndex = activeIndex === index ? -1 : index;
 
     this.setState({ activeIndex: newIndex });
-    this.props.userStore.refreshRewardsBalances(this.props.token.display_props.symbol)
+    this.props.userStore.refreshRewardsBalances(this.props.token.display_props.symbol);
   };
 
   togglePulse = () =>
