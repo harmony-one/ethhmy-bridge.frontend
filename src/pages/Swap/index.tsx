@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
@@ -25,16 +25,26 @@ import cogoToast from 'cogo-toast';
 import { pairIdFromTokenIds, PairMap, SwapPair } from './types/SwapPair';
 import { KeplrButton } from '../../components/Secret/KeplrButton';
 import { NativeToken, Token } from './types/trade';
+import { SecretSwapPairs } from 'stores/SecretSwapPairs';
 
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
-  const { user, tokens } = useStores();
+  const { user, tokens, secretSwapPairs } = useStores();
 
-  return <SwapRouter user={user} tokens={tokens} />;
+  useEffect(() => {
+    secretSwapPairs.init({
+      isLocal: true,
+      sorter: 'none',
+      pollingInterval: 30000,
+    });
+    secretSwapPairs.fetch();
+  }, [secretSwapPairs]);
+
+  return <SwapRouter user={user} tokens={tokens} pairs={secretSwapPairs} />;
 });
 
 export class SwapRouter extends React.Component<
-  { user: UserStoreEx; tokens: Tokens },
+  { user: UserStoreEx; tokens: Tokens; pairs: SecretSwapPairs },
   {
     allTokens: SwapTokenMap;
     balances: { [symbol: string]: BigNumber | JSX.Element };
@@ -63,7 +73,7 @@ export class SwapRouter extends React.Component<
     queries: [],
   };
 
-  constructor(props: { user: UserStoreEx; tokens: Tokens }) {
+  constructor(props: { user: UserStoreEx; tokens: Tokens; pairs: SecretSwapPairs }) {
     super(props);
     window.onhashchange = this.onHashChange;
   }
@@ -75,6 +85,10 @@ export class SwapRouter extends React.Component<
   async componentDidUpdate(previousProps, prevState) {
     if (previousProps.tokens.allData.length !== this.props.tokens.allData.length) {
       await this.updateTokens();
+    }
+
+    if (previousProps.pairs.allData.length !== this.props.pairs.allData.length) {
+      await this.updatePairs();
     }
 
     const tokensToRefresh = [];
@@ -498,7 +512,7 @@ export class SwapRouter extends React.Component<
 
     let pairs = [];
     try {
-      pairs = (await GetAllPairs({ secretjs: this.props.user.secretjs })).pairs;
+      pairs = Array.from(this.props.pairs.allData);
     } catch (error) {
       this.notify('error', `Cannot fetch list of pairs: ${error.message}`);
       return;
