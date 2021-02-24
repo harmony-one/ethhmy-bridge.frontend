@@ -467,7 +467,6 @@ export class UserStoreEx extends StoreConstructor {
 
   private async refreshTokenBalance(symbol: string) {
     const token = this.stores.tokens.allData.find(t => t.display_props.symbol === symbol);
-    console.log(`hello2 - ${token.display_props.symbol}`);
     try {
       const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
       if (balance.includes(unlockToken)) {
@@ -488,7 +487,6 @@ export class UserStoreEx extends StoreConstructor {
 
   async refreshRewardsBalances(symbol: string) {
     const rewardsToken = this.stores.rewards.allData.find(t => t.inc_token.symbol === `s${symbol}`);
-    console.log(`hello2 - ${rewardsToken.inc_token.symbol}`);
     if (!rewardsToken) {
       console.log('No rewards token for', symbol);
       return;
