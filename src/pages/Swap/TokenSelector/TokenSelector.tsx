@@ -67,11 +67,10 @@ export const TokenSelector = (props: {
         {props.tokens.length > 0 ? (
           <div style={{ display: 'flex' }}>
             <input
+              autoFocus
               className={cn(styles.tokenSelectorSearch)}
               placeholder="Search symbol or paste address"
-              onChange={e => {
-                setSearchText(e.target.value.trim());
-              }}
+              onChange={e => setSearchText(e.target.value.trim().toLowerCase())}
             />
           </div>
         ) : null}
