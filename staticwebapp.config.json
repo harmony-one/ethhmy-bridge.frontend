@@ -1,0 +1,20 @@
+{
+    "routes": [
+        {
+            "route": "/static/*",
+            "headers": {
+                "cache-control": "must-revalidate, max-age=15770000"
+            }
+        }
+    ],
+    "navigationFallback": {
+      "rewrite": "index.html",
+      "exclude": ["/static/*.{png,jpg,gif,svg}", "/css/*"]
+    },
+    "globalHeaders": {
+        "content-security-policy": "default-src https: 'unsafe-eval' 'unsafe-inline'; object-src 'none'"
+    },
+    "mimeTypes": {
+        ".json": "text/json"
+    },
+}

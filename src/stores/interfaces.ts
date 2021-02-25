@@ -1,3 +1,4 @@
+import { NativeToken, Token } from 'pages/Swap/types/trade';
 import { SwapStatus } from '../constants';
 
 export enum EXCHANGE_MODE {
@@ -117,4 +118,17 @@ export interface IRewardPool {
   total_locked: string;
   pending_rewards: string;
   deadline: string;
+}
+
+export interface ISecretSwapPair {
+  asset_infos: Array<Token | NativeToken>;
+  contract_addr: string;
+  liquidity_token: string;
+  token_code_hash: string;
+  asset0_volume: string;
+  asset1_volume: string;
+  factory: {
+    address: string;
+    code_hash: string;
+  };
 }
