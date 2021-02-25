@@ -10,7 +10,6 @@ import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
-// import { ERC20Select } from '../Exchange/ERC20Select';
 
 const LargeButton = (props: {
   title: string;
@@ -30,16 +29,16 @@ const LargeButton = (props: {
     >
       <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
         <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/eth.svg" />
+          <img className={styles.imgToken} src="/static/eth.svg" />
           <Text size="large" className={styles.title}>
             ETH
           </Text>
         </Box>
         <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
-          <img src="/right.svg" />
+          <img src="/static/right.svg" />
         </Box>
         <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/scrt.svg" />
+          <img className={styles.imgToken} src="/static/scrt.svg" />
           <Text size="large" className={styles.title}>
             Secret
           </Text>
@@ -64,7 +63,7 @@ export const EthBridge = observer((props: any) => {
     rewards.fetch();
 
     if (props.match.params.token) {
-      if ([TOKEN.LINK, TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {
+      if ([TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {
         exchange.setToken(props.match.params.token);
       } else {
         routing.push(TOKEN.ETH);

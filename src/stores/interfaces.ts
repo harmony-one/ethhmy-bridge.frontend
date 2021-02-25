@@ -8,7 +8,6 @@ export enum EXCHANGE_MODE {
 
 export enum TOKEN {
   ETH = 'eth',
-  LINK = 'link',
   ERC20 = 'erc20',
   S20 = 'secret20',
 }

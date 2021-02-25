@@ -164,7 +164,7 @@ export const WalletBalances = observer(() => {
         <Box direction="column" margin={{ bottom: 'large' }}>
           <Box direction="row" align="center" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/eth.svg" />
+              <img className={styles.imgToken} src="/static/eth.svg" />
               <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
               <Text margin={{ top: '4px' }}>(Metamask)</Text>
             </Box>
@@ -225,7 +225,7 @@ export const WalletBalances = observer(() => {
         <Box direction="column">
           <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
             <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/scrt.svg" />
+              <img className={styles.imgToken} src="/static/scrt.svg" />
               <Title margin={{ right: 'xsmall' }}>Secret Network</Title>
               <Text margin={{ top: '4px' }}>(Keplr)</Text>
             </Box>
