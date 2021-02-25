@@ -590,16 +590,19 @@ export class ProvideTab extends React.Component<
       // switch
       this.setState(
         {
-          tokenA: token === TokenSelector.TokenA ? symbol : this.state.tokenB,
-          isEstimatedA: this.state.isEstimatedB,
+          tokenA: this.state.tokenB,
+          tokenB: this.state.tokenA,
           inputA: this.state.inputB,
-          allowanceA: this.state.allowanceB,
-          tokenB: token === TokenSelector.TokenA ? this.state.tokenA : symbol,
-          isEstimatedB: this.state.isEstimatedA,
           inputB: this.state.inputA,
+          isEstimatedA: this.state.isEstimatedB,
+          isEstimatedB: this.state.isEstimatedA,
+          allowanceA: this.state.allowanceB,
           allowanceB: this.state.allowanceA,
         },
-        () => this.updateInputs(),
+        () => {
+          this.updateInputs();
+          this.props.onSetTokens(this.state.tokenA, this.state.tokenB);
+        },
       );
     } else {
       this.setState(
@@ -613,16 +616,11 @@ export class ProvideTab extends React.Component<
         },
         () => {
           this.updateInputs();
-
           this.updateAllowance(token === TokenSelector.TokenA ? this.state.tokenA : this.state.inputB);
+          this.props.onSetTokens(this.state.tokenA, this.state.tokenB);
         },
       );
     }
-
-    // we use 'symbol' instead of this.state.tokenB/A since the setState that sets the state happens after this
-    token === TokenSelector.TokenA
-      ? await this.props.onSetTokens(symbol, this.state.tokenB)
-      : await this.props.onSetTokens(this.state.tokenA, symbol);
   }
 
   private isReadyForNewPool() {

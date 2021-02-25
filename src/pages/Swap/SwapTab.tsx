@@ -518,6 +518,14 @@ export class SwapTab extends React.Component<
   };
 
   private async setToToken(identifier: string) {
+    const setStateCallback = async () => {
+      if (this.state.fromToken) {
+        await this.updateInputs();
+      }
+
+      await this.props.onSetTokens(this.state.fromToken, identifier);
+    };
+
     if (identifier === this.state.fromToken) {
       // switch
       this.setState(
@@ -529,7 +537,7 @@ export class SwapTab extends React.Component<
           fromInput: this.state.toInput,
           toInput: this.state.fromInput,
         },
-        //() => this.updateInputs(),
+        setStateCallback,
       );
     } else {
       this.setState(
@@ -539,41 +547,43 @@ export class SwapTab extends React.Component<
           isToEstimated: true,
           isFromEstimated: false,
         },
-        // () => this.updateInputs(),
+        setStateCallback,
       );
-    }
-
-    await this.props.onSetTokens(this.state.fromToken, identifier);
-
-    if (this.state.fromToken) {
-      await this.updateInputs();
     }
   }
 
   private async setFromToken(identifier: string) {
+    const setStateCallback = async () => {
+      if (this.state.toToken) {
+        await this.updateInputs();
+      }
+
+      await this.props.onSetTokens(identifier, this.state.toToken);
+    };
+
     if (identifier === this.state.toToken) {
       // switch
-      this.setState({
-        fromToken: identifier,
-        toToken: this.state.fromToken,
-        isFromEstimated: this.state.isToEstimated,
-        isToEstimated: this.state.isFromEstimated,
-        fromInput: this.state.toInput,
-        toInput: this.state.fromInput,
-      });
+      this.setState(
+        {
+          fromToken: identifier,
+          toToken: this.state.fromToken,
+          isFromEstimated: this.state.isToEstimated,
+          isToEstimated: this.state.isFromEstimated,
+          fromInput: this.state.toInput,
+          toInput: this.state.fromInput,
+        },
+        setStateCallback,
+      );
     } else {
-      this.setState({
-        fromToken: identifier,
-        fromInput: '',
-        isFromEstimated: true,
-        isToEstimated: false,
-      });
-    }
-
-    await this.props.onSetTokens(identifier, this.state.toToken);
-
-    if (this.state.toToken) {
-      await this.updateInputs();
+      this.setState(
+        {
+          fromToken: identifier,
+          fromInput: '',
+          isFromEstimated: true,
+          isToEstimated: false,
+        },
+        setStateCallback,
+      );
     }
   }
 }
