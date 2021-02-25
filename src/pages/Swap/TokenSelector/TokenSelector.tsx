@@ -10,6 +10,8 @@ import Loader from 'react-loader-spinner';
 import { ClearCustomTokensButton } from './ClearCustomTokens';
 import { ExitIcon } from '../../../ui/Icons/ExitIcon';
 import { SwapToken, SwapTokenFromSnip20Params } from '../types/SwapToken';
+import cn from 'classnames';
+import * as styles from './styles.styl';
 
 export const TokenSelector = (props: {
   secretjs: SigningCosmWasmClient;
@@ -21,6 +23,7 @@ export const TokenSelector = (props: {
   const [open, setOpen] = React.useState(false);
   const [localToken, setLocalToken] = React.useState<string>('');
   const [localStorageTokens, setLocalStorageToken] = React.useState<SwapToken[]>(null);
+  const [searchText, setSearchText] = React.useState<string>('');
 
   React.useEffect(() => {
     const addToken = async () => {
@@ -36,11 +39,12 @@ export const TokenSelector = (props: {
         setLocalStorageToken(LocalStorageTokens.get());
       }
     };
-    addToken()
-      .catch
-      // todo: add notification of failures
-      ();
+    addToken().catch(/* todo: add notification of failures */);
   }, [props.secretjs, localToken]);
+
+  const filteredTokens = props.tokens.filter(t => {
+    return (t.symbol + String(t.address)).toLowerCase().includes(searchText);
+  });
 
   return (
     <Modal
@@ -60,38 +64,58 @@ export const TokenSelector = (props: {
         </div>
       </Modal.Header>
       <Modal.Content>
+        <div style={{ display: 'flex' }}>
+          <input
+            className={cn(styles.tokenSelectorSearch)}
+            placeholder="Search symbol or paste address"
+            onChange={e => {
+              setSearchText(e.target.value.trim());
+            }}
+          />
+        </div>
         {props.tokens.length > 0 ? (
-          props.tokens
-            .sort((a, b) => {
-              /* sSCRT first */
-              if (a.symbol === 'sSCRT') {
-                return -1;
-              }
-              if (b.symbol === 'sSCRT') {
-                return 1;
-              }
-              /* then sUNILP-WSCRT-ETH ? */
-              // if (a.symbol === 'sUNILP-WSCRT-ETH') {
-              //   return -1;
-              // }
-              // if (b.symbol === 'sUNILP-WSCRT-ETH') {
-              //   return 1;
-              // }
+          filteredTokens.length === 0 ? (
+            <div
+              style={{ display: 'flex', justifyContent: 'center', fontSize: '16px', fontWeight: 500, padding: '30px' }}
+            >
+              No results found.
+            </div>
+          ) : (
+            filteredTokens
+              .sort((a, b) => {
+                /* sSCRT first */
+                if (a.symbol === 'sSCRT') {
+                  return -1;
+                }
+                if (b.symbol === 'sSCRT') {
+                  return 1;
+                }
+                /* then sUNILP-WSCRT-ETH ? */
+                // if (a.symbol === 'sUNILP-WSCRT-ETH') {
+                //   return -1;
+                // }
+                // if (b.symbol === 'sUNILP-WSCRT-ETH') {
+                //   return 1;
+                // }
 
-              return 0;
-            })
-            .map(t => {
-              return (
-                <TokenInfoRow
-                  key={t.identifier}
-                  token={t}
-                  onClick={() => {
-                    props?.onClick ? props.onClick(t.identifier) : (() => {})();
-                    setOpen(false);
-                  }}
-                />
-              );
-            })
+                const aSymbol = a.symbol.replace(/^s/, '');
+                const bSymbol = b.symbol.replace(/^s/, '');
+
+                return aSymbol.localeCompare(bSymbol);
+              })
+              .map(t => {
+                return (
+                  <TokenInfoRow
+                    key={t.identifier}
+                    token={t}
+                    onClick={() => {
+                      props?.onClick ? props.onClick(t.identifier) : (() => {})();
+                      setOpen(false);
+                    }}
+                  />
+                );
+              })
+          )
         ) : (
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <Loader type="ThreeDots" color="#00BFFF" height="0.5em" />
