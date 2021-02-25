@@ -16,7 +16,7 @@ import { BetaWarning } from '../../components/Swap/BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
-import { ITokenInfo } from '../../stores/interfaces';
+import { ISecretSwapPair, ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
 import { GetAllPairs, getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
@@ -38,7 +38,7 @@ export const SwapPageWrapper = observer(() => {
       pollingInterval: 30000,
     });
     secretSwapPairs.fetch();
-  }, [secretSwapPairs]);
+  }, []);
 
   return <SwapRouter user={user} tokens={tokens} pairs={secretSwapPairs} />;
 });
@@ -55,9 +55,7 @@ export class SwapRouter extends React.Component<
   private ws: WebSocket;
   public state: {
     allTokens: SwapTokenMap;
-    balances: {
-      [symbol: string]: BigNumber | JSX.Element;
-    };
+    balances: { [symbol: string]: BigNumber | JSX.Element };
     pairs: PairMap;
     selectedPair: SwapPair | undefined;
     selectedToken0: string;
@@ -508,15 +506,9 @@ export class SwapRouter extends React.Component<
 
   updatePairs = async () => {
     // gather tokens from our list, and from local storage
-    await this.updateTokens();
+    this.updateTokens();
 
-    let pairs = [];
-    try {
-      pairs = Array.from(this.props.pairs.allData);
-    } catch (error) {
-      this.notify('error', `Cannot fetch list of pairs: ${error.message}`);
-      return;
-    }
+    let pairs: ISecretSwapPair[] = Array.from(this.props.pairs.allData);
 
     // filter all pairs that aren't known tokens
     pairs = pairs.filter(p => {
