@@ -64,15 +64,17 @@ export const TokenSelector = (props: {
         </div>
       </Modal.Header>
       <Modal.Content>
-        <div style={{ display: 'flex' }}>
-          <input
-            className={cn(styles.tokenSelectorSearch)}
-            placeholder="Search symbol or paste address"
-            onChange={e => {
-              setSearchText(e.target.value.trim());
-            }}
-          />
-        </div>
+        {props.tokens.length > 0 ? (
+          <div style={{ display: 'flex' }}>
+            <input
+              className={cn(styles.tokenSelectorSearch)}
+              placeholder="Search symbol or paste address"
+              onChange={e => {
+                setSearchText(e.target.value.trim());
+              }}
+            />
+          </div>
+        ) : null}
         {props.tokens.length > 0 ? (
           filteredTokens.length === 0 ? (
             <div
