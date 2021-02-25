@@ -5,7 +5,6 @@ import { MainFooter } from 'components';
 import { withTheme } from 'styled-components';
 import { IStyledChildrenProps } from 'interfaces';
 //import * as styles from './styles.styl';
-import { Disclaimer } from '../DisclaimerWarning';
 
 export const BaseContainer: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
   ({ theme, children, ...props }: IStyledChildrenProps<BoxProps>) => {
@@ -40,7 +39,6 @@ export const BaseContainer: React.FC<IStyledChildrenProps<BoxProps>> = withTheme
             }}
             {...props}
           >
-            {process.env.NODE_ENV === 'testnet' ? <Disclaimer /> : null}
             {children}
           </Box>
           <MainFooter />

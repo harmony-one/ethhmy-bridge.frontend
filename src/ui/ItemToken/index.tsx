@@ -6,10 +6,9 @@ import * as styles from './styles.styl';
 import { TOKEN } from 'stores/interfaces';
 
 const icons: Record<TOKEN, string> = {
-  [TOKEN.ETH]: '/eth.svg',
-  [TOKEN.LINK]: '/link.png',
-  [TOKEN.ERC20]: '/eth.svg',
-  [TOKEN.S20]: '/eth.svg',
+  [TOKEN.ETH]: '/static/eth.svg',
+  [TOKEN.ERC20]: '/static/eth.svg',
+  [TOKEN.S20]: '/static/eth.svg',
 };
 
 export const ItemToken = ({ selected, onClick, tokenType }) => {

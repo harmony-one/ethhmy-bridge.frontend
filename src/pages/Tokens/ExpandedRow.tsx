@@ -170,7 +170,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             >
               <Box direction="row" align="center">
                 <img
-                  src={isEth(action.type) ? '/eth.svg' : 'scrt.svg'}
+                  src={isEth(action.type) ? '/static/eth.svg' : 'scrt.svg'}
                   style={{
                     marginRight: 15,
                     marginBottom: 2,

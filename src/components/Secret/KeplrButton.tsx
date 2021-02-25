@@ -28,7 +28,7 @@ export const KeplrButton = observer((props: { disabled?: boolean; loading?: bool
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <img src="/scrt.svg" style={{ height: '24px' }} alt={'scrt'} />
+        <img src="/static/scrt.svg" style={{ height: '24px' }} alt={'scrt'} />
         <span style={{ margin: '0 0.3em' }}>
           {user.secretjs ? <SecretAddress address={user.address} /> : <LoginText />}
         </span>

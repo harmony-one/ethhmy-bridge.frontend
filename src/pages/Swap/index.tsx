@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
-import { sleep, unlockToken } from 'utils';
+import { isEmptyObject, sleep, unlockToken } from 'utils';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
@@ -18,7 +18,7 @@ import { GetSnip20Params } from '../../blockchain-bridge';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ISecretSwapPair, ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
-import { GetAllPairs, getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
+import { getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
@@ -30,15 +30,12 @@ import { SecretSwapPairs } from 'stores/SecretSwapPairs';
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   const { user, tokens, secretSwapPairs } = useStores();
-
-  useEffect(() => {
-    secretSwapPairs.init({
-      isLocal: true,
-      sorter: 'none',
-      pollingInterval: 30000,
-    });
-    secretSwapPairs.fetch();
-  }, []);
+  secretSwapPairs.init({
+    isLocal: true,
+    sorter: 'none',
+    pollingInterval: 60000,
+  });
+  secretSwapPairs.fetch();
 
   return <SwapRouter user={user} tokens={tokens} pairs={secretSwapPairs} />;
 });
@@ -127,7 +124,7 @@ export class SwapRouter extends React.Component<
       await this.updateTokens();
     }
 
-    while (!this.props.user.secretjs) {
+    while (this.props.pairs.isPending || this.props.tokens.isPending) {
       await sleep(100);
     }
 
@@ -161,14 +158,15 @@ export class SwapRouter extends React.Component<
   }
 
   private async refreshBalances(params: { tokenSymbols: string[]; pair?: SwapPair; height?: number }) {
-    let { height, pair, tokenSymbols } = params;
+    const { pair, tokenSymbols } = params;
+    let { height } = params;
 
     if (!height) {
       height = await this.props.user.secretjs.getHeight();
     }
 
     //console.log(`Hello from refreshBalances for height: ${height}`);
-    let balanceTasks = tokenSymbols.map(s => {
+    const balanceTasks = tokenSymbols.map(s => {
       return this.refreshTokenBalance(height, s);
     });
 
@@ -178,7 +176,7 @@ export class SwapRouter extends React.Component<
       balanceTasks.push(this.refreshPoolBalance(pair));
     }
 
-    let results = await Promise.all([...balanceTasks]);
+    const results = await Promise.all([...balanceTasks]);
 
     // flatten array to a single object
     const newObject = Object.assign(
@@ -198,11 +196,15 @@ export class SwapRouter extends React.Component<
     try {
       const data = JSON.parse(event.data);
 
+      if (isEmptyObject(data.result)) {
+        return;
+      }
+
       if (data.id === -1) {
         return;
       }
 
-      const symbols: Array<string> = data.id.split('-');
+      const symbols: Array<string> = data.id.split('/');
 
       // refresh selected token balances as well (because why not?)
       if (this.state.selectedToken0) {
@@ -212,22 +214,24 @@ export class SwapRouter extends React.Component<
         symbols.push(this.state.allTokens.get(this.state.selectedToken1)?.identifier);
       }
 
+      const filteredSymbols = [...new Set(symbols)];
+
       // todo: move this to another function
       const height = SwapRouter.getHeightFromEvent(data);
 
-      console.log(`Refreshing ${symbols.join(' and ')} for height ${height}`);
+      console.log(`Refreshing ${filteredSymbols.join(' and ')} for height ${height}`);
 
       const pairSymbol = data.id;
       const pair = this.state.pairs.get(pairSymbol);
 
-      await this.refreshBalances({ height, tokenSymbols: symbols, pair });
+      await this.refreshBalances({ height, tokenSymbols: filteredSymbols, pair });
     } catch (error) {
       console.log(`Failed to refresh balances: ${error}`);
     }
   }
 
   private async refreshPoolBalance(pair: SwapPair) {
-    let balances = [];
+    const balances = [];
     try {
       const res: {
         assets: Array<{ amount: string; info: Token | NativeToken }>;
@@ -268,7 +272,6 @@ export class SwapRouter extends React.Component<
       //console.log(`${tokenSymbol} already fresh for height ${height}`);
       return {};
     }
-    this.symbolUpdateHeightCache[tokenSymbol] = height;
 
     let userBalancePromise; //balance.includes(unlockToken)
     if (tokenSymbol !== 'uscrt') {
@@ -297,7 +300,7 @@ export class SwapRouter extends React.Component<
     } else {
       userBalancePromise = await getNativeBalance(this.props.user.address, this.props.user.secretjs);
     }
-
+    this.symbolUpdateHeightCache[tokenSymbol] = height;
     return { [tokenSymbol]: userBalancePromise };
   }
 
@@ -488,6 +491,8 @@ export class SwapRouter extends React.Component<
         allTokens: swapTokens,
       };
     });
+
+    return swapTokens;
   };
 
   setCurrentPair = async (token0: string, token1: string) => {
@@ -506,14 +511,14 @@ export class SwapRouter extends React.Component<
 
   updatePairs = async () => {
     // gather tokens from our list, and from local storage
-    this.updateTokens();
+    const tokens = this.updateTokens();
 
     let pairs: ISecretSwapPair[] = Array.from(this.props.pairs.allData);
 
     // filter all pairs that aren't known tokens
     pairs = pairs.filter(p => {
       for (const s of getSymbolsFromPair(p)) {
-        if (!this.state.allTokens.has(s)) {
+        if (!tokens.has(s)) {
           return false;
         }
       }
@@ -524,7 +529,7 @@ export class SwapRouter extends React.Component<
     const newPairs: PairMap = new Map<string, SwapPair>();
 
     for (const p of pairs) {
-      const newPair = SwapPair.fromPair(p, this.state.allTokens);
+      const newPair = SwapPair.fromPair(p, tokens);
       newPairs.set(newPair.identifier(), newPair);
     }
 

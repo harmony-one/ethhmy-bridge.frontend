@@ -21,37 +21,37 @@ export const FinancePage = () => {
        <section className={styles.defiProducts}>
          <div className={styles.defiProduct}>
           <div className={styles.defiImage}>
-            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/defi01.svg`} alt="logo"/>
+            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/static/defi01.svg`} alt="logo"/>
           </div>
           <h2 className={styles.defiTitle}>SCRT</h2>
           <p className={styles.defiDescription}>Navigate different use-cases for SCRT in Secret Network</p>
          </div>
          <div className={styles.defiProduct}>
           <div className={styles.defiImage}>
-            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/defi02.svg`} alt="logo"/>
+            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/static/defi02.svg`} alt="logo"/>
           </div>
           <h2 className={styles.defiTitle}>Bridge</h2>
           <p className={styles.defiDescription}>Turn your Ethereum assets to Private Tokens on the Secret Network</p>
-          <a href="/eth"><img className={styles.imgArrowLink} src={`${process.env.PUBLIC_URL}/arrow-go.svg`} alt="defi-product"/></a>
+          <a href="/eth"><img className={styles.imgArrowLink} src={`${process.env.PUBLIC_URL}/static/arrow-go.svg`} alt="defi-product"/></a>
          </div>
          <div className={styles.defiProduct}>
           <div className={styles.defiImage}>
-            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/defi03.svg`} alt="defi-product"/>
+            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/static/defi03.svg`} alt="defi-product"/>
           </div>
           <h2 className={styles.defiTitle}>SecretSwap</h2>
           <p className={styles.defiDescription}>Front-running resistant AMM for secretTokens</p>
          </div>
          <div className={styles.defiProduct}>
           <div className={styles.defiImage}>
-            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/defi04.svg`} alt="defi-product"/>
+            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/static/defi04.svg`} alt="defi-product"/>
           </div>
           <h2 className={styles.defiTitle}>Auction</h2>
           <p className={styles.defiDescription}>Sealed bid auctions for large quantity Over-The-Counter book trading for secretTokens</p>
-          <a target="blank" href="https://auctions.scrt.network/"><img className={styles.imgArrowLink} src={`${process.env.PUBLIC_URL}/arrow-go.svg`} alt="defi-product"/></a>
+          <a target="blank" href="https://auctions.scrt.network/"><img className={styles.imgArrowLink} src={`${process.env.PUBLIC_URL}/static/arrow-go.svg`} alt="defi-product"/></a>
          </div>
          <div className={styles.defiProduct}>
           <div className={styles.defiImage}>
-            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/defi05.svg`} alt="logo"/>
+            <img className="img-fluid" src={`${process.env.PUBLIC_URL}/static/defi05.svg`} alt="logo"/>
           </div>
           <h2 className={styles.defiTitle}>Earn</h2>
           <p className={styles.defiDescription}>Explore yield opportunities in Secret Network</p>

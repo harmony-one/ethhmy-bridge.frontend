@@ -36,7 +36,6 @@
     "rc-table": "^7.13.1",
     "rc-tooltip": "^4.2.1",
     "react": "16.12.0",
-    "react-cookie-banner": "^4.1.0",
     "react-copy-to-clipboard": "5.0.2",
     "react-device-detect": "1.15.0",
     "react-dom": "16.12.0",

@@ -217,7 +217,7 @@ export class Exchange extends React.Component<
             >
               <img
                 className={styles.imgToken}
-                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/eth.svg' : '/scrt.svg'}
+                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/static/eth.svg' : '/static/scrt.svg'}
               />
               <Text>{exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'secretETH' : 'ETH'}</Text>
             </Box>
@@ -231,7 +231,7 @@ export class Exchange extends React.Component<
             >
               <img
                 className={styles.imgToken}
-                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/eth.svg' : '/scrt.svg'}
+                src={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? '/static/eth.svg' : '/static/scrt.svg'}
               />
               <Text>{exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'SNIP20' : 'ERC20'}</Text>
             </Box>
