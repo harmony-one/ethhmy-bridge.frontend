@@ -62,8 +62,24 @@ export const TokenSelector = (props: {
       <Modal.Content>
         {props.tokens.length > 0 ? (
           props.tokens
-            .sort(a => (a.symbol.toLowerCase().includes('scrt') ? -1 : 1))
-            .sort(a => (a.identifier === 'uscrt' ? -1 : 1)) // consider removing if we don't care about scrt, or do this more efficiently?
+            .sort((a, b) => {
+              /* sSCRT first */
+              if (a.symbol === 'sSCRT') {
+                return -1;
+              }
+              if (b.symbol === 'sSCRT') {
+                return 1;
+              }
+              /* then sUNILP-WSCRT-ETH ? */
+              // if (a.symbol === 'sUNILP-WSCRT-ETH') {
+              //   return -1;
+              // }
+              // if (b.symbol === 'sUNILP-WSCRT-ETH') {
+              //   return 1;
+              // }
+
+              return 0;
+            })
             .map(t => {
               return (
                 <TokenInfoRow
