@@ -19,15 +19,13 @@ export const EarnRewards = observer((props: any) => {
   useEffect(() => {
     const refreshAllTokens = async () => {
       while (!user.secretjs || tokens.isPending) {
-        await sleep(100)
+        await sleep(100);
       }
-      await Promise.all([
-        ...tokens.allData.map(token => user.updateBalanceForSymbol(token.display_props.symbol))]);
-    }
+      await Promise.all([...tokens.allData.map(token => user.updateBalanceForSymbol(token.display_props.symbol))]);
+    };
 
     refreshAllTokens();
-
-  }, [user, tokens])
+  }, [user, tokens]);
 
   useEffect(() => {
     rewards.init({
@@ -36,7 +34,7 @@ export const EarnRewards = observer((props: any) => {
       pollingInterval: 20000,
     });
     rewards.fetch();
-  }, [rewards]);
+  }, []);
 
   return (
     <BaseContainer>
