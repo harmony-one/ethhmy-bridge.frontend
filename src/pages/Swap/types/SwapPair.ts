@@ -13,9 +13,9 @@ export class SwapPair {
     asset0: NativeToken | Token,
     symbol1: string,
     asset1: NativeToken | Token,
-    contract_addr,
-    liquidity_token,
-    pair_identifier,
+    contract_addr: string,
+    liquidity_token: string,
+    pair_identifier: string,
   ) {
     this.asset_infos = [];
     this.asset_infos.push(new Asset(symbol0, asset0));
