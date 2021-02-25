@@ -26,7 +26,6 @@ const UnlockToken = (props: {
           setLoading(true);
           try {
             await props.userStore.keplrWallet.suggestToken(props.userStore.chainId, props.tokenAddress);
-            await props.userStore.updateBalanceForSymbol(null, props.tokenAddress);
           } catch (error) {
             error => console.error(error);
           }

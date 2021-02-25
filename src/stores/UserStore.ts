@@ -344,12 +344,16 @@ export class UserStoreEx extends StoreConstructor {
       return 'Unlock';
     }
 
-    let rawBalance = await Snip20GetBalance({
+    const rawBalance = await Snip20GetBalance({
       secretjs: this.secretjs,
       token: snip20Address,
       address: this.address,
       key: viewingKey,
     });
+
+    if (isNaN(Number(rawBalance))) {
+      return 'Fix Unlock';
+    }
 
     if (decimals) {
       const decimalsNum = Number(decimals);
@@ -417,7 +421,7 @@ export class UserStoreEx extends StoreConstructor {
       }
     });
     return;
-  }
+  };
 
   @action public updateSScrtBalance = async () => {
     try {
@@ -431,7 +435,7 @@ export class UserStoreEx extends StoreConstructor {
       this.balanceToken['sSCRT'] = unlockToken;
     }
     return;
-  }
+  };
 
   @action public updateBalanceForSymbol = async (symbol: string, tokenAddress?: string) => {
     while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
