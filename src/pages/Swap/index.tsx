@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box } from 'grommet';
 import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
@@ -18,7 +18,7 @@ import { GetSnip20Params } from '../../blockchain-bridge';
 import { loadTokensFromList } from './LocalTokens/LoadTokensFromList';
 import { ISecretSwapPair, ITokenInfo } from '../../stores/interfaces';
 import { Tokens } from '../../stores/Tokens';
-import { GetAllPairs, getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
+import { getSymbolsFromPair } from '../../blockchain-bridge/scrt/swap';
 import { SwapToken, SwapTokenMap, TokenMapfromITokenInfo } from './types/SwapToken';
 import LocalStorageTokens from '../../blockchain-bridge/scrt/CustomTokens';
 import cogoToast from 'cogo-toast';
@@ -30,15 +30,12 @@ import { SecretSwapPairs } from 'stores/SecretSwapPairs';
 export const SwapPageWrapper = observer(() => {
   // SwapPageWrapper is necessary to get the user store from mobx 🤷‍♂️
   const { user, tokens, secretSwapPairs } = useStores();
-
-  useEffect(() => {
-    secretSwapPairs.init({
-      isLocal: true,
-      sorter: 'none',
-      pollingInterval: 30000,
-    });
-    secretSwapPairs.fetch();
-  }, []);
+  secretSwapPairs.init({
+    isLocal: true,
+    sorter: 'none',
+    pollingInterval: 60000,
+  });
+  secretSwapPairs.fetch();
 
   return <SwapRouter user={user} tokens={tokens} pairs={secretSwapPairs} />;
 });
@@ -127,7 +124,7 @@ export class SwapRouter extends React.Component<
       await this.updateTokens();
     }
 
-    while (!this.props.user.secretjs) {
+    while (this.props.pairs.isPending || this.props.tokens.isPending) {
       await sleep(100);
     }
 
@@ -494,6 +491,8 @@ export class SwapRouter extends React.Component<
         allTokens: swapTokens,
       };
     });
+
+    return swapTokens;
   };
 
   setCurrentPair = async (token0: string, token1: string) => {
@@ -512,14 +511,14 @@ export class SwapRouter extends React.Component<
 
   updatePairs = async () => {
     // gather tokens from our list, and from local storage
-    this.updateTokens();
+    const tokens = this.updateTokens();
 
     let pairs: ISecretSwapPair[] = Array.from(this.props.pairs.allData);
 
     // filter all pairs that aren't known tokens
     pairs = pairs.filter(p => {
       for (const s of getSymbolsFromPair(p)) {
-        if (!this.state.allTokens.has(s)) {
+        if (!tokens.has(s)) {
           return false;
         }
       }
@@ -530,7 +529,7 @@ export class SwapRouter extends React.Component<
     const newPairs: PairMap = new Map<string, SwapPair>();
 
     for (const p of pairs) {
-      const newPair = SwapPair.fromPair(p, this.state.allTokens);
+      const newPair = SwapPair.fromPair(p, tokens);
       newPairs.set(newPair.identifier(), newPair);
     }
 

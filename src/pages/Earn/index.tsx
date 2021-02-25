@@ -83,6 +83,7 @@ export const EarnRewards = observer((props: any) => {
         <Box direction="row" wrap={true} fill={true} justify="between" align="start">
           <Box direction="column" align="center" justify="center" className={styles.base}>
             {rewards.allData
+              .slice()
               .sort((a, b) => {
                 /* ETH first then UNI LP WSCRT-ETH */
                 if (a.inc_token.symbol === 'sETH' && b.inc_token.symbol === 'sUNILP-WSCRT-ETH') {

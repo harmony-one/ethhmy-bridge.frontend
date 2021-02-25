@@ -405,10 +405,7 @@ export class UserStoreEx extends StoreConstructor {
   };
 
   @action public getBalances = async () => {
-    await Promise.all([
-      this.updateBalanceForSymbol('SCRT'),
-      this.updateBalanceForSymbol('sSCRT'),
-    ]);
+    await Promise.all([this.updateBalanceForSymbol('SCRT'), this.updateBalanceForSymbol('sSCRT')]);
   };
 
   @action public updateScrtBalance = async () => {
@@ -440,9 +437,7 @@ export class UserStoreEx extends StoreConstructor {
     while (!this.address && !this.secretjs && this.stores.tokens.isPending) {
       await sleep(100);
     }
-
-
-  }
+  };
 
   @action public updateBalanceForSymbol = async (symbol: string) => {
     while (!this.address && !this.secretjs && this.stores.tokens.allData.length === 0) {
@@ -464,6 +459,11 @@ export class UserStoreEx extends StoreConstructor {
 
   private async refreshTokenBalance(symbol: string) {
     const token = this.stores.tokens.allData.find(t => t.display_props.symbol === symbol);
+
+    if (!token) {
+      return;
+    }
+
     try {
       const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
       if (balance.includes(unlockToken)) {
