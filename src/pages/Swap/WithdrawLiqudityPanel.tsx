@@ -174,7 +174,7 @@ export class WithdrawLiquidityPanel extends React.Component<
                   margin: 'auto',
                 }}
               >
-                {selectedPair.asset_infos[0].symbol}-{selectedPair.asset_infos[1].symbol}
+                {selectedPair.humanizedSymbol()}
               </strong>
               <FlexRowSpace />
             </div>
@@ -383,7 +383,7 @@ export class WithdrawLiquidityPanel extends React.Component<
 
                           this.props.notify(
                             'success',
-                            `Withdrawn ${100 * withdrawPercentage}% from your pooled ${pairSymbol}`,
+                            `Withdrawn ${100 * withdrawPercentage}% from your pooled ${selectedPair.humanizedSymbol()}`,
                           );
 
                           this.setState({
@@ -392,7 +392,8 @@ export class WithdrawLiquidityPanel extends React.Component<
                         } catch (error) {
                           this.props.notify(
                             'error',
-                            `Error withdrawing ${100 * withdrawPercentage}% from your pooled ${pairSymbol}: ${
+                            `Error withdrawing ${100 *
+                              withdrawPercentage}% from your pooled ${selectedPair.humanizedSymbol()}: ${
                               error.message
                             }`,
                           );

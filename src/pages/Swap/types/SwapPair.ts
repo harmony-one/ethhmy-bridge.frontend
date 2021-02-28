@@ -41,6 +41,10 @@ export class SwapPair {
     return symbol.toUpperCase() === this.asset_infos[0].symbol || symbol.toUpperCase() === this.asset_infos[1].symbol;
   }
 
+  humanizedSymbol(): string {
+    return `${this.asset_infos[0].symbol}-${this.asset_infos[1].symbol}`;
+  }
+
   isIdInPair(id: string): boolean {
     const pairIdentifiers = this.pair_identifier.split('/');
 
