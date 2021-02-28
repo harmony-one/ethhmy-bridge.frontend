@@ -112,6 +112,7 @@ export const TokenSelector = (props: {
                     onClick={() => {
                       props?.onClick ? props.onClick(t.identifier) : (() => {})();
                       setOpen(false);
+                      setSearchText('');
                     }}
                   />
                 );
