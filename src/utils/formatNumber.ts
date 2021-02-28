@@ -34,7 +34,6 @@ const twoDecimalsFormatter = new Intl.NumberFormat('en-US', {
 });
 
 const sixDecimalsFormatter = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 0,
   maximumFractionDigits: 6,
 });
 

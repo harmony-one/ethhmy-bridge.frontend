@@ -422,11 +422,7 @@ export class UserStoreEx extends StoreConstructor {
   @action public updateSScrtBalance = async () => {
     try {
       const balance = await this.getSnip20Balance(process.env.SSCRT_CONTRACT, 6);
-      if (balance.includes(unlockToken)) {
-        this.balanceToken['sSCRT'] = balance;
-      } else {
-        this.balanceToken['sSCRT'] = formatWithSixDecimals(toFixedTrunc(balance, 6));
-      }
+      this.balanceToken['sSCRT'] = balance;
     } catch (err) {
       this.balanceToken['sSCRT'] = unlockToken;
     }
@@ -466,11 +462,7 @@ export class UserStoreEx extends StoreConstructor {
 
     try {
       const balance = await this.getSnip20Balance(token.dst_address, token.decimals);
-      if (balance.includes(unlockToken)) {
-        this.balanceToken[token.src_coin] = balance;
-      } else {
-        this.balanceToken[token.src_coin] = formatWithSixDecimals(toFixedTrunc(balance, 6));
-      }
+      this.balanceToken[token.src_coin] = balance;
     } catch (err) {
       this.balanceToken[token.src_coin] = unlockToken;
     }

@@ -5,7 +5,7 @@ import { Button, Icon, Text, Title } from 'components/Base';
 import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
-import { sleep, truncateAddressString, unlockToken } from 'utils';
+import { formatWithSixDecimals, sleep, truncateAddressString, unlockToken } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import { EXCHANGE_MODE, ITokenInfo, TOKEN } from '../../stores/interfaces';
@@ -39,7 +39,7 @@ const AssetRow = observer<any>(props => {
   let value = (
     <Box direction="row">
       <Text color={props.selected ? '#00ADE8' : null} bold={true}>
-        {props.address ? truncateAddressString(props.value, 10) : props.value}
+        {props.address ? truncateAddressString(props.value, 10) : formatWithSixDecimals(props.value)}
       </Text>
       {props.address && (
         <CopyToClipboard text={props.value}>
