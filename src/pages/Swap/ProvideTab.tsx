@@ -9,7 +9,7 @@ import { PriceRow } from '../../components/Swap/PriceRow';
 import { UserStoreEx } from 'stores/UserStore';
 import { Coin } from 'secretjs/types/types';
 import BigNumber from 'bignumber.js';
-import { compareNormalize, storeTxResultLocally } from './utils';
+import { compareNormalize, shareOfPoolNumberFormat, storeTxResultLocally } from './utils';
 import { GetContractCodeHash, getFeeForExecute } from '../../blockchain-bridge';
 import { CreateNewPair } from '../../blockchain-bridge/scrt/swap';
 import { Asset } from './types/trade';
@@ -473,7 +473,7 @@ export class ProvideTab extends React.Component<
               if (JSON.stringify(lpTokenBalance).includes('View')) {
                 return lpTokenBalance;
               } else {
-                return `${currentShareOfPool.multipliedBy(100).toFixed(6)}%`;
+                return `${shareOfPoolNumberFormat.format(currentShareOfPool.multipliedBy(100).toNumber())}%`;
               }
             })()}
           </div>
@@ -487,7 +487,7 @@ export class ProvideTab extends React.Component<
           >
             Expected Gain in Your Share of Pool
             <FlexRowSpace />
-            {`~${gainedShareOfPool.multipliedBy(100).toFixed(6)}%`}
+            {`~${shareOfPoolNumberFormat.format(gainedShareOfPool.multipliedBy(100).toNumber())}%`}
           </div>
         )}
         <PairAnalyticsLink pairAddress={this.props.selectedPair?.contract_addr} />

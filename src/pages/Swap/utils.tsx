@@ -108,3 +108,7 @@ export function storeTxResultLocally(txResult: ExecuteResult) {
   const result = { data: Array.from(txResult.data), logs: txResult.logs };
   localStorage.setItem(txResult.transactionHash, JSON.stringify(result));
 }
+
+export const shareOfPoolNumberFormat = new Intl.NumberFormat('en', {
+  maximumFractionDigits: 10,
+});

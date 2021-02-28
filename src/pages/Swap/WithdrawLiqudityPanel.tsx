@@ -12,7 +12,7 @@ import { SwapPair } from './types/SwapPair';
 import { DownArrow } from '../../ui/Icons/DownArrow';
 import { PairAnalyticsLink } from '../../components/Swap/PairAnalyticsLink';
 import Loader from 'react-loader-spinner';
-import { storeTxResultLocally } from './utils';
+import { shareOfPoolNumberFormat, storeTxResultLocally } from './utils';
 
 export class WithdrawLiquidityPanel extends React.Component<
   {
@@ -94,10 +94,12 @@ export class WithdrawLiquidityPanel extends React.Component<
         );
 
         lpShareJsxElement = (
-          <span>{`${lpTokenBalanceNum
-            .multipliedBy(100)
-            .dividedBy(lpTokenTotalSupply)
-            .toFormat(2)}%`}</span>
+          <span>{`${shareOfPoolNumberFormat.format(
+            lpTokenBalanceNum
+              .multipliedBy(100)
+              .dividedBy(lpTokenTotalSupply)
+              .toNumber(),
+          )}%`}</span>
         );
       } else {
         pooledTokenA = '0';

@@ -108,11 +108,15 @@ export const AdditionalInfo = ({
               position="top center"
             />
           </span>
-          <strong style={{ color: priceImpactColor }}>{`${new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-            useGrouping: true,
-          }).format(priceImpact * 100)}%`}</strong>
+          <strong style={{ color: priceImpactColor }}>{`${
+            priceImpact < 0.01 / 100
+              ? '<0.01'
+              : new Intl.NumberFormat('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  useGrouping: true,
+                }).format(priceImpact * 100)
+          }%`}</strong>
         </div>
         <div
           style={{
