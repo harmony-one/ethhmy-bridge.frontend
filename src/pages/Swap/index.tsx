@@ -41,11 +41,19 @@ export const SwapPageWrapper = observer(() => {
 });
 
 export class SwapRouter extends React.Component<
-  { user: UserStoreEx; tokens: Tokens; pairs: SecretSwapPairs },
+  {
+    user: UserStoreEx;
+    tokens: Tokens;
+    pairs: SecretSwapPairs;
+  },
   {
     allTokens: SwapTokenMap;
     balances: { [symbol: string]: BigNumber | JSX.Element };
     pairs: PairMap;
+    selectedPair: SwapPair | undefined;
+    selectedToken0: string;
+    selectedToken1: string;
+    queries: string[];
   }
 > {
   private symbolUpdateHeightCache: { [symbol: string]: number } = {};
@@ -314,7 +322,10 @@ export class SwapRouter extends React.Component<
     const lpTokenAddress = pair.liquidity_token;
     let lpTotalSupply = new BigNumber(0);
     try {
-      const result = await GetSnip20Params({ address: pair.liquidity_token, secretjs: this.props.user.secretjs });
+      const result = await GetSnip20Params({
+        address: pair.liquidity_token,
+        secretjs: this.props.user.secretjs,
+      });
       lpTotalSupply = new BigNumber(result.total_supply);
     } catch (error) {
       console.error(`Error trying to get LP token total supply of ${pairSymbol}`, pair, error);
@@ -397,9 +408,20 @@ export class SwapRouter extends React.Component<
             params: { query },
           }),
         );
-        this.state.queries.push(token.identifier);
       }
+      this.setState(currentState => ({
+        queries: currentState.queries.concat(tokenQueries),
+      }));
     }
+  }
+
+  private getPairQueries(pair: SwapPair): string[] {
+    return [
+      `message.contract_address='${pair.contract_addr}'`,
+      `wasm.contract_address='${pair.contract_addr}'`,
+      `message.contract_address='${pair.liquidity_token}'`,
+      `wasm.contract_address='${pair.liquidity_token}'`,
+    ];
   }
 
   private registerPairQueries(pair?: SwapPair) {
@@ -409,15 +431,7 @@ export class SwapRouter extends React.Component<
       return;
     }
 
-    const pairAddress = registerPair.contract_addr;
-    const lpTokenAddress = registerPair.liquidity_token;
-
-    const pairQueries = [
-      `message.contract_address='${pairAddress}'`,
-      `wasm.contract_address='${pairAddress}'`,
-      `message.contract_address='${lpTokenAddress}'`,
-      `wasm.contract_address='${lpTokenAddress}'`,
-    ];
+    const pairQueries = this.getPairQueries(pair);
 
     for (const query of pairQueries) {
       this.ws.send(
@@ -428,19 +442,34 @@ export class SwapRouter extends React.Component<
           params: { query },
         }),
       );
-      this.state.queries.push(registerPair.identifier());
     }
+    this.setState(currentState => ({
+      queries: currentState.queries.concat(pairQueries),
+    }));
   }
 
   unSubscribePair(pair: SwapPair) {
     console.log(`Unsubscribing queries for ${pair.identifier()}`);
-    this.ws.send(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        id: pair.identifier(),
-        method: 'unsubscribe',
-      }),
-    );
+
+    const queries = this.getPairQueries(pair);
+    for (const query of queries) {
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          id: '-1',
+          method: 'unsubscribe',
+          params: { query },
+        }),
+      );
+    }
+
+    this.setState(currentState => {
+      let queries = currentState.queries;
+      for (const query of this.getPairQueries(pair)) {
+        queries = queries.filter(q => q !== query);
+      }
+      return { queries };
+    });
   }
 
   unSubscribeAll() {
@@ -449,11 +478,13 @@ export class SwapRouter extends React.Component<
       this.ws.send(
         JSON.stringify({
           jsonrpc: '2.0',
-          id: query,
+          id: '-1',
           method: 'unsubscribe',
+          params: { query },
         }),
       );
     }
+    this.setState({ queries: [] });
   }
 
   async componentWillUnmount() {
