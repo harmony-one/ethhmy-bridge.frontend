@@ -2,9 +2,9 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Button, Input } from 'semantic-ui-react';
 import React from 'react';
-import { formatWithSixDecimals, unlockToken } from '../../../utils';
-import ScrtTokenBalance from '../ScrtTokenBalance';
+import { unlockToken } from '../../../utils';
 import ScrtTokenBalanceSingleLine from './ScrtTokenBalanceSingleLine';
+import BigNumber from 'bignumber.js';
 
 const buttonStyle = {
   borderRadius: '15px',
@@ -37,7 +37,9 @@ const AmountButton = (props: { balance: string; multiplier: string; onChange: Ca
 const changeInput = (balance, percentage, onChange) => {
   const event = {
     target: {
-      value: String(parseFloat(percentage) * parseFloat(balance.replace(/,/g, ''))),
+      value: new BigNumber(balance.replace(/,/g, ''))
+        .multipliedBy(percentage)
+        .toFixed(6 /* Earn can only work with down to 6 decimal points */, BigNumber.ROUND_DOWN),
     },
   };
   onChange(event);
@@ -70,9 +72,7 @@ const DepositContainer = props => {
           <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'0.75'} />
           <AmountButton balance={props.balance} onChange={props.onChange} multiplier={'1'} />
         </div>
-        <div>
-          {props.action}
-        </div>
+        <div>{props.action}</div>
       </div>
     </div>
   );
