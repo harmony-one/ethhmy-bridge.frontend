@@ -196,9 +196,9 @@ export class SwapRouter extends React.Component<
     try {
       const data = JSON.parse(event.data);
 
-      if (isEmptyObject(data.result)) {
-        return;
-      }
+      // if (isEmptyObject(data.result)) {
+      //   return;
+      // }
 
       if (data.id === -1) {
         return;
@@ -621,7 +621,7 @@ export class SwapRouter extends React.Component<
                   pairs={this.state.pairs}
                   notify={this.notify}
                   updateToken={async pair => {
-                    await this.registerPairQueries(pair);
+                    this.registerPairQueries(pair);
                     const results = await this.refreshLpTokenBalance(pair);
                     this.setState(currentState => ({
                       balances: {

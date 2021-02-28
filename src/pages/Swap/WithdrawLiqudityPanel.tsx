@@ -149,16 +149,17 @@ export class WithdrawLiquidityPanel extends React.Component<
           <Accordion.Title
             active={this.state.isActive}
             onClick={async () => {
-              this.setState({ isActive: !this.state.isActive });
-              if (!this.state.isActive) {
-                await this.setState({ isLoadingBalance: true });
-                // get balances and subscribe for events for this pair
-                await this.props.getBalance(selectedPair);
-                await this.setState({ isLoadingBalance: false });
-              } else {
-                // unsubscribe
-                this.props.onCloseTab(selectedPair);
-              }
+              this.setState({ isActive: !this.state.isActive }, async () => {
+                if (this.state.isActive) {
+                  this.setState({ isLoadingBalance: true });
+                  // get balances and subscribe for events for this pair
+                  await this.props.getBalance(selectedPair);
+                  this.setState({ isLoadingBalance: false });
+                } else {
+                  // unsubscribe
+                  this.props.onCloseTab(selectedPair);
+                }
+              });
             }}
           >
             <div
