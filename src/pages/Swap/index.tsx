@@ -196,9 +196,9 @@ export class SwapRouter extends React.Component<
     try {
       const data = JSON.parse(event.data);
 
-      // if (isEmptyObject(data.result)) {
-      //   return;
-      // }
+      if (isEmptyObject(data.result)) {
+        return;
+      }
 
       if (data.id === -1) {
         return;
@@ -620,16 +620,12 @@ export class SwapRouter extends React.Component<
                   balances={this.state.balances}
                   pairs={this.state.pairs}
                   notify={this.notify}
-                  updateToken={async pair => {
+                  updateToken={async (pair: SwapPair) => {
                     this.registerPairQueries(pair);
-                    const results = await this.refreshLpTokenBalance(pair);
-                    this.setState(currentState => ({
-                      balances: {
-                        ...currentState.balances,
-                        ...results[0],
-                        ...results[1],
-                      },
-                    }));
+                    await this.refreshBalances({
+                      pair,
+                      tokenSymbols: [pair.asset_infos[0].symbol, pair.asset_infos[1].symbol],
+                    });
                   }}
                   onCloseTab={pair => {
                     this.unSubscribePair(pair);
