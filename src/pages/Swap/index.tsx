@@ -4,14 +4,14 @@ import * as styles from '../FAQ/faq-styles.styl';
 import { PageContainer } from 'components/PageContainer';
 import { BaseContainer } from 'components/BaseContainer';
 import { useStores } from 'stores';
-import { isEmptyObject, sleep, unlockToken } from 'utils';
+import { fixUnlockToken, isEmptyObject, sleep, unlockToken } from 'utils';
 import { UserStoreEx } from 'stores/UserStore';
 import { observer } from 'mobx-react';
 import { SwapTab } from './SwapTab';
 import { ProvideTab } from './ProvideTab';
 import { WithdrawTab } from './WithdrawTab';
 import { BigNumber } from 'bignumber.js';
-import { getNativeBalance, unlockJsx } from './utils';
+import { getNativeBalance, unlockJsx, wrongViewingKey } from './utils';
 import { BetaWarning } from '../../components/Swap/BetaWarning';
 import { SwapFooter } from './Footer';
 import { GetSnip20Params } from '../../blockchain-bridge';
@@ -285,7 +285,7 @@ export class SwapRouter extends React.Component<
 
       let balance = await this.props.user.getSnip20Balance(tokenAddress);
 
-      if (balance.includes(unlockToken)) {
+      if (balance === unlockToken) {
         balance = unlockJsx({
           onClick: async () => {
             await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, tokenAddress);
@@ -294,6 +294,8 @@ export class SwapRouter extends React.Component<
           },
         });
         userBalancePromise = balance;
+      } else if (balance === fixUnlockToken) {
+        userBalancePromise = wrongViewingKey;
       } else {
         userBalancePromise = new BigNumber(balance);
       }
@@ -321,7 +323,7 @@ export class SwapRouter extends React.Component<
 
     let balanceResult = await this.props.user.getSnip20Balance(lpTokenAddress);
     let lpBalance;
-    if (balanceResult.includes(unlockToken)) {
+    if (balanceResult === unlockToken) {
       balanceResult = unlockJsx({
         onClick: async () => {
           await this.props.user.keplrWallet.suggestToken(this.props.user.chainId, lpTokenAddress);
@@ -331,6 +333,8 @@ export class SwapRouter extends React.Component<
         },
       });
       lpBalance = balanceResult;
+    } else if (balanceResult === fixUnlockToken) {
+      lpBalance = wrongViewingKey;
     } else {
       lpBalance = new BigNumber(balanceResult);
     }

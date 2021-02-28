@@ -4,7 +4,7 @@ import { statusFetching } from '../constants';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, formatWithSixDecimals, sleep, toFixedTrunc, unlockToken } from '../utils';
+import { divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, toFixedTrunc, unlockToken } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
 import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
 
@@ -341,7 +341,7 @@ export class UserStoreEx extends StoreConstructor {
     });
 
     if (!viewingKey) {
-      return 'Unlock';
+      return unlockToken;
     }
 
     const rawBalance = await Snip20GetBalance({
@@ -352,7 +352,7 @@ export class UserStoreEx extends StoreConstructor {
     });
 
     if (isNaN(Number(rawBalance))) {
-      return 'Fix Unlock';
+      return fixUnlockToken;
     }
 
     if (decimals) {

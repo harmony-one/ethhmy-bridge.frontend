@@ -36,6 +36,8 @@ export const unlockJsx = (props: { onClick: any }) =>
     </span>,
   );
 
+export const wrongViewingKey = <strong style={{ color: 'red' }}>Wrong Viewing Key</strong>;
+
 export async function getTokenBalance(
   walletAddress: string,
   tokenAddress: string,
