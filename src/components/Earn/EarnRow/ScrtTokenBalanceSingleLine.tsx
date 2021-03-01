@@ -2,6 +2,7 @@ import { balanceNumberFormat, toFixedTrunc, unlockToken } from '../../../utils';
 import React from 'react';
 import Loader from 'react-loader-spinner';
 import { Icon, Popup } from 'semantic-ui-react';
+import BigNumber from 'bignumber.js';
 
 const ScrtTokenBalanceSingleLine = (props: {
   value: string;
@@ -29,7 +30,7 @@ const ScrtTokenBalanceSingleLine = (props: {
   } else {
     return (
       <>
-        {balanceNumberFormat.format(toFixedTrunc(Number(props.value.replace(/,/g, '')), 6))} {props.currency}
+        {new BigNumber(props.value.replace(/,/g, '')).toFixed(6, BigNumber.ROUND_DOWN)} {props.currency}
       </>
     );
   }

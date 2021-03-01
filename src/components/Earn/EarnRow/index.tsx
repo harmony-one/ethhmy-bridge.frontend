@@ -178,11 +178,13 @@ class EarnRow extends Component<
                   <DepositContainer
                     value={this.state.depositValue}
                     action={
-                      <Grid columns={1} stackable relaxed={"very"}>
-                        <Grid.Column style={{
-                            display: "flex",
-                            justifyContent: "center"}
-                        }>
+                      <Grid columns={1} stackable relaxed={'very'}>
+                        <Grid.Column
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                          }}
+                        >
                           <EarnButton
                             props={this.props}
                             value={this.state.depositValue}
@@ -205,16 +207,18 @@ class EarnRow extends Component<
                     value={this.state.withdrawValue}
                     onChange={this.handleChangeWithdraw}
                     action={
-                      <Grid columns={1} stackable relaxed={"very"}>
-                        <Grid.Column style={{
-                          display: "flex",
-                          justifyContent: "center"}
-                        }>
-                      <WithdrawButton
-                        props={this.props}
-                        value={this.state.withdrawValue}
-                        changeValue={this.handleChangeWithdraw}
-                      />
+                      <Grid columns={1} stackable relaxed={'very'}>
+                        <Grid.Column
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <WithdrawButton
+                            props={this.props}
+                            value={this.state.withdrawValue}
+                            changeValue={this.handleChangeWithdraw}
+                          />
                         </Grid.Column>
                       </Grid>
                     } //({props: this.props, value: this.state.withdrawValue})}
