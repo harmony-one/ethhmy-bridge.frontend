@@ -72,7 +72,7 @@ export const NumberInput: React.FC<INumberInputProps> = ({ type = 'integer', ...
   const onChangeHandler = valueArg => onChangeNormalize(props)(valueArg);
 
   useEffect(() => {
-    props.onChange(onChangeHandler(props.value));
+    //props.onChange(onChangeHandler(props.value));
   }, []);
 
   return (

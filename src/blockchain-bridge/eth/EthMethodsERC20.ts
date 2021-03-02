@@ -26,6 +26,16 @@ export class EthMethodsERC20 {
     this.ethManagerAddress = params.ethManagerAddress;
   }
 
+  sendHandler = async (method: any, args: Object, callback: Function) => {
+    method.send(args).on('transactionHash', function (hash) {
+      callback({ hash })
+    }).then(function (receipt) {
+      callback({ receipt })
+    }).catch(function (error) {
+      callback({ error })
+    })
+  }
+
   getAllowance = async erc20Address => {
     // @ts-ignore
     const accounts = await ethereum.enable();
@@ -36,7 +46,7 @@ export class EthMethodsERC20 {
     return await erc20Contract.methods.allowance(accounts[0], this.ethManagerAddress).call();
   };
 
-  callApprove = async (erc20Address, amount, decimals) => {
+  callApprove = async (erc20Address, amount, decimals, callback) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -48,16 +58,16 @@ export class EthMethodsERC20 {
     const allowance = await this.getAllowance(erc20Address);
 
     if (Number(allowance) < Number(amount)) {
-      await erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT).send({
+      this.sendHandler(erc20Contract.methods.approve(this.ethManagerAddress, MAX_UINT), {
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
         gasPrice: await getGasPrice(this.web3),
         amount: amount,
-      });
+      }, callback)
     }
   };
 
-  swapToken = async (erc20Address, userAddr, amount, decimals) => {
+  swapToken = async (erc20Address, userAddr, amount, decimals, callback) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
 
@@ -69,14 +79,12 @@ export class EthMethodsERC20 {
       .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
+    this.sendHandler(this.ethManagerContract.methods.swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address), {
+      from: accounts[0],
+      gas: new BN(gasLimit),
+      gasPrice: await getGasPrice(this.web3),
+    }, callback)
 
-    return await this.ethManagerContract.methods
-      .swapToken(secretAddrHex, mulDecimals(amount, decimals), erc20Address)
-      .send({
-        from: accounts[0],
-        gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3),
-      });
   };
 
   checkEthBalance = async (erc20Address, addr) => {

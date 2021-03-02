@@ -43,6 +43,7 @@
     "react-loader-spinner": "3.1.14",
     "react-outside-click-handler": "^1.3.0",
     "react-reel": "^1.2.3",
+    "react-reveal": "^1.2.2",
     "react-router": "5.1.2",
     "react-router-dom": "5.1.2",
     "react-scrollbars-custom": "^4.0.21",

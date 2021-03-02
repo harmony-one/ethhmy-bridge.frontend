@@ -31,12 +31,19 @@ export class EthMethods {
 
     const gasLimit = Math.max(estimateGas + estimateGas * 0.3, Number(process.env.ETH_GAS_LIMIT));
 
-    return await this.ethManagerContract.methods.swap(secretAddrHex).send({
+    this.ethManagerContract.methods.swap(secretAddrHex).send({
       value: ethToWei(amount),
       from: accounts[0],
       gas: new BN(gasLimit),
       gasPrice: await getGasPrice(this.web3),
-    });
+    }).on('transactionHash', function (hash) {
+      sendTxCallback({ hash })
+    }).then(function (receipt) {
+      sendTxCallback({ receipt })
+    }).catch(function (error) {
+      sendTxCallback({ error })
+    })
+
   };
 
   checkEthBalance = async addr => {
