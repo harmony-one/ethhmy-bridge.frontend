@@ -111,10 +111,6 @@ export const EarnRewards = observer((props: any) => {
                   return null;
                 }
 
-                if (token.display_props.symbol === 'BAC') {
-                  token.price = '0.76';
-                }
-
                 const rewardsToken = {
                   rewardsContract: rewardToken.pool_address,
                   lockedAsset: rewardToken.inc_token.symbol,
