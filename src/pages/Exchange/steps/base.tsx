@@ -133,14 +133,14 @@ export const Base = observer(() => {
     const [networkTemplates, setNetworkTemplates] = useState<Array<NetworkTemplateInterface>>([{
         name: "Ethereum",
         wallet: "Metamask",
-        symbol: "No Token Selected",
+        symbol: "Select a token",
         amount: "",
         image: ""
 
     }, {
         name: "Secret Network",
         wallet: "Keplr",
-        symbol: "No Token Selected",
+        symbol: "Select a token",
         amount: "",
         image: ""
 
@@ -168,7 +168,7 @@ export const Base = observer(() => {
         const NTemplate1: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Ethereum" : "Secret Network",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Metamask" : "Keplr",
-            symbol: "No Token Selected",
+            symbol: "Select a token",
             amount: exchange.transaction.amount,
             image: selectedToken.image
 
@@ -177,7 +177,7 @@ export const Base = observer(() => {
         const NTemplate2: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Secret Network" : "Ethereum",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Keplr" : "Metamask",
-            symbol: "No Token Selected",
+            symbol: "Select a token",
             amount: exchange.transaction.amount,
             image: selectedToken.image
 

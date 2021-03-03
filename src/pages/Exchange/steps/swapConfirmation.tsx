@@ -181,9 +181,9 @@ export const SwapConfirmation = observer(() => {
                         </Box>}
 
 
-                        {true && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && tokenLocked(user)}
+                        {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && tokenLocked(user)}
 
-                        <Box style={{ height: 25 }}>
+                        <Box style={{ height: 25 }} margin={{ top: 'xsmall' }}>
                             {exchange.txHash && <Text>Follow Transaction <a href={hash}
                                 style={{ textDecoration: 'none' }}
                                 target="_blank"
