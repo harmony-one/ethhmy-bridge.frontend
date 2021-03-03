@@ -39,7 +39,7 @@ export const Price = observer(
     const valueUsd = props.valueUsd ? props.valueUsd : props.value * (props.isEth ? user.ethRate : user.scrtRate);
     return (
       <Box direction="column" align="end" justify="center" pad={{ right: 'medium' }} {...props.boxProps}>
-        <Text style={{ fontSize: 14 }}>{`${props.value} ${tokenName}`}</Text>
+        <Text style={{ fontSize: 14, fontWeight: 'bold', marginBottom: 3 }}>{`${props.value} ${tokenName}`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
           ${formatWithSixDecimals(valueUsd)}
         </Text>
@@ -92,8 +92,8 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
       return token.display_props.proxy_symbol ? (
         <Box>{token.display_props.proxy_symbol}</Box>
       ) : (
-        <Box>{token.display_props.symbol}</Box>
-      );
+          <Box>{token.display_props.symbol}</Box>
+        );
     }
   } else if (value === TOKEN.ETH) {
     return <Box>ETH</Box>;
@@ -119,8 +119,8 @@ export const SecretToken = observer((props: ISecretTokenProps) => {
       return token.display_props.proxy_symbol ? (
         <Box>{token.display_props.symbol}</Box>
       ) : (
-        <Box>secret{token.display_props.symbol}</Box>
-      );
+          <Box>secret{token.display_props.symbol}</Box>
+        );
     }
   } else if (value === TOKEN.ETH) {
     return <Box>secretETH</Box>;

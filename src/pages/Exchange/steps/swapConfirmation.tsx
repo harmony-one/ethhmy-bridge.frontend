@@ -23,7 +23,7 @@ type NetworkTemplateInterface = {
 const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any) => (
     <Box justify={justify} fill pad="xsmall" direction="row" align="center" style={{ borderRadius: 10, backgroundColor: "#c3ecdb", height: 44 }}>
         {template.image && <img src={template.image} style={{ width: 20, marginRight: 10 }} alt={template.symbol} />}
-        {template.symbol && <Text bold color="#30303D" size="small">{template.amount}</Text>}
+        {template.symbol && <Text bold color="#30303D" size="small">{formatWithSixDecimals(template.amount)}</Text>}
         <Text bold margin={{ left: 'xxsmall' }} color="#748695" size="small">{template.symbol}</Text>
     </Box>
 )
@@ -67,6 +67,9 @@ Pick<IStores, 'userMetamask'>
             image: tokenImage
 
         }
+
+        let calculatedAmount = formatWithSixDecimals(Number(exchange.transaction.amount) - Number(exchange.swapFeeToken))
+        if (Number(calculatedAmount) < 0) calculatedAmount = "0"
 
         let hashLink = ''
         if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
@@ -134,7 +137,7 @@ Pick<IStores, 'userMetamask'>
                                 <Box direction="row" margin={{ top: 'small' }} justify="between">
                                     <Text>Amount:</Text>
                                     <Box direction="row">
-                                        <Text>{formatWithSixDecimals(exchange.transaction.amount)}</Text>
+                                        <Text bold>{formatWithSixDecimals(exchange.transaction.amount)}</Text>
 
                                         <img src={exchange.transaction.tokenSelected.image} style={{ marginLeft: 10 }} width="20" height="20" />
                                     </Box>
@@ -149,6 +152,24 @@ Pick<IStores, 'userMetamask'>
                                     boxProps={{ pad: {} }}
                                 />}
                             </Box>
+
+                            {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
+                                <Box className={styles.warningSign} direction="row" align="center">
+                                    <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Ethereum Fee</Text>
+                                    <img src="/static/warning.svg" width="20" />
+                                    <Box pad="xsmall" className={styles.warning_message}>
+                                        <Text size="xsmall">You are about to move your secret tokens back to Ethereum. You will receive approximately <b>{calculatedAmount} {symbol}</b> and <b>{formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}</b> will be used to pay for Ethereum gas fees
+                                        </Text>
+                                    </Box>
+                                </Box>
+                                {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
+                                    value={Number(formatWithSixDecimals(exchange.swapFeeToken))}
+                                    valueUsd={exchange.swapFeeUSD}
+                                    token={symbol}
+                                    boxProps={{ pad: {} }}
+                                />}
+                            </Box>}
+
 
                             <Box style={{ height: 25 }}>
                                 {exchange.txHash && <Text>Follow Transaction <a href={hashLink}
@@ -177,6 +198,7 @@ Pick<IStores, 'userMetamask'>
 
                     </Modal.Content>
                 </React.Fragment>
+
             </Modal>
         )
     }

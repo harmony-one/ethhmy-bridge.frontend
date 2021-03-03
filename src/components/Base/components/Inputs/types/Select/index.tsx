@@ -93,8 +93,8 @@ const IconSingleValue = placeholder => props => (
         <Text style={{ marginTop: 2 }}>{props.data.label}</Text>
       </Box>
     ) : (
-      <div style={{ opacity: 0.8 }}>{placeholder}</div>
-    )}
+        <div style={{ opacity: 0.8 }}>{placeholder}</div>
+      )}
   </SingleValue>
 );
 
@@ -127,5 +127,6 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
 
 export const Select: React.ComponentType<ISelectProps> = withTheme(SelectClass);
 
-const injectValueProp = (value: any, options: ISelectOption[]) =>
-  typeof value === 'undefined' ? {} : { value: mapOptions(options).find(option => option.value === value) };
+const injectValueProp = (value: any, options: ISelectOption[]) => {
+  return !value ? { value: '' } : { value: mapOptions(options).find(option => option.value === value) };
+}

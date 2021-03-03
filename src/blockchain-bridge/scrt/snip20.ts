@@ -76,7 +76,6 @@ export const Snip20SendToBridge = async (params: {
   });
 
   const txIdKvp = tx.logs[0].events[1].attributes.find(kv => kv.key === 'tx_id');
-
   let tx_id: string;
   if (txIdKvp && txIdKvp.value) {
     tx_id = txIdKvp.value;
@@ -84,7 +83,7 @@ export const Snip20SendToBridge = async (params: {
     throw new Error('Failed to get tx_id');
   }
 
-  return tx_id;
+  return tx.transactionHash;
 };
 
 export const Snip20Send = async (params: {

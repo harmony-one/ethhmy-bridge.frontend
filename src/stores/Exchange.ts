@@ -51,6 +51,7 @@ export class Exchange extends StoreConstructor {
       symbol: '',
       image: '',
       value: '',
+      src_coin: ''
     }
   };
 
@@ -325,6 +326,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.erc20Address = this.transaction.erc20Address.trim();
       this.transaction.scrtAddress = this.transaction.scrtAddress.trim();
       this.transaction.ethAddress = this.transaction.ethAddress.trim();
+      this.txHash = ''
       this.transaction.loading = true
 
       if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
@@ -377,7 +379,7 @@ export class Exchange extends StoreConstructor {
 
 
     await this.createOperation();
-    this.stores.routing.push('/' + TOKEN.ETH + '/operations/' + this.operation.id);
+    //this.stores.routing.push('/' + TOKEN.ETH + '/operations/' + this.operation.id);
 
     contract.ethMethodsERC20.callApprove(
       this.transaction.erc20Address,
@@ -415,7 +417,7 @@ export class Exchange extends StoreConstructor {
     this.setStatus();
 
     await this.createOperation();
-    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+    //this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
 
     contract.ethMethodsERC20.swapToken(
@@ -452,7 +454,7 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
 
     await this.createOperation();
-    this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
+    //this.stores.routing.push(TOKEN.ETH + '/operations/' + this.operation.id);
 
 
     contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {
@@ -510,57 +512,33 @@ export class Exchange extends StoreConstructor {
     const amount = mulDecimals(this.transaction.amount, decimals).toString();
 
     await this.createOperation();
-    this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
-
-    let tx_id = '';
-
-    const swappedAmountUSD = Number(this.transaction.amount) * Number(price);
-    const swapFeeUSD = this.swapFeeUSD;
-
-    console.log(swappedAmountUSD);
-    console.log(swapFeeUSD);
-
-    if (swapFeeUSD > swappedAmountUSD * 0.4) {
-      if (
-        // eslint-disable-next-line no-restricted-globals
-        !confirm(
-          `Swap fee is expected to be a large percentage of your funds ($${swapFeeUSD.toFixed(
-            2,
-          )} out of $${swappedAmountUSD.toFixed(2)}). Are you sure you wish to continue?`,
-        )
-      ) {
-        this.operation.status = SwapStatus.SWAP_FAILED;
-        this.setStatus();
-        throw Error('Swap canceled');
-      }
-    }
+    //this.stores.routing.push(TOKEN.S20 + '/operations/' + this.operation.id);
 
     try {
-      tx_id = await Snip20SendToBridge({
+      this.txHash = await Snip20SendToBridge({
         recipient,
         secretjs: this.stores.user.secretjs,
         address: this.transaction.snip20Address,
         amount,
         msg: btoa(this.transaction.ethAddress),
       });
+      this.transaction.confirmed = true
+      this.transaction.loading = false
+      console.log('this.txHash', this.txHash)
     } catch (e) {
       this.operation.status = SwapStatus.SWAP_FAILED;
       this.setStatus();
-      throw e;
+      //throw e;
     }
 
-    this.operation.status = await this.updateOperation(
-      this.operation.id,
-      Snip20SwapHash({
-        tx_id,
-        address: proxyContract || this.transaction.snip20Address,
-      }),
-    );
-    this.setStatus();
+    // this.operation.status = await this.updateOperation(
+    //   this.operation.id,
+    //   Snip20SwapHash({
+    //     tx_id: this.txHash,
+    //     address: proxyContract || this.transaction.snip20Address,
+    //   }),
+    // );
 
-    await this.waitForResult();
-
-    this.setStatus();
   }
 
   clear() {

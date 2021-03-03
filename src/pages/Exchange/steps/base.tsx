@@ -6,7 +6,8 @@ import { Box } from 'grommet';
 import Web3 from 'web3';
 import * as bech32 from 'bech32';
 import { IStores } from 'stores';
-import { unlockToken } from 'utils';
+import { useEffect, useState } from 'react';
+import { errorTypes, unlockToken } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
 import { Form, Input, NumberInput, MobxForm } from 'components/Form';
 import { ERC20Select } from '../ERC20Select';
@@ -16,18 +17,13 @@ import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { autorun } from 'mobx';
 import Fade from 'react-reveal/Fade';
-import { useStores } from 'stores';
-
-type State = {
-    tokenError: string,
-    amountError: string,
-    addressError: string,
-    tokenLocked: boolean,
-};
-
-interface ITokenInfo {
-    symbol: string;
-    image: any;
+import Wobble from 'react-reveal/Wobble';
+import Flip from 'react-reveal/Flip';
+import Zoom from 'react-reveal/Zoom';
+import { useStores } from '../../../stores';
+interface Errors {
+    amount: string;
+    token: any;
     address: string;
 }
 
@@ -54,13 +50,13 @@ const validateAmountInput = (value: string, minAmount: any, maxAmount: any) => {
 }
 
 
-const validateAddressInput = (exchange: any) => {
-    const value = exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress
-    if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
+    if (!value) return 'Field required.'
+    if (mode === EXCHANGE_MODE.SCRT_TO_ETH) {
         const web3 = new Web3();
         if (!web3.utils.isAddress(value) || !web3.utils.checkAddressChecksum(value)) return 'Not a valid Ethereum Address.'
     }
-    if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+    if (mode === EXCHANGE_MODE.ETH_TO_SCRT) {
         if (!value.startsWith('secret')) return 'Not a valid Secret Address.'
 
         try {
@@ -75,7 +71,7 @@ const validateAddressInput = (exchange: any) => {
 const getBalance = (exchange, userMetamask, user) => {
     let minAmount = "loading"
     let maxAmount = "loading"
-
+    const src_coin = exchange.transaction.tokenSelected.src_coin
 
     if (exchange.token === TOKEN.ERC20) {
         if (!userMetamask.erc20TokenDetails) {
@@ -83,7 +79,7 @@ const getBalance = (exchange, userMetamask, user) => {
             minAmount = "0"
         }
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            maxAmount = (!user.snip20Balance || user.snip20Balance.includes(unlockToken)) ? '0' : user.snip20Balance
+            maxAmount = user.balanceToken[src_coin] ? user.balanceToken[src_coin] : '0'
             minAmount = user.snip20BalanceMin || '0'
         }
         if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
@@ -104,80 +100,89 @@ const getBalance = (exchange, userMetamask, user) => {
 }
 
 
-const renderNetworkTemplate = (template: NetworkTemplateInterface) => (
-    <Box direction="column" style={{ minWidth: 230 }}>
-        <Box direction="row" align="start" margin={{ bottom: 'small' }}>
-            <img className={styles.imgToken} src={template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />
-            <Box direction="column" margin={{ left: 'xsmall' }}>
-                <Title bold color={"#30303D"} margin={{ bottom: 'xxsmall' }}>{template.name}</Title>
-                <Text size="medium" bold color={"#748695"}>{template.wallet}</Text>
+const renderNetworkTemplate = (template: NetworkTemplateInterface, align: any, onSwap: boolean) => (
+    <Wobble spy={onSwap} delay={0}>
+        <Box direction="column" style={{ minWidth: 230 }}>
+            <Box direction="row" align={"start"} justify={align} margin={{ bottom: 'small' }}>
+                {align === "start" && <img style={{ marginRight: 10 }} className={styles.imgToken} src={template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />}
+                <Box direction="column" align={align}>
+                    <Title bold color={"#30303D"} margin={{ bottom: 'xxsmall' }}>{template.name}</Title>
+                    <Text size="medium" bold color={"#748695"}>{template.wallet}</Text>
+                </Box>
+                {align === "end" && <img style={{ marginLeft: 10 }} className={styles.imgToken} src={template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />}
+            </Box>
+
+            <Box
+                pad="xsmall"
+                direction="row"
+                align={"center"}
+                style={{ flexFlow: align === 'start' ? 'row' : 'row-reverse' }}
+                className={styles.networktemplatetoken}>
+                {template.image && <img src={template.image} style={{ width: 20, margin: '0 5' }} alt={template.symbol} />}
+                {template.symbol && <Text bold color="#30303D" size="medium" style={{ margin: '0 5' }}>{template.amount}</Text>}
+                <Text bold style={{ margin: '0 5' }} color="#748695" size="medium">{template.symbol}</Text>
             </Box>
         </Box>
-
-        <Box pad="xsmall" direction="row" align="center" justify="start" style={{ backgroundColor: "#E1FEF2", height: 44 }}>
-            {template.image && <img src={template.image} style={{ width: 20, marginRight: 10 }} alt={template.symbol} />}
-            {template.symbol && <Text bold color="#30303D" size="medium">{template.amount}</Text>}
-            <Text bold margin={{ left: 'xxsmall' }} color="#748695" size="medium">{template.symbol}</Text>
-        </Box>
-    </Box>
+    </Wobble>
 )
 
-const renderTokenLocked = (user: any) => <Box direction="column">
-    <Text bold color="#c5bb2e">Warning</Text>
-    <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>It seems this token viewing key is yet to be created, everything inside Secret Network is private by default so, in order for you to view this token balance, it is required a viewing key.
-    </Text>
-    <Box style={{ cursor: 'pointer' }} onClick={async () => {
-        try {
-            await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
-        } catch (error) {
-            console.error(error);
-        }
-    }}>
-        <Text bold>Created one here</Text>
-    </Box>
-
-</Box>
-
-@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
-@observer
-export class Base extends React.Component<
-Pick<IStores, 'user'> &
-Pick<IStores, 'exchange'> &
-Pick<IStores, 'routing'> &
-Pick<IStores, 'actionModals'> &
-Pick<IStores, 'tokens'> &
-Pick<IStores, 'userMetamask'>, State
-> {
-    formRef: MobxForm;
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            amountError: "",
-            addressError: "",
-            tokenError: "",
-            tokenLocked: false
-        };
-
-        autorun(() => {
-            const { exchange } = this.props;
-
-            if (exchange.token && exchange.mode) {
-                if (this.formRef) {
-                    this.formRef.resetTouched();
-                    this.formRef.resetErrors();
-                }
+const renderTokenLocked = (user: any) => <Zoom bottom>
+    <Box direction="column">
+        <Text bold color="#c5bb2e">Warning</Text>
+        <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>Everything inside Secret Network is private by default, in order for you to view this token balance, it is required a viewing key.
+        </Text>
+        <Box style={{ cursor: 'pointer' }} onClick={async () => {
+            try {
+                await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
+            } catch (error) {
+                console.log(error);
             }
-        });
-    }
+        }}>
+            <Text bold>Created one here</Text>
+        </Box>
 
+    </Box>
+</Zoom>
 
-    render() {
-        const { actionModals, user, userMetamask, exchange } = this.props;
-        const { amountError, tokenError, addressError, tokenLocked } = this.state;
-        const { minAmount, maxAmount } = getBalance(exchange, userMetamask, user)
+export const Base = observer(() => {
+    const { user, userMetamask, actionModals, exchange, tokens } = useStores();
+    const [errors, setErrors] = useState<Errors>({ token: "", address: "", amount: "" });
+    const [selectedToken, setSelectedToken] = useState<any>({});
+    const [networkTemplates, setNetworkTemplates] = useState<Array<NetworkTemplateInterface>>([{
+        name: "Ethereum",
+        wallet: "Metamask",
+        symbol: "No Token Selected",
+        amount: "",
+        image: ""
 
-        const selectedToken = exchange.transaction.tokenSelected
+    }, {
+        name: "Secret Network",
+        wallet: "Keplr",
+        symbol: "No Token Selected",
+        amount: "",
+        image: ""
+
+    }]);
+    const [tokenLocked, setTokenLocked] = useState<boolean>(false);
+    const [minAmount, setMinAmount] = useState<string>("");
+    const [maxAmount, setMaxAmount] = useState<string>("");
+    const [onSwap, setSwap] = useState<boolean>(false);
+    const [toApprove, setToApprove] = useState<boolean>(false);
+    const [readyToSend, setReadyToSend] = useState<boolean>(false);
+
+    useEffect(() => {
+        setSelectedToken(exchange.transaction.tokenSelected)
+    }, [exchange.transaction.tokenSelected]);
+
+    useEffect(() => {
+        if (exchange.step.id === EXCHANGE_STEPS.BASE && exchange.transaction.tokenSelected.value) {
+            onSelectedToken(exchange.transaction.tokenSelected.value)
+        }
+
+    }, [exchange.step.id]);
+
+    useEffect(() => {
+
         const NTemplate1: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Ethereum" : "Secret Network",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Metamask" : "Keplr",
@@ -196,120 +201,165 @@ Pick<IStores, 'userMetamask'>, State
 
         }
 
-        const toApprove = !exchange.isTokenApproved && exchange.transaction.erc20Address !== ""
-
-        const readyToSend =
-            validateAddressInput(exchange) === "" &&
-            validateTokenInput(selectedToken) === "" &&
-            validateAmountInput(exchange.transaction.amount, minAmount, maxAmount) === "" &&
-            !toApprove
-
         if (selectedToken.symbol) {
-
-            NTemplate1.symbol =
-                exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
-                    selectedToken.symbol :
-                    `Secret ${selectedToken.symbol}`
-
-            NTemplate2.symbol =
-                exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
-                    `Secret ${selectedToken.symbol}` :
-                    selectedToken.symbol
+            NTemplate1.symbol = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? selectedToken.symbol : `Secret ${selectedToken.symbol}`
+            NTemplate2.symbol = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? `Secret ${selectedToken.symbol}` : selectedToken.symbol
         }
 
+        setNetworkTemplates([NTemplate1, NTemplate2])
+    }, [exchange.mode, selectedToken]);
+
+    useEffect(() => {
+        setToApprove(!exchange.isTokenApproved && exchange.transaction.erc20Address !== "")
+    }, [exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
 
-        const onClickHandler = async (callback: () => void) => {
 
-            if (!user.isAuthorized) {
-                if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-                    if (!user.isKeplrWallet) {
-                        return actionModals.open(() => <AuthWarning />, {
-                            title: '',
-                            applyText: 'Got it',
-                            closeText: '',
-                            noValidation: true,
-                            width: '500px',
-                            showOther: true,
-                            onApply: () => {
-                                return Promise.resolve();
-                            },
-                        });
-                    } else {
-                        await user.signIn();
-                    }
+    useEffect(() => {
+        const address = exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress
+
+        setReadyToSend(
+            errors.token === "" &&
+            errors.amount === "" &&
+            errors.address === "" &&
+            exchange.transaction.amount !== "" &&
+            selectedToken !== "" &&
+            address !== "" &&
+            !toApprove
+        )
+    }, [
+        toApprove,
+        errors,
+        exchange.transaction.amount,
+        selectedToken,
+        exchange.mode,
+        exchange.transaction.ethAddress,
+        exchange.transaction.scrtAddress
+    ]);
+
+    const onSelectedToken = async (value) => {
+        const token = tokens.allData.find(t => t.src_address === value)
+
+        setMinAmount("loading")
+        setMaxAmount("loading")
+        token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
+        exchange.transaction.amount = ""
+        exchange.transaction.confirmed = false
+        exchange.transaction.tokenSelected = {
+            symbol: token.display_props.symbol,
+            value: value,
+            image: token.display_props.image,
+            src_coin: token.src_coin,
+        }
+
+        if (token.display_props.symbol !== "ETH") {
+            exchange.transaction.erc20Address = value
+            exchange.checkTokenApprove(value)
+
+        }
+
+        setErrors({ ...errors, token: "" })
+        setTokenLocked(false)
+
+        try {
+            if (token.display_props.symbol !== "ETH") await userMetamask.setToken(value, tokens);
+        } catch (e) {
+            console.log(e)
+        }
+
+        if (exchange.mode !== EXCHANGE_MODE.SCRT_TO_ETH) {
+            const { minAmount, maxAmount } = getBalance(exchange, userMetamask, user)
+            setMinAmount(minAmount)
+            setMaxAmount(maxAmount)
+        }
+
+        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+            if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
+            try {
+                await user.updateBalanceForSymbol(token.display_props.symbol);
+                const balance = user.balanceToken[token.src_coin]
+                const { minAmount, maxAmount } = getBalance(exchange, userMetamask, user)
+                setTokenLocked(balance === unlockToken)
+                setMinAmount(minAmount)
+                setMaxAmount(maxAmount)
+            } catch (e) {
+                setErrors({ ...errors, token: e.message })
+
+            }
+        }
+    }
+
+    const onClickHandler = async (callback: () => void) => {
+
+        if (!user.isAuthorized) {
+            if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+                if (!user.isKeplrWallet) {
+                    return actionModals.open(() => <AuthWarning />, {
+                        title: '',
+                        applyText: 'Got it',
+                        closeText: '',
+                        noValidation: true,
+                        width: '500px',
+                        showOther: true,
+                        onApply: () => {
+                            return Promise.resolve();
+                        },
+                    });
+                } else {
+                    await user.signIn();
                 }
             }
+        }
 
-            if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-                if (!userMetamask.isAuthorized) {
-                    return await userMetamask.signIn(true);
-                }
+        if (!userMetamask.isAuthorized && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
+            if (!userMetamask.isAuthorized) {
+                return await userMetamask.signIn(true);
             }
+        }
 
-            callback()
-        };
+        callback()
+    };
 
-        return (
-            <Box fill direction="column" background="transparent">
-                <Fade left>
-                    <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
-                        {renderNetworkTemplate(NTemplate1)}
-                        <Box pad="small" style={{ position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
-                            <Icon size="60" glyph="Reverse" onClick={async () => {
-                                exchange.transaction.amount = ""
-                                exchange.transaction.tokenSelected = { symbol: '', image: '', value: '' }
-                                exchange.transaction.erc20Address = ''
-                                this.setState({ tokenLocked: false, tokenError: "", amountError: "", addressError: "" })
-                                exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
-                                    exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH) :
-                                    exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
-                            }} />
-                        </Box>
-                        {renderNetworkTemplate(NTemplate2)}
+
+
+    return (
+        <Box fill direction="column" background="transparent">
+            <Fade left>
+                <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
+                    {renderNetworkTemplate(networkTemplates[0], "start", onSwap)}
+                    <Box pad="small" style={{ position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
+                        <Icon size="60" glyph="Reverse" onClick={async () => {
+                            exchange.transaction.amount = ""
+                            exchange.transaction.tokenSelected = { symbol: '', image: '', value: '', src_coin: '' }
+                            exchange.transaction.erc20Address = ''
+                            setErrors({ token: "", address: "", amount: "" })
+                            setTokenLocked(false)
+                            setMinAmount("")
+                            setMaxAmount("")
+                            setSwap(!onSwap)
+
+                            exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
+                                exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH) :
+                                exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
+                        }} />
                     </Box>
-                </Fade>
-                <Fade right>
-
+                    {renderNetworkTemplate(networkTemplates[1], "end", onSwap)}
+                </Box>
+            </Fade>
+            <Fade right>
+                <Flip bottom spy={onSwap} duration={1000}>
                     <Box fill direction="column" className={styles.exchangeContainer}>
-                        <Form ref={ref => (this.formRef = ref)} data={exchange.transaction} {...({} as any)} >
+                        <Form data={exchange.transaction} {...({} as any)} >
                             <Box direction="row" fill={true} pad="xlarge">
 
                                 <Box direction="row" gap="2px" width="50%" margin={{ right: 'medium' }}>
                                     <Box width="100%" margin={{ right: 'medium' }} direction="column">
                                         <ERC20Select
                                             value={selectedToken.value}
-                                            onSelectToken={async (token, value) => {
-                                                token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
-                                                token.display_props.value = value
-                                                exchange.transaction.amount = ""
-                                                exchange.transaction.confirmed = false
-                                                exchange.transaction.tokenSelected = { ...token.display_props }
-
-                                                if (token.display_props.symbol !== "ETH") exchange.transaction.erc20Address = value
-
-                                                this.setState({ tokenError: "" })
-                                                this.setState({ tokenLocked: false })
-                                                exchange.checkTokenApprove(value)
-
-                                                if (token.display_props.symbol === 'ETH') return
-
-                                                if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-                                                    try {
-                                                        await user.updateBalanceForSymbol(token.display_props.symbol);
-                                                        const balance = user.balanceToken[token.src_coin]
-                                                        console.log('balance', balance);
-                                                        this.setState({ tokenLocked: balance === unlockToken })
-                                                    } catch (e) {
-                                                        this.setState({ tokenError: e.message })
-                                                    }
-                                                }
-
-                                            }}
+                                            onSelectToken={onSelectedToken}
                                         />
                                         <Box margin={{ top: 'medium' }} direction="column">
-                                            <Text style={{ minHeight: 20 }} color="red">{tokenError}</Text>
-                                            {tokenLocked && renderTokenLocked(user)}
+                                            <Text style={{ minHeight: 20 }} color="red">{errors.token}</Text>
                                         </Box>
                                     </Box>
                                     <Box direction="column" width="100%">
@@ -329,7 +379,7 @@ Pick<IStores, 'userMetamask'>, State
                                                     onChange={async (value) => {
                                                         exchange.transaction.amount = value
                                                         const error = validateAmountInput(value, minAmount, maxAmount)
-                                                        this.setState({ amountError: error })
+                                                        setErrors({ ...errors, amount: error })
                                                     }}
                                                 />
                                             </Box>
@@ -337,16 +387,15 @@ Pick<IStores, 'userMetamask'>, State
                                             <Box direction="row" align="center" justify="end">
                                                 {maxAmount === "loading" ?
                                                     <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                                                    : <Text bold className={styles.maxAmountInput}>{`/ ${maxAmount}`}</Text>}
+                                                    : <Text bold className={styles.maxAmountInput}>{`/ ${maxAmount === unlockToken ? '****' : maxAmount}`}</Text>}
                                                 <Button
                                                     margin={{ left: 'xsmall', right: 'xsmall' }}
                                                     bgColor="#DEDEDE"
                                                     pad="xxsmall"
                                                     onClick={() => {
+                                                        if (maxAmount === unlockToken) return
                                                         const value = maxAmount
                                                         exchange.transaction.amount = value
-                                                        const error = validateAmountInput(value, minAmount, maxAmount)
-                                                        this.setState({ amountError: error })
                                                     }}
                                                 >
                                                     <Text size="xxsmall" bold>MAX</Text>
@@ -368,7 +417,7 @@ Pick<IStores, 'userMetamask'>, State
                                         </Box>
 
                                         <Box margin={{ top: 'medium' }} direction="column">
-                                            <Text style={{ minHeight: 20 }} color="red">{amountError}</Text>
+                                            <Text style={{ minHeight: 20 }} color="red">{errors.amount}</Text>
                                         </Box>
                                     </Box>
                                 </Box>
@@ -404,12 +453,12 @@ Pick<IStores, 'userMetamask'>, State
                                         onChange={(value) => {
                                             if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) exchange.transaction.ethAddress = value
                                             if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) exchange.transaction.scrtAddress = value
-                                            const error = validateAddressInput(exchange)
-                                            this.setState({ amountError: error })
+                                            const error = validateAddressInput(exchange.mode, value)
+                                            setErrors({ ...errors, address: error })
                                         }}
                                     />
                                     <Box margin={{ top: 'medium' }} direction="column">
-                                        <Text style={{ minHeight: 20 }} color="red">{addressError}</Text>
+                                        <Text style={{ minHeight: 20 }} color="red">{errors.address}</Text>
                                     </Box>
                                 </Box>
 
@@ -418,52 +467,48 @@ Pick<IStores, 'userMetamask'>, State
                         </Form>
 
 
-                        <Box direction="row" pad="large" justify="end" align="center">
+                        <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
+                            <Box style={{ maxWidth: '50%' }}>
+                                {tokenLocked && renderTokenLocked(user)}
+                            </Box>
+                            <Box direction="row">
 
-                            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
-                                disabled={!toApprove}
-                                bgColor={"#00ADE8"}
-                                color={"white"}
-                                style={{ minWidth: 180, height: 48 }}
-                                onClick={() => {
+                                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
+                                    disabled={exchange.tokenApprovedLoading || !toApprove}
+                                    bgColor={"#00ADE8"}
+                                    color={"white"}
+                                    style={{ minWidth: 180, height: 48 }}
+                                    onClick={() => {
+                                        const tokenError = validateTokenInput(selectedToken)
+                                        setErrors({ ...errors, token: "" })
+                                        if (tokenError) return setErrors({ ...errors, token: tokenError })
+                                        if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
+                                    }}
+                                >
+                                    {exchange.tokenApprovedLoading ?
+                                        <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
+                                        (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
+                                </Button>}
 
-                                    const tokenError = validateTokenInput(selectedToken)
-                                    this.setState({ tokenError: "", amountError: "" })
-                                    if (tokenError) return this.setState({ tokenError })
-                                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
-                                }}
-                            >
-                                {exchange.tokenApprovedLoading ?
-                                    <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
-                                    (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
-                            </Button>}
+                                <Button
+                                    disabled={!readyToSend}
+                                    margin={{ left: 'medium' }}
+                                    bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
+                                    color={!toApprove ? "white" : "#748695"}
+                                    style={{ minWidth: 300, height: 48 }}
+                                    onClick={() => {
+                                        if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
+                                    }}
+                                >
+                                    {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Send to Secret Network" : "Send to Ethereum Blockchain"}
+                                </Button>
 
-                            <Button
-                                disabled={!readyToSend}
-                                margin={{ left: 'medium' }}
-                                bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
-                                color={!toApprove ? "white" : "#748695"}
-                                style={{ minWidth: 300, height: 48 }}
-                                onClick={() => {
+                            </Box>
 
-                                    const tokenError = validateTokenInput(selectedToken)
-                                    const amountError = validateAmountInput(exchange.transaction.amount, minAmount, maxAmount)
-                                    const addressError = validateAddressInput(exchange)
-                                    this.setState({ tokenError: "", amountError: "", addressError: "" })
-                                    if (tokenError) return this.setState({ tokenError })
-                                    if (amountError) return this.setState({ amountError })
-                                    if (addressError) return this.setState({ addressError })
-
-                                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
-
-                                }}
-                            >
-                                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Send to Secret Network" : "Send to Ethereum Blockchain"}
-                            </Button>
                         </Box>
                     </Box>
-                </Fade>
-            </Box>
-        )
-    }
-}
+                </Flip>
+            </Fade>
+        </Box>
+    )
+})

@@ -47,14 +47,8 @@ export const ERC20Select = observer((props: {
               value: token.src_address,
             }))}
           value={props.value}
-          onChange={async _value => {
-            const token = tokens.allData.find(t => t.src_address === _value)
-            props.onSelectToken(token, _value)
-
-            try {
-              await userMetamask.setToken(_value, tokens);
-            } catch (e) { }
-
+          onChange={async value => {
+            props.onSelectToken(value)
           }}
           placeholder="Select your token"
         />

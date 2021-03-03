@@ -14,6 +14,60 @@
     border-radius: 4px;
 }
 
+.warning_message{
+    opacity: 0;
+    transition: 0.3s;
+    position: absolute;
+    bottom -85px;
+    left: 130;
+    border: 1px solid #c7cac3
+    background: white;
+    min-width: 400px;
+    z-index: 2;
+    display: none;
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.28);
+
+}
+
+.warningSign{
+    position: relative;
+    cursor: pointer;
+    
+    img {
+        animation: pulse-animation 2s infinite;
+    }
+}
+
+@keyframes pulse-animation {
+    0% {
+        transform: rotate(25deg);
+    }
+    25% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-25deg);
+    }
+    75% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(25deg);
+    }
+}
+
+.networktemplatetoken{
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.28);
+    background-color: #E1FEF2;
+    height: 44;
+    border-radius: 5px;
+}
+
+.warningSign:hover .warning_message{
+    opacity: 1;
+    display: block;
+}
+
 .maxAmountInput{
     max-width: 100px;
     width: 100%;
