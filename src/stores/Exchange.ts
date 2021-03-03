@@ -328,6 +328,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.ethAddress = this.transaction.ethAddress.trim();
       this.txHash = ''
       this.transaction.loading = true
+      this.transaction.error = ''
 
       if (this.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
         await this.swapSnip20ToEth(this.token === TOKEN.ETH);
@@ -348,9 +349,9 @@ export class Exchange extends StoreConstructor {
       return;
     } catch (e) {
       if (e.status && e.response.body) {
-        this.error = e.response.body.message;
+        this.transaction.error = e.response.body.message;
       } else {
-        this.error = e.message;
+        this.transaction.error = e.message;
       }
       this.actionStatus = 'error';
       this.operation = null;
@@ -404,8 +405,8 @@ export class Exchange extends StoreConstructor {
           //this.updateOperation(this.operation.id, { error: result.error });
           this.tokenApprovedLoading = false
           this.transaction.loading = false
-          this.transaction.error = result.error
-          this.stepNumber = EXCHANGE_STEPS.BASE
+          this.transaction.error = result.error.message
+          //this.stepNumber = EXCHANGE_STEPS.BASE
         }
 
       });
@@ -440,9 +441,9 @@ export class Exchange extends StoreConstructor {
         if (result.error) {
           //this.updateOperation(this.operation.id, { error: result.error });
 
-          this.transaction.error = result.error
+          this.transaction.error = result.error.message
           this.transaction.loading = false
-          this.stepNumber = EXCHANGE_STEPS.BASE
+          //this.stepNumber = EXCHANGE_STEPS.BASE
         }
 
       });
@@ -472,9 +473,9 @@ export class Exchange extends StoreConstructor {
 
       if (result.error) {
         //this.updateOperation(this.operation.id, { error: result.error });
-        this.transaction.error = result.error
+        this.transaction.error = result.error.message
         this.transaction.loading = false
-        this.stepNumber = EXCHANGE_STEPS.BASE
+        //this.stepNumber = EXCHANGE_STEPS.BASE
       }
 
     });
@@ -544,7 +545,6 @@ export class Exchange extends StoreConstructor {
   clear() {
     this.transaction = this.defaultTransaction;
     this.operation = null;
-    this.error = '';
     this.txHash = '';
     this.actionStatus = 'init';
     this.stepNumber = EXCHANGE_STEPS.BASE;

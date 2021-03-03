@@ -11,6 +11,7 @@ import { EXCHANGE_STEPS } from '../../../stores/Exchange';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Price } from '../../Explorer/Components';
+import HeadShake from 'react-reveal/HeadShake';
 
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
@@ -68,11 +69,18 @@ Pick<IStores, 'userMetamask'>
                             </Box>
 
                             <Box style={{ height: 25 }}>
-                                {exchange.txHash && <Text>Follow Transaction <a href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
+                                {exchange.txHash && <HeadShake bottom><Text>Follow Transaction <a href={`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`}
                                     style={{ textDecoration: 'none' }}
                                     target="_blank"
-                                    rel="noreferrer">Here</a></Text>}
+                                    rel="noreferrer">Here</a></Text>
+                                </HeadShake>}
                             </Box>
+
+                            {exchange.transaction.error && <HeadShake bottom>
+                                <Box margin={{ top: 'xsmall' }}>
+                                    <Text color="red">{exchange.transaction.error}</Text>
+                                </Box>
+                            </HeadShake>}
 
                             <Box fill align="center" margin={{ top: 'large' }}>
                                 <Button

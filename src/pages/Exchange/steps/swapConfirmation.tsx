@@ -16,6 +16,7 @@ import { formatWithSixDecimals, truncateAddressString, unlockToken } from 'utils
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useStores } from '../../../stores';
 import { tokenLocked } from '../utils';
+import HeadShake from 'react-reveal/HeadShake';
 
 type NetworkTemplateInterface = {
     image: string
@@ -184,11 +185,19 @@ export const SwapConfirmation = observer(() => {
                         {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && tokenLocked(user)}
 
                         <Box style={{ height: 25 }} margin={{ top: 'xsmall' }}>
-                            {exchange.txHash && <Text>Follow Transaction <a href={hash}
-                                style={{ textDecoration: 'none' }}
-                                target="_blank"
-                                rel="noreferrer">Here</a></Text>}
+                            {exchange.txHash && <HeadShake bottom>
+                                <Text>Follow Transaction <a href={hash}
+                                    style={{ textDecoration: 'none' }}
+                                    target="_blank"
+                                    rel="noreferrer">Here</a></Text>
+                            </HeadShake>}
                         </Box>
+
+                        {exchange.transaction.error && <HeadShake bottom>
+                            <Box margin={{ top: 'xsmall' }}>
+                                <Text color="red">{exchange.transaction.error}</Text>
+                            </Box>
+                        </HeadShake>}
 
                         <Box fill direction="row" align="center" style={{ width: '100%' }} margin={{ top: 'large' }}>
                             <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {

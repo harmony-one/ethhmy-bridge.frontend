@@ -17,6 +17,7 @@ import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { autorun } from 'mobx';
 import Fade from 'react-reveal/Fade';
+import HeadShake from 'react-reveal/HeadShake';
 import Wobble from 'react-reveal/Wobble';
 import Flip from 'react-reveal/Flip';
 import { tokenLocked } from '../utils';
@@ -340,8 +341,10 @@ export const Base = observer(() => {
                                             value={selectedToken.value}
                                             onSelectToken={onSelectedToken}
                                         />
-                                        <Box margin={{ top: 'medium' }} direction="column">
-                                            <Text style={{ minHeight: 20 }} color="red">{errors.token}</Text>
+                                        <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
+                                            {errors.token && <HeadShake>
+                                                <Text color="red">{errors.token}</Text>
+                                            </HeadShake>}
                                         </Box>
                                     </Box>
                                     <Box direction="column" width="100%">
@@ -402,8 +405,12 @@ export const Base = observer(() => {
                                             }} />
 
                                         </Box>
-                                        <Box margin={{ top: 'medium' }} direction="column">
-                                            <Text style={{ minHeight: 20 }} color="red">{errors.amount}</Text>
+
+                                        <Box style={{ minHeight: 38 }} margin={{ top: 'medium' }} direction="column">
+                                            {errors.amount && <HeadShake bottom>
+                                                <Text color="red">{errors.amount}</Text>
+                                            </HeadShake>}
+
                                         </Box>
                                     </Box>
                                 </Box>
@@ -421,8 +428,13 @@ export const Base = observer(() => {
                                                 textAlign: 'right'
                                             }}
                                             onClick={() => {
-                                                if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) exchange.transaction.ethAddress = userMetamask.ethAddress
-                                                if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) exchange.transaction.scrtAddress = user.address
+                                                if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+                                                    exchange.transaction.ethAddress = userMetamask.ethAddress
+                                                    setErrors({ ...errors, address: validateAddressInput(exchange.mode, userMetamask.ethAddress) })
+                                                } else {
+                                                    exchange.transaction.scrtAddress = user.address
+                                                    setErrors({ ...errors, address: validateAddressInput(exchange.mode, user.address) })
+                                                }
                                             }}
                                         >
                                             Use my address
@@ -443,8 +455,10 @@ export const Base = observer(() => {
                                             setErrors({ ...errors, address: error })
                                         }}
                                     />
-                                    <Box margin={{ top: 'medium' }} direction="column">
-                                        <Text style={{ minHeight: 20 }} color="red">{errors.address}</Text>
+                                    <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
+                                        {errors.address && <HeadShake>
+                                            <Text color="red">{errors.address}</Text>
+                                        </HeadShake>}
                                     </Box>
                                 </Box>
 
