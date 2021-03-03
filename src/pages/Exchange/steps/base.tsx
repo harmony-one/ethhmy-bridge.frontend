@@ -225,6 +225,7 @@ export const Base = observer(() => {
         setMinAmount("loading")
         setMaxAmount("loading")
         token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
+        if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
         exchange.transaction.amount = ""
         exchange.transaction.confirmed = false
         exchange.transaction.tokenSelected = {
@@ -256,7 +257,6 @@ export const Base = observer(() => {
         }
 
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
             try {
                 await user.updateBalanceForSymbol(token.display_props.symbol);
                 const balance = user.balanceToken[token.src_coin]
@@ -384,20 +384,24 @@ export const Base = observer(() => {
                                                 </Button>
                                             </Box>
                                         </Box>
-                                        <Box margin={{ top: 'xxsmall' }} direction="row" align="center">
-                                            <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Minimum:</Text>
-                                            {minAmount === 'loading' ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> :
-                                                <Text size="small" color="#748695">
-                                                    {`
+                                        <Box margin={{ top: 'xxsmall' }} direction="row" align="center" justify="between">
+                                            <Box direction="row">
+                                                <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Minimum:</Text>
+                                                {minAmount === 'loading' ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> :
+                                                    <Text size="small" color="#748695">
+                                                        {`
                                                     ${minAmount} 
                                                     ${exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && exchange.token === TOKEN.ERC20 ? 'secret' : ''} 
                                                     ${selectedToken.symbol}
                                                     `}
-                                                </Text>
-                                            }
+                                                    </Text>
+                                                }
+                                            </Box>
+                                            <Icon size="15" glyph="Refresh" onClick={async () => {
+                                                onSelectedToken(exchange.transaction.tokenSelected.value)
+                                            }} />
 
                                         </Box>
-
                                         <Box margin={{ top: 'medium' }} direction="column">
                                             <Text style={{ minHeight: 20 }} color="red">{errors.amount}</Text>
                                         </Box>
