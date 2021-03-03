@@ -19,7 +19,7 @@ import { autorun } from 'mobx';
 import Fade from 'react-reveal/Fade';
 import Wobble from 'react-reveal/Wobble';
 import Flip from 'react-reveal/Flip';
-import Zoom from 'react-reveal/Zoom';
+import { tokenLocked } from '../utils';
 import { useStores } from '../../../stores';
 interface Errors {
     amount: string;
@@ -126,24 +126,6 @@ const renderNetworkTemplate = (template: NetworkTemplateInterface, align: any, o
     </Wobble>
 )
 
-const renderTokenLocked = (user: any) => <Zoom bottom>
-    <Box direction="column">
-        <Text bold color="#c5bb2e">Warning</Text>
-        <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>Everything inside Secret Network is private by default, in order for you to view this token balance, it is required a viewing key.
-        </Text>
-        <Box style={{ cursor: 'pointer' }} onClick={async () => {
-            try {
-                await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
-            } catch (error) {
-                console.log(error);
-            }
-        }}>
-            <Text bold>Created one here</Text>
-        </Box>
-
-    </Box>
-</Zoom>
-
 export const Base = observer(() => {
     const { user, userMetamask, actionModals, exchange, tokens } = useStores();
     const [errors, setErrors] = useState<Errors>({ token: "", address: "", amount: "" });
@@ -163,7 +145,7 @@ export const Base = observer(() => {
         image: ""
 
     }]);
-    const [tokenLocked, setTokenLocked] = useState<boolean>(false);
+    const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
     const [minAmount, setMinAmount] = useState<string>("");
     const [maxAmount, setMaxAmount] = useState<string>("");
     const [onSwap, setSwap] = useState<boolean>(false);
@@ -469,7 +451,7 @@ export const Base = observer(() => {
 
                         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
                             <Box style={{ maxWidth: '50%' }}>
-                                {tokenLocked && renderTokenLocked(user)}
+                                {isTokenLocked && tokenLocked(user)}
                             </Box>
                             <Box direction="row">
 

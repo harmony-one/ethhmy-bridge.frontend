@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { inject, observer } from 'mobx-react';
 import { Button, Icon, Text, Title } from 'components/Base';
 import { Modal } from 'semantic-ui-react';
@@ -11,8 +12,10 @@ import { EXCHANGE_STEPS } from '../../../stores/Exchange';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Price } from '../../Explorer/Components';
-import { formatWithSixDecimals, truncateAddressString } from 'utils';
+import { formatWithSixDecimals, truncateAddressString, unlockToken } from 'utils';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { useStores } from '../../../stores';
+import { tokenLocked } from '../utils';
 
 type NetworkTemplateInterface = {
     image: string
@@ -28,178 +31,186 @@ const renderNetworkTemplate = (template: NetworkTemplateInterface, justify: any)
     </Box>
 )
 
-@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
-@observer
-export class SwapConfirmation extends React.Component<
-Pick<IStores, 'user'> &
-Pick<IStores, 'exchange'> &
-Pick<IStores, 'routing'> &
-Pick<IStores, 'actionModals'> &
-Pick<IStores, 'tokens'> &
-Pick<IStores, 'userMetamask'>
-> {
-    formRef: MobxForm;
+export const SwapConfirmation = observer(() => {
 
-    constructor(props) {
-        super(props);
+    const { exchange, user } = useStores();
+    const [hash, setHash] = useState<string>(null);
+    const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
 
-    }
+    const symbol = exchange.transaction.tokenSelected.symbol
+    const tokenImage = exchange.transaction.tokenSelected.image
+    const amount = exchange.transaction.amount
 
+    useEffect(() => {
 
-    render() {
+        try {
+            console.log('fetching')
+            user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol).then(() => {
 
-        const { exchange, routing } = this.props;
+                const balance = user.balanceToken[exchange.transaction.tokenSelected.src_coin]
+                console.log('fetched', balance)
 
-        const symbol = exchange.transaction.tokenSelected.symbol
-        const tokenImage = exchange.transaction.tokenSelected.image
-        const amount = exchange.transaction.amount
+                setTokenLocked(balance === unlockToken)
+            })
 
-        const NTemplate1: NetworkTemplateInterface = {
-            symbol: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? symbol : `Secret ${symbol}`,
-            amount,
-            image: tokenImage
+        } catch (e) { }
+    }, []);
 
-        }
-
-        const NTemplate2: NetworkTemplateInterface = {
-            symbol: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? `Secret ${symbol}` : symbol,
-            amount,
-            image: tokenImage
-
-        }
-
-        let calculatedAmount = formatWithSixDecimals(Number(exchange.transaction.amount) - Number(exchange.swapFeeToken))
-        if (Number(calculatedAmount) < 0) calculatedAmount = "0"
-
-        let hashLink = ''
+    useEffect(() => {
         if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-            hashLink = `${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`
+            setHash(`${process.env.ETH_EXPLORER_URL}/tx/${exchange.txHash}`)
         }
 
         if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            hashLink = `${process.env.SCRT_EXPLORER_URL}/transactions/${exchange.txHash}`
+            setHash(`${process.env.SCRT_EXPLORER_URL}/transactions/${exchange.txHash}`)
         }
-
-        return (
-            <Modal
-                onClose={() => exchange.stepNumber = EXCHANGE_STEPS.BASE}
-                open={exchange.step.modal}
-                style={{ width: '600px', display: 'flex' }}
-            >
-
-                <React.Fragment>
-                    <Modal.Header>
-                        <div style={{ padding: "12 32", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Title bold>Confirm Transaction!</Title>
-                            <span style={{ cursor: 'pointer' }} onClick={() => exchange.stepNumber = EXCHANGE_STEPS.BASE}>
-                                <Icon size="23" glyph="Close" />
-                            </span>
-                        </div>
-                    </Modal.Header>
-                    <Modal.Content>
-                        <Box direction="column" fill={true} pad="large">
-
-                            <Box direction="row" fill={true} justify="between" align="center" style={{ marginBottom: 26 }}>
-                                {renderNetworkTemplate(NTemplate1, "center")}
-                                <img alt="bridge" src="/static/bridge.svg" width="40" height="30" style={{ margin: '0 15' }} />
-                                {renderNetworkTemplate(NTemplate2, "center")}
-                            </Box>
+    }, [exchange.txHash]);
 
 
-                            <Text size="small" color="#748695" margin={{ top: 'xsmall', bottom: 'medium' }}>
-                                You are about to bridge <b>{amount} {symbol}</b> to <b>{exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Secret Network' : 'Ethereum Blockchain'}</b>, please be patient as the transaction may take a few minutes. You can follow it every step of the way right here once you confirm the transaction!
-                            </Text>
 
-                            <Box direction="column">
-                                <Box direction="row" justify="between">
-                                    <Text>Secret Address:</Text>
-                                    <Box direction="row">
-                                        <Text size="small" style={{ fontFamily: 'monospace' }}>
+    const NTemplate1: NetworkTemplateInterface = {
+        symbol: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? symbol : `Secret ${symbol}`,
+        amount,
+        image: tokenImage
 
-                                            {truncateAddressString(exchange.transaction.scrtAddress)}
-                                        </Text>
-                                        <CopyToClipboard text={exchange.transaction.ethAddress}>
-                                            <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
-                                        </CopyToClipboard>
-                                    </Box>
-                                </Box>
-                                <Box direction="row" margin={{ top: 'small' }} justify="between">
-                                    <Text>Ethereum Address:</Text>
-                                    <Box direction="row">
-                                        <Text size="small" style={{ fontFamily: 'monospace' }}>
-                                            {truncateAddressString(exchange.transaction.ethAddress)}
-                                        </Text>
-                                        <CopyToClipboard text={exchange.transaction.ethAddress}>
-                                            <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
-                                        </CopyToClipboard>
-                                    </Box>
-                                </Box>
-                                <Box direction="row" margin={{ top: 'small' }} justify="between">
-                                    <Text>Amount:</Text>
-                                    <Box direction="row">
-                                        <Text bold>{formatWithSixDecimals(exchange.transaction.amount)}</Text>
+    }
 
-                                        <img src={exchange.transaction.tokenSelected.image} style={{ marginLeft: 10 }} width="20" height="20" />
-                                    </Box>
-                                </Box>
-                            </Box>
+    const NTemplate2: NetworkTemplateInterface = {
+        symbol: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? `Secret ${symbol}` : symbol,
+        amount,
+        image: tokenImage
 
-                            <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
-                                <Text bold size="small" color="#00ADE8" >Fee</Text>
-                                {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
-                                    value={exchange.networkFee}
-                                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
-                                    boxProps={{ pad: {} }}
-                                />}
-                            </Box>
+    }
 
-                            {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
-                                <Box className={styles.warningSign} direction="row" align="center">
-                                    <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Ethereum Fee</Text>
-                                    <img src="/static/warning.svg" width="20" />
-                                    <Box pad="xsmall" className={styles.warning_message}>
-                                        <Text size="xsmall">You are about to move your secret tokens back to Ethereum. You will receive approximately <b>{calculatedAmount} {symbol}</b> and <b>{formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}</b> will be used to pay for Ethereum gas fees
-                                        </Text>
-                                    </Box>
-                                </Box>
-                                {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
-                                    value={Number(formatWithSixDecimals(exchange.swapFeeToken))}
-                                    valueUsd={exchange.swapFeeUSD}
-                                    token={symbol}
-                                    boxProps={{ pad: {} }}
-                                />}
-                            </Box>}
+    let calculatedAmount = formatWithSixDecimals(Number(exchange.transaction.amount) - Number(exchange.swapFeeToken))
+    if (Number(calculatedAmount) < 0) calculatedAmount = "0"
 
+    return (
 
-                            <Box style={{ height: 25 }}>
-                                {exchange.txHash && <Text>Follow Transaction <a href={hashLink}
-                                    style={{ textDecoration: 'none' }}
-                                    target="_blank"
-                                    rel="noreferrer">Here</a></Text>}
-                            </Box>
+        <Modal
+            onClose={() => exchange.stepNumber = EXCHANGE_STEPS.BASE}
+            open={exchange.step.modal}
+            style={{ width: '600px', display: 'flex' }}
+        >
 
-                            <Box fill direction="row" align="center" style={{ width: '100%' }} margin={{ top: 'large' }}>
-                                <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {
-                                    if (exchange.transaction.loading) return
-                                    if (exchange.transaction.confirmed) return routing.push('/earn') //TODO: chnage to portfolio
-                                    return exchange.step.onClick()
-                                }}>
-                                    {exchange.transaction.loading ?
-                                        <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
-                                        (exchange.transaction.confirmed ? <span><b>Bridged.</b> Check Your Portfolio</span> : "Confirm")
+            <React.Fragment>
+                <Modal.Header>
+                    <div style={{ padding: "12 32", display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Title bold>Confirm Transaction!</Title>
+                        <span style={{ cursor: 'pointer' }} onClick={() => exchange.stepNumber = EXCHANGE_STEPS.BASE}>
+                            <Icon size="23" glyph="Close" />
+                        </span>
+                    </div>
+                </Modal.Header>
+                <Modal.Content>
+                    <Box direction="column" fill={true} pad="large">
 
-                                    }
-
-                                </Button>
-                            </Box>
-
-
+                        <Box direction="row" fill={true} justify="between" align="center" style={{ marginBottom: 26 }}>
+                            {renderNetworkTemplate(NTemplate1, "center")}
+                            <img alt="bridge" src="/static/bridge.svg" width="40" height="30" style={{ margin: '0 15' }} />
+                            {renderNetworkTemplate(NTemplate2, "center")}
                         </Box>
 
-                    </Modal.Content>
-                </React.Fragment>
 
-            </Modal>
-        )
-    }
-}
+                        <Text size="small" color="#748695" margin={{ top: 'xsmall', bottom: 'medium' }}>
+                            You are about to bridge <b>{amount} {symbol}</b> to <b>{exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Secret Network' : 'Ethereum Blockchain'}</b>, please be patient as the transaction may take a few minutes. You can follow it every step of the way right here once you confirm the transaction!
+                            </Text>
+
+                        <Box direction="column">
+                            <Box direction="row" justify="between">
+                                <Text>Secret Address:</Text>
+                                <Box direction="row">
+                                    <Text size="small" style={{ fontFamily: 'monospace' }}>
+
+                                        {truncateAddressString(exchange.transaction.scrtAddress)}
+                                    </Text>
+                                    <CopyToClipboard text={exchange.transaction.ethAddress}>
+                                        <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
+                                    </CopyToClipboard>
+                                </Box>
+                            </Box>
+                            <Box direction="row" margin={{ top: 'small' }} justify="between">
+                                <Text>Ethereum Address:</Text>
+                                <Box direction="row">
+                                    <Text size="small" style={{ fontFamily: 'monospace' }}>
+                                        {truncateAddressString(exchange.transaction.ethAddress)}
+                                    </Text>
+                                    <CopyToClipboard text={exchange.transaction.ethAddress}>
+                                        <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
+                                    </CopyToClipboard>
+                                </Box>
+                            </Box>
+                            <Box direction="row" margin={{ top: 'small' }} justify="between">
+                                <Text>Amount:</Text>
+                                <Box direction="row">
+                                    <Text bold>{formatWithSixDecimals(exchange.transaction.amount)}</Text>
+
+                                    <img src={exchange.transaction.tokenSelected.image} style={{ marginLeft: 10 }} width="20" height="20" />
+                                </Box>
+                            </Box>
+                        </Box>
+
+                        <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
+                            <Box direction="row" align="center">
+                                <img style={{ marginRight: 6, width: exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 15 : 12 }} className={styles.imgToken} src={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "/static/scrt.svg" : "/static/eth.svg"} />
+                                <Text bold size="small" color="#00ADE8" >Fee</Text>
+                            </Box>
+                            {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
+                                value={exchange.networkFee}
+                                isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT}
+                                boxProps={{ pad: {} }}
+                            />}
+                        </Box>
+
+                        {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
+                            <Box className={styles.warningSign} direction="row" align="center">
+                                <img style={{ marginRight: 6, width: 12 }} src={"/static/eth.svg"} />
+                                <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Ethereum Fee</Text>
+                                <img src="/static/warning.svg" width="20" className={styles.image_warning} />
+                                <Box pad="xsmall" className={styles.warning_message}>
+                                    <Text size="xsmall">You are about to move your secret tokens back to Ethereum. You will receive approximately <b>{calculatedAmount} {symbol}</b> and <b>{formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}</b> will be used to pay for Ethereum gas fees
+                                        </Text>
+                                </Box>
+                            </Box>
+                            {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
+                                value={Number(formatWithSixDecimals(exchange.swapFeeToken))}
+                                valueUsd={exchange.swapFeeUSD}
+                                token={symbol}
+                                boxProps={{ pad: {} }}
+                            />}
+                        </Box>}
+
+
+                        {true && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && tokenLocked(user)}
+
+                        <Box style={{ height: 25 }}>
+                            {exchange.txHash && <Text>Follow Transaction <a href={hash}
+                                style={{ textDecoration: 'none' }}
+                                target="_blank"
+                                rel="noreferrer">Here</a></Text>}
+                        </Box>
+
+                        <Box fill direction="row" align="center" style={{ width: '100%' }} margin={{ top: 'large' }}>
+                            <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {
+                                if (exchange.transaction.loading) return
+                                if (exchange.transaction.confirmed) return exchange.stepNumber = EXCHANGE_STEPS.BASE
+                                return exchange.step.onClick()
+                            }}>
+                                {exchange.transaction.loading ?
+                                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
+                                    (exchange.transaction.confirmed ? <span><b>Bridged.</b> Take me back</span> : "Confirm")
+
+                                }
+
+                            </Button>
+                        </Box>
+
+
+                    </Box>
+
+                </Modal.Content>
+            </React.Fragment>
+
+        </Modal>
+    )
+})
