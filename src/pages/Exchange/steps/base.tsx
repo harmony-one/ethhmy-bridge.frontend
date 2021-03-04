@@ -400,9 +400,9 @@ export const Base = observer(() => {
                                                     </Text>
                                                 }
                                             </Box>
-                                            <Icon size="15" glyph="Refresh" onClick={async () => {
+                                            {exchange.transaction.tokenSelected.value && <Icon size="15" glyph="Refresh" onClick={async () => {
                                                 onSelectedToken(exchange.transaction.tokenSelected.value)
-                                            }} />
+                                            }} />}
 
                                         </Box>
 
