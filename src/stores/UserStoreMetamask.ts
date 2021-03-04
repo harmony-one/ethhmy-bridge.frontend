@@ -124,7 +124,7 @@ export class UserStoreMetamask extends StoreConstructor {
                   },
                 ],
               },
-              err => (err ? reject(err) : accept()),
+              err => (err ? reject(err) : accept("success")),
             ),
           );
         }
