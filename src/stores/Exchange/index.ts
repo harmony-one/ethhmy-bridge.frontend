@@ -5,7 +5,10 @@ import {
   ACTION_TYPE,
   EXCHANGE_MODE,
   IOperation,
+  NETWORK_TYPE,
   STATUS,
+  TConfig,
+  TFullConfig,
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
@@ -13,13 +16,15 @@ import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { sleep, uuid } from '../../utils';
-import { getNetworkFee } from '../../blockchain-bridge/eth/helpers';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
 import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
 import { getContractMethods } from './helpers';
+import { initNetworks } from '../../blockchain-bridge';
+import { getExNetworkMethods } from '../../blockchain-bridge';
+import { defaultEthClient } from './defaultConfig';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -58,6 +63,8 @@ export class Exchange extends StoreConstructor {
   @observable isFeeLoading = false;
   @observable isDepositAmountLoading = false;
   @observable depositAmount = 0;
+
+  @observable network: NETWORK_TYPE = NETWORK_TYPE.ETHEREUM;
 
   defaultTransaction: ITransaction = {
     oneAddress: '',
@@ -149,10 +156,12 @@ export class Exchange extends StoreConstructor {
               }
             }
 
+            const exNetwork = getExNetworkMethods();
+
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
                 this.isFeeLoading = true;
-                this.ethNetworkFee = await getNetworkFee();
+                this.ethNetworkFee = await exNetwork.getNetworkFee();
                 this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
@@ -290,6 +299,7 @@ export class Exchange extends StoreConstructor {
 
     this.mode = this.operation.type;
     this.token = this.operation.token;
+    this.network = this.operation.network;
     this.transaction.amount = Array.isArray(this.operation.amount)
       ? this.operation.amount
       : String(this.operation.amount);
@@ -306,6 +316,7 @@ export class Exchange extends StoreConstructor {
       ...this.transaction,
       type: this.mode,
       token: this.token,
+      network: this.network,
       id: uuid(),
     });
 
@@ -414,24 +425,25 @@ export class Exchange extends StoreConstructor {
       }
 
       let ethMethods, hmyMethods;
+      const exNetwork = getExNetworkMethods();
 
       switch (this.token) {
         case TOKEN.BUSD:
-          ethMethods = contract.ethMethodsBUSD;
+          ethMethods = exNetwork.ethMethodsBUSD;
           hmyMethods = this.stores.user.isMetamask
             ? contract.hmyMethodsBUSD.hmyMethodsWeb3
             : contract.hmyMethodsBUSD.hmyMethods;
           break;
 
         case TOKEN.LINK:
-          ethMethods = contract.ethMethodsLINK;
+          ethMethods = exNetwork.ethMethodsLINK;
           hmyMethods = this.stores.user.isMetamask
             ? contract.hmyMethodsLINK.hmyMethodsWeb3
             : contract.hmyMethodsLINK.hmyMethods;
           break;
 
         case TOKEN.ERC20:
-          ethMethods = contract.ethMethodsERC20;
+          ethMethods = exNetwork.ethMethodsERC20;
           hmyMethods = this.stores.user.isMetamask
             ? contract.hmyMethodsERC20.hmyMethodsWeb3
             : contract.hmyMethodsERC20.hmyMethods;
@@ -747,5 +759,43 @@ export class Exchange extends StoreConstructor {
     this.actionStatus = 'init';
     this.stepNumber = 0;
     this.stores.routing.push(`/${this.token}`);
+  }
+
+  @observable fullConfig: TFullConfig;
+
+  @action.bound
+  getConfig = async () => {
+    this.fullConfig = await operationService.getConfig();
+    initNetworks(this.fullConfig);
+  };
+
+  @computed
+  get config(): TConfig {
+    if (!this.fullConfig) {
+      return defaultEthClient;
+    }
+
+    if (this.network === NETWORK_TYPE.ETHEREUM) {
+      return this.fullConfig.ethClient;
+    }
+
+    if (this.network === NETWORK_TYPE.BINANCE) {
+      return this.fullConfig.binanceClient;
+    }
+
+    return this.fullConfig.ethClient;
+  }
+
+  getExplorerByNetwork(network: NETWORK_TYPE) {
+    if (!this.fullConfig) {
+      return defaultEthClient.explorerURL;
+    }
+
+    switch (network) {
+      case NETWORK_TYPE.BINANCE:
+        return this.fullConfig.binanceClient.explorerURL;
+      case NETWORK_TYPE.ETHEREUM:
+        return this.fullConfig.ethClient.explorerURL;
+    }
   }
 }

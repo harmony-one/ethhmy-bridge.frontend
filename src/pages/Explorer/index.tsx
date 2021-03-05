@@ -16,18 +16,34 @@ import cn from 'classnames';
 import { ExpandedRow, getOperationFee } from './ExpandedRow';
 import { ERC20Token, Price } from './Components';
 import { Checkbox } from 'components/Base/components/Inputs';
+import { NETWORK_ICON } from '../../stores/names';
+import { getChecksumAddress } from '../../blockchain-bridge';
 
-const ethAddress = value => (
-  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/address/${value}`}
-      target="_blank"
-    >
-      {truncateAddressString(value, 5)}
-    </a>
-  </Box>
+const EthAddress = observer<any>(
+  (params: { address; operation: IOperation }) => {
+    const { exchange } = useStores();
+    const icon = NETWORK_ICON[params.operation.network];
+
+    return (
+      <Box
+        direction="row"
+        justify="start"
+        align="center"
+        style={{ marginTop: 4 }}
+      >
+        <img className={styles.imgToken} style={{ height: 20 }} src={icon} />
+        <a
+          className={styles.addressLink}
+          href={`${exchange.getExplorerByNetwork(
+            params.operation.network,
+          )}/address/${getChecksumAddress(params.address)}`}
+          target="_blank"
+        >
+          {truncateAddressString(getChecksumAddress(params.address), 5)}
+        </a>
+      </Box>
+    );
+  },
 );
 
 const oneAddress = value => (
@@ -58,9 +74,11 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'ethAddress',
     width: 200,
     render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_ONE
-        ? ethAddress(data.ethAddress)
-        : oneAddress(data.oneAddress),
+      data.type === EXCHANGE_MODE.ETH_TO_ONE ? (
+        <EthAddress address={value} operation={data} />
+      ) : (
+        oneAddress(data.oneAddress)
+      ),
   },
 
   {
@@ -69,9 +87,11 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
     dataIndex: 'oneAddress',
     width: 200,
     render: (value, data) =>
-      data.type === EXCHANGE_MODE.ETH_TO_ONE
-        ? oneAddress(data.oneAddress)
-        : ethAddress(data.ethAddress),
+      data.type === EXCHANGE_MODE.ETH_TO_ONE ? (
+        oneAddress(data.oneAddress)
+      ) : (
+        <EthAddress address={value} operation={data} />
+      ),
   },
 
   // {

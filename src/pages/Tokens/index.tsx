@@ -12,18 +12,25 @@ import { Title, Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 
-const ethAddress = value => (
-  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
-      target="_blank"
+const ethAddress = value => {
+  return (
+    <Box
+      direction="row"
+      justify="start"
+      align="center"
+      style={{ marginTop: 4 }}
     >
-      {truncateAddressString(value, 10)}
-    </a>
-  </Box>
-);
+      <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
+      <a
+        className={styles.addressLink}
+        href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
+        target="_blank"
+      >
+        {truncateAddressString(value, 10)}
+      </a>
+    </Box>
+  );
+};
 
 const oneAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>

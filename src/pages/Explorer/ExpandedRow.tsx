@@ -12,10 +12,10 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { dateTimeAgoFormat, sliceByLength, truncateAddressString } from 'utils';
 import { getStepsTitle } from './steps-constants';
-import { IColumn } from '../../components/Table';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 import { useStores } from '../../stores';
+import { NETWORK_ICON } from '../../stores/names';
 
 export interface IExpandedRowProps {
   data: IOperation;
@@ -117,7 +117,7 @@ const renderActionFee = (action: IAction): string => {
 // });
 
 export const ExpandedRow = observer((props: IExpandedRowProps) => {
-  const { tokens } = useStores();
+  const { tokens, exchange } = useStores();
 
   const erc20Address = props.data.erc20Address || '';
   const hrc20Address = props.data.hrc20Address || '';
@@ -152,7 +152,11 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             >
               <Box direction="row" align="center">
                 <img
-                  src={isEth(action.type) ? '/eth.svg' : 'one.svg'}
+                  src={
+                    isEth(action.type)
+                      ? NETWORK_ICON[props.data.network]
+                      : 'one.svg'
+                  }
                   style={{
                     marginRight: 15,
                     marginBottom: 2,
@@ -186,7 +190,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <a
                   className={styles.addressLink}
                   href={
-                    process.env.ETH_EXPLORER_URL +
+                    exchange.getExplorerByNetwork(props.data.network) +
                     '/token/' +
                     token.erc20Address
                   }
@@ -224,7 +228,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     className={styles.addressLink}
                     href={
                       (isEth(action.type)
-                        ? process.env.ETH_EXPLORER_URL
+                        ? exchange.getExplorerByNetwork(props.data.network)
                         : process.env.HMY_EXPLORER_URL) +
                       '/tx/' +
                       action.transactionHash

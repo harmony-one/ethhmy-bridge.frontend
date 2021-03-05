@@ -8,6 +8,7 @@ import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
+import { NETWORK_BASE_TOKEN } from '../../stores/names';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -159,7 +160,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
     return (
       <Box direction="column">
         <AssetRow
-          label="ETH address"
+          label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
           value={truncateAddressString(exchange.transaction.ethAddress)}
           address={true}
         />

@@ -6,54 +6,81 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import * as styles from './styles.styl';
 import { Exchange } from '../Exchange';
-import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
-import { Text } from 'components/Base';
+import { Button, Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
+import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 
-const LargeButton = (props: {
-  title: string;
-  onClick: () => void;
-  description: string;
-  isActive: boolean;
-  reverse?: boolean;
-}) => {
-  return (
-    <Box
-      direction="column"
-      align="center"
-      justify="center"
-      className={cn(
-        styles.largeButtonContainer,
-        props.isActive ? styles.active : '',
-      )}
-      onClick={props.onClick}
-      gap="10px"
-    >
-      <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
-        <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/eth.svg" />
-          <Text size="large" className={styles.title}>
-            ETH
-          </Text>
+const LargeButton = observer(
+  (props: {
+    title: string;
+    onClick: () => void;
+    description: string;
+    isActive: boolean;
+    reverse?: boolean;
+  }) => {
+    const { exchange } = useStores();
+
+    const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
+
+    return (
+      <Box
+        direction="column"
+        align="center"
+        justify="center"
+        className={cn(
+          styles.largeButtonContainer,
+          props.isActive ? styles.active : '',
+        )}
+        onClick={props.onClick}
+        gap="10px"
+      >
+        <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
+          <Box direction="row" align="center">
+            <img
+              className={styles.imgToken}
+              src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+            />
+            <Text size="large" className={styles.title}>
+              {isEthereumNetwork ? 'ETH' : 'Binance'}
+            </Text>
+          </Box>
+          <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
+            <img src="/right.svg" />
+          </Box>
+          <Box direction="row" align="center">
+            <img className={styles.imgToken} src="/one.svg" />
+            <Text size="large" className={styles.title}>
+              ONE
+            </Text>
+          </Box>
         </Box>
-        <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
-          <img src="/right.svg" />
-        </Box>
-        <Box direction="row" align="center">
-          <img className={styles.imgToken} src="/one.svg" />
-          <Text size="large" className={styles.title}>
-            ONE
-          </Text>
-        </Box>
+        <Text size="xsmall" color="#748695" className={styles.description}>
+          {props.description}
+        </Text>
       </Box>
-      <Text size="xsmall" color="#748695" className={styles.description}>
-        {props.description}
-      </Text>
-    </Box>
+    );
+  },
+);
+
+const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
+  const { exchange } = useStores();
+
+  return (
+    <Button
+      style={{
+        background: exchange.network === type ? '#00ADE8' : 'white',
+        color: exchange.network === type ? 'white' : '#00ADE8',
+      }}
+      onClick={() => (exchange.network = type)}
+    >
+      <img style={{ marginRight: 10, height: 20 }} src={NETWORK_ICON[type]} />
+      {NETWORK_NAME[type]}
+    </Button>
   );
-};
+});
 
 export const EthBridge = observer((props: any) => {
   const { user, exchange, routing, userMetamask, tokens } = useStores();
@@ -161,7 +188,14 @@ export const EthBridge = observer((props: any) => {
             {/*  </DisableWrap>*/}
             {/*</Box>*/}
           </Box>
-          <WalletBalances />
+
+          <Box direction="column">
+            <Box direction="row" gap="20px">
+              <NetworkButton type={NETWORK_TYPE.BINANCE} />
+              <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+            </Box>
+            <WalletBalances />
+          </Box>
         </Box>
       </PageContainer>
     </BaseContainer>

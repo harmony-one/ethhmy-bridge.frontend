@@ -156,6 +156,14 @@ export const mintTokens = async ({ address, token }) => {
   return res.body;
 };
 
+export const getConfig = async () => {
+  const res = await agent.get<{
+    body: any;
+  }>(`${servers[0]}/config`);
+
+  return res.body;
+};
+
 export const getDepositAmount = async () => {
   const res = await agent.get<number>(`${servers[0]}/deposit-amount`);
 

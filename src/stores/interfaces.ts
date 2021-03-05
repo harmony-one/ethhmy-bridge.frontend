@@ -1,3 +1,8 @@
+export enum NETWORK_TYPE {
+  ETHEREUM = 'ETHEREUM',
+  BINANCE = 'BINANCE',
+}
+
 export enum EXCHANGE_MODE {
   ETH_TO_ONE = 'eth_to_one',
   ONE_TO_ETH = 'one_to_eth',
@@ -12,6 +17,32 @@ export enum TOKEN {
   ONE = 'one',
   ERC721 = 'erc721',
 }
+
+export type TConfig = {
+  nodeURL: string;
+  explorerURL: string;
+  tokens: TOKEN[];
+  contracts: {
+    busd: string;
+    link: string;
+    busdManager: string;
+    linkManager: string;
+    erc20Manager: string;
+    erc721Manager: string;
+    multisigWallet: string;
+    tokenManager: string;
+    hrc20Manager: string;
+    ethManager: string;
+  };
+  gasPrice?: number;
+  gasLimit?: number;
+};
+
+export type TFullConfig = {
+  ethClient: TConfig;
+  binanceClient: TConfig;
+  hmyClient: TConfig;
+};
 
 export enum ACTION_TYPE {
   // ALL
@@ -77,6 +108,7 @@ export interface IOperation {
   timestamp: number;
   erc20Address?: string;
   hrc20Address?: string;
+  network: NETWORK_TYPE;
 }
 
 export interface ITokenInfo {

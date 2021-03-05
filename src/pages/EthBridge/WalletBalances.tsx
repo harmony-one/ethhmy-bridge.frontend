@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
-import { Button, Icon, Text, Title } from 'components/Base';
-import { Error, SliceTooltip } from 'ui';
+import { Icon, Text, Title } from 'components/Base';
+import { SliceTooltip } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
 import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { TOKEN } from '../../stores/interfaces';
+import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { getBech32Address } from '../../blockchain-bridge';
 import { WalletButton } from './WalletButton';
+import {
+  NETWORK_BASE_TOKEN,
+  NETWORK_ICON,
+  NETWORK_NAME,
+} from '../../stores/names';
 
 const AssetRow = observer<any>(props => {
   return (
@@ -52,6 +57,12 @@ const AssetRow = observer<any>(props => {
 export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals, exchange } = useStores();
 
+  const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
+
+  const externalNetworkName = NETWORK_NAME[exchange.network];
+  const externalNetworkIcon = NETWORK_ICON[exchange.network];
+  const externalNetworkToken = NETWORK_BASE_TOKEN[exchange.network];
+
   return (
     <Box
       direction="column"
@@ -70,12 +81,24 @@ export const WalletBalances = observer(() => {
           >
             <Box direction="column" align="center">
               <Box direction="row" align="center">
-                <img className={styles.imgToken} src="/eth.svg" />
-                <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
+                <img
+                  className={styles.imgToken}
+                  style={{ height: 20 }}
+                  src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+                />
+                <Title margin={{ right: 'xsmall' }}>
+                  {externalNetworkName}
+                </Title>
               </Box>
               <Text style={{ marginTop: 0 }}>
                 network:{' '}
-                {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'kovan'}
+                {exchange.network === NETWORK_TYPE.ETHEREUM
+                  ? process.env.NETWORK === 'mainnet'
+                    ? 'mainnet'
+                    : 'kovan'
+                  : process.env.NETWORK === 'mainnet'
+                  ? 'mainnet'
+                  : 'testnet'}
               </Text>
             </Box>
 
@@ -120,30 +143,30 @@ export const WalletBalances = observer(() => {
                   You have authorised with Metamask, but the selected network
                   does not match{' '}
                   <span style={{ color: 'rgb(0, 173, 232)' }}>
-                    Ethereum:{' '}
+                    {externalNetworkName}:{' '}
                     {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'kovan'}
                   </span>
                   . Please change network to{' '}
                   {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'kovan'} for
-                  transfer ETH -> ONE with Metamask.
+                  transfer {externalNetworkName} -> Harmony with Metamask.
                 </Text>
               </Box>
             ) : (
               <>
                 <AssetRow
-                  asset="ETH Address"
+                  asset={`${externalNetworkToken} Address`}
                   value={truncateAddressString(userMetamask.ethAddress)}
                 />
 
                 <AssetRow
-                  asset="ETH"
+                  asset={externalNetworkToken}
                   value={formatWithSixDecimals(userMetamask.ethBalance)}
                   selected={exchange.token === TOKEN.ETH}
                 />
 
                 {userMetamask.erc20TokenDetails && userMetamask.erc20Address ? (
                   <AssetRow
-                    asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
+                    asset={`${externalNetworkName} ${userMetamask.erc20TokenDetails.symbol}`}
                     value={formatWithSixDecimals(userMetamask.erc20Balance)}
                     selected={[
                       TOKEN.ERC20,
@@ -151,22 +174,22 @@ export const WalletBalances = observer(() => {
                       TOKEN.ERC721,
                       TOKEN.ONE,
                     ].includes(exchange.token)}
-                    link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
+                    link={`${exchange.config.explorerURL}/token/${userMetamask.erc20Address}`}
                   />
                 ) : null}
 
                 <AssetRow
-                  asset="Ethereum BUSD"
+                  asset={`${externalNetworkName} BUSD`}
                   value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
                   selected={exchange.token === TOKEN.BUSD}
-                  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}
+                  link={`${exchange.config.explorerURL}/token/${process.env.ETH_BUSD_CONTRACT}`}
                 />
 
                 <AssetRow
-                  asset="Ethereum LINK"
+                  asset={`${externalNetworkName} LINK`}
                   value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
                   selected={exchange.token === TOKEN.LINK}
-                  link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}
+                  link={`${exchange.config.explorerURL}/token/${process.env.ETH_LINK_CONTRACT}`}
                   last={true}
                 />
               </>

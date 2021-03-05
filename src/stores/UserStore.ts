@@ -1,9 +1,9 @@
-import { action, autorun, computed, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import {
-  ethMethodsHRC20,
+  getExNetworkMethods,
   getHmyBalance,
   hmyMethodsBUSD,
   hmyMethodsERC20,
@@ -436,8 +436,10 @@ export class UserStoreEx extends StoreConstructor {
     this.hrc20Address = hrc20Address;
     let address;
 
+    const exNetwork = getExNetworkMethods();
+
     try {
-      address = await ethMethodsHRC20.getMappingFor(
+      address = await exNetwork.ethMethodsHRC20.getMappingFor(
         hrc20Address,
         this.stores.exchange.token === TOKEN.ONE,
       );

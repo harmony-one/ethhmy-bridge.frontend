@@ -2,8 +2,8 @@ import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
 import { sleep } from 'utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { ethMethodsHRC20 } from '../../blockchain-bridge/eth';
-import { hmyMethodsERC721, hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
+import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const send1ONEToken = async (params: {
   transaction: ITransaction;
@@ -23,7 +23,7 @@ export const send1ONEToken = async (params: {
     ? hmyMethodsHRC20.hmyMethodsWeb3
     : hmyMethodsHRC20.hmyMethods;
 
-  const ethMethods = ethMethodsHRC20;
+  const ethMethods = getExNetworkMethods().ethMethodsHRC20;
 
   let getHRC20Action = getActionByType(ACTION_TYPE.getERC20Address);
 

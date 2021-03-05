@@ -6,7 +6,11 @@ import { Info } from './Info';
 import { InfoNew } from './InfoNew';
 
 export const InfoModal = observer(() => {
-  const { user, actionModals } = useStores();
+  const { user, exchange, actionModals } = useStores();
+
+  useEffect(() => {
+    exchange.getConfig();
+  }, []);
 
   useEffect(() => {
     if (!user.isInfoReading) {
@@ -30,21 +34,18 @@ export const InfoModal = observer(() => {
 
   useEffect(() => {
     if (!user.isInfoNewReading) {
-      actionModals.open(
-        () => <InfoNew title="Important Notice" />,
-        {
-          title: 'Important Notice',
-          applyText: 'Got it',
-          closeText: '',
-          noValidation: true,
-          width: '800px',
-          showOther: true,
-          onApply: () => {
-            user.setInfoNewReading();
-            return Promise.resolve();
-          },
+      actionModals.open(() => <InfoNew title="Important Notice" />, {
+        title: 'Important Notice',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '800px',
+        showOther: true,
+        onApply: () => {
+          user.setInfoNewReading();
+          return Promise.resolve();
         },
-      );
+      });
     }
   }, [user.isInfoNewReading]);
 

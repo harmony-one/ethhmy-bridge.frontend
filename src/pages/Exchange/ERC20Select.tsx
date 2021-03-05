@@ -7,25 +7,46 @@ import { useEffect, useState } from 'react';
 import { tokensMainnet } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
-import { TOKEN } from '../../stores/interfaces';
+import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
 
-const labels: Record<string, string> = {
-  [TOKEN.ERC20]: 'ERC20 token address',
-  [TOKEN.ERC721]: 'ERC721 token address',
-  [TOKEN.HRC20]: 'HRC20 token address',
+const labels: Record<NETWORK_TYPE, Record<string, string>> = {
+  [NETWORK_TYPE.ETHEREUM]: {
+    [TOKEN.ERC20]: 'ERC20 token address',
+    [TOKEN.ERC721]: 'ERC721 token address',
+    [TOKEN.HRC20]: 'HRC20 token address',
+  },
+  [NETWORK_TYPE.BINANCE]: {
+    [TOKEN.ERC20]: 'BEP20 token address',
+    [TOKEN.ERC721]: 'ERC721 token address',
+    [TOKEN.HRC20]: 'HRC20 token address',
+  },
 };
 
-const placeholder: Record<string, string> = {
-  [TOKEN.ERC20]: 'Select your ERC20 token',
-  [TOKEN.ERC721]: 'Select your ERC721 token',
-  [TOKEN.HRC20]: 'Select your HRC20 token',
+const placeholder: Record<NETWORK_TYPE, Record<string, string>> = {
+  [NETWORK_TYPE.ETHEREUM]: {
+    [TOKEN.ERC20]: 'Select your ERC20 token',
+    [TOKEN.ERC721]: 'Select your ERC721 token',
+    [TOKEN.HRC20]: 'Select your HRC20 token',
+  },
+  [NETWORK_TYPE.BINANCE]: {
+    [TOKEN.ERC20]: 'Select your BEP20 token',
+    [TOKEN.ERC721]: 'Select your ERC721 token',
+    [TOKEN.HRC20]: 'Select your HRC20 token',
+  },
 };
 
-const inputPlaceholder: Record<string, string> = {
-  [TOKEN.ERC20]: 'Input ERC20 token address',
-  [TOKEN.ERC721]: 'Input ERC721 token address',
-  [TOKEN.HRC20]: 'Input HRC20 token address',
+const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
+  [NETWORK_TYPE.ETHEREUM]: {
+    [TOKEN.ERC20]: 'Input ERC20 token address',
+    [TOKEN.ERC721]: 'Input ERC721 token address',
+    [TOKEN.HRC20]: 'Input HRC20 token address',
+  },
+  [NETWORK_TYPE.BINANCE]: {
+    [TOKEN.ERC20]: 'Input BEP20 token address',
+    [TOKEN.ERC721]: 'Input ERC721 token address',
+    [TOKEN.HRC20]: 'Input HRC20 token address',
+  },
 };
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
@@ -79,7 +100,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
       <Box direction="column" margin={{ top: 'xlarge' }}>
         <Box direction="row" align="center" justify="between">
           <Text size="large" bold>
-            {labels[type]}
+            {labels[exchange.network][type]}
           </Text>
 
           <Checkbox
@@ -110,7 +131,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                   setError(e.message);
                 }
               }}
-              placeholder={placeholder[type]}
+              placeholder={placeholder[exchange.network][type]}
             />
             {token ? (
               <Box
@@ -122,7 +143,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Text>Address:</Text>
                 <a
                   className={styles.addressLink}
-                  href={`${process.env.ETH_EXPLORER_URL}/token/${token}`}
+                  href={`${exchange.config.explorerURL}/token/${token}`}
                   target="_blank"
                 >
                   {truncateAddressString(token, 16)}
@@ -135,7 +156,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
             <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
               <TextInput
                 disabled={isLoading}
-                placeholder={inputPlaceholder[type]}
+                placeholder={inputPlaceholder[exchange.network][type]}
                 value={erc20}
                 onChange={setERC20}
               />

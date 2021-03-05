@@ -2,8 +2,8 @@ import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
 import { sleep } from '../../utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { ethMethodsHRC20 } from '../../blockchain-bridge/eth';
 import { hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
+import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const sendHrc20Token = async (params: {
   transaction: ITransaction;
@@ -24,7 +24,7 @@ export const sendHrc20Token = async (params: {
     ? hmyMethodsHRC20.hmyMethodsWeb3
     : hmyMethodsHRC20.hmyMethods;
 
-  const ethMethods = ethMethodsHRC20;
+  const ethMethods = getExNetworkMethods().ethMethodsHRC20;
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {
     let approveEthManger = getActionByType(ACTION_TYPE.approveHRC20EthManger);

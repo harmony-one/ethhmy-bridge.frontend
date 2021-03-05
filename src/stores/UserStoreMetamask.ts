@@ -3,16 +3,12 @@ import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
-  getEthBalance,
-  ethMethodsERC20,
+  getExNetworkMethods,
   hmyMethodsERC20,
-  ethMethodsLINK,
-  ethMethodsBUSD,
-  ethMethodsERС721,
   hmyMethodsERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
-import { TOKEN } from './interfaces';
+import { NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
 
 const defaults = {};
@@ -80,9 +76,16 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @computed public get isNetworkActual() {
+    console.log('metamaskChainId', this.metamaskChainId);
+
     switch (process.env.NETWORK) {
       case 'testnet':
-        return Number(this.metamaskChainId) === 42;
+        switch (this.stores.exchange.network) {
+          case NETWORK_TYPE.ETHEREUM:
+            return Number(this.metamaskChainId) === 42;
+          case NETWORK_TYPE.BINANCE:
+            return Number(this.metamaskChainId) === 97;
+        }
 
       case 'mainnet':
         return Number(this.metamaskChainId) === 1;
@@ -152,9 +155,18 @@ export class UserStoreMetamask extends StoreConstructor {
         this.ethAddress = null;
       });
 
-      this.provider.on('chainIdChanged', chainId => this.metamaskChainId = chainId);
-      this.provider.on('chainChanged', chainId => this.metamaskChainId = chainId);
-      this.provider.on('networkChanged', chainId => this.metamaskChainId = chainId);
+      this.provider.on(
+        'chainIdChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
+      this.provider.on(
+        'chainChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
+      this.provider.on(
+        'networkChanged',
+        chainId => (this.metamaskChainId = chainId),
+      );
 
       this.provider
         .request({ method: 'eth_requestAccounts' })
@@ -205,10 +217,12 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @action.bound public getBalances = async () => {
+    const exNetwork = getExNetworkMethods();
+
     if (this.ethAddress) {
       try {
         if (this.erc20Address) {
-          const erc20Balance = await ethMethodsERC20.checkEthBalance(
+          const erc20Balance = await exNetwork.ethMethodsERC20.checkEthBalance(
             this.erc20Address,
             this.ethAddress,
           );
@@ -221,13 +235,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
         let res = 0;
 
-        res = await ethMethodsLINK.checkEthBalance(this.ethAddress);
+        res = await exNetwork.ethMethodsLINK.checkEthBalance(this.ethAddress);
         this.ethLINKBalance = divDecimals(res, 18);
 
-        res = await ethMethodsBUSD.checkEthBalance(this.ethAddress);
+        res = await exNetwork.ethMethodsBUSD.checkEthBalance(this.ethAddress);
         this.ethBUSDBalance = divDecimals(res, 18);
 
-        this.ethBalance = await getEthBalance(this.ethAddress);
+        this.ethBalance = await exNetwork.getEthBalance(this.ethAddress);
       } catch (e) {
         console.error(e);
       }
@@ -235,6 +249,8 @@ export class UserStoreMetamask extends StoreConstructor {
   };
 
   @action.bound public setToken = async (erc20Address: string) => {
+    const exNetwork = getExNetworkMethods();
+
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '0';
@@ -261,10 +277,14 @@ export class UserStoreMetamask extends StoreConstructor {
       throw new Error('This address already using for ERC721 token');
     }
 
-    this.erc20TokenDetails = await ethMethodsERC20.tokenDetails(erc20Address);
+    this.erc20TokenDetails = await exNetwork.ethMethodsERC20.tokenDetails(
+      erc20Address,
+    );
     this.erc20Address = erc20Address;
 
-    const address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
+    const address = await hmyMethodsERC20.hmyMethods.getMappingFor(
+      erc20Address,
+    );
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
@@ -275,6 +295,8 @@ export class UserStoreMetamask extends StoreConstructor {
   };
 
   @action.bound public setERC721Token = async (erc20Address: string) => {
+    const exNetwork = getExNetworkMethods();
+
     this.erc20TokenDetails = null;
     this.erc20Address = '';
     this.erc20Balance = '0';
@@ -301,12 +323,16 @@ export class UserStoreMetamask extends StoreConstructor {
       throw new Error('This address already using for ERC20 token');
     }
 
-    const details = await ethMethodsERС721.tokenDetailsERC721(erc20Address);
+    const details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
+      erc20Address,
+    );
     this.erc20Address = erc20Address;
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
-    const address = await hmyMethodsERC721.hmyMethods.getMappingFor(erc20Address);
+    const address = await hmyMethodsERC721.hmyMethods.getMappingFor(
+      erc20Address,
+    );
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
