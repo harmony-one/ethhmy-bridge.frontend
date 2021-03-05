@@ -70,9 +70,17 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
 
   return (
     <Button
+      className={cn()
+      // styles.networkButton,
+      // exchange.network === type ? styles.active : '',
+      }
       style={{
-        background: exchange.network === type ? '#00ADE8' : 'white',
-        color: exchange.network === type ? 'white' : '#00ADE8',
+        background: 'white',
+        border:
+          exchange.network === type
+            ? '2px solid #00ADE8'
+            : '2px solid rgba(0,0,0,0)',
+        color: '#212e5e',
       }}
       onClick={() => (exchange.network = type)}
     >
@@ -189,8 +197,8 @@ export const EthBridge = observer((props: any) => {
             {/*</Box>*/}
           </Box>
 
-          <Box direction="column">
-            <Box direction="row" gap="20px">
+          <Box direction="column" margin={{ top: 'large' }}>
+            <Box direction="row" justify="start" gap="20px">
               <NetworkButton type={NETWORK_TYPE.BINANCE} />
               <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
             </Box>

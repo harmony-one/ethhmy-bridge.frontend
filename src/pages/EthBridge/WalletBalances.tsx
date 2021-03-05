@@ -67,7 +67,7 @@ export const WalletBalances = observer(() => {
     <Box
       direction="column"
       className={styles.walletBalances}
-      margin={{ vertical: 'large' }}
+      margin={{ vertical: 'medium' }}
     >
       {/*<Title>Wallet Info</Title>*/}
 
