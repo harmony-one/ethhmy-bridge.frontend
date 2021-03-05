@@ -6,6 +6,7 @@ import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Base } from './steps/base';
 import { ERC20ApprovalModal } from './steps/erc20approval';
 import { SwapConfirmation } from './steps/swapConfirmation';
+import { CheckTransaction } from './steps/checkTransaction';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
@@ -28,6 +29,7 @@ export class Exchange extends React.Component<Pick<IStores, 'exchange'>> {
         <Base />
         {exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}
+        {exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}
 
       </Box>
 

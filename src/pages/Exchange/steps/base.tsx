@@ -20,7 +20,7 @@ import Fade from 'react-reveal/Fade';
 import HeadShake from 'react-reveal/HeadShake';
 import Wobble from 'react-reveal/Wobble';
 import Flip from 'react-reveal/Flip';
-import { tokenLocked } from '../utils';
+import { TokenLocked, NetworkTemplate, NetworkTemplateInterface } from '../utils';
 import { useStores } from '../../../stores';
 interface Errors {
     amount: string;
@@ -28,13 +28,16 @@ interface Errors {
     address: string;
 }
 
-type NetworkTemplateInterface = {
-    name: string,
-    wallet: string
-    image: string
-    symbol: string
-    amount: string;
+type BalanceAmountInterface = {
+    minAmount: string,
+    maxAmount: string,
 }
+
+type BalanceInterface = {
+    eth: BalanceAmountInterface,
+    scrt: BalanceAmountInterface
+}
+
 
 const validateTokenInput = (token: any) => {
     if (!token || !token.symbol) return 'This field is required.'
@@ -69,63 +72,36 @@ const validateAddressInput = (mode: EXCHANGE_MODE, value: string) => {
     return ""
 }
 
-const getBalance = (exchange, userMetamask, user) => {
-    let minAmount = "loading"
-    let maxAmount = "loading"
+const getBalance = (exchange, userMetamask, user, isLocked) => {
+    const eth = { minAmount: '0', maxAmount: '0' }
+    const scrt = { minAmount: '0', maxAmount: '0' }
+
     const src_coin = exchange.transaction.tokenSelected.src_coin
 
     if (exchange.token === TOKEN.ERC20) {
         if (!userMetamask.erc20TokenDetails) {
-            maxAmount = "0"
-            minAmount = "0"
+            eth.maxAmount = "0"
+            eth.minAmount = "0"
         }
-        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            maxAmount = user.balanceToken[src_coin] ? user.balanceToken[src_coin] : '0'
-            minAmount = user.snip20BalanceMin || '0'
-        }
-        if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) {
-            maxAmount = userMetamask.erc20Balance
-            minAmount = userMetamask.erc20BalanceMin || '0'
-        }
+        scrt.maxAmount = user.balanceToken[src_coin] ? user.balanceToken[src_coin] : '0'
+        scrt.minAmount = user.snip20BalanceMin || '0'
+        eth.maxAmount = userMetamask.erc20Balance
+        eth.minAmount = userMetamask.erc20BalanceMin || '0'
     } else {
-        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            maxAmount = (!user.balanceToken['Ethereum'] || user.balanceToken['Ethereum'].includes(unlockToken)) ? '0' : user.balanceToken['Ethereum']
-            minAmount = user.balanceTokenMin['Ethereum'] || '0'
-        } else {
-            maxAmount = exchange.transaction.tokenSelected.symbol === "ETH" ? userMetamask.ethBalance : "0"
-            minAmount = exchange.transaction.tokenSelected.symbol === "ETH" ? (userMetamask.ethBalanceMin || "0") : "0"
-        }
+        scrt.maxAmount =
+            (!user.balanceToken['Ethereum'] || user.balanceToken['Ethereum'].includes(unlockToken)) ? '0' : user.balanceToken['Ethereum']
+        scrt.minAmount = user.balanceTokenMin['Ethereum'] || '0'
+        eth.maxAmount = exchange.transaction.tokenSelected.symbol === "ETH" ? userMetamask.ethBalance : "0"
+        eth.minAmount = exchange.transaction.tokenSelected.symbol === "ETH" ? (userMetamask.ethBalanceMin || "0") : "0"
     }
 
-    return { minAmount, maxAmount }
+    if (isLocked) {
+        scrt.maxAmount = '****'
+    }
+
+    return { eth, scrt }
+
 }
-
-
-const renderNetworkTemplate = (template: NetworkTemplateInterface, align: any, onSwap: boolean) => (
-    <Wobble spy={onSwap} delay={0}>
-        <Box direction="column" style={{ minWidth: 230 }}>
-            <Box direction="row" align={"start"} justify={align} margin={{ bottom: 'small' }}>
-                {align === "start" && <img style={{ marginRight: 10 }} className={styles.imgToken} src={template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />}
-                <Box direction="column" align={align}>
-                    <Title bold color={"#30303D"} margin={{ bottom: 'xxsmall' }}>{template.name}</Title>
-                    <Text size="medium" bold color={"#748695"}>{template.wallet}</Text>
-                </Box>
-                {align === "end" && <img style={{ marginLeft: 10 }} className={styles.imgToken} src={template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />}
-            </Box>
-
-            <Box
-                pad="xsmall"
-                direction="row"
-                align={"center"}
-                style={{ flexFlow: align === 'start' ? 'row' : 'row-reverse' }}
-                className={styles.networktemplatetoken}>
-                {template.image && <img src={template.image} style={{ width: 20, margin: '0 5' }} alt={template.symbol} />}
-                {template.symbol && <Text bold color="#30303D" size="medium" style={{ margin: '0 5' }}>{template.amount}</Text>}
-                <Text bold style={{ margin: '0 5' }} color="#748695" size="medium">{template.symbol}</Text>
-            </Box>
-        </Box>
-    </Wobble>
-)
 
 export const Base = observer(() => {
     const { user, userMetamask, actionModals, exchange, tokens } = useStores();
@@ -149,6 +125,9 @@ export const Base = observer(() => {
     const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
     const [minAmount, setMinAmount] = useState<string>("");
     const [maxAmount, setMaxAmount] = useState<string>("");
+
+    const defaultBalance: BalanceInterface = { eth: { minAmount: '', maxAmount: '' }, scrt: { minAmount: '', maxAmount: '' } }
+    const [balance, setBalance] = useState<BalanceInterface>(defaultBalance);
     const [onSwap, setSwap] = useState<boolean>(false);
     const [toApprove, setToApprove] = useState<boolean>(false);
     const [readyToSend, setReadyToSend] = useState<boolean>(false);
@@ -156,6 +135,12 @@ export const Base = observer(() => {
     useEffect(() => {
         setSelectedToken(exchange.transaction.tokenSelected)
     }, [exchange.transaction.tokenSelected]);
+
+    useEffect(() => {
+        const fromNetwork = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'eth' : 'scrt'
+        setMinAmount(balance[fromNetwork].minAmount)
+        setMaxAmount(balance[fromNetwork].maxAmount)
+    }, [exchange.mode, balance]);
 
     useEffect(() => {
         if (exchange.step.id === EXCHANGE_STEPS.BASE && exchange.transaction.tokenSelected.value) {
@@ -169,8 +154,8 @@ export const Base = observer(() => {
         const NTemplate1: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Ethereum" : "Secret Network",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Metamask" : "Keplr",
-            symbol: "Select a token",
-            amount: exchange.transaction.amount,
+            symbol: "",
+            amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.eth.maxAmount : balance.scrt.maxAmount,
             image: selectedToken.image
 
         }
@@ -178,8 +163,8 @@ export const Base = observer(() => {
         const NTemplate2: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Secret Network" : "Ethereum",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Keplr" : "Metamask",
-            symbol: "Select a token",
-            amount: exchange.transaction.amount,
+            symbol: "",
+            amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.scrt.maxAmount : balance.eth.maxAmount,
             image: selectedToken.image
 
         }
@@ -190,26 +175,30 @@ export const Base = observer(() => {
         }
 
         setNetworkTemplates([NTemplate1, NTemplate2])
-    }, [exchange.mode, selectedToken]);
+    }, [exchange.mode, selectedToken, balance]);
 
     useEffect(() => {
-        setToApprove(!exchange.isTokenApproved && exchange.transaction.erc20Address !== "")
-    }, [exchange.isTokenApproved, exchange.transaction.erc20Address]);
+        setToApprove(
+            exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+            !exchange.isTokenApproved &&
+            exchange.transaction.erc20Address !== "" &&
+            selectedToken.symbol !== "ETH"
+        )
+    }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
 
 
     useEffect(() => {
         const address = exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress
-
-        setReadyToSend(
-            errors.token === "" &&
+        const value = errors.token === "" &&
             errors.amount === "" &&
             errors.address === "" &&
             exchange.transaction.amount !== "" &&
             selectedToken !== "" &&
             address !== "" &&
             !toApprove
-        )
+
+        setReadyToSend(value)
     }, [
         toApprove,
         errors,
@@ -223,8 +212,7 @@ export const Base = observer(() => {
     const onSelectedToken = async (value) => {
         const token = tokens.allData.find(t => t.src_address === value)
 
-        setMinAmount("loading")
-        setMaxAmount("loading")
+        setBalance({ eth: { minAmount: 'loading', maxAmount: 'loading' }, scrt: { minAmount: 'loading', maxAmount: 'loading' } })
         token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
         if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
         exchange.transaction.amount = ""
@@ -251,25 +239,20 @@ export const Base = observer(() => {
             console.log(e)
         }
 
-        if (exchange.mode !== EXCHANGE_MODE.SCRT_TO_ETH) {
-            const { minAmount, maxAmount } = getBalance(exchange, userMetamask, user)
-            setMinAmount(minAmount)
-            setMaxAmount(maxAmount)
-        }
 
-        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-            try {
-                await user.updateBalanceForSymbol(token.display_props.symbol);
-                const balance = user.balanceToken[token.src_coin]
-                const { minAmount, maxAmount } = getBalance(exchange, userMetamask, user)
-                setTokenLocked(balance === unlockToken)
-                setMinAmount(minAmount)
-                setMaxAmount(maxAmount)
-            } catch (e) {
-                setErrors({ ...errors, token: e.message })
 
-            }
+        try {
+            await user.updateBalanceForSymbol(token.display_props.symbol);
+
+        } catch (e) {
+            setErrors({ ...errors, token: e.message })
         }
+        const amount = user.balanceToken[token.src_coin]
+        const isLocked = amount === unlockToken
+        const balance = getBalance(exchange, userMetamask, user, isLocked)
+
+        setBalance(balance)
+        setTokenLocked(amount === unlockToken)
     }
 
     const onClickHandler = async (callback: () => void) => {
@@ -309,7 +292,7 @@ export const Base = observer(() => {
         <Box fill direction="column" background="transparent">
             <Fade left>
                 <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
-                    {renderNetworkTemplate(networkTemplates[0], "start", onSwap)}
+                    <NetworkTemplate template={networkTemplates[0]} align={"start"} onSwap={onSwap} />
                     <Box pad="small" style={{ position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
                         <Icon size="60" glyph="Reverse" onClick={async () => {
                             exchange.transaction.amount = ""
@@ -317,8 +300,7 @@ export const Base = observer(() => {
                             exchange.transaction.erc20Address = ''
                             setErrors({ token: "", address: "", amount: "" })
                             setTokenLocked(false)
-                            setMinAmount("")
-                            setMaxAmount("")
+                            setBalance(defaultBalance)
                             setSwap(!onSwap)
 
                             exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
@@ -326,7 +308,7 @@ export const Base = observer(() => {
                                 exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
                         }} />
                     </Box>
-                    {renderNetworkTemplate(networkTemplates[1], "end", onSwap)}
+                    <NetworkTemplate template={networkTemplates[1]} align={"end"} onSwap={onSwap} />
                 </Box>
             </Fade>
             <Fade right>
@@ -469,7 +451,7 @@ export const Base = observer(() => {
 
                         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
                             <Box style={{ maxWidth: '50%' }}>
-                                {isTokenLocked && tokenLocked(user)}
+                                {isTokenLocked && <TokenLocked user={user} />}
                             </Box>
                             <Box direction="row">
 

@@ -48,6 +48,7 @@ export interface IAction {
 }
 
 export interface IOperation {
+  transactionHash: string;
   id: string;
   type: EXCHANGE_MODE;
   token: TOKEN;

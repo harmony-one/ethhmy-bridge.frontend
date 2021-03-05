@@ -83,7 +83,7 @@ export const Snip20SendToBridge = async (params: {
     throw new Error('Failed to get tx_id');
   }
 
-  return tx.transactionHash;
+  return tx_id;
 };
 
 export const Snip20Send = async (params: {

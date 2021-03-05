@@ -33,6 +33,7 @@ export const WalletBalances = observer(() => {
     <Box direction="row" pad="none" align="end" style={{ minHeight: 50 }}>
       <Box margin={{ right: 'small' }}>
         {!user.isAuthorized ? <Button
+          bgColor={"#00ADE8"} style={{ minWidth: 180, height: 48, padding: 10 }}
           onClick={() => {
             if (!user.isKeplrWallet) {
               actionModals.open(() => <AuthWarning />, {
@@ -49,7 +50,11 @@ export const WalletBalances = observer(() => {
             }
           }}
         >
-          Connect with Keplr
+          <Box direction="row" align="center" justify="between">
+
+            <img src={"/static/keplr.svg"} alt="keplr" height="28" />
+            <Text bold margin={{ left: 'xsmall' }} color="white">Connect Keplr</Text>
+          </Box>
         </Button> : <WalletTemplate
             address={user.address}
             amount={user.balanceSCRT || ""}
@@ -59,8 +64,11 @@ export const WalletBalances = observer(() => {
       </Box>
 
       <Box>
-        {!userMetamask.isAuthorized ? <Button onClick={() => userMetamask.signIn(true)}>
-          Connect with Metamask
+        {!userMetamask.isAuthorized ? <Button onClick={() => userMetamask.signIn(true)} bgColor={"#00ADE8"} style={{ minWidth: 180, height: 48, padding: 10 }} >
+          <Box direction="row" align="center" justify="between">
+            <img src={"/static/metamask.svg"} alt="metamask" height="28" />
+            <Text bold margin={{ left: 'xsmall' }} color="white">Connect Metamask</Text>
+          </Box>
         </Button> : <WalletTemplate
             address={userMetamask.ethAddress}
             amount={userMetamask.ethBalance}

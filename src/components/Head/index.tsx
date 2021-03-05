@@ -37,9 +37,9 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
     const goToBridge = () => {
       if (exchange.operation && exchange.operation.id) {
-        //routing.push(`/${exchange.token || TOKEN.ETH}/operations/${exchange.operation.id}`);
+        routing.push(`/operations/${exchange.operation.id}`);
       } else {
-        routing.push(`/${exchange.token || TOKEN.ETH}`);
+        routing.push(`/`);
       }
     };
 

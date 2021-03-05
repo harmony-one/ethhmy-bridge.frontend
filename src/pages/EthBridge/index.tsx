@@ -9,6 +9,7 @@ import { TOKEN } from 'stores/interfaces';
 import { Title } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
+import { EXCHANGE_STEPS } from 'stores/Exchange';
 
 
 export const EthBridge = observer((props: any) => {
@@ -22,19 +23,14 @@ export const EthBridge = observer((props: any) => {
     });
     rewards.fetch();
 
-    if (props.match.params.token) {
-      if ([TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {
-        exchange.setToken(props.match.params.token);
-      } else {
-        routing.push(TOKEN.ETH);
-      }
-    }
-
     if (props.match.params.operationId) {
       exchange.setOperationId(props.match.params.operationId);
-      exchange.sendOperation(props.match.params.operationId);
     }
   }, []);
+
+  useEffect(() => {
+    if (exchange.step === EXCHANGE_STEPS.CHECK_TRANSACTION && exchange.operation) exchange.fetchStatus(exchange.operation.id)
+  }, [exchange.step]);
 
   return (
     <BaseContainer>

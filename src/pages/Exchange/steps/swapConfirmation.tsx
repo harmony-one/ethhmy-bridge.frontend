@@ -15,7 +15,7 @@ import { Price } from '../../Explorer/Components';
 import { formatWithSixDecimals, truncateAddressString, unlockToken } from 'utils';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useStores } from '../../../stores';
-import { tokenLocked } from '../utils';
+import { TokenLocked } from '../utils';
 import HeadShake from 'react-reveal/HeadShake';
 
 type NetworkTemplateInterface = {
@@ -163,7 +163,7 @@ export const SwapConfirmation = observer(() => {
                             />}
                         </Box>
 
-                        {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
+                        {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'xsmall' }}>
                             <Box className={styles.warningSign} direction="row" align="center">
                                 <img style={{ marginRight: 6, width: 12 }} src={"/static/eth.svg"} />
                                 <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Ethereum Fee</Text>
@@ -182,16 +182,16 @@ export const SwapConfirmation = observer(() => {
                         </Box>}
 
 
-                        {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && tokenLocked(user)}
+                        {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && <Box style={{ height: 40 }} direction="row" align="start" margin={{ top: 'xsmall' }} justify="between">
+                            <Box direction="row">
+                                <img src={exchange.transaction.tokenSelected.image} style={{ marginRight: 6 }} width="15" />
 
-                        <Box style={{ height: 25 }} margin={{ top: 'xsmall' }}>
-                            {exchange.txHash && <HeadShake bottom>
-                                <Text>Follow Transaction <a href={hash}
-                                    style={{ textDecoration: 'none' }}
-                                    target="_blank"
-                                    rel="noreferrer">Here</a></Text>
-                            </HeadShake>}
-                        </Box>
+                                <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>You will recieve</Text>
+                            </Box>
+                            <Text bold size="small">{calculatedAmount} {symbol}</Text>
+                        </Box>}
+
+                        {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && <TokenLocked user={user} />}
 
                         {exchange.transaction.error && <HeadShake bottom>
                             <Box margin={{ top: 'xsmall' }}>
@@ -202,12 +202,12 @@ export const SwapConfirmation = observer(() => {
                         <Box fill direction="row" align="center" style={{ width: '100%' }} margin={{ top: 'large' }}>
                             <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {
                                 if (exchange.transaction.loading) return
-                                if (exchange.transaction.confirmed) return exchange.stepNumber = EXCHANGE_STEPS.BASE
+                                if (exchange.transaction.confirmed) return exchange.stepNumber = EXCHANGE_STEPS.CHECK_TRANSACTION
                                 return exchange.step.onClick()
                             }}>
                                 {exchange.transaction.loading ?
                                     <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
-                                    (exchange.transaction.confirmed ? <span><b>Bridged.</b> Take me back</span> : "Confirm")
+                                    (exchange.transaction.confirmed ? "Follow Transaction Status" : "Confirm")
 
                                 }
 
