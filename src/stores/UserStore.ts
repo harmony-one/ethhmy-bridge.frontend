@@ -243,7 +243,7 @@ export class UserStoreEx extends StoreConstructor {
     while (wait && !this.keplrWallet) {
       await sleep(100);
     }
-    console.log('Found Keplr');
+    console.log('Found Keplr', process.env.CHAIN_ID);
 
     this.chainId = process.env.CHAIN_ID;
     try {

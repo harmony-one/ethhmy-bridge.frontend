@@ -60,6 +60,9 @@ export interface IOperation {
   actions: Array<IAction>;
   timestamp: number;
   erc20Address?: string;
+  swap?: ISwap;
+  symbol?: string;
+  image?: string;
 }
 
 export interface ISwap {

@@ -71,6 +71,7 @@ export class Exchange extends StoreConstructor {
     timestamp: 0,
     token: undefined,
     type: undefined,
+    swap: null
   };
 
   @observable transaction = this.defaultTransaction;
@@ -171,7 +172,6 @@ export class Exchange extends StoreConstructor {
       this.tokenApprovedLoading = false
 
     } catch (error) {
-      console.log('error', error)
       this.tokenApprovedLoading = false
     }
 
@@ -209,32 +209,49 @@ export class Exchange extends StoreConstructor {
 
     const fetcher = async () => {
       const result = await operationService.getOperation({ id });
-      console.log('result', result)
-
       const swap = result.swap
-      if (result.operation.transactionHash) this.operation.transactionHash = result.operation.transactionHash
+      function isEthHash(addr) { return /^0x([A-Fa-f0-9]{64})$/.test(addr); }
+
+      if (result.operation.transactionHash && isEthHash(result.operation.transactionHash))
+        this.operation.transactionHash = result.operation.transactionHash
 
       if (swap) {
         this.operation.status = swap.status
+        if (isEthHash(swap.src_tx_hash)) this.operation.transactionHash = swap.src_tx_hash
+        if (isEthHash(swap.dst_tx_hash)) this.operation.transactionHash = swap.dst_tx_hash
+
+        this.operation.swap = swap
+
+        this.operation.type = swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
+
+        if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
+          const token = this.stores.tokens.allData.find(t => t.dst_address === swap.dst_address);
+          if (token) {
+            this.operation.image = token.display_props.image
+            this.operation.symbol = token.display_props.symbol
+            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
+          }
+        } else {
+          const token = this.stores.tokens.allData.find(t => t.dst_address === swap.src_coin);
+          if (token) {
+            this.operation.image = token.display_props.image
+            this.operation.symbol = `secret ${token.display_props.symbol}`
+            this.operation.swap.amount = Number(divDecimals(swap.amount, token.decimals));
+          }
+        }
+
         try {
+
           const etherHash = swap.dst_network === "Ethereum" ? swap.dst_tx_hash : swap.src_tx_hash
           const blockNumber = await web3.eth.getBlockNumber()
           const tx = await web3.eth.getTransaction(etherHash)
-          console.log('blockNumber', blockNumber)
-          console.log('TBlockNumber', tx.blockNumber)
           if (tx.blockNumber) this.confirmations = blockNumber - tx.blockNumber
           if (this.confirmations < 0) this.confirmations = 0
+
         } catch (error) { }
 
       }
 
-      if (swap) {
-
-
-      }
-
-      console.log('result', result)
-      console.log('swap', swap)
     }
 
     fetcher()
@@ -255,51 +272,11 @@ export class Exchange extends StoreConstructor {
 
     this.fetchStatus(this.operation.id)
 
-
-
-    // if (swap) {
-    //   this.operation.type =
-    //     swap.src_network === 'Ethereum' ? EXCHANGE_MODE.ETH_TO_SCRT : EXCHANGE_MODE.SCRT_TO_ETH;
-    //   this.token =
-    //     swap.src_coin === 'native'
-    //       ? TOKEN.ETH
-    //       : this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT
-    //         ? TOKEN.ERC20
-    //         : TOKEN.S20;
-
-    //   this.operation.status = swap.status;
-
-    //   if (this.operation.type === EXCHANGE_MODE.ETH_TO_SCRT) {
-    //     this.transaction.ethAddress = swap.src_address;
-    //     this.transaction.scrtAddress = swap.dst_address;
-
-    //     const decimals = this.stores.tokens.allData.find(t => t.dst_address === swap.dst_address).decimals;
-
-    //     this.transaction.amount = divDecimals(swap.amount, decimals);
-    //     this.txHash = swap.src_tx_hash;
-    //   } else {
-    //     const decimals = this.stores.tokens.allData.find(t => t.dst_address === swap.src_coin).decimals;
-
-    //     this.transaction.amount = divDecimals(swap.amount, decimals);
-
-    //     this.transaction.scrtAddress = swap.src_address;
-    //     this.transaction.ethAddress = swap.dst_address;
-    //     this.transaction.amount = String(swap.amount);
-    //     this.txHash = swap.dst_tx_hash;
-    //   }
-    // }
-
-    // this.mode = this.operation.type;
-    // this.token = this.operation.token;
-    // this.transaction.amount = String(this.operation.amount);
-    // this.transaction.ethAddress = this.operation.ethAddress;
-    // this.transaction.scrtAddress = this.operation.oneAddress;
-    // this.transaction.erc20Address = this.operation.erc20Address;
-
   }
 
   @action.bound
   async createOperation(transactionHash?: string) {
+    clearInterval(this.fetchOperationInterval)
     let params = transactionHash ? { id: uuid(), transactionHash } : { id: uuid() };
     this.operation = this.defaultOperation
     this.confirmations = 0
@@ -413,7 +390,6 @@ export class Exchange extends StoreConstructor {
     this.operation.status = SwapStatus.SWAP_WAIT_APPROVE;
 
     await this.createOperation();
-    this.stores.routing.push('/operations/' + this.operation.id);
     this.fetchStatus(this.operation.id);
 
 
@@ -427,6 +403,7 @@ export class Exchange extends StoreConstructor {
           this.transaction.loading = false
           this.txHash = result.hash
           this.transaction.confirmed = true
+          this.stores.routing.push('/operations/' + this.operation.id);
         }
 
         if (result.receipt) {
@@ -449,7 +426,6 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
 
     await this.createOperation();
-    this.stores.routing.push('/operations/' + this.operation.id);
 
 
     contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {
@@ -458,6 +434,7 @@ export class Exchange extends StoreConstructor {
         this.transaction.loading = false
         this.txHash = result.hash
         this.transaction.confirmed = true
+        this.stores.routing.push('/operations/' + this.operation.id);
       }
 
       if (result.receipt) {
@@ -506,7 +483,6 @@ export class Exchange extends StoreConstructor {
 
     await this.createOperation();
     this.stores.routing.push('/operations/' + this.operation.id);
-    this.fetchStatus(this.operation.id);
 
     let tx_id = '';
     try {
@@ -519,20 +495,21 @@ export class Exchange extends StoreConstructor {
       });
       this.transaction.confirmed = true
       this.transaction.loading = false
-      this.txHash = tx_id
-      console.log('this.txHash', this.txHash)
+
+      this.fetchStatus(this.operation.id);
+      this.operation.status = await this.updateOperation(
+        this.operation.id,
+        Snip20SwapHash({
+          tx_id,
+          address: proxyContract || this.transaction.snip20Address,
+        }),
+      );
     } catch (e) {
       this.operation.status = SwapStatus.SWAP_FAILED;
       //throw e;
     }
 
-    this.operation.status = await this.updateOperation(
-      this.operation.id,
-      Snip20SwapHash({
-        tx_id,
-        address: proxyContract || this.transaction.snip20Address,
-      }),
-    );
+
 
   }
 

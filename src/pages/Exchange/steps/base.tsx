@@ -38,7 +38,6 @@ type BalanceInterface = {
     scrt: BalanceAmountInterface
 }
 
-
 const validateTokenInput = (token: any) => {
     if (!token || !token.symbol) return 'This field is required.'
     return ""
@@ -47,7 +46,7 @@ const validateTokenInput = (token: any) => {
 
 const validateAmountInput = (value: string, minAmount: any, maxAmount: any) => {
     if (!value || !value.trim() || Number(value) <= 0) return 'This field is required.'
-    if (Number(value) > Number(maxAmount)) return 'Exceeded the maximum amount.'
+    if (Number(value) > Number(maxAmount) || !Number(maxAmount)) return 'Exceeded the maximum amount.'
     if (Number(value) < Number(minAmount)) return 'Below the minimum amount.'
 
     return ""
@@ -361,6 +360,7 @@ export const Base = observer(() => {
                                                     pad="xxsmall"
                                                     onClick={() => {
                                                         if (maxAmount === unlockToken) return
+                                                        if (validateAmountInput(maxAmount, minAmount, maxAmount)) return
                                                         const value = maxAmount
                                                         exchange.transaction.amount = value
                                                     }}

@@ -9,15 +9,15 @@ import * as styles from './styles.styl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 
-export const TokenLocked = (user: any) => <HeadShake bottom>
+export const TokenLocked = (props: { user: any }) => <HeadShake bottom>
     <Box direction="column">
         <Text bold color="#c5bb2e">Warning</Text>
         <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>Everything inside Secret Network is private by default, in order for you to view this token balance, you will need to create a viewing key.
         </Text>
         <Box style={{ cursor: 'pointer' }} onClick={async () => {
             try {
-                console.log(user.chainId, user.snip20Address)
-                await user.keplrWallet.suggestToken(user.chainId, user.snip20Address);
+                console.log(props.user.chainId, props.user.snip20Address)
+                await props.user.keplrWallet.suggestToken(props.user.chainId, props.user.snip20Address);
             } catch (error) {
                 console.log(error);
             }
@@ -60,7 +60,7 @@ export const NetworkTemplate = (props: {
                 className={styles.networktemplatetoken}>
                 {props.template.image && <img src={props.template.image} style={{ width: 20, margin: '0 5' }} alt={props.template.symbol} />}
                 {props.template.amount === 'loading' ?
-                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="2em" style={{ margin: '0 10' }} /> :
+                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1.5em" style={{ margin: '0 10' }} /> :
                     <Text bold color="#30303D" size="medium" style={{ margin: '0 5' }}>{props.template.amount}</Text>}
                 <Text bold style={{ margin: '0 5' }} color="#748695" size="medium">{props.template.symbol}</Text>
             </Box> : <Box style={{ height: 44 }}></Box>}
