@@ -336,7 +336,7 @@ export const Base = observer(() => {
                                                 <NumberInput
                                                     name="amount"
                                                     type="decimal"
-                                                    precision="6"
+                                                    precision="16"
                                                     delimiter="."
                                                     placeholder="0"
                                                     margin={{ bottom: "none" }}

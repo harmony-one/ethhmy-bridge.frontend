@@ -322,6 +322,7 @@ export class UserStoreEx extends StoreConstructor {
       );
 
       this.syncLocalStorage();
+      this.getBalances();
     } catch (error) {
       this.error = error.message;
       this.isAuthorized = false;

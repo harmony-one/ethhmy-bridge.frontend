@@ -426,6 +426,7 @@ export class Exchange extends StoreConstructor {
     this.operation = this.defaultOperation;
 
     await this.createOperation();
+    this.fetchStatus(this.operation.id);
 
 
     contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {

@@ -8,31 +8,23 @@ import { ERC20ApprovalModal } from './steps/erc20approval';
 import { SwapConfirmation } from './steps/swapConfirmation';
 import { CheckTransaction } from './steps/checkTransaction';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { useStores } from '../../stores';
 
-@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
-@observer
-export class Exchange extends React.Component<Pick<IStores, 'exchange'>> {
+export const Exchange = observer(() => {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      modal: false,
-    };
-  }
 
-  render() {
-    const { exchange } = this.props;
+  const { exchange } = useStores();
 
-    return (
-      <Box fill direction="column">
+  return (
+    <Box fill direction="column">
 
-        <Base />
-        {exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}
-        {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}
-        {exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}
+      <Base />
+      {exchange.step.id === EXCHANGE_STEPS.APPROVE_CONFIRMATION && <ERC20ApprovalModal />}
+      {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION && <SwapConfirmation />}
+      {exchange.step.id === EXCHANGE_STEPS.CHECK_TRANSACTION && <CheckTransaction />}
 
-      </Box>
+    </Box>
 
-    )
-  }
+  )
 }
+)
