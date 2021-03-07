@@ -37,6 +37,7 @@ export const SwapConfirmation = observer(() => {
 
     const { exchange, user } = useStores();
     const [hash, setHash] = useState<string>(null);
+    const [calculated, setCalculated] = useState<string>(null);
     const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
 
     const symbol = exchange.transaction.tokenSelected.symbol
@@ -68,7 +69,14 @@ export const SwapConfirmation = observer(() => {
         }
     }, [exchange.txHash]);
 
+    useEffect(() => {
+        let calculatedAmount = formatWithSixDecimals(Number(exchange.transaction.amount) - Number(exchange.swapFeeToken))
+        if (Number(calculatedAmount) < 0) {
+            calculatedAmount = "0"
+        }
+        setCalculated(calculatedAmount)
 
+    }, [exchange.transaction.amount, exchange.swapFeeToken]);
 
     const NTemplate1: NetworkTemplateInterface = {
         symbol: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? symbol : `Secret ${symbol}`,
@@ -84,8 +92,6 @@ export const SwapConfirmation = observer(() => {
 
     }
 
-    let calculatedAmount = formatWithSixDecimals(Number(exchange.transaction.amount) - Number(exchange.swapFeeToken))
-    if (Number(calculatedAmount) < 0) calculatedAmount = "0"
 
     return (
 
@@ -115,7 +121,7 @@ export const SwapConfirmation = observer(() => {
 
 
                         <Text size="small" color="#748695" margin={{ top: 'xsmall', bottom: 'medium' }}>
-                            You are about to bridge <b>{amount} {symbol}</b> to <b>{exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Secret Network' : 'Ethereum Blockchain'}</b>, please be patient as the transaction may take a few minutes. You can follow it every step of the way right here once you confirm the transaction!
+                            You are about to bridge <b>{amount} {symbol}</b> to <b>{exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'Secret Network' : 'Ethereum'}</b>, please be patient as the transaction may take a few minutes. You can follow each step of the transaction here once you confirm it!
                             </Text>
 
                         <Box direction="column">
@@ -170,7 +176,7 @@ export const SwapConfirmation = observer(() => {
                                 <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Ethereum Fee</Text>
                                 <img src="/static/warning.svg" width="20" className={styles.image_warning} />
                                 <Box pad="xsmall" className={styles.warning_message}>
-                                    <Text size="xsmall">You are about to move your secret tokens back to Ethereum. You will receive approximately <b>{calculatedAmount} {symbol}</b> and <b>{formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}</b> will be used to pay for Ethereum gas fees
+                                    <Text size="xsmall">You are about to move your secret tokens back to Ethereum. You will receive approximately <b>{calculated} {symbol}</b> and <b>{formatWithSixDecimals(Number(exchange.swapFeeToken))} {symbol}</b> will be used to pay for Ethereum gas fees
                                         </Text>
                                 </Box>
                             </Box>
@@ -189,10 +195,11 @@ export const SwapConfirmation = observer(() => {
 
                                 <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>You will recieve</Text>
                             </Box>
-                            <Text bold size="small">{calculatedAmount} {symbol}</Text>
+                            {!calculated ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
+                                <Text bold size="small" color={calculated === "0" ? '#f37373' : 'inherit'}>{calculated} {symbol}</Text>}
                         </Box>}
 
-                        {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && <TokenLocked user={user} />}
+                        {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && <TokenLocked user={user} onFinish={(value) => setTokenLocked(!value)} />}
 
                         {exchange.transaction.error && <HeadShake bottom>
                             <Box margin={{ top: 'xsmall' }}>

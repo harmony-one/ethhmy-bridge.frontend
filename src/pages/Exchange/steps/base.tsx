@@ -149,11 +149,10 @@ export const Base = observer(() => {
     }, [exchange.step.id]);
 
     useEffect(() => {
-
         const NTemplate1: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Ethereum" : "Secret Network",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Metamask" : "Keplr",
-            symbol: "",
+            symbol: selectedToken.symbol,
             amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.eth.maxAmount : balance.scrt.maxAmount,
             image: selectedToken.image
 
@@ -162,7 +161,7 @@ export const Base = observer(() => {
         const NTemplate2: NetworkTemplateInterface = {
             name: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Secret Network" : "Ethereum",
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Keplr" : "Metamask",
-            symbol: "",
+            symbol: selectedToken.symbol,
             amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.scrt.maxAmount : balance.eth.maxAmount,
             image: selectedToken.image
 
@@ -208,9 +207,9 @@ export const Base = observer(() => {
         exchange.transaction.scrtAddress
     ]);
 
+
     const onSelectedToken = async (value) => {
         const token = tokens.allData.find(t => t.src_address === value)
-
         setBalance({ eth: { minAmount: 'loading', maxAmount: 'loading' }, scrt: { minAmount: 'loading', maxAmount: 'loading' } })
         token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
         if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
@@ -295,11 +294,7 @@ export const Base = observer(() => {
                     <Box pad="small" style={{ position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
                         <Icon size="60" glyph="Reverse" onClick={async () => {
                             exchange.transaction.amount = ""
-                            exchange.transaction.tokenSelected = { symbol: '', image: '', value: '', src_coin: '' }
-                            exchange.transaction.erc20Address = ''
                             setErrors({ token: "", address: "", amount: "" })
-                            setTokenLocked(false)
-                            setBalance(defaultBalance)
                             setSwap(!onSwap)
 
                             exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
@@ -336,7 +331,7 @@ export const Base = observer(() => {
                                                 <NumberInput
                                                     name="amount"
                                                     type="decimal"
-                                                    precision="16"
+                                                    precision="18"
                                                     delimiter="."
                                                     placeholder="0"
                                                     margin={{ bottom: "none" }}
@@ -382,9 +377,9 @@ export const Base = observer(() => {
                                                     </Text>
                                                 }
                                             </Box>
-                                            {exchange.transaction.tokenSelected.value && <Icon size="15" glyph="Refresh" onClick={async () => {
+                                            {exchange.transaction.tokenSelected.value && <Box margin={{ right: 'xxsmall' }}><Icon size="15" glyph="Refresh" onClick={async () => {
                                                 onSelectedToken(exchange.transaction.tokenSelected.value)
-                                            }} />}
+                                            }} /></Box>}
 
                                         </Box>
 
@@ -451,7 +446,11 @@ export const Base = observer(() => {
 
                         <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
                             <Box style={{ maxWidth: '50%' }}>
-                                {isTokenLocked && <TokenLocked user={user} />}
+                                {isTokenLocked && <TokenLocked user={user} onFinish={(value) => {
+                                    setTokenLocked(!value)
+                                    onSelectedToken(exchange.transaction.tokenSelected.value)
+
+                                }} />}
                             </Box>
                             <Box direction="row">
 
@@ -482,7 +481,7 @@ export const Base = observer(() => {
                                         if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
                                     }}
                                 >
-                                    {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Send to Secret Network" : "Send to Ethereum Blockchain"}
+                                    {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Bridge to Secret Network" : "Bridge to Ethereum"}
                                 </Button>
 
                             </Box>

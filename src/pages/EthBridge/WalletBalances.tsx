@@ -8,16 +8,20 @@ import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 const WalletTemplate = observer((props: {
   address: string,
   symbol: string,
   amount: string,
 }) => <Box direction="row" background="white" style={{ borderRadius: 4 }}>
-    <Box pad="xxsmall" align="center" direction="row">
-      <img className={styles.imgToken} src={"/static/wallet.svg"} />
-      <Text margin={{ left: 'xxsmall' }}>{truncateAddressString(props.address, 10)}</Text>
-    </Box>
+    <CopyToClipboard text={props.address} >
+      <Box pad="xxsmall" align="center" direction="row" >
+        <img className={styles.imgToken} src={"/static/wallet.svg"} />
+        <Text margin={{ left: 'xxsmall' }} className={styles.onClickAddress}>{truncateAddressString(props.address, 10)}</Text>
+      </Box>
+    </CopyToClipboard>
+
     <Box pad="xxsmall" background="#DBDCE1" align="center" direction="row" style={{ borderRadius: 4 }}>
       {props.amount ? <Text bold>{props.amount}</Text> :
         <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />}
@@ -27,7 +31,7 @@ const WalletTemplate = observer((props: {
 )
 
 export const WalletBalances = observer(() => {
-  const { user, userMetamask, actionModals, exchange, tokens } = useStores();
+  const { user, userMetamask, actionModals } = useStores();
   return (
     <Box direction="row" pad="none" align="end" style={{ minHeight: 50 }}>
       <Box margin={{ right: 'small' }}>

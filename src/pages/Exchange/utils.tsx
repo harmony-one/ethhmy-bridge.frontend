@@ -1,5 +1,6 @@
 
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import HeadShake from 'react-reveal/HeadShake';
 import { Box } from 'grommet';
 import { Text, Title, Icon } from 'components/Base';
@@ -7,27 +8,34 @@ import Wobble from 'react-reveal/Wobble';
 import Loader from 'react-loader-spinner';
 import * as styles from './styles.styl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { unlockToken } from 'utils';
+
+export const TokenLocked = (props: { user: any, onFinish: Function }) => {
+
+    const [intervalID, setIntervalID] = useState<number>(null);
 
 
-export const TokenLocked = (props: { user: any }) => <HeadShake bottom>
-    <Box direction="column">
-        <Text bold color="#c5bb2e">Warning</Text>
-        <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>Everything inside Secret Network is private by default, in order for you to view this token balance, you will need to create a viewing key.
+    return <HeadShake bottom>
+        <Box direction="column">
+            <Text bold color="#c5bb2e">Warning</Text>
+            <Text margin={{ top: 'xxsmall', bottom: 'xxsmall' }}>SecretTokens are privacy tokens. In order to see your token balance, you will need to create a viewing key.
         </Text>
-        <Box style={{ cursor: 'pointer' }} onClick={async () => {
-            try {
-                console.log(props.user.chainId, props.user.snip20Address)
-                await props.user.keplrWallet.suggestToken(props.user.chainId, props.user.snip20Address);
-            } catch (error) {
-                console.log(error);
-            }
-        }}>
-            <Text bold>Create a Viewing key</Text>
+            <Box style={{ cursor: 'pointer' }} onClick={async () => {
+                try {
+                    console.log(props.user.chainId, props.user.snip20Address)
+                    await props.user.keplrWallet.suggestToken(props.user.chainId, props.user.snip20Address);
+                    props.onFinish(true)
+                } catch (error) {
+                    console.log(error);
+                    props.onFinish(false)
+                }
+            }}>
+                <Text bold>Create a Viewing key</Text>
+            </Box>
+
         </Box>
-
-    </Box>
-</HeadShake>
-
+    </HeadShake>
+}
 
 
 export type NetworkTemplateInterface = {

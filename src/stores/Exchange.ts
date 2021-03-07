@@ -190,7 +190,6 @@ export class Exchange extends StoreConstructor {
 
   @action.bound
   setMode(mode: EXCHANGE_MODE) {
-    this.clear();
     this.mode = mode;
     this.setAddressByMode();
   }
@@ -282,9 +281,7 @@ export class Exchange extends StoreConstructor {
     this.confirmations = 0
     this.txHash = ""
     this.operation.id = params.id
-    const operation = await operationService.createOperation(params);
-
-    operation.operation.status = SwapStatus[SwapStatus[operation.operation.status]];
+    await operationService.createOperation(params);
     return this.operation;
   }
 
@@ -498,7 +495,7 @@ export class Exchange extends StoreConstructor {
       this.transaction.loading = false
 
       this.fetchStatus(this.operation.id);
-      this.operation.status = await this.updateOperation(
+      await this.updateOperation(
         this.operation.id,
         Snip20SwapHash({
           tx_id,
