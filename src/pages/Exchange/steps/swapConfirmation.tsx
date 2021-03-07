@@ -17,6 +17,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useStores } from '../../../stores';
 import { TokenLocked } from '../utils';
 import HeadShake from 'react-reveal/HeadShake';
+import Shake from 'react-reveal/Shake';
 
 type NetworkTemplateInterface = {
     image: string
@@ -200,18 +201,20 @@ export const SwapConfirmation = observer(() => {
                         </HeadShake>}
 
                         <Box fill direction="row" align="center" style={{ width: '100%' }} margin={{ top: 'large' }}>
-                            <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {
+                            {!exchange.transaction.confirmed ? <Button className={styles.fill} style={{ height: 50, width: '100%', background: "#00ADE8", color: "white" }} onClick={() => {
                                 if (exchange.transaction.loading) return
-                                if (exchange.transaction.confirmed) return exchange.stepNumber = EXCHANGE_STEPS.CHECK_TRANSACTION
                                 return exchange.step.onClick()
                             }}>
                                 {exchange.transaction.loading ?
-                                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
-                                    (exchange.transaction.confirmed ? "Follow Transaction Status" : "Confirm")
-
+                                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> : "Confirm"
                                 }
 
-                            </Button>
+                            </Button> :
+                                <Shake><Button className={styles.fill} style={{ height: 50, width: 494, background: "#00ADE8", color: "white" }} onClick={() => {
+                                    return exchange.stepNumber = EXCHANGE_STEPS.CHECK_TRANSACTION
+                                }}>
+                                    Follow Transaction Status
+                            </Button></Shake>}
                         </Box>
 
 
