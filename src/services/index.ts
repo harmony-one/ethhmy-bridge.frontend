@@ -1,4 +1,4 @@
-import { IOperation, IRewardPool, ISecretSwapPair, ISwap, ITokenInfo } from '../stores/interfaces';
+import { IOperation, IRewardPool, ISecretSwapPair, ISignerHealth, ISwap, ITokenInfo } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { SwapStatus } from '../constants';
 
@@ -87,6 +87,16 @@ export const getSecretSwapPairs = async (params: any): Promise<{ content: ISecre
   const res = await agent.get<{ body: ISecretSwapPair[] }>(url, params);
 
   const content = res.body.pairs;
+
+  return { content: content };
+};
+
+export const getSignerHealth = async (): Promise<{ content: ISignerHealth[] }> => {
+  const url = backendUrl('/signer_health/');
+
+  const res = await agent.get<{ body: { health: ISignerHealth[] } }>(url, {});
+
+  const content = res.body.health;
 
   return { content: content };
 };
