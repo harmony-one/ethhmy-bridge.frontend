@@ -13,11 +13,16 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { Price } from '../../Explorer/Components';
 import HeadShake from 'react-reveal/HeadShake';
 import { useStores } from '../../../stores';
+import { useEffect } from 'react';
 
 
 export const ERC20ApprovalModal = observer(() => {
 
     const { exchange } = useStores();
+
+    useEffect(() => {
+        exchange.transaction.error = ''
+    }, []);
 
     return (
         <Modal

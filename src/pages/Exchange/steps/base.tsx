@@ -18,7 +18,8 @@ import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import Fade from 'react-reveal/Fade';
 import HeadShake from 'react-reveal/HeadShake';
 import Flip from 'react-reveal/Flip';
-import { TokenLocked, NetworkTemplate, NetworkTemplateInterface } from '../utils';
+import { TokenLocked, NetworkTemplate, NetworkTemplateInterface, ViewingKeyIcon } from '../utils';
+import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
 interface Errors {
     amount: string;
@@ -109,15 +110,15 @@ export const Base = observer(() => {
         wallet: "Metamask",
         symbol: "Select a token",
         amount: "",
-        image: ""
-
+        image: "",
+        health: true
     }, {
         name: "Secret Network",
         wallet: "Keplr",
         symbol: "Select a token",
         amount: "",
-        image: ""
-
+        image: "",
+        health: true
     }]);
     const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
     const [minAmount, setMinAmount] = useState<string>("");
@@ -128,6 +129,32 @@ export const Base = observer(() => {
     const [onSwap, setSwap] = useState<boolean>(false);
     const [toApprove, setToApprove] = useState<boolean>(false);
     const [readyToSend, setReadyToSend] = useState<boolean>(false);
+    const [toSecretHealth, setToSecretHealth] = useState<boolean>(true);
+    const [fromSecretHealth, setFromSecretHealth] = useState<boolean>(true);
+
+    const { signerHealth } = useStores();
+
+
+    useEffect(() => {
+        const signers: ISignerHealth[] = signerHealth.allData;
+
+        if (signers.length === 0) {
+            return;
+        }
+
+        const parseHealth = (signers: ISignerHealth[]): boolean => {
+            for (const signer of signers) {
+                if (signer.signer === process.env.LEADER_ACCOUNT && signers.length >= Number(process.env.SIG_THRESHOLD)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        setFromSecretHealth(parseHealth(signers.filter(s => s.from_scrt)))
+        setToSecretHealth(parseHealth(signers.filter(s => s.to_scrt)))
+
+    }, [signerHealth.allData]);
 
     useEffect(() => {
         setSelectedToken(exchange.transaction.tokenSelected)
@@ -152,7 +179,8 @@ export const Base = observer(() => {
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Metamask" : "Keplr",
             symbol: selectedToken.symbol,
             amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.eth.maxAmount : balance.scrt.maxAmount,
-            image: selectedToken.image
+            image: selectedToken.image,
+            health: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? toSecretHealth : fromSecretHealth,
 
         }
 
@@ -161,8 +189,8 @@ export const Base = observer(() => {
             wallet: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Keplr" : "Metamask",
             symbol: selectedToken.symbol,
             amount: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? balance.scrt.maxAmount : balance.eth.maxAmount,
-            image: selectedToken.image
-
+            image: selectedToken.image,
+            health: exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? fromSecretHealth : toSecretHealth,
         }
 
         if (selectedToken.symbol) {
@@ -171,7 +199,7 @@ export const Base = observer(() => {
         }
 
         setNetworkTemplates([NTemplate1, NTemplate2])
-    }, [exchange.mode, selectedToken, balance]);
+    }, [exchange.mode, selectedToken, balance, toSecretHealth, fromSecretHealth]);
 
     useEffect(() => {
         setToApprove(
@@ -288,7 +316,7 @@ export const Base = observer(() => {
         <Box fill direction="column" background="transparent">
             <Fade left>
                 <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
-                    <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} />
+                    <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
                     <Box style={{ padding: '0 16', position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
                         <Icon size="60" glyph="Reverse" onClick={async () => {
                             exchange.transaction.amount = ""
@@ -300,7 +328,7 @@ export const Base = observer(() => {
                                 exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
                         }} />
                     </Box>
-                    <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} />
+                    <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} user={user} />
                 </Box>
             </Fade>
             <Fade right>
@@ -348,7 +376,7 @@ export const Base = observer(() => {
                                                     <Text bold margin={{ right: 'xxsmall' }}>/</Text>
                                                     {maxAmount === "loading" ?
                                                         <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                                                        : maxAmount === unlockToken ? <img src="/static/visibility.svg" width="17" alt="locked" /> :
+                                                        : maxAmount === unlockToken ? <ViewingKeyIcon user={user} /> :
                                                             <Text bold className={styles.maxAmountInput}>{maxAmount}</Text>}
                                                 </Box>
 

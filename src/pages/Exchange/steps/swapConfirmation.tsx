@@ -45,7 +45,7 @@ export const SwapConfirmation = observer(() => {
     const amount = exchange.transaction.amount
 
     useEffect(() => {
-
+        exchange.transaction.error = ''
         try {
             console.log('fetching')
             user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol).then(() => {
