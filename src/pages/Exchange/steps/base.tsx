@@ -15,10 +15,8 @@ import { AuthWarning } from '../../../components/AuthWarning';
 import { EXCHANGE_STEPS } from '../../../stores/Exchange';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import { autorun } from 'mobx';
 import Fade from 'react-reveal/Fade';
 import HeadShake from 'react-reveal/HeadShake';
-import Wobble from 'react-reveal/Wobble';
 import Flip from 'react-reveal/Flip';
 import { TokenLocked, NetworkTemplate, NetworkTemplateInterface } from '../utils';
 import { useStores } from '../../../stores';
@@ -95,7 +93,7 @@ const getBalance = (exchange, userMetamask, user, isLocked) => {
     }
 
     if (isLocked) {
-        scrt.maxAmount = '****'
+        scrt.maxAmount = unlockToken
     }
 
     return { eth, scrt }
@@ -213,7 +211,7 @@ export const Base = observer(() => {
         setBalance({ eth: { minAmount: 'loading', maxAmount: 'loading' }, scrt: { minAmount: 'loading', maxAmount: 'loading' } })
         token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
         if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
-        exchange.transaction.amount = ""
+        if (token.display_props.symbol !== exchange.transaction.tokenSelected.symbol) exchange.transaction.amount = ""
         exchange.transaction.confirmed = false
         exchange.transaction.tokenSelected = {
             symbol: token.display_props.symbol,
@@ -290,8 +288,8 @@ export const Base = observer(() => {
         <Box fill direction="column" background="transparent">
             <Fade left>
                 <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
-                    <NetworkTemplate template={networkTemplates[0]} align={"start"} onSwap={onSwap} />
-                    <Box pad="small" style={{ position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
+                    <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} />
+                    <Box style={{ padding: '0 16', position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
                         <Icon size="60" glyph="Reverse" onClick={async () => {
                             exchange.transaction.amount = ""
                             setErrors({ token: "", address: "", amount: "" })
@@ -302,7 +300,7 @@ export const Base = observer(() => {
                                 exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
                         }} />
                     </Box>
-                    <NetworkTemplate template={networkTemplates[1]} align={"end"} onSwap={onSwap} />
+                    <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} />
                 </Box>
             </Fade>
             <Fade right>
@@ -346,9 +344,14 @@ export const Base = observer(() => {
                                             </Box>
 
                                             <Box direction="row" align="center" justify="end">
-                                                {maxAmount === "loading" ?
-                                                    <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                                                    : <Text bold className={styles.maxAmountInput}>{`/ ${maxAmount === unlockToken ? '****' : maxAmount}`}</Text>}
+                                                <Box className={styles.maxAmountInput} direction="row">
+                                                    <Text bold margin={{ right: 'xxsmall' }}>/</Text>
+                                                    {maxAmount === "loading" ?
+                                                        <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+                                                        : maxAmount === unlockToken ? <img src="/static/visibility.svg" width="17" alt="locked" /> :
+                                                            <Text bold className={styles.maxAmountInput}>{maxAmount}</Text>}
+                                                </Box>
+
                                                 <Button
                                                     margin={{ left: 'xsmall', right: 'xsmall' }}
                                                     bgColor="#DEDEDE"
@@ -463,6 +466,7 @@ export const Base = observer(() => {
                                         const tokenError = validateTokenInput(selectedToken)
                                         setErrors({ ...errors, token: "" })
                                         if (tokenError) return setErrors({ ...errors, token: tokenError })
+
                                         if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
                                     }}
                                 >

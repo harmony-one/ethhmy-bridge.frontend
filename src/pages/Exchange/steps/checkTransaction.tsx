@@ -128,8 +128,14 @@ export const CheckTransaction = observer(() => {
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                Follow on Etherscan
+                                View on Etherscan
                             </a>
+                            </Text>
+                        </Box></HeadShake>}
+
+                        {exchange.transaction.error && <HeadShake><Box margin={{ top: 'xxsmall' }}>
+                            <Text size="small" color="#f37373">
+                                {exchange.transaction.error}
                             </Text>
                         </Box></HeadShake>}
 

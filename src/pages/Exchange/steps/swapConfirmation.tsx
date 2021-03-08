@@ -115,7 +115,9 @@ export const SwapConfirmation = observer(() => {
 
                         <Box direction="row" fill={true} justify="between" align="center" style={{ marginBottom: 26 }}>
                             {renderNetworkTemplate(NTemplate1, "center")}
-                            <img alt="bridge" src="/static/bridge.svg" width="40" height="30" style={{ margin: '0 15' }} />
+                            <Box style={{ margin: '0 15' }}>
+                                <Icon size="60" glyph="Right" />
+                            </Box>
                             {renderNetworkTemplate(NTemplate2, "center")}
                         </Box>
 
@@ -161,7 +163,9 @@ export const SwapConfirmation = observer(() => {
                         <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
                             <Box direction="row" align="center">
                                 <img style={{ marginRight: 6, width: exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 15 : 12 }} className={styles.imgToken} src={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "/static/scrt.svg" : "/static/eth.svg"} />
-                                <Text bold size="small" color="#00ADE8" >Fee</Text>
+                                <Text bold size="small" color="#00ADE8" >
+                                    {exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? 'Secret Network Fee' : 'Ethereum Fee'}
+                                </Text>
                             </Box>
                             {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
                                 value={exchange.networkFee}
@@ -196,7 +200,7 @@ export const SwapConfirmation = observer(() => {
                                 <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>You will recieve</Text>
                             </Box>
                             {!calculated ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="5em" /> :
-                                <Text bold size="small" color={calculated === "0" ? '#f37373' : 'inherit'}>{calculated} {symbol}</Text>}
+                                <Text bold size="small" color={calculated === "0" ? '#f37373' : '#212D5E'}>{calculated} {symbol}</Text>}
                         </Box>}
 
                         {isTokenLocked && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && <TokenLocked user={user} onFinish={(value) => setTokenLocked(!value)} />}

@@ -501,6 +501,7 @@ export class Exchange extends StoreConstructor {
       );
     } catch (e) {
       this.operation.status = SwapStatus.SWAP_FAILED;
+      this.transaction.error = e.message
       //throw e;
     }
 
