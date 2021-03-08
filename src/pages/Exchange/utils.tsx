@@ -41,6 +41,7 @@ export type NetworkTemplateInterface = {
     image: string
     symbol: string
     amount: string;
+
 }
 
 export const NetworkTemplate = (props: {
@@ -48,8 +49,8 @@ export const NetworkTemplate = (props: {
 }) => (
     <HeadShake spy={props.onSwap} delay={0}>
         <Box direction="column" style={{ minWidth: 230 }}>
-            <BridgeHealth from_scrt={true} />
-            <Box direction="row" align={"start"} margin={{ bottom: 'small' }}>
+            <BridgeHealth from_scrt={props.template.name !== "Ethereum"} />
+            <Box direction="row" align={"start"} margin={{ bottom: 'small', top: 'xxsmall' }}>
                 <img style={{ marginRight: 10 }} className={styles.imgToken} src={props.template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />
 
                 <Box direction="column" >
