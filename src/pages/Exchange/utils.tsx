@@ -12,9 +12,6 @@ import { BridgeHealth } from '../../components/Secret/BridgeHealthIndicator';
 
 export const TokenLocked = (props: { user: any, onFinish: Function }) => {
 
-    const [intervalID, setIntervalID] = useState<number>(null);
-
-
     return <HeadShake bottom>
         <Box direction="column">
             <Text bold color="#c5bb2e">Warning</Text>
@@ -49,13 +46,13 @@ export const NetworkTemplate = (props: {
 }) => (
     <HeadShake spy={props.onSwap} delay={0}>
         <Box direction="column" style={{ minWidth: 230 }}>
-            <BridgeHealth from_scrt={props.template.name !== "Ethereum"} />
             <Box direction="row" align={"start"} margin={{ bottom: 'small', top: 'xxsmall' }}>
-                <img style={{ marginRight: 10 }} className={styles.imgToken} src={props.template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />
+                <img style={{ marginRight: 10 }} height="37" src={props.template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />
 
                 <Box direction="column" >
                     <Title bold color={"#30303D"} margin={{ bottom: 'xxsmall' }}>{props.template.name}</Title>
                     <Text size="medium" bold color={"#748695"}>{props.template.wallet}</Text>
+                    <BridgeHealth from_scrt={props.template.name !== "Ethereum"} />
                 </Box>
 
             </Box>
