@@ -54,7 +54,7 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing, rewards, signerHealth } = useStores();
+  const { exchange, routing, rewards, signerHealth } = useStores();
 
   useEffect(() => {
     rewards.init({
