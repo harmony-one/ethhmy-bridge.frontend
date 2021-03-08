@@ -317,7 +317,7 @@ export const Base = observer(() => {
             <Fade left>
                 <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
                     <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
-                    <Box style={{ padding: '0 16', position: 'absolute', top: 'Calc(50% - 60px)', left: 'Calc(50% - 60px)' }}>
+                    <Box style={{ padding: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }}>
                         <Icon size="60" glyph="Reverse" onClick={async () => {
                             exchange.transaction.amount = ""
                             setErrors({ token: "", address: "", amount: "" })
