@@ -216,6 +216,7 @@ export class Exchange extends StoreConstructor {
 
       if (swap) {
         this.operation.status = swap.status
+
         if (isEthHash(swap.src_tx_hash)) this.operation.transactionHash = swap.src_tx_hash
         if (isEthHash(swap.dst_tx_hash)) this.operation.transactionHash = swap.dst_tx_hash
 
@@ -350,9 +351,6 @@ export class Exchange extends StoreConstructor {
 
   async approveEcr20() {
     this.operation = this.defaultOperation;
-    //this.operation.status = SwapStatus.SWAP_WAIT_APPROVE;
-
-
     //await this.createOperation();
     //this.stores.routing.push('/operations/' + this.operation.id);
 
@@ -384,7 +382,6 @@ export class Exchange extends StoreConstructor {
 
   async swapErc20ToScrt() {
     this.operation = this.defaultOperation;
-    this.operation.status = SwapStatus.SWAP_WAIT_APPROVE;
 
     await this.createOperation();
     this.fetchStatus(this.operation.id);
@@ -411,7 +408,7 @@ export class Exchange extends StoreConstructor {
         if (result.error) {
           this.transaction.error = result.error.message
           this.transaction.loading = false
-          //this.stepNumber = EXCHANGE_STEPS.BASE
+          this.operation.status = SwapStatus.SWAP_FAILED;
         }
 
       });
@@ -443,7 +440,7 @@ export class Exchange extends StoreConstructor {
       if (result.error) {
         this.transaction.error = result.error.message
         this.transaction.loading = false
-        //this.stepNumber = EXCHANGE_STEPS.BASE
+        this.operation.status = SwapStatus.SWAP_FAILED;
       }
 
     });

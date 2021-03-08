@@ -55,6 +55,7 @@ export const CheckTransaction = observer(() => {
         }
         setStatusMessage(status)
         let progress = 0
+
         if (exchange.operation.status <= 4) progress = (exchange.operation.status / 4) * 100
         setProgressBar(progress)
 
@@ -62,9 +63,7 @@ export const CheckTransaction = observer(() => {
 
     const swap = exchange.operation.swap || { dst_address: '', src_tx_hash: '', dst_tx_hash: '', amount: '' }
 
-
-
-    let color = "inherit"
+    let color = "#00BFFF"
     if (exchange.operation.status === SwapStatus.SWAP_CONFIRMED) color = "#65d180"
     return (
 

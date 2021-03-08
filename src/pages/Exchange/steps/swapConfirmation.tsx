@@ -17,7 +17,7 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useStores } from '../../../stores';
 import { TokenLocked } from '../utils';
 import HeadShake from 'react-reveal/HeadShake';
-import Shake from 'react-reveal/Shake';
+import Jump from 'react-reveal/Jump';
 
 type NetworkTemplateInterface = {
     image: string
@@ -217,11 +217,11 @@ export const SwapConfirmation = observer(() => {
                                 }
 
                             </Button> :
-                                <Shake><Button className={styles.fill} style={{ height: 50, width: 494, background: "#00ADE8", color: "white" }} onClick={() => {
+                                <Jump><Button className={styles.fill} style={{ height: 50, width: 494, background: "#00ADE8", color: "white" }} onClick={() => {
                                     return exchange.stepNumber = EXCHANGE_STEPS.CHECK_TRANSACTION
                                 }}>
                                     Follow Transaction Status
-                            </Button></Shake>}
+                            </Button></Jump>}
                         </Box>
 
 
