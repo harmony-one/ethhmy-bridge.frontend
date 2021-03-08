@@ -36,11 +36,13 @@ export const BridgeHealth = observer((props: { from_scrt?: boolean }) => {
     <div>
       {healthy ? (
         <div>
-          Live <Icon className={'circle'} color={'green'} />
+          <Icon className={'circle'} color={'green'} />
+          Live
         </div>
       ) : (
         <div>
-          Down <Icon className={'circle'} color={'red'} />
+          <Icon className={'circle'} color={'red'} />
+          Down
         </div>
       )}
     </div>
