@@ -8,6 +8,7 @@ import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { Rewards } from './RewardsStore';
 import { SecretSwapPairs } from './SecretSwapPairs';
+import { SignerHealthStore } from './SignerHealthStore';
 
 export interface IStores {
   routing?: RouterStore;
@@ -19,6 +20,7 @@ export interface IStores {
   tokens?: Tokens;
   rewards?: Rewards;
   secretSwapPairs?: SecretSwapPairs;
+  signerHealth?: SignerHealthStore;
 }
 
 const stores: IStores = {};
@@ -32,6 +34,7 @@ stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
 stores.rewards = new Rewards(stores);
 stores.secretSwapPairs = new SecretSwapPairs(stores);
+stores.signerHealth = new SignerHealthStore(stores);
 
 if (!process.env.production) {
   window.stores = stores;

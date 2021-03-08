@@ -10,6 +10,7 @@ import cn from 'classnames';
 import { Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
+import { BridgeHealth } from '../../components/Secret/BridgeHealthIndicator';
 
 const LargeButton = (props: {
   title: string;
@@ -27,6 +28,7 @@ const LargeButton = (props: {
       onClick={props.onClick}
       gap="10px"
     >
+      <BridgeHealth from_scrt={props.reverse} />
       <Box direction={props.reverse ? 'row-reverse' : 'row'} align="center">
         <Box direction="row" align="center">
           <img className={styles.imgToken} src="/static/eth.svg" />
@@ -52,7 +54,7 @@ const LargeButton = (props: {
 };
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing, rewards } = useStores();
+  const { user, exchange, routing, rewards, signerHealth } = useStores();
 
   useEffect(() => {
     rewards.init({
@@ -61,6 +63,9 @@ export const EthBridge = observer((props: any) => {
       pollingInterval: 20000,
     });
     rewards.fetch();
+
+    signerHealth.init({});
+    signerHealth.fetch();
 
     if (props.match.params.token) {
       if ([TOKEN.ETH, TOKEN.ERC20].includes(props.match.params.token)) {

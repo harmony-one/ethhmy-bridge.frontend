@@ -91,6 +91,8 @@ function getClientEnvironment(publicUrl) {
 
         AMM_FACTORY_CONTRACT: process.env.AMM_FACTORY_CONTRACT,
         TEST_COINS: !!process.env.TEST_COINS,
+        SIG_THRESHOLD: process.env.SIG_THRESHOLD,
+        LEADER_ACCOUNT: process.env.LEADER_ACCOUNT,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
