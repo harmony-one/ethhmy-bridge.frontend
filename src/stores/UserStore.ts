@@ -51,6 +51,7 @@ export class UserStoreEx extends StoreConstructor {
 
   @observable public oneRate = 0;
   @observable public ethRate = 0;
+  @observable public bnbRate = 0;
 
   @observable public hrc20Address = '';
   @observable public hrc20Balance = '';
@@ -356,6 +357,12 @@ export class UserStoreEx extends StoreConstructor {
     );
 
     this.ethRate = res.body.lastPrice;
+
+    res = await agent.get<{ body: IOperation }>(
+      'https://api.binance.com/api/v1/ticker/24hr?symbol=BNBUSDT',
+    );
+
+    this.bnbRate = res.body.lastPrice;
   }
 
   @action public setHRC20Token(token: string) {

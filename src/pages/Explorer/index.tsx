@@ -143,6 +143,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
         value={value}
         erc20Address={data.erc20Address}
         hrc20Address={data.hrc20Address}
+        network={data.network}
       />
     ),
   },
@@ -171,7 +172,7 @@ const getColumns = ({ user }): IColumn<IOperation>[] => [
       const fee = getOperationFee(data);
       const isETH = data.type === EXCHANGE_MODE.ETH_TO_ONE;
 
-      return <Price value={fee} isEth={isETH} />;
+      return <Price value={fee} isEth={isETH} network={data.network} />;
     },
   },
 ];

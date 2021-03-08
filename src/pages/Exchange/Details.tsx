@@ -207,6 +207,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                   value={exchange.networkFee}
                   isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                   boxProps={{ pad: {} }}
+                  network={exchange.network}
                 />
               ) : (
                 <Text>...loading</Text>
@@ -238,6 +239,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     value={0.0067219}
                     isEth={false}
                     boxProps={{ pad: {} }}
+                    network={exchange.network}
                   />
                 </AssetRow>
                 <AssetRow label="Burn" value="">
@@ -245,6 +247,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     value={0.0067219}
                     isEth={false}
                     boxProps={{ pad: {} }}
+                    network={exchange.network}
                   />
                 </AssetRow>
                 <AssetRow label="Ethereum gas" value="">
@@ -252,6 +255,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     value={Number(exchange.depositAmount.toFixed(2))}
                     isEth={false}
                     boxProps={{ pad: {} }}
+                    network={exchange.network}
                   />
                 </AssetRow>
               </div>
@@ -266,6 +270,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     value={exchange.networkFee / 2}
                     isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                     boxProps={{ pad: {} }}
+                    network={exchange.network}
                   />
                 </AssetRow>
                 <AssetRow label="Lock token (~50000 gas)" value="">
@@ -273,6 +278,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     value={exchange.networkFee / 2}
                     isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                     boxProps={{ pad: {} }}
+                    network={exchange.network}
                   />
                 </AssetRow>
               </div>

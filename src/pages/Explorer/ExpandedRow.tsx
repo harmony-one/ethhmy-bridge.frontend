@@ -251,6 +251,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <Price
                   value={Number(getActionFee(action).value)}
                   isEth={isEth(action.type)}
+                  network={props.data.network}
                 />
               ) : (
                 '--'
