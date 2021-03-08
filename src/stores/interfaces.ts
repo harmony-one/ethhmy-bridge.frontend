@@ -136,3 +136,11 @@ export interface ISecretSwapPair {
     code_hash: string;
   };
 }
+
+export interface ISignerHealth {
+  signer: string;
+  health: boolean;
+  updated_on: Date;
+  to_scrt: boolean;
+  from_scrt: boolean;
+}

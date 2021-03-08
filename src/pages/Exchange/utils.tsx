@@ -8,6 +8,7 @@ import Loader from 'react-loader-spinner';
 import * as styles from './styles.styl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { unlockToken } from 'utils';
+import { BridgeHealth } from '../../components/Secret/BridgeHealthIndicator';
 
 export const TokenLocked = (props: { user: any, onFinish: Function }) => {
 
@@ -47,6 +48,7 @@ export const NetworkTemplate = (props: {
 }) => (
     <HeadShake spy={props.onSwap} delay={0}>
         <Box direction="column" style={{ minWidth: 230 }}>
+            <BridgeHealth from_scrt={true} />
             <Box direction="row" align={"start"} margin={{ bottom: 'small' }}>
                 <img style={{ marginRight: 10 }} className={styles.imgToken} src={props.template.name === "Ethereum" ? "/static/eth.svg" : "/static/scrt.svg"} />
 

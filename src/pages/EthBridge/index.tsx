@@ -11,9 +11,8 @@ import { WalletBalances } from './WalletBalances';
 import { useEffect } from 'react';
 import { EXCHANGE_STEPS } from 'stores/Exchange';
 
-
 export const EthBridge = observer((props: any) => {
-  const { exchange, routing, rewards } = useStores();
+  const { exchange, rewards, signerHealth } = useStores();
 
   useEffect(() => {
     rewards.init({
@@ -22,7 +21,8 @@ export const EthBridge = observer((props: any) => {
       pollingInterval: 20000,
     });
     rewards.fetch();
-
+    signerHealth.init({});
+    signerHealth.fetch();
     if (props.match.params.operationId) {
       exchange.setOperationId(props.match.params.operationId);
     }
