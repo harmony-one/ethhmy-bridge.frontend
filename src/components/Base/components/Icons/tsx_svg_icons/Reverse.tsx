@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export const Reverse = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg width="67" height="69" viewBox="0 0 67 69" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="67" height="69" viewBox="0 0 67 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g filter="url(#filter0_dd)">
       <rect x="2.5" y="0.5" width="62" height="62" rx="31" fill="white" />
       <g clip-path="url(#clip0)">

@@ -323,7 +323,7 @@ export const Base = observer(() => {
         <Box fill direction="column" background="transparent">
             <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
                 <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
-                <Box style={{ padding: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }}>
+                <Box style={{ margin: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }} className={styles.reverseButton}>
                     <Icon size="60" glyph="Reverse" onClick={async () => {
                         exchange.transaction.amount = ""
                         setErrors({ token: "", address: "", amount: "" })
