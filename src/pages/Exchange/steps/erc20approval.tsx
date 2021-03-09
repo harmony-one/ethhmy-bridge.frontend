@@ -47,7 +47,7 @@ export const ERC20ApprovalModal = observer(() => {
                             <Icon size="160" glyph="Check2" />
                         </Box>
                         <Text bold size="medium" margin={{ top: 'large' }}>Why am I doing this?</Text>
-                        <Text size="small" color="#748695" margin={{ top: 'xsmall' }}>In order for the bridge to move your erc20 tokens to Secret Network it first needs your approval. This is only <b>required once</b> per ERC20 token!</Text>
+                        <Text size="small" color="#748695" margin={{ top: 'xsmall' }}>In order for the bridge to move your ERC20 tokens to Secret Network it first needs your approval. This is only <b>required once</b> per ERC20 token!</Text>
                         <Box style={{ height: 40 }} direction="row" justify="between" align="start" margin={{ top: 'large' }}>
                             <Text bold size="small" color="#00ADE8" >Fee</Text>
                             {exchange.isFeeLoading ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> : <Price
