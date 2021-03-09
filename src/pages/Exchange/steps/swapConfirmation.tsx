@@ -18,6 +18,7 @@ import { useStores } from '../../../stores';
 import { TokenLocked } from '../utils';
 import HeadShake from 'react-reveal/HeadShake';
 import Jump from 'react-reveal/Jump';
+import { createNotification } from '../utils'
 
 type NetworkTemplateInterface = {
     image: string
@@ -134,7 +135,7 @@ export const SwapConfirmation = observer(() => {
 
                                         {truncateAddressString(exchange.transaction.scrtAddress)}
                                     </Text>
-                                    <CopyToClipboard text={exchange.transaction.ethAddress}>
+                                    <CopyToClipboard text={exchange.transaction.ethAddress} onCopy={() => createNotification('success', 'Copied to Clipboard!', " ")}>
                                         <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
                                     </CopyToClipboard>
                                 </Box>
@@ -145,7 +146,7 @@ export const SwapConfirmation = observer(() => {
                                     <Text size="small" style={{ fontFamily: 'monospace' }}>
                                         {truncateAddressString(exchange.transaction.ethAddress)}
                                     </Text>
-                                    <CopyToClipboard text={exchange.transaction.ethAddress}>
+                                    <CopyToClipboard text={exchange.transaction.ethAddress} onCopy={() => createNotification('success', 'Copied to Clipboard!', " ")}>
                                         <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
                                     </CopyToClipboard>
                                 </Box>

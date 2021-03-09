@@ -9,13 +9,16 @@ import { AuthWarning } from '../../components/AuthWarning';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { createNotification } from '../Exchange/utils'
 
 const WalletTemplate = observer((props: {
   address: string,
   symbol: string,
   amount: string,
-}) => <Box direction="row" background="white" style={{ borderRadius: 4 }}>
-    <CopyToClipboard text={props.address} >
+}) => {
+
+  return <Box direction="row" background="white" style={{ borderRadius: 4 }}>
+    <CopyToClipboard text={props.address} onCopy={() => createNotification('success', 'Copied to Clipboard!', " ")}>
       <Box pad="xxsmall" align="center" direction="row" >
         <img className={styles.imgToken} src={"/static/wallet.svg"} />
         <Text margin={{ left: 'xxsmall' }} className={styles.onClickAddress}>{truncateAddressString(props.address, 10)}</Text>
@@ -28,6 +31,7 @@ const WalletTemplate = observer((props: {
       <Text bold margin={{ left: 'xxsmall' }}>{props.symbol}</Text>
     </Box>
   </Box>
+}
 )
 
 export const WalletBalances = observer(() => {

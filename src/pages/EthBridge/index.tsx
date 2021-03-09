@@ -38,7 +38,7 @@ export const EthBridge = observer((props: any) => {
         <Box direction="row" wrap={true} fill justify="between" align="start">
           <Box fill direction="column" align="center" justify="center" className={styles.base}>
             <Box fill direction="row" justify="between" align="end" margin={{ bottom: 'medium', top: 'large' }}>
-              <Title bold >Secret Bridge</Title>
+              <Title bold>Secret Bridge</Title>
               <WalletBalances />
             </Box>
             <Exchange />

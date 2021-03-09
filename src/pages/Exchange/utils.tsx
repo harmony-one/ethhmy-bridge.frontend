@@ -9,7 +9,7 @@ import * as styles from './styles.styl';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { unlockToken } from 'utils';
 import { Icon as IconUI } from 'semantic-ui-react';
-import { useStores } from 'stores';
+import { store } from 'react-notifications-component';
 
 export const createViewingKey = async (user: any, callback?: Function) => {
     try {
@@ -20,6 +20,31 @@ export const createViewingKey = async (user: any, callback?: Function) => {
         console.log(error);
         callback(false)
     }
+}
+
+export const createNotification = (type: string, title: string, message: string) => {
+    store.addNotification({
+        title,
+        message,
+        type,
+        insert: "top",
+        container: "top-right",
+        swipe: {
+            duration: 400,
+            timingFunction: 'ease-out',
+            delay: 0,
+        },
+        slidingExit: {
+            duration: 800,
+            timingFunction: 'zoom-out',
+            delay: 0
+        },
+        dismiss: {
+            duration: 1500,
+            onScreen: false,
+            showIcon: true
+        },
+    });
 }
 
 export const ViewingKeyIcon = (props: { user: any, callback?: Function }) => {
@@ -103,7 +128,7 @@ export const CopyRow = (props: { label: string, value: string, rawValue: string 
         <Box direction="row" align="center">
             <Text>{props.value}</Text>
 
-            <CopyToClipboard text={props.rawValue}>
+            <CopyToClipboard text={props.rawValue} onCopy={() => createNotification('success', 'Copied to Clipboard!', " ")}>
                 <Icon glyph="PrintFormCopy" size="1em" color="#1c2a5e" style={{ marginLeft: 10, width: 20 }} />
             </CopyToClipboard>
         </Box>

@@ -12,9 +12,9 @@ import { InfoModal } from './components/InfoModal';
 import { EarnRewards } from './pages/Earn';
 import { FAQPage } from './pages/FAQ';
 import { FinancePage } from './pages/Finance';
-
 // import { InfoPage } from './pages/Info';
-
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
 export const App: React.FC = () => (
   <Providers>
     <Suspense fallback={<div />}>
@@ -28,11 +28,12 @@ export const App: React.FC = () => (
         <Route exact path="/earn" component={EarnRewards} />
         <Route exact path="/" component={EthBridge} />
         <Route exact path="/operations/:operationId" component={EthBridge} />
-        <Redirect to="/eth" />
+        <Redirect to="/" />
       </Switch>
     </Suspense>
     <ActionModals />
     <InfoModal />
+    <ReactNotification />
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>
 );

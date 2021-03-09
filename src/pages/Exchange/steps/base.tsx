@@ -321,214 +321,208 @@ export const Base = observer(() => {
 
     return (
         <Box fill direction="column" background="transparent">
-            <Fade left>
-                <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
-                    <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
-                    <Box style={{ padding: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }}>
-                        <Icon size="60" glyph="Reverse" onClick={async () => {
-                            exchange.transaction.amount = ""
-                            setErrors({ token: "", address: "", amount: "" })
-                            setSwap(!onSwap)
+            <Box fill direction="row" justify="around" pad="xlarge" background="#f5f5f5" style={{ position: 'relative' }}>
+                <NetworkTemplate template={networkTemplates[0]} onSwap={onSwap} user={user} />
+                <Box style={{ padding: '0 16', position: 'absolute', left: 'Calc(50% - 60px)' }}>
+                    <Icon size="60" glyph="Reverse" onClick={async () => {
+                        exchange.transaction.amount = ""
+                        setErrors({ token: "", address: "", amount: "" })
+                        setSwap(!onSwap)
 
-                            exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
-                                exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH) :
-                                exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
-                        }} />
-                    </Box>
-                    <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} user={user} />
+                        exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
+                            exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH) :
+                            exchange.setMode(EXCHANGE_MODE.ETH_TO_SCRT)
+                    }} />
                 </Box>
-            </Fade>
-            <Fade right>
-                <Flip bottom spy={onSwap} duration={1000}>
-                    <Box fill direction="column" className={styles.exchangeContainer}>
-                        <Form data={exchange.transaction} {...({} as any)} >
-                            <Box direction="row" fill={true} pad="xlarge">
+                <NetworkTemplate template={networkTemplates[1]} onSwap={onSwap} user={user} />
+            </Box>
+            <Box fill direction="column" className={styles.exchangeContainer}>
+                <Form data={exchange.transaction} {...({} as any)} >
+                    <Box direction="row" fill={true} pad="xlarge">
 
-                                <Box direction="row" gap="2px" width="50%" margin={{ right: 'medium' }}>
-                                    <Box width="100%" margin={{ right: 'medium' }} direction="column">
-                                        <ERC20Select
-                                            value={selectedToken.value}
-                                            onSelectToken={onSelectedToken}
+                        <Box direction="row" gap="2px" width="50%" margin={{ right: 'medium' }}>
+                            <Box width="100%" margin={{ right: 'medium' }} direction="column">
+                                <ERC20Select
+                                    value={selectedToken.value}
+                                    onSelectToken={onSelectedToken}
+                                />
+                                <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
+                                    {errors.token && <HeadShake>
+                                        <Text color="red">{errors.token}</Text>
+                                    </HeadShake>}
+                                </Box>
+                            </Box>
+                            <Box direction="column" width="100%">
+
+                                <Text bold size="large">Amount</Text>
+                                <Box direction="row" style={{ height: 46, borderRadius: 4, border: "solid 1px #E7ECF7", marginTop: 8 }} fill justify="between" align="center">
+                                    <Box width="40%" style={{ flex: 1 }}>
+                                        <NumberInput
+                                            name="amount"
+                                            type="decimal"
+                                            precision="18"
+                                            delimiter="."
+                                            placeholder="0"
+                                            margin={{ bottom: "none" }}
+                                            value={exchange.transaction.amount}
+                                            style={{ borderColor: 'transparent', height: 44 }}
+                                            onChange={async (value) => {
+                                                exchange.transaction.amount = value
+                                                const error = validateAmountInput(value, minAmount, maxAmount)
+                                                setErrors({ ...errors, amount: error })
+                                            }}
                                         />
-                                        <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
-                                            {errors.token && <HeadShake>
-                                                <Text color="red">{errors.token}</Text>
-                                            </HeadShake>}
-                                        </Box>
                                     </Box>
-                                    <Box direction="column" width="100%">
 
-                                        <Text bold size="large">Amount</Text>
-                                        <Box direction="row" style={{ height: 46, borderRadius: 4, border: "solid 1px #E7ECF7", marginTop: 8 }} fill justify="between" align="center">
-                                            <Box width="40%" style={{ flex: 1 }}>
-                                                <NumberInput
-                                                    name="amount"
-                                                    type="decimal"
-                                                    precision="18"
-                                                    delimiter="."
-                                                    placeholder="0"
-                                                    margin={{ bottom: "none" }}
-                                                    value={exchange.transaction.amount}
-                                                    style={{ borderColor: 'transparent', height: 44 }}
-                                                    onChange={async (value) => {
-                                                        exchange.transaction.amount = value
-                                                        const error = validateAmountInput(value, minAmount, maxAmount)
-                                                        setErrors({ ...errors, amount: error })
-                                                    }}
-                                                />
-                                            </Box>
-
-                                            <Box direction="row" align="center" justify="end">
-                                                <Box className={styles.maxAmountInput} direction="row">
-                                                    <Text bold margin={{ right: 'xxsmall' }}>/</Text>
-                                                    {maxAmount === "loading" ?
-                                                        <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
-                                                        : maxAmount === unlockToken ? <ViewingKeyIcon user={user} /> :
-                                                            <Text bold className={styles.maxAmountInput}>{maxAmount}</Text>}
-                                                </Box>
-
-                                                <Button
-                                                    margin={{ left: 'xsmall', right: 'xsmall' }}
-                                                    bgColor="#DEDEDE"
-                                                    pad="xxsmall"
-                                                    onClick={() => {
-                                                        if (maxAmount === unlockToken) return
-                                                        if (validateAmountInput(maxAmount, minAmount, maxAmount)) return
-                                                        const value = maxAmount
-                                                        exchange.transaction.amount = value
-                                                    }}
-                                                >
-                                                    <Text size="xxsmall" bold>MAX</Text>
-                                                </Button>
-                                            </Box>
+                                    <Box direction="row" align="center" justify="end">
+                                        <Box className={styles.maxAmountInput} direction="row">
+                                            <Text bold margin={{ right: 'xxsmall' }}>/</Text>
+                                            {maxAmount === "loading" ?
+                                                <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" />
+                                                : maxAmount === unlockToken ? <ViewingKeyIcon user={user} /> :
+                                                    <Text bold className={styles.maxAmountInput}>{maxAmount}</Text>}
                                         </Box>
-                                        <Box margin={{ top: 'xxsmall' }} direction="row" align="center" justify="between">
-                                            <Box direction="row">
-                                                <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Minimum:</Text>
-                                                {minAmount === 'loading' ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> :
-                                                    <Text size="small" color="#748695">
-                                                        {`
+
+                                        <Button
+                                            margin={{ left: 'xsmall', right: 'xsmall' }}
+                                            bgColor="#DEDEDE"
+                                            pad="xxsmall"
+                                            onClick={() => {
+                                                if (maxAmount === unlockToken) return
+                                                if (validateAmountInput(maxAmount, minAmount, maxAmount)) return
+                                                const value = maxAmount
+                                                exchange.transaction.amount = value
+                                            }}
+                                        >
+                                            <Text size="xxsmall" bold>MAX</Text>
+                                        </Button>
+                                    </Box>
+                                </Box>
+                                <Box margin={{ top: 'xxsmall' }} direction="row" align="center" justify="between">
+                                    <Box direction="row">
+                                        <Text bold size="small" color="#00ADE8" margin={{ right: 'xxsmall' }}>Minimum:</Text>
+                                        {minAmount === 'loading' ? <Loader type="ThreeDots" color="#00BFFF" height="1em" width="1em" /> :
+                                            <Text size="small" color="#748695">
+                                                {`
                                                     ${minAmount} 
                                                     ${exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && exchange.token === TOKEN.ERC20 ? 'secret' : ''} 
                                                     ${selectedToken.symbol}
                                                     `}
-                                                    </Text>
-                                                }
-                                            </Box>
-                                            {exchange.transaction.tokenSelected.value && <Box margin={{ right: 'xxsmall' }}><Icon size="15" glyph="Refresh" onClick={async () => {
-                                                onSelectedToken(exchange.transaction.tokenSelected.value)
-                                            }} /></Box>}
-
-                                        </Box>
-
-                                        <Box style={{ minHeight: 38 }} margin={{ top: 'medium' }} direction="column">
-                                            {errors.amount && <HeadShake bottom>
-                                                <Text color="red">{errors.amount}</Text>
-                                            </HeadShake>}
-
-                                        </Box>
+                                            </Text>
+                                        }
                                     </Box>
+                                    {exchange.transaction.tokenSelected.value && <Box margin={{ right: 'xxsmall' }}><Icon size="15" glyph="Refresh" onClick={async () => {
+                                        onSelectedToken(exchange.transaction.tokenSelected.value)
+                                    }} /></Box>}
+
                                 </Box>
 
-                                <Box width="50%" direction="column" style={{ position: 'relative' }}>
-                                    {((exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && userMetamask.isAuthorized) ||
-                                        (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && user.isAuthorized)) &&
-                                        <Box
-                                            style={{
-                                                fontWeight: 'bold',
-                                                right: 0,
-                                                top: 0,
-                                                position: 'absolute',
-                                                color: 'rgb(0, 173, 232)',
-                                                textAlign: 'right'
-                                            }}
-                                            onClick={() => {
-                                                if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
-                                                    exchange.transaction.ethAddress = userMetamask.ethAddress
-                                                    setErrors({ ...errors, address: validateAddressInput(exchange.mode, userMetamask.ethAddress) })
-                                                } else {
-                                                    exchange.transaction.scrtAddress = user.address
-                                                    setErrors({ ...errors, address: validateAddressInput(exchange.mode, user.address) })
-                                                }
-                                            }}
-                                        >
-                                            Use my address
-                                    </Box>
-                                    }
+                                <Box style={{ minHeight: 38 }} margin={{ top: 'medium' }} direction="column">
+                                    {errors.amount && <HeadShake bottom>
+                                        <Text color="red">{errors.amount}</Text>
+                                    </HeadShake>}
 
-                                    <Input
-                                        label={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "Destination ETH Address" : "Destination Secret Address"}
-                                        name={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "ethAddress" : "scrtAddress"}
-                                        style={{ width: '100%' }}
-                                        margin={{ bottom: 'none' }}
-                                        placeholder="Receiver address"
-                                        value={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress}
-                                        onChange={(value) => {
-                                            if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) exchange.transaction.ethAddress = value
-                                            if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) exchange.transaction.scrtAddress = value
-                                            const error = validateAddressInput(exchange.mode, value)
-                                            setErrors({ ...errors, address: error })
-                                        }}
-                                    />
-                                    <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
-                                        {errors.address && <HeadShake>
-                                            <Text color="red">{errors.address}</Text>
-                                        </HeadShake>}
-                                    </Box>
                                 </Box>
-
                             </Box>
-
-                        </Form>
-
-
-                        <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
-                            <Box style={{ maxWidth: '50%' }}>
-                                {isTokenLocked && <TokenLocked user={user} onFinish={(value) => {
-                                    setTokenLocked(!value)
-                                    onSelectedToken(exchange.transaction.tokenSelected.value)
-
-                                }} />}
-                            </Box>
-                            <Box direction="row">
-
-                                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
-                                    disabled={exchange.tokenApprovedLoading || !toApprove}
-                                    bgColor={"#00ADE8"}
-                                    color={"white"}
-                                    style={{ minWidth: 180, height: 48 }}
-                                    onClick={() => {
-                                        const tokenError = validateTokenInput(selectedToken)
-                                        setErrors({ ...errors, token: "" })
-                                        if (tokenError) return setErrors({ ...errors, token: tokenError })
-
-                                        if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
-                                    }}
-                                >
-                                    {exchange.tokenApprovedLoading ?
-                                        <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
-                                        (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
-                                </Button>}
-
-                                <Button
-                                    disabled={!readyToSend}
-                                    margin={{ left: 'medium' }}
-                                    bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
-                                    color={!toApprove ? "white" : "#748695"}
-                                    style={{ minWidth: 300, height: 48 }}
-                                    onClick={() => {
-                                        if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
-                                    }}
-                                >
-                                    {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Bridge to Secret Network" : "Bridge to Ethereum"}
-                                </Button>
-
-                            </Box>
-
                         </Box>
+
+                        <Box width="50%" direction="column" style={{ position: 'relative' }}>
+                            {((exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH && userMetamask.isAuthorized) ||
+                                (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && user.isAuthorized)) &&
+                                <Box
+                                    style={{
+                                        fontWeight: 'bold',
+                                        right: 0,
+                                        top: 0,
+                                        position: 'absolute',
+                                        color: 'rgb(0, 173, 232)',
+                                        textAlign: 'right'
+                                    }}
+                                    onClick={() => {
+                                        if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) {
+                                            exchange.transaction.ethAddress = userMetamask.ethAddress
+                                            setErrors({ ...errors, address: validateAddressInput(exchange.mode, userMetamask.ethAddress) })
+                                        } else {
+                                            exchange.transaction.scrtAddress = user.address
+                                            setErrors({ ...errors, address: validateAddressInput(exchange.mode, user.address) })
+                                        }
+                                    }}
+                                >
+                                    Use my address
+                                    </Box>
+                            }
+
+                            <Input
+                                label={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "Destination ETH Address" : "Destination Secret Address"}
+                                name={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? "ethAddress" : "scrtAddress"}
+                                style={{ width: '100%' }}
+                                margin={{ bottom: 'none' }}
+                                placeholder="Receiver address"
+                                value={exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress}
+                                onChange={(value) => {
+                                    if (exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH) exchange.transaction.ethAddress = value
+                                    if (exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT) exchange.transaction.scrtAddress = value
+                                    const error = validateAddressInput(exchange.mode, value)
+                                    setErrors({ ...errors, address: error })
+                                }}
+                            />
+                            <Box style={{ minHeight: 20 }} margin={{ top: 'medium' }} direction="column">
+                                {errors.address && <HeadShake>
+                                    <Text color="red">{errors.address}</Text>
+                                </HeadShake>}
+                            </Box>
+                        </Box>
+
                     </Box>
-                </Flip>
-            </Fade>
+
+                </Form>
+
+
+                <Box direction="row" style={{ padding: '0 32 24 32', height: 120 }} justify="between" align="end">
+                    <Box style={{ maxWidth: '50%' }}>
+                        {isTokenLocked && <TokenLocked user={user} onFinish={(value) => {
+                            setTokenLocked(!value)
+                            onSelectedToken(exchange.transaction.tokenSelected.value)
+
+                        }} />}
+                    </Box>
+                    <Box direction="row">
+
+                        {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
+                            disabled={exchange.tokenApprovedLoading || !toApprove}
+                            bgColor={"#00ADE8"}
+                            color={"white"}
+                            style={{ minWidth: 180, height: 48 }}
+                            onClick={() => {
+                                const tokenError = validateTokenInput(selectedToken)
+                                setErrors({ ...errors, token: "" })
+                                if (tokenError) return setErrors({ ...errors, token: tokenError })
+
+                                if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
+                            }}
+                        >
+                            {exchange.tokenApprovedLoading ?
+                                <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
+                                (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
+                        </Button>}
+
+                        <Button
+                            disabled={!readyToSend}
+                            margin={{ left: 'medium' }}
+                            bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
+                            color={!toApprove ? "white" : "#748695"}
+                            style={{ minWidth: 300, height: 48 }}
+                            onClick={() => {
+                                if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
+                            }}
+                        >
+                            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Bridge to Secret Network" : "Bridge to Ethereum"}
+                        </Button>
+
+                    </Box>
+
+                </Box>
+            </Box>
         </Box>
     )
 })
