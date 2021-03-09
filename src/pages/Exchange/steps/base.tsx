@@ -162,8 +162,15 @@ export const Base = observer(() => {
 
     useEffect(() => {
         const fromNetwork = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? 'eth' : 'scrt'
-        setMinAmount(balance[fromNetwork].minAmount)
-        setMaxAmount(balance[fromNetwork].maxAmount)
+        const min = balance[fromNetwork].minAmount
+        const max = balance[fromNetwork].maxAmount
+        setMinAmount(min)
+        setMaxAmount(max)
+        if (exchange.transaction.amount && Number(min) >= 0 && Number(max) >= 0) {
+            const error = validateAmountInput(exchange.transaction.amount, min, max)
+            setErrors({ ...errors, amount: error })
+        }
+
     }, [exchange.mode, balance]);
 
     useEffect(() => {
