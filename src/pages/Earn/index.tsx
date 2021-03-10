@@ -43,7 +43,7 @@ export const EarnRewards = observer((props: any) => {
           style={{
             display: 'flex',
             width: '100%',
-            height: '75px',
+            height: '100px',
             padding: '16px',
             position: 'absolute',
             left: '0',
@@ -80,29 +80,52 @@ export const EarnRewards = observer((props: any) => {
             locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
           </p>
         </div>
+        <div
+          style={{
+            display: 'flex',
+            minWidth: '550px',
+            maxWidth: '1100px',
+            backgroundColor: '#F5F8FE',
+            marginTop: '0.3em',
+          }}
+        >
+          <Icon
+            glyph="InfoIcon"
+            size="medium"
+            color={'black'}
+            style={{
+              display: 'inline-block',
+              marginRight: '16px',
+            }}
+          />
+          <p
+            style={{
+              minWidth: '550px',
+              maxWidth: '1047px',
+              display: 'inline-block',
+            }}
+          >
+            SushiSwap incentives for LPs on the WSCRT/WETH pair are now live!{' '}
+            <a href="https://twitter.com/SecretNetwork/status/1369349930247192582" target="_blank">
+              Earn more on SushiSwap Onsen
+            </a>
+            . 🍣
+          </p>
+        </div>
         <Box direction="row" wrap={true} fill={true} justify="between" align="start">
           <Box direction="column" align="center" justify="center" className={styles.base}>
             {rewards.allData
               .slice()
               .sort((a, b) => {
-                /* ETH first then UNI LP WSCRT-ETH */
-                if (a.inc_token.symbol === 'sETH' && b.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
-                  return -1;
-                }
-                if (b.inc_token.symbol === 'sETH' && a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
-                  return 1;
-                }
+                /* ETH first */
                 if (a.inc_token.symbol === 'sETH') {
-                  return -1;
-                }
-                if (a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
                   return -1;
                 }
 
                 return 0;
               })
               .map(rewardToken => {
-                if (rewardToken.pending_rewards === '0') {
+                if (Number(rewardToken.deadline) < 2_000_000) {
                   return null;
                 }
 

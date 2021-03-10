@@ -4,9 +4,9 @@ import { statusFetching } from '../constants';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
 import { IOperation } from './interfaces';
-import { divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, toFixedTrunc, unlockToken } from '../utils';
+import { divDecimals, fixUnlockToken, formatWithSixDecimals, sleep, unlockToken } from '../utils';
 import { SigningCosmWasmClient } from 'secretjs';
-import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge/scrt';
+import { getViewingKey, QueryDeposit, QueryRewards, Snip20GetBalance } from '../blockchain-bridge';
 
 export const rewardsDepositKey = key => `${key}RewardsDeposit`;
 
