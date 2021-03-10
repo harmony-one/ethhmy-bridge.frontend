@@ -526,7 +526,7 @@ export const Base = observer(() => {
 
                             {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
                                 disabled={exchange.tokenApprovedLoading || !toApprove}
-                                bgColor={"#3ec7f5"}
+                                bgColor={"#00ADE8"}
                                 color={"white"}
                                 style={{ minWidth: 180, height: 48 }}
                                 onClick={() => {

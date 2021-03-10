@@ -10,6 +10,8 @@ import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { createNotification } from '../Exchange/utils'
+import { web3 } from '../../blockchain-bridge/eth';
+import { useEffect, useState } from 'react';
 
 const WalletTemplate = observer((props: {
   address: string,
@@ -72,7 +74,10 @@ export const WalletBalances = observer(() => {
         }
       </Box>
 
-      <Box>
+      <Box style={{ position: 'relative' }}>
+        {userMetamask.chainName !== "" && userMetamask.chainName !== "mainnet" && <Box className={styles.ethNetworkName} style={{}}>
+          {userMetamask.chainName}
+        </Box>}
         {!userMetamask.isAuthorized ? <Button
           onClick={() => userMetamask.signIn(true)}
           bgColor={"transparent"}

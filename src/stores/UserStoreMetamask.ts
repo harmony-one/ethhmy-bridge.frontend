@@ -24,6 +24,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public isMetaMask = false;
   private provider: any;
 
+  @observable public chainName: string;
   @observable public ethAddress: string;
   @observable public ethBalance: string = '';
   @observable public ethBalanceMin: string = '';
@@ -64,6 +65,21 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
+  getNetworkName(id: string) {
+    switch (id) {
+      case "0x1":
+        return "mainnet"
+      case "0x2a":
+        return "kovan"
+      case "0x3":
+        return "ropsten"
+      case "0x4":
+        return "rinkeby"
+      default:
+        return ""
+    }
+  }
+
   @action.bound
   setError(error: string) {
     this.error = error;
@@ -92,6 +108,16 @@ export class UserStoreMetamask extends StoreConstructor {
       if (provider !== window.ethereum) {
         console.error('Do you have multiple wallets installed?');
       }
+
+      // @ts-ignore
+      const chainId = await provider.request({ method: 'eth_chainId' });
+      this.chainName = this.getNetworkName(chainId)
+
+      // @ts-ignore
+      provider.on('chainChanged', (chainId) => {
+        this.chainName = this.getNetworkName(chainId)
+
+      })
 
       if (!provider) {
         return this.setError('Metamask not found');
