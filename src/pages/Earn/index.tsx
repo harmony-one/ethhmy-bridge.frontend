@@ -43,7 +43,7 @@ export const EarnRewards = observer((props: any) => {
           style={{
             display: 'flex',
             width: '100%',
-            height: '75px',
+            height: '100px',
             padding: '16px',
             position: 'absolute',
             left: '0',
@@ -78,6 +78,38 @@ export const EarnRewards = observer((props: any) => {
           >
             If you have created viewing keys for secretTokens and secretSCRT, you should be able to see secretTokens
             locked in the rewards contract and your rewards. If you can't see these figures please refresh your browser.
+          </p>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            minWidth: '550px',
+            maxWidth: '1100px',
+            backgroundColor: '#F5F8FE',
+            marginTop: '0.3em',
+          }}
+        >
+          <Icon
+            glyph="InfoIcon"
+            size="medium"
+            color={'black'}
+            style={{
+              display: 'inline-block',
+              marginRight: '16px',
+            }}
+          />
+          <p
+            style={{
+              minWidth: '550px',
+              maxWidth: '1047px',
+              display: 'inline-block',
+            }}
+          >
+            SushiSwap incentives for LPs on the WSCRT/WETH pair are now live!{' '}
+            <a href="https://twitter.com/SecretNetwork/status/1369349930247192582" target="_blank">
+              Earn more on SushiSwap Onsen
+            </a>
+            . 🍣
           </p>
         </div>
         <Box direction="row" wrap={true} fill={true} justify="between" align="start">
