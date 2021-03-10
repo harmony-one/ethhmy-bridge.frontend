@@ -15,6 +15,7 @@ import * as agent from 'superagent';
 import { IOperation, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
 import { HarmonyAddress } from '@harmony-js/crypto';
+
 const Web3 = require('web3');
 
 const defaults = {};
@@ -392,7 +393,7 @@ export class UserStoreEx extends StoreConstructor {
     if (!ignoreValidations) {
       if (
         this.stores.tokens.allData
-          .filter(t => t.type === 'erc20')
+          .filter(t => t.token === TOKEN.ERC20)
           .find(t => t.hrc20Address === hrc20Address)
       ) {
         throw new Error('This address already using for ERC20 token wrapper');
@@ -412,7 +413,7 @@ export class UserStoreEx extends StoreConstructor {
 
       if (
         this.stores.tokens.allData
-          .filter(t => t.type === 'erc721')
+          .filter(t => t.token === TOKEN.ERC721)
           .find(t => t.hrc20Address === hrc20Address)
       ) {
         throw new Error('This address already using for ERC721 token wrapper');

@@ -120,5 +120,6 @@ export interface ITokenInfo {
   totalLocked: string;
   totalLockedNormal: string;
   totalLockedUSD: string;
-  type: 'erc20' | 'erc721' | 'hrc20';
+  token: TOKEN;
+  network: NETWORK_TYPE;
 }

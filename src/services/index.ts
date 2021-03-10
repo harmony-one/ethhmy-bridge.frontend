@@ -1,4 +1,4 @@
-import { IOperation, ITokenInfo } from '../stores/interfaces';
+import { IOperation, ITokenInfo, NETWORK_TYPE } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
 
@@ -144,6 +144,11 @@ export const getTokensInfo = async (
     (a: any, b: any) =>
       a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
   );
+
+  content = content.map(c => ({
+    ...c,
+    network: c.network || NETWORK_TYPE.ETHEREUM,
+  }));
 
   return { ...res.body, content };
 };

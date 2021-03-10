@@ -2,11 +2,7 @@ import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import {
-  getExNetworkMethods,
-  hmyMethodsERC20,
-  hmyMethodsERC721,
-} from '../blockchain-bridge';
+import { getExNetworkMethods, hmyMethodsERC20, hmyMethodsERC721 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
@@ -263,7 +259,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (
       this.stores.tokens.allData
-        .filter(t => t.type === 'hrc20')
+        .filter(t => t.token === TOKEN.HRC20)
         .find(t => t.erc20Address === erc20Address)
     ) {
       throw new Error('This address already using for HRC20 token wrapper');
@@ -271,7 +267,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (
       this.stores.tokens.allData
-        .filter(t => t.type === 'erc721')
+        .filter(t => t.token === TOKEN.ERC721)
         .find(t => t.erc20Address === erc20Address)
     ) {
       throw new Error('This address already using for ERC721 token');
@@ -309,7 +305,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (
       this.stores.tokens.allData
-        .filter(t => t.type === 'hrc20')
+        .filter(t => t.token === TOKEN.HRC20)
         .find(t => t.erc20Address === erc20Address)
     ) {
       throw new Error('This address already using for HRC20 token wrapper');
@@ -317,7 +313,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (
       this.stores.tokens.allData
-        .filter(t => t.type === 'erc20')
+        .filter(t => t.token === TOKEN.ERC20)
         .find(t => t.erc20Address === erc20Address)
     ) {
       throw new Error('This address already using for ERC20 token');

@@ -5,14 +5,22 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ITokenInfo } from 'stores/interfaces';
+import { ITokenInfo, NETWORK_TYPE } from 'stores/interfaces';
 import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Title, Text } from 'components/Base';
+import { Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
+import { NETWORK_ICON } from '../../stores/names';
+import { NetworkButton } from './Components';
 
-const ethAddress = value => {
+const EthAddress = ({
+  value,
+  network,
+}: {
+  value: string;
+  network: NETWORK_TYPE;
+}) => {
   return (
     <Box
       direction="row"
@@ -20,7 +28,11 @@ const ethAddress = value => {
       align="center"
       style={{ marginTop: 4 }}
     >
-      <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
+      <img
+        className={styles.imgToken}
+        style={{ height: 20 }}
+        src={NETWORK_ICON[network]}
+      />
       <a
         className={styles.addressLink}
         href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
@@ -69,7 +81,9 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'erc20Address',
     dataIndex: 'erc20Address',
     width: 280,
-    render: value => ethAddress(value),
+    render: (value, data) => (
+      <EthAddress value={value} network={data.network} />
+    ),
   },
   {
     title: 'HRC20 Address',
@@ -128,6 +142,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
 export const Tokens = observer((props: any) => {
   const { tokens, user } = useStores();
   const [search, setSearch] = useState('');
+  const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
 
   const [columns, setColumns] = useState(getColumns(user));
 
@@ -147,8 +162,11 @@ export const Tokens = observer((props: any) => {
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
   const filteredData = tokens.data.filter(token => {
+    let iSearchOk = true;
+    let isNetworkOk = true;
+
     if (search) {
-      return (
+      iSearchOk =
         Object.values(token).some(
           value =>
             value &&
@@ -158,11 +176,14 @@ export const Tokens = observer((props: any) => {
               .includes(search.toLowerCase()),
         ) ||
         getBech32Address(token.hrc20Address).toLowerCase() ===
-          search.toLowerCase()
-      );
+          search.toLowerCase();
     }
 
-    return true;
+    if (network !== 'ALL') {
+      isNetworkOk = token.network === network;
+    }
+
+    return iSearchOk && isNetworkOk;
   });
 
   return (
@@ -200,8 +221,28 @@ export const Tokens = observer((props: any) => {
           pad={{ horizontal: '9px' }}
           margin={{ top: 'medium', bottom: 'medium' }}
           // style={{ maxWidth: 500 }}
+          direction="row"
+          justify="between"
+          gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
+          <Box direction="row" gap="10px">
+            <NetworkButton
+              type={'ALL'}
+              selectedType={network}
+              onClick={() => setNetwork('ALL')}
+            />
+            <NetworkButton
+              type={NETWORK_TYPE.BINANCE}
+              selectedType={network}
+              onClick={() => setNetwork(NETWORK_TYPE.BINANCE)}
+            />
+            <NetworkButton
+              type={NETWORK_TYPE.ETHEREUM}
+              selectedType={network}
+              onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
+            />
+          </Box>
         </Box>
 
         <Box
