@@ -48,12 +48,8 @@ export const SwapConfirmation = observer(() => {
     useEffect(() => {
         exchange.transaction.error = ''
         try {
-            console.log('fetching')
             user.updateBalanceForSymbol(exchange.transaction.tokenSelected.symbol).then(() => {
-
                 const balance = user.balanceToken[exchange.transaction.tokenSelected.src_coin]
-                console.log('fetched', balance)
-
                 setTokenLocked(balance === unlockToken)
             })
 

@@ -239,7 +239,6 @@ export const Base = observer(() => {
 
     }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
 
-    console.log('progress', progress)
     useEffect(() => {
         const address = exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress
         const value = errors.token === "" &&
@@ -292,7 +291,7 @@ export const Base = observer(() => {
         try {
             if (token.display_props.symbol !== "ETH") await userMetamask.setToken(value, tokens);
         } catch (e) {
-            console.log(e)
+            console.log('Error on selecting token, are you sure you have this token on your metamask?')
         }
 
 

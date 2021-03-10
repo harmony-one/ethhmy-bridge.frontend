@@ -423,11 +423,7 @@ export class Exchange extends StoreConstructor {
     this.fetchStatus(this.operation.id);
 
     try {
-
-
       contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {
-        console.log('result adwawd a', result)
-
         if (result.hash) {
           this.updateOperation(this.operation.id, result.hash);
           this.transaction.loading = false
@@ -450,7 +446,7 @@ export class Exchange extends StoreConstructor {
 
       });
     } catch (error) {
-      console.log('error adwawd a', error)
+      console.log('error', error)
     }
     return;
   }
