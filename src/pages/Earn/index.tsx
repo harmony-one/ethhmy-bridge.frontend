@@ -102,7 +102,7 @@ export const EarnRewards = observer((props: any) => {
                 return 0;
               })
               .map(rewardToken => {
-                if (rewardToken.pending_rewards === '0') {
+                if (Number(rewardToken.deadline) < 2_000_000) {
                   return null;
                 }
 
