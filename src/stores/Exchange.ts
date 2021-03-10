@@ -111,7 +111,7 @@ export class Exchange extends StoreConstructor {
       onClickSend: async () => {
         this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
         this.transaction.snip20Address = this.stores.user.snip20Address;
-
+        this.transaction.loading = false
         this.stepNumber = EXCHANGE_STEPS.CONFIRMATION
 
         switch (this.mode) {
@@ -422,29 +422,36 @@ export class Exchange extends StoreConstructor {
     await this.createOperation();
     this.fetchStatus(this.operation.id);
 
+    try {
 
-    contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {
-      if (result.hash) {
-        this.updateOperation(this.operation.id, result.hash);
-        this.transaction.loading = false
-        this.txHash = result.hash
-        this.transaction.confirmed = true
-        this.stores.routing.push('/operations/' + this.operation.id);
-      }
 
-      if (result.receipt) {
-        this.transaction.loading = false
-        this.transaction.confirmed = true
-      }
+      contract.ethMethodsETH.swapEth(this.transaction.scrtAddress, this.transaction.amount, async (result) => {
+        console.log('result adwawd a', result)
 
-      if (result.error) {
-        this.transaction.error = result.error.message
-        this.transaction.loading = false
-        this.operation.status = SwapStatus.SWAP_FAILED;
-      }
+        if (result.hash) {
+          this.updateOperation(this.operation.id, result.hash);
+          this.transaction.loading = false
+          this.txHash = result.hash
+          this.transaction.confirmed = true
+          this.stores.routing.push('/operations/' + this.operation.id);
+        }
 
-    });
+        if (result.receipt) {
+          this.transaction.loading = false
+          this.transaction.confirmed = true
 
+        }
+
+        if (result.error) {
+          this.transaction.error = result.error.message
+          this.transaction.loading = false
+          this.operation.status = SwapStatus.SWAP_FAILED;
+        }
+
+      });
+    } catch (error) {
+      console.log('error adwawd a', error)
+    }
     return;
   }
 

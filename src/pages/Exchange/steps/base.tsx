@@ -5,7 +5,6 @@ import * as styles from '../styles.styl';
 import { Box } from 'grommet';
 import Web3 from 'web3';
 import * as bech32 from 'bech32';
-import { IStores } from 'stores';
 import { useEffect, useState } from 'react';
 import { errorTypes, unlockToken } from 'utils';
 import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
@@ -15,9 +14,8 @@ import { AuthWarning } from '../../../components/AuthWarning';
 import { EXCHANGE_STEPS } from '../../../stores/Exchange';
 import Loader from 'react-loader-spinner';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
-import Fade from 'react-reveal/Fade';
 import HeadShake from 'react-reveal/HeadShake';
-import Flip from 'react-reveal/Flip';
+import ProgressBar from "@ramonak/react-progress-bar";
 import { TokenLocked, NetworkTemplate, NetworkTemplateInterface, ViewingKeyIcon } from '../utils';
 import { ISignerHealth } from '../../../stores/interfaces';
 import { useStores } from '../../../stores';
@@ -123,6 +121,8 @@ export const Base = observer(() => {
     const [isTokenLocked, setTokenLocked] = useState<boolean>(false);
     const [minAmount, setMinAmount] = useState<string>("");
     const [maxAmount, setMaxAmount] = useState<string>("");
+    const [warningAmount, setWarningAmount] = useState<string>("");
+    const [progress, setProgress] = useState<number>(0);
 
     const defaultBalance: BalanceInterface = { eth: { minAmount: '', maxAmount: '' }, scrt: { minAmount: '', maxAmount: '' } }
     const [balance, setBalance] = useState<BalanceInterface>(defaultBalance);
@@ -209,16 +209,37 @@ export const Base = observer(() => {
     }, [exchange.mode, selectedToken, balance, toSecretHealth, fromSecretHealth]);
 
     useEffect(() => {
-        setToApprove(
+        if (Number(exchange.transaction.amount) > 0 &&
+            selectedToken.symbol === "ETH" &&
             exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
+            exchange.transaction.amount >= maxAmount) {
+            setWarningAmount("Remember to leave some ETH behind to pay for network fees")
+        } else {
+            setWarningAmount("")
+        }
+    }, [exchange.transaction.amount, maxAmount, selectedToken, exchange.mode]);
+
+    useEffect(() => {
+
+
+        const approve = exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT &&
             !exchange.isTokenApproved &&
             exchange.transaction.erc20Address !== "" &&
             selectedToken.symbol !== "ETH"
-        )
+
+        setToApprove(approve)
+        if (approve) setProgress(1)
+
     }, [selectedToken, exchange.mode, exchange.isTokenApproved, exchange.transaction.erc20Address]);
 
+    useEffect(() => {
 
+        if (exchange.isTokenApproved && !toApprove && exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "ETH")
+            setProgress(2)
 
+    }, [selectedToken, toApprove, exchange.isTokenApproved, exchange.mode]);
+
+    console.log('progress', progress)
     useEffect(() => {
         const address = exchange.mode === EXCHANGE_MODE.SCRT_TO_ETH ? exchange.transaction.ethAddress : exchange.transaction.scrtAddress
         const value = errors.token === "" &&
@@ -243,10 +264,15 @@ export const Base = observer(() => {
 
     const onSelectedToken = async (value) => {
         const token = tokens.allData.find(t => t.src_address === value)
+        setProgress(0)
+        const newerrors = errors
         setBalance({ eth: { minAmount: 'loading', maxAmount: 'loading' }, scrt: { minAmount: 'loading', maxAmount: 'loading' } })
         token.display_props.symbol === "ETH" ? exchange.setToken(TOKEN.ETH) : exchange.setToken(TOKEN.ERC20)
         if (token.display_props.symbol === "ETH") user.snip20Address = token.dst_address
-        if (token.display_props.symbol !== exchange.transaction.tokenSelected.symbol) exchange.transaction.amount = ""
+        if (token.display_props.symbol !== exchange.transaction.tokenSelected.symbol) {
+            exchange.transaction.amount = ""
+            newerrors.amount = ""
+        }
         exchange.transaction.confirmed = false
         exchange.transaction.tokenSelected = {
             symbol: token.display_props.symbol,
@@ -260,8 +286,7 @@ export const Base = observer(() => {
             exchange.checkTokenApprove(value)
 
         }
-
-        setErrors({ ...errors, token: "" })
+        newerrors.token = ""
         setTokenLocked(false)
 
         try {
@@ -276,7 +301,7 @@ export const Base = observer(() => {
             await user.updateBalanceForSymbol(token.display_props.symbol);
 
         } catch (e) {
-            setErrors({ ...errors, token: e.message })
+            newerrors.token = e.message
         }
         const amount = user.balanceToken[token.src_coin]
         const isLocked = amount === unlockToken
@@ -284,6 +309,7 @@ export const Base = observer(() => {
 
         setBalance(balance)
         setTokenLocked(amount === unlockToken)
+        setErrors(newerrors)
     }
 
     const onClickHandler = async (callback: () => void) => {
@@ -328,6 +354,7 @@ export const Base = observer(() => {
                         exchange.transaction.amount = ""
                         setErrors({ token: "", address: "", amount: "" })
                         setSwap(!onSwap)
+                        setProgress(0)
 
                         exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ?
                             exchange.setMode(EXCHANGE_MODE.SCRT_TO_ETH) :
@@ -419,9 +446,11 @@ export const Base = observer(() => {
 
                                 <Box style={{ minHeight: 38 }} margin={{ top: 'medium' }} direction="column">
                                     {errors.amount && <HeadShake bottom>
-                                        <Text color="red">{errors.amount}</Text>
+                                        <Text margin={{ bottom: 'xxsmall' }} color="red">{errors.amount}</Text>
                                     </HeadShake>}
-
+                                    {warningAmount && <HeadShake bottom>
+                                        <Text color="#97a017">{warningAmount}</Text>
+                                    </HeadShake>}
                                 </Box>
                             </Box>
                         </Box>
@@ -486,38 +515,47 @@ export const Base = observer(() => {
 
                         }} />}
                     </Box>
-                    <Box direction="row">
+                    <Box direction="column">
+                        {progress > 0 && <Box direction="row" align="center" margin={{ left: '75', bottom: 'small' }} fill>
+                            <Text className={styles.progressNumber} style={{ background: progress === 2 ? "#00ADE888" : "#00ADE8" }}>1</Text>
+                            <ProgressBar height="4" width="220" bgcolor={"#00BFFF"} completed={progress * 50} isLabelVisible={false} />
+                            <Text className={styles.progressNumber} style={{ background: progress === 1 ? "#E4E4E4" : "#00ADE8" }}>2</Text>
+                        </Box>}
 
-                        {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
-                            disabled={exchange.tokenApprovedLoading || !toApprove}
-                            bgColor={"#00ADE8"}
-                            color={"white"}
-                            style={{ minWidth: 180, height: 48 }}
-                            onClick={() => {
-                                const tokenError = validateTokenInput(selectedToken)
-                                setErrors({ ...errors, token: "" })
-                                if (tokenError) return setErrors({ ...errors, token: tokenError })
+                        <Box direction="row">
 
-                                if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
-                            }}
-                        >
-                            {exchange.tokenApprovedLoading ?
-                                <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
-                                (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
-                        </Button>}
+                            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT && selectedToken.symbol !== "" && selectedToken.symbol !== "ETH" && <Button
+                                disabled={exchange.tokenApprovedLoading || !toApprove}
+                                bgColor={"#3ec7f5"}
+                                color={"white"}
+                                style={{ minWidth: 180, height: 48 }}
+                                onClick={() => {
+                                    const tokenError = validateTokenInput(selectedToken)
+                                    setErrors({ ...errors, token: "" })
+                                    if (tokenError) return setErrors({ ...errors, token: tokenError })
 
-                        <Button
-                            disabled={!readyToSend}
-                            margin={{ left: 'medium' }}
-                            bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
-                            color={!toApprove ? "white" : "#748695"}
-                            style={{ minWidth: 300, height: 48 }}
-                            onClick={() => {
-                                if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
-                            }}
-                        >
-                            {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Bridge to Secret Network" : "Bridge to Ethereum"}
-                        </Button>
+                                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickApprove);
+                                }}
+                            >
+                                {exchange.tokenApprovedLoading ?
+                                    <Loader type="ThreeDots" color="#00BFFF" height="15px" width="2em" /> :
+                                    (exchange.isTokenApproved ? 'Approved!' : 'Approve')}
+                            </Button>}
+
+                            <Button
+                                disabled={!readyToSend}
+                                margin={{ left: 'medium' }}
+                                bgColor={!toApprove ? "#00ADE8" : "#E4E4E4"}
+                                color={!toApprove ? "white" : "#748695"}
+                                style={{ minWidth: 300, height: 48 }}
+                                onClick={() => {
+                                    if (exchange.step.id === EXCHANGE_STEPS.BASE) onClickHandler(exchange.step.onClickSend);
+                                }}
+                            >
+                                {exchange.mode === EXCHANGE_MODE.ETH_TO_SCRT ? "Bridge to Secret Network" : "Bridge to Ethereum"}
+                            </Button>
+
+                        </Box>
 
                     </Box>
 
