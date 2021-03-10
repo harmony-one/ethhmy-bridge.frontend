@@ -1,6 +1,7 @@
 import { IOperation, ITokenInfo, NETWORK_TYPE } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
+import { getCorrectArr } from './helpers';
 
 let servers = require('../../appengine-servers.json');
 
@@ -25,6 +26,44 @@ const callAvailableServer = async (
   }
 
   throw error;
+};
+
+const callAvailableServerAll = async (
+  func: (url: string) => Promise<any>,
+  server = 0,
+) => {
+  let error;
+
+  const resArray = [];
+
+  for (let i = server; i < servers.length; i++) {
+    try {
+      const res = await func(servers[i]);
+
+      resArray.push(res);
+    } catch (e) {
+      error = e;
+    }
+  }
+
+  if (!resArray.length) {
+    throw error;
+  }
+
+  resArray[0].content = resArray[0].content.map((item, idx) => {
+    const arrIndex = getCorrectArr(
+      [
+        resArray[0] ? resArray[0].content[idx].actions : [],
+        resArray[1] ? resArray[1].content[idx].actions : [],
+        resArray[2] ? resArray[2].content[idx].actions : [],
+      ],
+      'status',
+    );
+
+    return { ...resArray[arrIndex].content[idx], id: item.id };
+  });
+
+  return resArray[0];
 };
 
 const callActionN = async (func: (url: string) => Promise<any>) => {
@@ -107,7 +146,7 @@ export const getOperation = async (id): Promise<IOperation> => {
 export const getOperations = async (
   params: any,
 ): Promise<{ content: IOperation[] }> => {
-  return callAvailableServer(async url => {
+  return callAvailableServerAll(async url => {
     const res = await agent.get<{ body: IOperation[] }>(
       url + '/operations/',
       params,
