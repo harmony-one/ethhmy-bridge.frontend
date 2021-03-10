@@ -14,35 +14,33 @@ import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
 import { NetworkButton } from './Components';
 
-const EthAddress = ({
-  value,
-  network,
-}: {
-  value: string;
-  network: NETWORK_TYPE;
-}) => {
-  return (
-    <Box
-      direction="row"
-      justify="start"
-      align="center"
-      style={{ marginTop: 4 }}
-    >
-      <img
-        className={styles.imgToken}
-        style={{ height: 20 }}
-        src={NETWORK_ICON[network]}
-      />
-      <a
-        className={styles.addressLink}
-        href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
-        target="_blank"
+const EthAddress = observer(
+  ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
+    const { exchange } = useStores();
+
+    return (
+      <Box
+        direction="row"
+        justify="start"
+        align="center"
+        style={{ marginTop: 4 }}
       >
-        {truncateAddressString(value, 10)}
-      </a>
-    </Box>
-  );
-};
+        <img
+          className={styles.imgToken}
+          style={{ height: 20 }}
+          src={NETWORK_ICON[network]}
+        />
+        <a
+          className={styles.addressLink}
+          href={`${exchange.getExplorerByNetwork(network)}/token/${value}`}
+          target="_blank"
+        >
+          {truncateAddressString(value, 10)}
+        </a>
+      </Box>
+    );
+  },
+);
 
 const oneAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
