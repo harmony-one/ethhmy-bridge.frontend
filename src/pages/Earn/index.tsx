@@ -85,17 +85,8 @@ export const EarnRewards = observer((props: any) => {
             {rewards.allData
               .slice()
               .sort((a, b) => {
-                /* ETH first then UNI LP WSCRT-ETH */
-                if (a.inc_token.symbol === 'sETH' && b.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
-                  return -1;
-                }
-                if (b.inc_token.symbol === 'sETH' && a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
-                  return 1;
-                }
+                /* ETH first */
                 if (a.inc_token.symbol === 'sETH') {
-                  return -1;
-                }
-                if (a.inc_token.symbol === 'sUNILP-WSCRT-ETH') {
                   return -1;
                 }
 
