@@ -64,6 +64,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
       return process.env.NETWORK === 'testnet'
         ? tokens.allData
             .filter(t => !['BUSD', 'LINK'].includes(t.symbol))
+            .filter(t => t.network === exchange.network)
             .map(t => ({
               address: t.erc20Address,
               label: `${t.name} (${t.symbol})`,
