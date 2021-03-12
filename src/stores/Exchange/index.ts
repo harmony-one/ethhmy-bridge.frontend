@@ -264,6 +264,20 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
+  setNetwork(network: NETWORK_TYPE) {
+    if (
+      this.operation &&
+      [STATUS.IN_PROGRESS, STATUS.WAITING].includes(this.operation.status)
+    ) {
+      return;
+    }
+
+    this.clear();
+    this.network = network;
+    // this.setAddressByMode();
+  }
+
+  @action.bound
   setToken(token: TOKEN) {
     // this.clear();
     this.token = token;

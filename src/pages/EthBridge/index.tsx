@@ -70,9 +70,10 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
 
   return (
     <Button
-      className={cn()
-      // styles.networkButton,
-      // exchange.network === type ? styles.active : '',
+      className={
+        cn()
+        // styles.networkButton,
+        // exchange.network === type ? styles.active : '',
       }
       style={{
         background: 'white',
@@ -82,7 +83,7 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
             : '2px solid rgba(0,0,0,0)',
         color: '#212e5e',
       }}
-      onClick={() => (exchange.network = type)}
+      onClick={() => exchange.setNetwork(type)}
     >
       <img style={{ marginRight: 10, height: 20 }} src={NETWORK_ICON[type]} />
       {NETWORK_NAME[type]}

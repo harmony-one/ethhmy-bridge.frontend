@@ -8,7 +8,7 @@ import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
-import { NETWORK_BASE_TOKEN } from '../../stores/names';
+import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../../stores/names';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -250,7 +250,10 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                <AssetRow label="Ethereum gas" value="">
+                <AssetRow
+                  label={NETWORK_NAME[exchange.network] + ' gas'}
+                  value=""
+                >
                   <Price
                     value={Number(exchange.depositAmount.toFixed(2))}
                     isEth={false}
