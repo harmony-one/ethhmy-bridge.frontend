@@ -31,13 +31,17 @@ const EarnButton = ({ props, value, changeValue, togglePulse, setPulseInterval }
               },
             });
 
+            props.notify('success', `Deposit successful!`);
             if (props.token.deposit === unlockToken) {
               togglePulse();
               const interval = setInterval(togglePulse, 700);
               setPulseInterval(interval);
             }
           })
-          .catch(reason => console.log(`Failed to deposit: ${reason}`));
+          .catch(reason => {
+            props.notify('error', `Failed to deposit: ${reason}`);
+            console.log(`Failed to deposit: ${reason}`)
+          });
         setLoading(false);
       }}
     >

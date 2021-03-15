@@ -12,6 +12,24 @@ import { rewardsDepositKey, rewardsKey } from '../../stores/UserStore';
 import { divDecimals, sleep } from '../../utils';
 import { InfoModalEarn } from '../../components/InfoModalEarn';
 import { Icon } from 'components/Base/components/Icons';
+import cogoToast from 'cogo-toast';
+
+
+const notify = (type: 'success' | 'error', msg: string, hideAfterSec: number = 120) => {
+  if (type === 'error') {
+    msg = msg.replaceAll('Failed to decrypt the following error message: ', '');
+    msg = msg.replace(/\. Decryption error of the error message:.+?/, '');
+  }
+
+  const { hide } = cogoToast[type](msg, {
+    position: 'top-right',
+    hideAfter: hideAfterSec,
+    onClick: () => {
+      hide();
+    },
+  });
+  // NotificationManager[type](undefined, msg, closesAfterMs);
+}
 
 export const EarnRewards = observer((props: any) => {
   const { user, tokens, rewards } = useStores();
@@ -155,7 +173,7 @@ export const EarnRewards = observer((props: any) => {
                   deadline: Number(rewardToken.deadline),
                 };
 
-                return <EarnRow key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
+                return <EarnRow notify={notify} key={rewardToken.inc_token.symbol} userStore={user} token={rewardsToken} />;
               })}
           </Box>
         </Box>

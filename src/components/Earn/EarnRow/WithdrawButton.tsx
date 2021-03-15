@@ -20,14 +20,18 @@ const WithdrawButton = ({ props, value, changeValue }) => {
           address: props.token.rewardsContract,
           amount: valueToDecimals(Number(value).toFixed(6), props.token.decimals),
         })
-          .then(_ =>
+          .then(_ => {
+            props.notify('success', `Withdraw successful!`);
             changeValue({
               target: {
                 value: '0.0',
               },
-            }),
-          )
-          .catch(reason => console.log(`Failed to withdraw: ${reason}`));
+            })
+          })
+          .catch(reason => {
+            props.notify('error', `Failed to withdraw: ${reason}`);
+            console.log(`Failed to withdraw: ${reason}`)
+          });
         setLoading(false);
       }}
     >

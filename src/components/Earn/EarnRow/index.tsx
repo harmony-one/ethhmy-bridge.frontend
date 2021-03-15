@@ -69,17 +69,18 @@ const apyString = (token: RewardsToken) => {
 
 @observer
 class EarnRow extends Component<
-  {
-    userStore: UserStoreEx;
-    token: RewardsToken;
-  },
-  {
-    activeIndex: Number;
-    depositValue: string;
-    withdrawValue: string;
-    claimButtonPulse: boolean;
-    pulseInterval: number;
-  }
+{
+  userStore: UserStoreEx;
+  token: RewardsToken;
+  notify: Function;
+},
+{
+  activeIndex: Number;
+  depositValue: string;
+  withdrawValue: string;
+  claimButtonPulse: boolean;
+  pulseInterval: number;
+}
 > {
   state = {
     activeIndex: -1,
