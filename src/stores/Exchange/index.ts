@@ -15,6 +15,7 @@ import * as operationService from 'services';
 import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
+import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
 import { sleep, uuid } from '../../utils';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
@@ -22,8 +23,6 @@ import { getAddress } from '@harmony-js/crypto';
 import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
 import { getContractMethods } from './helpers';
-import { initNetworks } from '../../blockchain-bridge';
-import { getExNetworkMethods } from '../../blockchain-bridge';
 import { defaultEthClient } from './defaultConfig';
 
 export enum EXCHANGE_STEPS {
@@ -274,6 +273,10 @@ export class Exchange extends StoreConstructor {
 
     this.clear();
     this.network = network;
+
+    if (!this.config.tokens.includes(this.token)) {
+      this.setToken(this.config.tokens[0]);
+    }
     // this.setAddressByMode();
   }
 
@@ -458,9 +461,16 @@ export class Exchange extends StoreConstructor {
 
         case TOKEN.ERC20:
           ethMethods = exNetwork.ethMethodsERC20;
-          hmyMethods = this.stores.user.isMetamask
-            ? contract.hmyMethodsERC20.hmyMethodsWeb3
-            : contract.hmyMethodsERC20.hmyMethods;
+
+          if (this.network === NETWORK_TYPE.ETHEREUM) {
+            hmyMethods = this.stores.user.isMetamask
+              ? contract.hmyMethodsERC20.hmyMethodsWeb3
+              : contract.hmyMethodsERC20.hmyMethods;
+          } else {
+            hmyMethods = this.stores.user.isMetamask
+              ? contract.hmyMethodsBEP20.hmyMethodsWeb3
+              : contract.hmyMethodsBEP20.hmyMethods;
+          }
           break;
 
         case TOKEN.ONE:
@@ -736,6 +746,7 @@ export class Exchange extends StoreConstructor {
 
     const { ethMethods, hmyMethods } = getContractMethods(
       this.token,
+      this.network,
       this.stores.user.isMetamask,
     );
 

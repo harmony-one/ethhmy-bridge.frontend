@@ -1,14 +1,15 @@
-import { TOKEN } from '../interfaces';
+import { NETWORK_TYPE, TOKEN } from '../interfaces';
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods } from '../../blockchain-bridge';
 
 export const getContractMethods = (
   token: TOKEN,
+  network: NETWORK_TYPE,
   isMetamask: boolean,
 ) => {
   let ethMethods, hmyMethods;
 
-  const exNetwork = getExNetworkMethods()
+  const exNetwork = getExNetworkMethods();
 
   switch (token) {
     case TOKEN.BUSD:
@@ -27,9 +28,16 @@ export const getContractMethods = (
 
     case TOKEN.ERC20:
       ethMethods = exNetwork.ethMethodsERC20;
-      hmyMethods = isMetamask
-        ? contract.hmyMethodsERC20.hmyMethodsWeb3
-        : contract.hmyMethodsERC20.hmyMethods;
+
+      if (network === NETWORK_TYPE.ETHEREUM) {
+        hmyMethods = isMetamask
+          ? contract.hmyMethodsERC20.hmyMethodsWeb3
+          : contract.hmyMethodsERC20.hmyMethods;
+      } else {
+        hmyMethods = isMetamask
+          ? contract.hmyMethodsBEP20.hmyMethodsWeb3
+          : contract.hmyMethodsBEP20.hmyMethods;
+      }
       break;
 
     case TOKEN.ERC721:

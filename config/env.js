@@ -112,6 +112,11 @@ function getClientEnvironment(publicUrl) {
         ETH_TOKEN_MANAGER_CONTRACT: process.env.ETH_TOKEN_MANAGER_CONTRACT,
         ONE_HRC20: process.env.ONE_HRC20,
 
+        BSC_BRIDGE_MANAGER: process.env.BSC_BRIDGE_MANAGER,
+        BSC_TOKEN_MANAGER_CONTRACT: process.env.BSC_TOKEN_MANAGER_CONTRACT,
+        HMY_BRIDGE_MANAGER: process.env.HMY_BRIDGE_MANAGER,
+        TOKEN_MANAGER_CONTRACT_FOR_BSC: process.env.TOKEN_MANAGER_CONTRACT_FOR_BSC,
+
         BACKEND_URL: process.env.BACKEND_URL,
         THRESHOLD: process.env.THRESHOLD,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,

@@ -2,7 +2,12 @@ import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import { getExNetworkMethods, hmyMethodsERC20, hmyMethodsERC721 } from '../blockchain-bridge';
+import {
+  getExNetworkMethods,
+  hmyMethodsBEP20,
+  hmyMethodsERC20,
+  hmyMethodsERC721,
+} from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
@@ -278,9 +283,13 @@ export class UserStoreMetamask extends StoreConstructor {
     );
     this.erc20Address = erc20Address;
 
-    const address = await hmyMethodsERC20.hmyMethods.getMappingFor(
-      erc20Address,
-    );
+    let address;
+
+    if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+      address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
+    } else {
+      address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
+    }
 
     if (!!Number(address)) {
       this.stores.user.hrc20Address = address;
