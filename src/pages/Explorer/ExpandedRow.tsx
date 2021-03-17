@@ -51,7 +51,13 @@ const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
     const gasLimit = Number(action.payload.gasLimit || action.payload.gas);
     const gasPrice = Number(action.payload.gasPrice);
 
-    return { isEth: false, value: (gasPrice * gasLimit) / 1e18 };
+    let value = (gasPrice * gasLimit) / 1e18;
+
+    if (action.type === ACTION_TYPE.depositOne) {
+      value = (gasPrice * gasLimit) / 1e18 + action.depositAmount;
+    }
+
+    return { isEth: false, value };
   }
 };
 

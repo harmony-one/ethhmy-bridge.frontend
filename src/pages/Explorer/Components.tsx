@@ -66,7 +66,7 @@ export const Price = observer(
         pad={{ right: 'medium' }}
         {...props.boxProps}
       >
-        <Text style={{ fontSize: 14 }}>{`${props.value} ${
+        <Text style={{ fontSize: 14 }}>{`${formatWithSixDecimals(props.value)} ${
           props.isEth ? NETWORK_BASE_TOKEN[props.network] : 'ONE'
         }`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
