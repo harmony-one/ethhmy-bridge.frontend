@@ -534,6 +534,19 @@ export class Exchange extends React.Component<
                     >
                       Use my address
                     </Box>
+                  ) : user.isAuthorized && user.sessionType === 'metamask' ? (
+                    <Box
+                      fill={true}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
+                      onClick={() =>
+                        (exchange.transaction.ethAddress = user.address)
+                      }
+                    >
+                      Use Metamask address
+                    </Box>
                   ) : null}
                 </Box>
               ) : (
@@ -557,6 +570,20 @@ export class Exchange extends React.Component<
                       }
                     >
                       Use my address
+                    </Box>
+                  ) : userMetamask.isAuthorized ? (
+                    <Box
+                      fill={true}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
+                      onClick={() =>
+                        (exchange.transaction.oneAddress =
+                          userMetamask.ethAddress)
+                      }
+                    >
+                      Use Metamask address
                     </Box>
                   ) : null}
                 </Box>

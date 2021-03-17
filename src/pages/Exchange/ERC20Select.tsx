@@ -80,6 +80,8 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
     };
 
     useEffect(() => {
+      setToken('');
+      setError('');
       setLoading(true);
       setTimeout(() => setLoading(false), 300);
     }, [exchange.network]);
