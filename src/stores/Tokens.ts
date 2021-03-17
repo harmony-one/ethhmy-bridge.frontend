@@ -1,8 +1,8 @@
-import { ITokenInfo } from './interfaces';
+import { ITokenInfo, NETWORK_TYPE } from './interfaces';
 import { IStores } from './index';
 import * as services from 'services';
 import { ListStoreConstructor } from './core/ListStoreConstructor';
-import { computed } from 'mobx';
+import { computed, observable } from 'mobx';
 
 export class Tokens extends ListStoreConstructor<ITokenInfo> {
   constructor(stores: IStores) {
@@ -17,7 +17,13 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
     });
   }
 
+  @observable selectedNetwork: NETWORK_TYPE;
+
   @computed get totalLockedUSD() {
-    return this.data.reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
+    return this.data
+      .filter(a =>
+        this.selectedNetwork ? a.network === this.selectedNetwork : true,
+      )
+      .reduce((acc, v) => acc + Number(v.totalLockedUSD), 0);
   }
 }

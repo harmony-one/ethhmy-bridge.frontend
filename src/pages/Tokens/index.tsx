@@ -145,6 +145,10 @@ export const Tokens = observer((props: any) => {
   const [columns, setColumns] = useState(getColumns(user));
 
   useEffect(() => {
+    tokens.selectedNetwork = network === 'ALL' ? undefined : network;
+  }, [network]);
+
+  useEffect(() => {
     tokens.init();
     tokens.fetch();
   }, []);

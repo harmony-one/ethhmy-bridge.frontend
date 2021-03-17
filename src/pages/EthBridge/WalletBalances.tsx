@@ -178,20 +178,24 @@ export const WalletBalances = observer(() => {
                   />
                 ) : null}
 
-                <AssetRow
-                  asset={`${externalNetworkName} BUSD`}
-                  value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
-                  selected={exchange.token === TOKEN.BUSD}
-                  link={`${exchange.config.explorerURL}/token/${process.env.ETH_BUSD_CONTRACT}`}
-                />
+                {exchange.network === NETWORK_TYPE.ETHEREUM ? (
+                  <>
+                    <AssetRow
+                      asset={`${externalNetworkName} BUSD`}
+                      value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
+                      selected={exchange.token === TOKEN.BUSD}
+                      link={`${exchange.config.explorerURL}/token/${process.env.ETH_BUSD_CONTRACT}`}
+                    />
 
-                <AssetRow
-                  asset={`${externalNetworkName} LINK`}
-                  value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
-                  selected={exchange.token === TOKEN.LINK}
-                  link={`${exchange.config.explorerURL}/token/${process.env.ETH_LINK_CONTRACT}`}
-                  last={true}
-                />
+                    <AssetRow
+                      asset={`${externalNetworkName} LINK`}
+                      value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
+                      selected={exchange.token === TOKEN.LINK}
+                      link={`${exchange.config.explorerURL}/token/${process.env.ETH_LINK_CONTRACT}`}
+                      last={true}
+                    />
+                  </>
+                ) : null}
               </>
             )
           ) : (
@@ -334,27 +338,31 @@ export const WalletBalances = observer(() => {
                   />
                 ) : null}
 
-                <AssetRow
-                  asset="Harmony BUSD"
-                  value={formatWithSixDecimals(user.hmyBUSDBalance)}
-                  selected={exchange.token === TOKEN.BUSD}
-                  link={`${
-                    process.env.HMY_EXPLORER_URL
-                  }/address/${getBech32Address(
-                    process.env.HMY_BUSD_CONTRACT,
-                  )}?txType=hrc20`}
-                />
+                {exchange.network === NETWORK_TYPE.ETHEREUM ? (
+                  <>
+                    <AssetRow
+                      asset="Harmony BUSD"
+                      value={formatWithSixDecimals(user.hmyBUSDBalance)}
+                      selected={exchange.token === TOKEN.BUSD}
+                      link={`${
+                        process.env.HMY_EXPLORER_URL
+                      }/address/${getBech32Address(
+                        process.env.HMY_BUSD_CONTRACT,
+                      )}?txType=hrc20`}
+                    />
 
-                <AssetRow
-                  asset="Harmony LINK"
-                  value={formatWithSixDecimals(user.hmyLINKBalance)}
-                  selected={exchange.token === TOKEN.LINK}
-                  link={`${
-                    process.env.HMY_EXPLORER_URL
-                  }/address/${getBech32Address(
-                    process.env.HMY_LINK_CONTRACT,
-                  )}?txType=hrc20`}
-                />
+                    <AssetRow
+                      asset="Harmony LINK"
+                      value={formatWithSixDecimals(user.hmyLINKBalance)}
+                      selected={exchange.token === TOKEN.LINK}
+                      link={`${
+                        process.env.HMY_EXPLORER_URL
+                      }/address/${getBech32Address(
+                        process.env.HMY_LINK_CONTRACT,
+                      )}?txType=hrc20`}
+                    />
+                  </>
+                ) : null}
               </>
             )
           ) : (

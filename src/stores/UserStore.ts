@@ -12,7 +12,7 @@ import {
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
-import { IOperation, TOKEN } from './interfaces';
+import { IOperation, NETWORK_TYPE, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
 import { HarmonyAddress } from '@harmony-js/crypto';
 
@@ -279,15 +279,17 @@ export class UserStoreEx extends StoreConstructor {
 
         let resBalance = 0;
 
-        resBalance = await hmyMethodsBUSD.hmyMethods.checkHmyBalance(
-          this.address,
-        );
-        this.hmyBUSDBalance = divDecimals(resBalance, 18);
+        if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+          resBalance = await hmyMethodsBUSD.hmyMethods.checkHmyBalance(
+            this.address,
+          );
+          this.hmyBUSDBalance = divDecimals(resBalance, 18);
 
-        resBalance = await hmyMethodsLINK.hmyMethods.checkHmyBalance(
-          this.address,
-        );
-        this.hmyLINKBalance = divDecimals(resBalance, 18);
+          resBalance = await hmyMethodsLINK.hmyMethods.checkHmyBalance(
+            this.address,
+          );
+          this.hmyLINKBalance = divDecimals(resBalance, 18);
+        }
       } catch (e) {
         console.error(e);
       }

@@ -2,12 +2,7 @@ import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import {
-  getExNetworkMethods,
-  hmyMethodsBEP20,
-  hmyMethodsERC20,
-  hmyMethodsERC721,
-} from '../blockchain-bridge';
+import { getExNetworkMethods, hmyMethodsBEP20, hmyMethodsERC20, hmyMethodsERC721 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
@@ -236,11 +231,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
         let res = 0;
 
-        res = await exNetwork.ethMethodsLINK.checkEthBalance(this.ethAddress);
-        this.ethLINKBalance = divDecimals(res, 18);
+        if(this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+          res = await exNetwork.ethMethodsLINK.checkEthBalance(this.ethAddress);
+          this.ethLINKBalance = divDecimals(res, 18);
 
-        res = await exNetwork.ethMethodsBUSD.checkEthBalance(this.ethAddress);
-        this.ethBUSDBalance = divDecimals(res, 18);
+          res = await exNetwork.ethMethodsBUSD.checkEthBalance(this.ethAddress);
+          this.ethBUSDBalance = divDecimals(res, 18);
+        }
 
         this.ethBalance = await exNetwork.getEthBalance(this.ethAddress);
       } catch (e) {

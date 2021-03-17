@@ -1,14 +1,15 @@
 import * as React from 'react';
+import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { Button, TextInput, Text, Select, Checkbox } from 'components/Base';
-import { useEffect, useState } from 'react';
+import { Button, Checkbox, Select, Text, TextInput } from 'components/Base';
 import { tokensMainnet } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
+import { NETWORK_ICON } from '../../stores/names';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -61,27 +62,37 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
     const [custom, setCustom] = useState(false);
 
     const getTokens = () => {
-      return process.env.NETWORK === 'testnet'
-        ? tokens.allData
-            .filter(t => !['BUSD', 'LINK'].includes(t.symbol))
-            .filter(t => t.network === exchange.network)
-            .map(t => ({
-              address: t.erc20Address,
-              label: `${t.name} (${t.symbol})`,
-              image: '/eth.svg',
-            }))
-        : tokensMainnet;
+      if (
+        exchange.network === NETWORK_TYPE.ETHEREUM &&
+        process.env.NETWORK !== 'testnet'
+      ) {
+        return tokensMainnet;
+      }
+
+      return tokens.allData
+        .filter(t => !['BUSD', 'LINK'].includes(t.symbol))
+        .filter(t => t.network === exchange.network)
+        .map(t => ({
+          address: t.erc20Address,
+          label: `${t.name} (${t.symbol})`,
+          image: NETWORK_ICON[t.network],
+        }));
     };
+
+    useEffect(() => {
+      setLoading(true);
+      setTimeout(() => setLoading(false), 300);
+    }, [exchange.network]);
 
     const [tokensList, setTokensList] = useState([]);
 
     useEffect(() => {
-      if (!!tokensList.length) {
-        return;
-      }
+      // if (!!tokensList.length) {
+      //   return;
+      // }
 
       setTokensList(getTokens());
-    }, [tokens.data]);
+    }, [tokens.data, exchange.network]);
 
     useEffect(() => {
       if (type === TOKEN.HRC20) {
