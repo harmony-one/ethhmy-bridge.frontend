@@ -208,8 +208,10 @@ export const getConfig = async () => {
   return res.body;
 };
 
-export const getDepositAmount = async () => {
-  const res = await agent.get<number>(`${servers[0]}/deposit-amount`);
+export const getDepositAmount = async (network: NETWORK_TYPE) => {
+  const res = await agent.get<number>(
+    `${servers[0]}/deposit-amount/${network}`,
+  );
 
   return res.body;
 };

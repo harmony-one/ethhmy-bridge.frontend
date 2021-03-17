@@ -165,7 +165,7 @@ export class Exchange extends StoreConstructor {
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.isFeeLoading = true;
-                this.depositAmount = await getDepositAmount();
+                this.depositAmount = await getDepositAmount(this.network);
                 this.isFeeLoading = false;
                 break;
             }
