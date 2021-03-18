@@ -165,9 +165,11 @@ export class HmyMethodsERC20 {
   allowance = async (addr: string, erc20Address: string) => {
     const tokenJson = require('../out/MyERC20.json');
 
+    const tokenAddrHex = this.hmy.crypto.getAddress(erc20Address).checksum;
+
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
-      erc20Address,
+      tokenAddrHex,
     );
 
     const addrHex = this.hmy.crypto.getAddress(addr).checksum;

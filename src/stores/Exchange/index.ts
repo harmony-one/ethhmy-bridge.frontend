@@ -118,12 +118,12 @@ export class Exchange extends StoreConstructor {
           onClick: async () => {
             // this.transaction.oneAddress = this.stores.user.address;
 
-            if (this.token === TOKEN.HRC20) {
+            this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+
+            if (this.stores.user.hrc20Address) {
               this.transaction.hrc20Address = getAddress(
                 this.stores.user.hrc20Address,
               ).checksum;
-            } else {
-              this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
             }
 
             switch (this.mode) {
@@ -752,7 +752,7 @@ export class Exchange extends StoreConstructor {
 
     try {
       if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        console.log(this.transaction.oneAddress, this.transaction.erc20Address);
+        console.log(this.transaction.oneAddress, this.transaction.hrc20Address);
 
         this.allowance = await hmyMethods.allowance(
           this.transaction.oneAddress,
