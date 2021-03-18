@@ -136,7 +136,7 @@ export class EthMethodsERC20 {
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3),
+        gasPrice: this.gasPrice ? this.gasPrice : await getGasPrice(this.web3),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
 
