@@ -750,7 +750,6 @@ export class Exchange extends StoreConstructor {
       this.stores.user.isMetamask,
     );
 
-    debugger;
     try {
       if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
         console.log(this.transaction.oneAddress, this.transaction.erc20Address);

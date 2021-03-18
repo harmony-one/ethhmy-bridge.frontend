@@ -194,15 +194,24 @@ export class EthMethodsERC20 {
       throw new Error('Invalid token address');
     }
 
-    const MyERC20Json = require('../out/MyERC721.json');
+    const MyERC20Json = require('../out/MyERC20.json');
 
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
     );
 
-    return await erc20Contract.methods
-      .allowance(addr, this.ethManagerAddress)
-      .call();
+    let res;
+
+    try {
+      res = await erc20Contract.methods
+        .allowance(addr, this.ethManagerAddress)
+        .call();
+    } catch (e) {
+      console.error(e);
+      debugger;
+    }
+
+    return res;
   };
 }
