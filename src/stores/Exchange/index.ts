@@ -756,7 +756,7 @@ export class Exchange extends StoreConstructor {
 
         this.allowance = await hmyMethods.allowance(
           this.transaction.oneAddress,
-          this.transaction.erc20Address,
+          this.transaction.hrc20Address,
         );
       }
 

@@ -164,8 +164,16 @@ export class EthMethodsERC20 {
       erc20Address,
     );
 
-    const name = await erc20Contract.methods.name().call();
     const symbol = await erc20Contract.methods.symbol().call();
+
+    let name = symbol;
+
+    try {
+      name = await erc20Contract.methods.name().call();
+    } catch (e) {
+      console.error(e);
+    }
+
     const decimals = await erc20Contract.methods.decimals().call();
 
     return { name, symbol, decimals, erc20Address };
