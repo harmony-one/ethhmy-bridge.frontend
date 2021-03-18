@@ -23,7 +23,7 @@ const STEPS_TITLE_BINANCE: Record<ACTION_TYPE, string> = {
   depositOne: 'Deposit ONE tokens',
   withdrawOne: 'Withdraw ONE tokens',
 
-  getHRC20Address: 'Register user ERC20 on Harmony',
+  getHRC20Address: 'Register user BEP20 on Harmony',
   approveEthManger: 'User approve bridge to lock tokens ',
   lockToken: 'Bridge lock tokens on Binance Smart Chain',
   waitingBlockNumber: 'Wait for 15 block confirmations',

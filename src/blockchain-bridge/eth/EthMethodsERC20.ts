@@ -9,17 +9,20 @@ export interface IEthMethodsInitParams {
   web3: Web3;
   ethManagerContract: Contract;
   ethManagerAddress: string;
+  gasPrice?: number;
 }
 
 export class EthMethodsERC20 {
   private web3: Web3;
   private ethManagerContract: Contract;
   private ethManagerAddress: string;
+  gasPrice?: number;
 
   constructor(params: IEthMethodsInitParams) {
     this.web3 = params.web3;
     this.ethManagerContract = params.ethManagerContract;
     this.ethManagerAddress = params.ethManagerAddress;
+    this.gasPrice = params.gasPrice;
   }
 
   approveEthManger = async (
@@ -47,7 +50,7 @@ export class EthMethodsERC20 {
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
-        gasPrice: await getGasPrice(this.web3),
+        gasPrice: this.gasPrice ? this.gasPrice : await getGasPrice(this.web3),
       })
       .on('transactionHash', hash => sendTxCallback(hash));
   };

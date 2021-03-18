@@ -15,7 +15,7 @@ import { getStepsTitle } from './steps-constants';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 import { useStores } from '../../stores';
-import { NETWORK_ICON } from '../../stores/names';
+import { NETWORK_ICON, NETWORK_PREFIX } from '../../stores/names';
 
 export interface IExpandedRowProps {
   data: IOperation;
@@ -216,7 +216,10 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 >
                   {props.data.token === TOKEN.HRC20
                     ? token.symbol.slice(1)
-                    : `1${sliceByLength(token.symbol, 7)}`}
+                    : `${NETWORK_PREFIX[props.data.network]}${sliceByLength(
+                        token.symbol,
+                        7,
+                      )}`}
                 </a>
               </Box>
             ) : (

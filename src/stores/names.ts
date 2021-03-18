@@ -14,3 +14,8 @@ export const NETWORK_BASE_TOKEN = {
   [NETWORK_TYPE.ETHEREUM]: 'ETH',
   [NETWORK_TYPE.BINANCE]: 'BNB',
 };
+
+export const NETWORK_PREFIX = {
+  [NETWORK_TYPE.ETHEREUM]: '1',
+  [NETWORK_TYPE.BINANCE]: 'bsc',
+};
