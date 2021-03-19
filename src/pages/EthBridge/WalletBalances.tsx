@@ -63,6 +63,15 @@ export const WalletBalances = observer(() => {
   const externalNetworkIcon = NETWORK_ICON[exchange.network];
   const externalNetworkToken = NETWORK_BASE_TOKEN[exchange.network];
 
+  const externalSubNetworkName =
+    exchange.network === NETWORK_TYPE.ETHEREUM
+      ? process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'kovan'
+      : process.env.NETWORK === 'mainnet'
+      ? 'mainnet'
+      : 'testnet';
+
   return (
     <Box
       direction="column"
@@ -91,14 +100,7 @@ export const WalletBalances = observer(() => {
                 </Title>
               </Box>
               <Text style={{ marginTop: 0 }}>
-                network:{' '}
-                {exchange.network === NETWORK_TYPE.ETHEREUM
-                  ? process.env.NETWORK === 'mainnet'
-                    ? 'mainnet'
-                    : 'kovan'
-                  : process.env.NETWORK === 'mainnet'
-                  ? 'mainnet'
-                  : 'testnet'}
+                network: {externalSubNetworkName}
               </Text>
             </Box>
 
@@ -143,11 +145,9 @@ export const WalletBalances = observer(() => {
                   You have authorised with Metamask, but the selected network
                   does not match{' '}
                   <span style={{ color: 'rgb(0, 173, 232)' }}>
-                    {externalNetworkName}:{' '}
-                    {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'kovan'}
+                    {externalNetworkName}: {externalSubNetworkName}
                   </span>
-                  . Please change network to{' '}
-                  {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'kovan'} for
+                  . Please change network to {externalSubNetworkName} for
                   transfer {externalNetworkName} -> Harmony with Metamask.
                 </Text>
               </Box>
