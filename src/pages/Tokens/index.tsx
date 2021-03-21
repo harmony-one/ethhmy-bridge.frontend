@@ -211,7 +211,7 @@ export const Tokens = observer((props: any) => {
                   letterSpacing: 0.2,
                 }}
               >
-                {formatWithTwoDecimals(tokens.totalLockedUSD)}
+                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
               </span>
             </Title>
           </Box>
