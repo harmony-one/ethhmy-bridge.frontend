@@ -383,13 +383,13 @@ export class UserStoreEx extends StoreConstructor {
     }
 
     if (!ignoreValidations) {
-      if (
-        this.stores.tokens.allData
-          .filter(t => t.type === 'erc20')
-          .find(t => t.hrc20Address === hrc20Address)
-      ) {
-        throw new Error('This address already using for ERC20 token wrapper');
-      }
+      // if (
+      //   this.stores.tokens.allData
+      //     .filter(t => t.type === 'erc20')
+      //     .find(t => t.hrc20Address === hrc20Address)
+      // ) {
+      //   throw new Error('This address already using for ERC20 token wrapper');
+      // }
 
       const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');
 
@@ -411,9 +411,9 @@ export class UserStoreEx extends StoreConstructor {
         throw new Error('This address already using for ERC721 token wrapper');
       }
 
-      if (process.env.ETH_HRC20 === hrc20Address) {
-        throw new Error('This address already using for Harmony Eth token');
-      }
+      // if (process.env.ETH_HRC20 === hrc20Address) {
+      //   throw new Error('This address already using for Harmony Eth token');
+      // }
     }
 
     try {
