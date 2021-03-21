@@ -313,21 +313,21 @@ export class Exchange extends React.Component<
               <Text>ERC20</Text>
             </Box>
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.HRC20 ? styles.selected : '',
-              )}
-              onClick={() => {
-                user.resetTokens();
+            {/*<Box*/}
+            {/*  className={cn(*/}
+            {/*    styles.itemToken,*/}
+            {/*    exchange.token === TOKEN.HRC20 ? styles.selected : '',*/}
+            {/*  )}*/}
+            {/*  onClick={() => {*/}
+            {/*    user.resetTokens();*/}
 
-                exchange.setToken(TOKEN.HRC20);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/one.svg" />
-              <Text>HRC20</Text>
-            </Box>
+            {/*    exchange.setToken(TOKEN.HRC20);*/}
+            {/*    routing.push(`/${exchange.token}`);*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <img className={styles.imgToken} src="/one.svg" />*/}
+            {/*  <Text>HRC20</Text>*/}
+            {/*</Box>*/}
 
             <Box
               style={{ width: 140 }}
