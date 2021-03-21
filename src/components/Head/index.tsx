@@ -134,12 +134,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Transactions</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isInfo ? styles.selected : '')}
-              onClick={() => routing.push('/info')}
-            >
-              <Text>Info</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(styles.itemToken, isInfo ? styles.selected : '')}*/}
+            {/*  onClick={() => routing.push('/info')}*/}
+            {/*>*/}
+            {/*  <Text>Info</Text>*/}
+            {/*</Box>*/}
 
             <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}

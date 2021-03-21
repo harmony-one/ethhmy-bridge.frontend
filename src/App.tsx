@@ -8,7 +8,7 @@ import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
 import { MintTokens } from './pages/MintTokens';
 import { Tokens } from './pages/Tokens';
-import { InfoModal } from './components/InfoModal';
+// import { InfoModal } from './components/InfoModal';
 import { FAQPage } from './pages/FAQ';
 import { InfoPage } from './pages/Info';
 import { TransactionExample, Hrc20ContractExample } from './pages/Examples';
@@ -36,7 +36,7 @@ export const App: React.FC = () => (
       </Switch>
     </React.Suspense>
     <ActionModals />
-    <InfoModal />
+    {/*<InfoModal />*/}
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>
 );
