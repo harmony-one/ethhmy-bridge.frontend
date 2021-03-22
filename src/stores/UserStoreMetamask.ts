@@ -84,7 +84,12 @@ export class UserStoreMetamask extends StoreConstructor {
         }
 
       case 'mainnet':
-        return Number(this.metamaskChainId) === 1;
+        switch (this.stores.exchange.network) {
+          case NETWORK_TYPE.ETHEREUM:
+            return Number(this.metamaskChainId) === 1;
+          case NETWORK_TYPE.BINANCE:
+            return Number(this.metamaskChainId) === 56;
+        }
     }
 
     return false;
