@@ -70,7 +70,11 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
       }
 
       return tokens.allData
-        .filter(t => !['BUSD', 'LINK'].includes(t.symbol))
+        .filter(t =>
+          exchange.network === NETWORK_TYPE.ETHEREUM
+            ? !['BUSD', 'LINK'].includes(t.symbol)
+            : true,
+        )
         .filter(t => t.network === exchange.network)
         .map(t => ({
           address: t.erc20Address,
