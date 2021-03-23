@@ -146,7 +146,7 @@ export const getOperation = async (id): Promise<IOperation> => {
 export const getOperations = async (
   params: any,
 ): Promise<{ content: IOperation[] }> => {
-  return callAvailableServerAll(async url => {
+  return callAvailableServer(async url => {
     const res = await agent.get<{ body: IOperation[] }>(
       url + '/operations/',
       params,
