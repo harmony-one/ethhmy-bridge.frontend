@@ -9,7 +9,7 @@ if (process.env.NETWORK === 'testnet') {
   servers = require('../../appengine-servers.testnet.json');
 }
 
-const threshold = process.env.THRESHOLD;
+const threshold = 3; //process.env.THRESHOLD;
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
