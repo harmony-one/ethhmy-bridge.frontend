@@ -99,9 +99,19 @@ const hmyManagerContract = createContract(
   process.env.HMY_ERC20_MANAGER_CONTRACT,
 );
 
+const hmySubManagerContract = createContract(
+  hmyManagerJson.abi,
+  process.env.HMY_ERC20_SUB_MANAGER_CONTRACT,
+);
+
 const hmyManagerContractBEP20 = createContract(
   hmyManagerJson.abi,
   process.env.HMY_BRIDGE_MANAGER,
+);
+
+const hmySubManagerContractBEP20 = createContract(
+  hmyManagerJson.abi,
+  process.env.HMY_BEP20_SUB_MANAGER_CONTRACT,
 );
 
 const hmyManagerContractHrc20 = createContract(
@@ -122,6 +132,16 @@ export const hmyMethodsERC20Hmy = new HmyMethodsERC20({
 export const hmyMethodsBEP20Hmy = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContractBEP20.hmyContract,
+});
+
+export const hmyMethodsERC20SUBHmy = new HmyMethodsERC20({
+  hmy: hmy,
+  hmyManagerContract: hmySubManagerContract.hmyContract,
+});
+
+export const hmyMethodsBEP20SUBHmy = new HmyMethodsERC20({
+  hmy: hmy,
+  hmyManagerContract: hmySubManagerContractBEP20.hmyContract,
 });
 
 export const hmyMethodsHRC20Hmy = new HmyMethodsHRC20({
@@ -146,6 +166,18 @@ export const hmyMethodsBEP20Web3 = new HmyMethodsERC20Web3({
   hmyManagerContractAddress: process.env.HMY_BRIDGE_MANAGER,
 });
 
+export const hmyMethodsSubERC20Web3 = new HmyMethodsERC20Web3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmySubManagerContract.web3Contract,
+  hmyManagerContractAddress: process.env.HMY_ERC20_SUB_MANAGER_CONTRACT,
+});
+
+export const hmyMethodsSubBEP20Web3 = new HmyMethodsERC20Web3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmySubManagerContractBEP20.web3Contract,
+  hmyManagerContractAddress: process.env.HMY_BEP20_SUB_MANAGER_CONTRACT,
+});
+
 export const hmyMethodsHRC20Web3 = new HmyMethodsHRC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContractHrc20.web3Contract,
@@ -163,9 +195,19 @@ export const hmyMethodsERC20 = {
   hmyMethodsWeb3: hmyMethodsERC20Web3,
 };
 
+export const hmyMethodsERC20SUB = {
+  hmyMethods: hmyMethodsERC20SUBHmy,
+  hmyMethodsWeb3: hmyMethodsSubERC20Web3,
+};
+
 export const hmyMethodsBEP20 = {
   hmyMethods: hmyMethodsBEP20Hmy,
   hmyMethodsWeb3: hmyMethodsBEP20Web3,
+};
+
+export const hmyMethodsBEP20SUB = {
+  hmyMethods: hmyMethodsBEP20SUBHmy,
+  hmyMethodsWeb3: hmyMethodsSubBEP20Web3,
 };
 
 export const hmyMethodsHRC20 = {

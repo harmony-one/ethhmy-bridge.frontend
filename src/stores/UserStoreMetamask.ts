@@ -2,7 +2,14 @@ import { action, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
-import { getExNetworkMethods, hmyMethodsBEP20, hmyMethodsERC20, hmyMethodsERC721 } from '../blockchain-bridge';
+import {
+  getExNetworkMethods,
+  hmyMethodsBEP20,
+  hmyMethodsBEP20SUB,
+  hmyMethodsERC20,
+  hmyMethodsERC20SUB,
+  hmyMethodsERC721,
+} from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
@@ -236,7 +243,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
         let res = 0;
 
-        if(this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+        if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
           res = await exNetwork.ethMethodsLINK.checkEthBalance(this.ethAddress);
           this.ethLINKBalance = divDecimals(res, 18);
 
@@ -287,10 +294,24 @@ export class UserStoreMetamask extends StoreConstructor {
 
     let address;
 
+    // debugger;
+
     if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
       address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
+
+      if (!Number(address)) {
+        address = await hmyMethodsERC20SUB.hmyMethods.getMappingFor(
+          erc20Address,
+        );
+      }
     } else {
       address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
+
+      if (!Number(address)) {
+        address = await hmyMethodsBEP20SUB.hmyMethods.getMappingFor(
+          erc20Address,
+        );
+      }
     }
 
     if (!!Number(address)) {
