@@ -24,6 +24,7 @@ import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
 import { getContractMethods } from './helpers';
 import { defaultEthClient } from './defaultConfig';
+import { NETWORK_BASE_TOKEN } from '../names';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -276,7 +277,11 @@ export class Exchange extends StoreConstructor {
 
     if (!this.config.tokens.includes(this.token)) {
       this.setToken(this.config.tokens[0]);
+    } else {
+      this.setToken(this.token);
     }
+
+    this.stores.userMetamask.ethBalance = '0';
     // this.setAddressByMode();
   }
 
@@ -285,6 +290,17 @@ export class Exchange extends StoreConstructor {
     // this.clear();
     this.token = token;
     // this.setAddressByMode();
+
+    if (token === TOKEN.ETH) {
+      this.stores.user.setHRC20Token(this.config.contracts.nativeTokenHRC20);
+
+      this.stores.userMetamask.setTokenDetails({
+        name: NETWORK_BASE_TOKEN[this.network],
+        decimals: '18',
+        erc20Address: '',
+        symbol: NETWORK_BASE_TOKEN[this.network],
+      });
+    }
   }
 
   @observable operation: IOperation;

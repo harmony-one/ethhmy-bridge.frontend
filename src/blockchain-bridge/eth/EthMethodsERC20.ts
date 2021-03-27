@@ -222,4 +222,49 @@ export class EthMethodsERC20 {
 
     return res;
   };
+
+  lockNative = async (userAddr, amount, sendTxCallback?) => {
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+
+    const hmyAddrHex = getAddress(userAddr).checksum;
+
+    const managerContract = new this.web3.eth.Contract(
+      [
+        {
+          constant: false,
+          inputs: [
+            {
+              internalType: 'uint256',
+              name: 'amount',
+              type: 'uint256',
+            },
+            {
+              internalType: 'address',
+              name: 'recipient',
+              type: 'address',
+            },
+          ],
+          name: 'lockNative',
+          outputs: [],
+          payable: true,
+          stateMutability: 'payable',
+          type: 'function',
+        },
+      ],
+      this.ethManagerAddress,
+    );
+
+    let response = await managerContract.methods
+      .lockNative(mulDecimals(amount, 18), hmyAddrHex)
+      .send({
+        from: accounts[0],
+        gas: process.env.ETH_GAS_LIMIT,
+        gasPrice: await getGasPrice(this.web3),
+        value: mulDecimals(amount, 18),
+      })
+      .on('transactionHash', hash => sendTxCallback(hash));
+
+    return response;
+  };
 }

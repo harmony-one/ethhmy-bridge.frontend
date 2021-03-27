@@ -23,6 +23,7 @@ export const defaultEthClient: TConfig = {
     tokenManager: '0xAa0fFF0074E898B922DBAb2c7496cdcC84A28fa0',
     hrc20Manager: '0xA64D59E4350f61679ACDE8eEC06421233Bd2B4E1',
     ethManager: '0xCE670B66C5296e29AB39aBECBC92c60ea330F5dC',
+    nativeTokenHRC20: '0x268d6fF391B41B36A13B1693BD25f87FB4E4b392',
   },
   gasPrice: 100000000000,
   gasLimit: 150000,

@@ -33,6 +33,7 @@ export type TConfig = {
     tokenManager: string;
     hrc20Manager: string;
     ethManager: string;
+    nativeTokenHRC20: string;
   };
   gasPrice?: number;
   gasLimit?: number;

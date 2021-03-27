@@ -145,6 +145,16 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             </>
           );
 
+        case TOKEN.ETH:
+          return (
+            <AssetRow
+              label={`${NETWORK_BASE_TOKEN[exchange.network]} amount`}
+              value={formatWithSixDecimals(
+                exchange.transaction.amount.toString(),
+              )}
+            />
+          );
+
         default:
           return (
             <AssetRow

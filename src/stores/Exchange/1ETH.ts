@@ -1,8 +1,14 @@
-import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IAction,
+  NETWORK_TYPE,
+  STATUS,
+} from '../interfaces';
 import { sleep } from 'utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { hmyMethodsERC20 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsBEP20, hmyMethodsERC20 } from '../../blockchain-bridge/hmy';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const send1ETHToken = async (params: {
@@ -20,21 +26,45 @@ export const send1ETHToken = async (params: {
     mode,
   } = params;
 
-  const hmyMethods = stores.user.isMetamask
-    ? hmyMethodsERC20.hmyMethodsWeb3
-    : hmyMethodsERC20.hmyMethods;
+  let hmyMethodsBase;
 
-  const ethMethods = getExNetworkMethods().ethMethodsBUSD;
+  switch (stores.exchange.network) {
+    case NETWORK_TYPE.BINANCE:
+      hmyMethodsBase = hmyMethodsBEP20;
+      break;
+    case NETWORK_TYPE.ETHEREUM:
+      hmyMethodsBase = hmyMethodsERC20;
+      break;
+    default:
+      hmyMethodsBase = hmyMethodsERC20;
+      break;
+  }
+
+  const hmyMethods = stores.user.isMetamask
+    ? hmyMethodsBase.hmyMethodsWeb3
+    : hmyMethodsBase.hmyMethods;
+
+  const externalNetwork = getExNetworkMethods();
+
+  const ethMethods = externalNetwork.ethMethodsBUSD;
 
   if (mode === EXCHANGE_MODE.ETH_TO_ONE) {
     const lockToken = getActionByType(ACTION_TYPE.lockToken);
 
     if (lockToken.status === STATUS.WAITING) {
-      await ethMethods.lockEth(
-        transaction.oneAddress,
-        transaction.amount,
-        hash => confirmCallback(hash, lockToken.type),
-      );
+      if (stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+        await ethMethods.lockEth(
+          transaction.oneAddress,
+          transaction.amount,
+          hash => confirmCallback(hash, lockToken.type),
+        );
+      } else {
+        await externalNetwork.ethMethodsERC20.lockNative(
+          transaction.oneAddress,
+          transaction.amount,
+          hash => confirmCallback(hash, lockToken.type),
+        );
+      }
     }
 
     return;

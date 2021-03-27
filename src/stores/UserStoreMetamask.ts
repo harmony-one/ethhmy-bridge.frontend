@@ -5,9 +5,9 @@ import { StoreConstructor } from './core/StoreConstructor';
 import {
   getExNetworkMethods,
   hmyMethodsBEP20,
-  hmyMethodsBEP20SUB,
+  // hmyMethodsBEP20SUB,
   hmyMethodsERC20,
-  hmyMethodsERC20SUB,
+  // hmyMethodsERC20SUB,
   hmyMethodsERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
@@ -299,19 +299,19 @@ export class UserStoreMetamask extends StoreConstructor {
     if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
       address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
 
-      if (!Number(address)) {
-        address = await hmyMethodsERC20SUB.hmyMethods.getMappingFor(
-          erc20Address,
-        );
-      }
+      // if (!Number(address)) {
+      //   address = await hmyMethodsERC20SUB.hmyMethods.getMappingFor(
+      //     erc20Address,
+      //   );
+      // }
     } else {
       address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
 
-      if (!Number(address)) {
-        address = await hmyMethodsBEP20SUB.hmyMethods.getMappingFor(
-          erc20Address,
-        );
-      }
+      // if (!Number(address)) {
+      //   address = await hmyMethodsBEP20SUB.hmyMethods.getMappingFor(
+      //     erc20Address,
+      //   );
+      // }
     }
 
     if (!!Number(address)) {

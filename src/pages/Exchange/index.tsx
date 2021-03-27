@@ -169,7 +169,7 @@ export class Exchange extends React.Component<
 
       case TOKEN.ETH:
         return {
-          label: 'ETH',
+          label: NETWORK_BASE_TOKEN[this.props.exchange.network],
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
@@ -371,19 +371,15 @@ export class Exchange extends React.Component<
                   exchange.token === TOKEN.ETH ? styles.selected : '',
                 )}
                 onClick={() => {
-                  exchange.setToken(TOKEN.ETH);
                   routing.push(`/${exchange.token}`);
-                  user.setHRC20Token(process.env.ETH_HRC20);
-                  userMetamask.setTokenDetails({
-                    name: 'ETH',
-                    decimals: '18',
-                    erc20Address: '',
-                    symbol: 'ETH',
-                  });
+                  exchange.setToken(TOKEN.ETH);
                 }}
               >
-                <img className={styles.imgToken} src="/eth.svg" />
-                <Text>ETH</Text>
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
               </Box>
             )}
 

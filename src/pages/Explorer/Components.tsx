@@ -66,9 +66,9 @@ export const Price = observer(
         pad={{ right: 'medium' }}
         {...props.boxProps}
       >
-        <Text style={{ fontSize: 14 }}>{`${formatWithSixDecimals(props.value)} ${
-          props.isEth ? NETWORK_BASE_TOKEN[props.network] : 'ONE'
-        }`}</Text>
+        <Text style={{ fontSize: 14 }}>{`${formatWithSixDecimals(
+          props.value,
+        )} ${props.isEth ? NETWORK_BASE_TOKEN[props.network] : 'ONE'}`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
           ${formatWithSixDecimals(props.value * rate)}
         </Text>
@@ -113,6 +113,10 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
 
   if (network === NETWORK_TYPE.BINANCE && value === TOKEN.ERC20) {
     return <Box>BEP20</Box>;
+  }
+
+  if (value === TOKEN.ETH) {
+    return <Box>{NETWORK_BASE_TOKEN[network]}</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;
