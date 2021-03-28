@@ -122,8 +122,6 @@ export class Exchange extends React.Component<
     }
 
     if (needValidate) {
-      console.log(this.formRef);
-
       this.formRef.validateFields().then(() => {
         callback();
       });

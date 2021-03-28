@@ -232,7 +232,7 @@ export class Exchange extends StoreConstructor {
           title: 'Close',
           transparent: true,
           onClick: () => {
-            this.clear();
+            this.setMode(this.mode);
             this.stepNumber = 0;
           },
         },
@@ -298,6 +298,8 @@ export class Exchange extends StoreConstructor {
     this.stores.user.hmyBUSDBalance = '0';
     this.stores.user.hmyLINKBalance = '0';
     // this.setAddressByMode();
+
+    this.setMode(this.mode);
   }
 
   @action.bound
