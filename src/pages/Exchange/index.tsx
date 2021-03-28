@@ -122,6 +122,8 @@ export class Exchange extends React.Component<
     }
 
     if (needValidate) {
+      console.log(this.formRef);
+
       this.formRef.validateFields().then(() => {
         callback();
       });
@@ -393,7 +395,7 @@ export class Exchange extends React.Component<
                   exchange.setToken(TOKEN.ONE);
                   routing.push(`/${exchange.token}`);
 
-                  user.setHRC20Mapping(process.env.ONE_HRC20, true);
+                  // user.setHRC20Mapping(process.env.ONE_HRC20, true);
 
                   // user.setHRC20Token(process.env.ONE_HRC20);
                   // userMetamask.setTokenDetails({

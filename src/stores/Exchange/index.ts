@@ -282,6 +282,15 @@ export class Exchange extends StoreConstructor {
     }
 
     this.stores.userMetamask.ethBalance = '0';
+    this.stores.userMetamask.erc20Balance = '0';
+    this.stores.userMetamask.ethBUSDBalance = '0';
+    this.stores.userMetamask.ethLINKBalance = '0';
+
+    this.stores.user.balance = '0';
+    this.stores.user.hrc20Balance = '0';
+    this.stores.user.hrc20Balance = '0';
+    this.stores.user.hmyBUSDBalance = '0';
+    this.stores.user.hmyLINKBalance = '0';
     // this.setAddressByMode();
   }
 
@@ -300,6 +309,10 @@ export class Exchange extends StoreConstructor {
         erc20Address: '',
         symbol: NETWORK_BASE_TOKEN[this.network],
       });
+    }
+
+    if (token === TOKEN.ONE) {
+      this.stores.user.setHRC20Mapping(process.env.ONE_HRC20, true);
     }
   }
 

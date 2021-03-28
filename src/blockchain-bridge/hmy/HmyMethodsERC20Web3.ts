@@ -169,4 +169,49 @@ export class HmyMethodsERC20Web3 {
       .allowance(addrHex, this.hmyManagerContractAddress)
       .call();
   };
+
+  lockOne = async (userAddr, amount, sendTxCallback?) => {
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+
+    const hmyAddrHex = getAddress(userAddr).checksum;
+
+    const managerContract = new this.web3.eth.Contract(
+      [
+        {
+          constant: false,
+          inputs: [
+            {
+              internalType: 'uint256',
+              name: 'amount',
+              type: 'uint256',
+            },
+            {
+              internalType: 'address',
+              name: 'recipient',
+              type: 'address',
+            },
+          ],
+          name: 'lockNative',
+          outputs: [],
+          payable: true,
+          stateMutability: 'payable',
+          type: 'function',
+        },
+      ],
+      this.hmyManagerContractAddress,
+    );
+
+    const res = await managerContract.methods
+      .lockNative(mulDecimals(amount, 18), hmyAddrHex)
+      .send({
+        from: accounts[0],
+        gasLimit: process.env.GAS_LIMIT,
+        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        value: mulDecimals(amount, 18),
+      })
+      .on('transactionHash', sendTxCallback);
+
+    return res;
+  };
 }

@@ -178,4 +178,52 @@ export class HmyMethodsERC20 {
       .allowance(addrHex, this.hmyManagerContract.address)
       .call(this.options);
   };
+
+  lockOne = async (userAddr, amount, sendTxCallback?) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // TODO
+        // const hmyAddrHex = getAddress(userAddr).checksum;
+
+        const managerContract = this.hmy.contracts.createContract(
+          [
+            {
+              constant: false,
+              inputs: [
+                {
+                  internalType: 'uint256',
+                  name: 'amount',
+                  type: 'uint256',
+                },
+                {
+                  internalType: 'address',
+                  name: 'recipient',
+                  type: 'address',
+                },
+              ],
+              name: 'lockNative',
+              outputs: [],
+              payable: true,
+              stateMutability: 'payable',
+              type: 'function',
+            },
+          ],
+          this.hmyManagerContract.address,
+        );
+
+        await connectToOneWallet(managerContract.wallet, null, reject);
+
+        const res = await managerContract.methods
+          .lockNative(mulDecimals(amount, 18), userAddr)
+          .send({ ...this.options, value: mulDecimals(amount, 18) })
+          .on('transactionHash', sendTxCallback);
+
+        // return transaction.events.Locked;
+
+        resolve(res);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  };
 }

@@ -9,17 +9,20 @@ export interface IEthMethodsInitParams {
   web3: Web3;
   ethManagerContract: Contract;
   ethManagerAddress: string;
+  ethTokenManagerAddress: string;
 }
 
 export class EthMethodsHRC20 {
   private web3: Web3;
   private ethManagerContract: Contract;
   private ethManagerAddress: string;
+  private ethTokenManagerAddress: string;
 
   constructor(params: IEthMethodsInitParams) {
     this.web3 = params.web3;
     this.ethManagerContract = params.ethManagerContract;
     this.ethManagerAddress = params.ethManagerAddress;
+    this.ethTokenManagerAddress = params.ethTokenManagerAddress;
   }
 
   approveEthManger = async (
@@ -122,6 +125,17 @@ export class EthMethodsHRC20 {
     if (!this.web3.utils.isAddress(hmyAddrHex)) {
       throw new Error('Invalid token address');
     }
+
+    const TokenManagerJson = require('../out/TokenManager.json');
+
+    const tokenManager = new this.web3.eth.Contract(
+      TokenManagerJson.abi,
+      this.ethTokenManagerAddress,
+    );
+
+    const ress = await tokenManager.methods.mappedTokens(hmyAddrHex).call();
+
+    return ress;
 
     const res = await this.ethManagerContract.methods
       .mappings(hmyAddrHex)

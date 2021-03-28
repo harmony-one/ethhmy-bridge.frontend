@@ -1,8 +1,14 @@
-import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
+import {
+  ACTION_TYPE,
+  EXCHANGE_MODE,
+  IAction,
+  NETWORK_TYPE,
+  STATUS,
+} from '../interfaces';
 import { sleep } from 'utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsBEP20, hmyMethodsERC20, hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const send1ONEToken = async (params: {
@@ -19,9 +25,15 @@ export const send1ONEToken = async (params: {
     stores,
     mode,
   } = params;
+
+  const hmyMethodsBase =
+    stores.exchange.network === NETWORK_TYPE.ETHEREUM
+      ? hmyMethodsHRC20
+      : hmyMethodsBEP20;
+
   const hmyMethods = stores.user.isMetamask
-    ? hmyMethodsHRC20.hmyMethodsWeb3
-    : hmyMethodsHRC20.hmyMethods;
+    ? hmyMethodsBase.hmyMethodsWeb3
+    : hmyMethodsBase.hmyMethods;
 
   const ethMethods = getExNetworkMethods().ethMethodsHRC20;
 

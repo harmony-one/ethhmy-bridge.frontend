@@ -91,6 +91,7 @@ const init = (config: TConfig): INetworkMethods => {
     web3: web3,
     ethManagerContract: ethManagerContractHrc20,
     ethManagerAddress: config.contracts.hrc20Manager,
+    ethTokenManagerAddress: config.contracts.tokenManager,
   });
 
   const ethMethodsERС721 = new EthMethodsERC20({
