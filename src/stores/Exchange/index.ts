@@ -138,7 +138,13 @@ export class Exchange extends StoreConstructor {
 
             this.transaction.approveAmount = '0';
 
-            if (this.token === TOKEN.ERC721) {
+            if (
+              this.token === TOKEN.ERC721 ||
+              (this.token === TOKEN.ONE &&
+                this.mode === EXCHANGE_MODE.ONE_TO_ETH) ||
+              (this.token === TOKEN.ETH &&
+                this.mode === EXCHANGE_MODE.ETH_TO_ONE)
+            ) {
               this.stepNumber = this.stepNumber + 2;
             } else {
               await this.getAllowance();
