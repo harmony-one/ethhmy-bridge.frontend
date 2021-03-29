@@ -127,11 +127,13 @@ const hmyManagerContract721 = createContract(
 export const hmyMethodsERC20Hmy = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContract.hmyContract,
+  hmyTokenManagerAddress: process.env.TOKEN_MANAGER_CONTRACT,
 });
 
 export const hmyMethodsBEP20Hmy = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContractBEP20.hmyContract,
+  hmyTokenManagerAddress: process.env.TOKEN_MANAGER_CONTRACT_FOR_BSC,
 });
 
 // export const hmyMethodsERC20SUBHmy = new HmyMethodsERC20({
@@ -152,18 +154,21 @@ export const hmyMethodsHRC20Hmy = new HmyMethodsHRC20({
 export const hmyMethodsERC721Hmy = new HmyMethodsERC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContract721.hmyContract,
+  hmyTokenManagerAddress: process.env.NFT_TOKEN_MANAGER_CONTRACT,
 });
 
 export const hmyMethodsERC20Web3 = new HmyMethodsERC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContract.web3Contract,
   hmyManagerContractAddress: process.env.HMY_ERC20_MANAGER_CONTRACT,
+  hmyTokenManagerAddress: process.env.TOKEN_MANAGER_CONTRACT,
 });
 
 export const hmyMethodsBEP20Web3 = new HmyMethodsERC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContractBEP20.web3Contract,
   hmyManagerContractAddress: process.env.HMY_BRIDGE_MANAGER,
+  hmyTokenManagerAddress: process.env.TOKEN_MANAGER_CONTRACT_FOR_BSC,
 });
 
 // export const hmyMethodsSubERC20Web3 = new HmyMethodsERC20Web3({
@@ -188,6 +193,7 @@ export const hmyMethodsERC721Web3 = new HmyMethodsERC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContract721.web3Contract,
   hmyManagerContractAddress: process.env.HMY_ERC721_MANAGER_CONTRACT,
+  hmyTokenManagerAddress: process.env.NFT_TOKEN_MANAGER_CONTRACT,
 });
 
 export const hmyMethodsERC20 = {

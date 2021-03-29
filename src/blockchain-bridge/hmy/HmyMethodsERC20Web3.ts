@@ -9,18 +9,21 @@ interface IHmyMethodsInitParams {
   hmyManagerContract: Contract;
   hmyManagerContractAddress: string;
   options?: { gasPrice: number; gasLimit: number };
+  hmyTokenManagerAddress: string;
 }
 
 export class HmyMethodsERC20Web3 {
   web3: Web3;
   private hmyManagerContract: Contract;
   hmyManagerContractAddress: string;
+  private hmyTokenManagerAddress: string;
   // private options = { gasPrice: 1000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.web3 = params.web3;
     this.hmyManagerContract = params.hmyManagerContract;
     this.hmyManagerContractAddress = params.hmyManagerContractAddress;
+    this.hmyTokenManagerAddress = params.hmyTokenManagerAddress;
 
     // if (params.options) {
     //   this.options = params.options;
@@ -127,9 +130,34 @@ export class HmyMethodsERC20Web3 {
   };
 
   getMappingFor = async erc20TokenAddr => {
-    const res = await this.hmyManagerContract.methods
-      .mappings(erc20TokenAddr)
-      .call();
+    const tokenManager = new this.web3.eth.Contract(
+      [
+        {
+          constant: true,
+          inputs: [
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
+          name: 'mappedTokens',
+          outputs: [
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
+          payable: false,
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      this.hmyTokenManagerAddress,
+    );
+
+    const res = await tokenManager.methods.mappedTokens(erc20TokenAddr).call();
 
     return res;
   };

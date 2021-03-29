@@ -178,11 +178,11 @@ export const getTokensInfo = async (
     return true;
   });
 
-  content = _.uniqWith(
-    content,
-    (a: any, b: any) =>
-      a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
-  );
+  // content = _.uniqWith(
+  //   content,
+  //   (a: any, b: any) =>
+  //     a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
+  // );
 
   content = content.map(c => ({
     ...c,

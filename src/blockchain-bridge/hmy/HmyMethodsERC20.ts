@@ -7,17 +7,20 @@ import { mulDecimals } from '../../utils';
 interface IHmyMethodsInitParams {
   hmy: Harmony;
   hmyManagerContract: Contract;
+  hmyTokenManagerAddress: string;
   options?: { gasPrice: number; gasLimit: number };
 }
 
 export class HmyMethodsERC20 {
   private hmy: Harmony;
   private hmyManagerContract: Contract;
+  private hmyTokenManagerAddress: string;
   private options = { gasPrice: 1000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.hmy = params.hmy;
     this.hmyManagerContract = params.hmyManagerContract;
+    this.hmyTokenManagerAddress = params.hmyTokenManagerAddress;
 
     if (params.options) {
       this.options = params.options;
@@ -133,8 +136,35 @@ export class HmyMethodsERC20 {
   };
 
   getMappingFor = async erc20TokenAddr => {
-    const res = await this.hmyManagerContract.methods
-      .mappings(erc20TokenAddr)
+    const tokenManager = this.hmy.contracts.createContract(
+      [
+        {
+          constant: true,
+          inputs: [
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
+          name: 'mappedTokens',
+          outputs: [
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
+          payable: false,
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      this.hmyTokenManagerAddress,
+    );
+
+    const res = await tokenManager.methods
+      .mappedTokens(erc20TokenAddr)
       .call(this.options);
 
     return res;
