@@ -12,6 +12,7 @@ import { InfoModal } from './components/InfoModal';
 import { FAQPage } from './pages/FAQ';
 import { InfoPage } from './pages/Info';
 import { TransactionExample, Hrc20ContractExample } from './pages/Examples';
+import { StuckOperations } from './pages/Explorer/StuckOperations';
 
 export const App: React.FC = () => (
   <Providers>
@@ -26,6 +27,7 @@ export const App: React.FC = () => (
         <Route exact path="/faq" component={FAQPage} />
         <Route exact path="/info" component={InfoPage} />
         <Route exact path="/explorer" component={Explorer} />
+        <Route exact path="/stuck-operations" component={StuckOperations} />} />
         <Route exact path="/:token" component={EthBridge} />
         <Route
           exact
