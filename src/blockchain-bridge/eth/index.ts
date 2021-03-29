@@ -92,6 +92,7 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerContract: ethManagerContractHrc20,
     ethManagerAddress: config.contracts.hrc20Manager,
     ethTokenManagerAddress: config.contracts.tokenManager,
+    gasPrice: config.gasPrice
   });
 
   const ethMethodsERС721 = new EthMethodsERC20({
