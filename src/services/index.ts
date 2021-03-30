@@ -114,11 +114,12 @@ const callAction = async (func: (url: string) => Promise<any>) => {
 const callActionWait = async (func: (url: string) => Promise<any>) => {
   let error;
   let success = false;
+  let res;
   let count = 15;
 
   while (!success && count > 0) {
     try {
-      const res: any[] = await Promise.all(
+      res = await Promise.all(
         servers.map(async url => {
           try {
             return await func(url);
@@ -138,7 +139,7 @@ const callActionWait = async (func: (url: string) => Promise<any>) => {
   }
 
   if (success) {
-    return success[0];
+    return res[0];
   }
 
   throw error;
