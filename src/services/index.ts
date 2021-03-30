@@ -2,6 +2,7 @@ import { IOperation, ITokenInfo, NETWORK_TYPE } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
 import { getCorrectArr } from './helpers';
+import { sleep } from '../utils';
 
 let servers = require('../../appengine-servers.json');
 
@@ -110,6 +111,39 @@ const callAction = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
+const callActionWait = async (func: (url: string) => Promise<any>) => {
+  let error;
+  let success = false;
+  let count = 15;
+
+  while (!success && count > 0) {
+    try {
+      const res: any[] = await Promise.all(
+        servers.map(async url => {
+          try {
+            return await func(url);
+          } catch (e) {
+            error = e;
+            return false;
+          }
+        }),
+      );
+
+      success = res.filter(r => !!r).length >= Number(threshold);
+    } catch (e) {
+      console.error(e);
+      await sleep(5000);
+    }
+    count--;
+  }
+
+  if (success) {
+    return success[0];
+  }
+
+  throw error;
+};
+
 export const createOperation = async params => {
   return callAction(async url => {
     const res = await agent.post<IOperation>(url + '/operations', params);
@@ -123,7 +157,7 @@ export const confirmAction = async ({
   actionType,
   transactionHash,
 }) => {
-  return callAction(async url => {
+  return callActionWait(async url => {
     const res = await agent.post<{ body: IOperation }>(
       `${url}/operations/${operationId}/actions/${actionType}/confirm`,
       { transactionHash },
