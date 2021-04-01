@@ -89,7 +89,7 @@ export class UserStoreEx extends StoreConstructor {
     const sessionObj = JSON.parse(session);
 
     if (sessionObj && sessionObj.isInfoReading) {
-      this.isInfoReading = sessionObj.isInfoReading2;
+      this.isInfoReading = sessionObj.isInfoReading;
     }
 
     if (sessionObj && sessionObj.isInfoNewReading2) {
