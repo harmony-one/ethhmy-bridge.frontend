@@ -5,14 +5,13 @@ import { StoreConstructor } from './core/StoreConstructor';
 import {
   getExNetworkMethods,
   hmyMethodsBEP20,
-  // hmyMethodsBEP20SUB,
   hmyMethodsERC20,
-  // hmyMethodsERC20SUB,
   hmyMethodsERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
-import { NETWORK_TYPE, TOKEN } from './interfaces';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
+import { NETWORK_NAME } from './names';
 
 const defaults = {};
 
@@ -272,6 +271,26 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+      (!this.isNetworkActual || !this.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on ${
+          NETWORK_NAME[this.stores.exchange.network]
+        } and try again!`,
+      );
+    }
+
+    if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      (this.stores.user.isMetamask && !this.stores.user.isNetworkActual || !this.stores.user.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on Harmony and try again!`,
+      );
+    }
+
+    if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.HRC20)
         .find(t => t.erc20Address === erc20Address)
@@ -287,34 +306,50 @@ export class UserStoreMetamask extends StoreConstructor {
       throw new Error('This address already using for ERC721 token');
     }
 
-    this.erc20TokenDetails = await exNetwork.ethMethodsERC20.tokenDetails(
-      erc20Address,
-    );
     this.erc20Address = erc20Address;
 
     let address;
 
-    // debugger;
-
     if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
       address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
-
-      // if (!Number(address)) {
-      //   address = await hmyMethodsERC20SUB.hmyMethods.getMappingFor(
-      //     erc20Address,
-      //   );
-      // }
     } else {
       address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
-
-      // if (!Number(address)) {
-      //   address = await hmyMethodsBEP20SUB.hmyMethods.getMappingFor(
-      //     erc20Address,
-      //   );
-      // }
     }
 
+    if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !address) {
+      throw new Error('Address not mapping');
+    }
+
+    try {
+      this.erc20TokenDetails = await exNetwork.ethMethodsERC20.tokenDetails(
+        erc20Address,
+      );
+    } catch (e) {
+      if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        throw new Error(
+          `Error to get token details from ${
+            NETWORK_NAME[this.stores.exchange.network]
+          }`,
+        );
+      }
+    }
+
+    this.erc20Address = erc20Address;
+
     if (!!Number(address)) {
+      if (!this.erc20TokenDetails) {
+        try {
+          this.erc20TokenDetails = {
+            ...(await hmyMethodsERC20.hmyMethods.tokenDetails(address)),
+            erc20Address,
+          };
+        } catch (e) {
+          if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+            throw new Error('Error to get token details from Harmony');
+          }
+        }
+      }
+
       this.stores.user.hrc20Address = address;
       this.syncLocalStorage();
     } else {

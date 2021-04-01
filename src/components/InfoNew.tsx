@@ -43,3 +43,31 @@ export const InfoNew = ({ title }: { title: string }) => (
     </div>
   </Box>
 );
+
+export const InfoNew2 = ({ title }: { title: string }) => (
+  <Box
+    className={styles.infoContainer}
+    pad={{ horizontal: 'large', top: 'large' }}
+  >
+    {title ? (
+      <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
+        <Title>{title}</Title>
+      </Box>
+    ) : null}
+    <div>
+      <p>
+        <p>Hi Horizon Bridge users,</p>
+        <p>
+          We saw some users trying to directly send their bridged tokens (for
+          example, 1BUSD) to Binance. This will not work and it will result in
+          permanent loss of your tokens. The bridged tokens can only be used in
+          the Harmony network and cannot be sent out of the Harmony network. The
+          only way to send it out is by bridging it back.
+        </p>
+        Thanks
+        <br />
+        Horizon bridge team
+      </p>
+    </div>
+  </Box>
+);

@@ -256,4 +256,28 @@ export class HmyMethodsERC20 {
       }
     });
   };
+
+  tokenDetails = async hrc20Address => {
+    const hmyAddrHex = getAddress(hrc20Address).checksum;
+
+    const MyERC20Json = require('../out/MyERC20.json');
+    const erc20Contract = this.hmy.contracts.createContract(
+      MyERC20Json.abi,
+      hmyAddrHex,
+    );
+
+    const symbol = await erc20Contract.methods.symbol().call(this.options);
+
+    let name = symbol;
+
+    try {
+      name = await erc20Contract.methods.name().call(this.options);
+    } catch (e) {
+      console.error(e);
+    }
+
+    const decimals = await erc20Contract.methods.decimals().call(this.options);
+
+    return { name, symbol, decimals: String(Number('0x' + decimals)), hrc20Address };
+  };
 }

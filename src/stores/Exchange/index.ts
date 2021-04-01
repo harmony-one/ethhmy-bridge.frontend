@@ -24,7 +24,7 @@ import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
 import { getContractMethods } from './helpers';
 import { defaultEthClient } from './defaultConfig';
-import { NETWORK_BASE_TOKEN } from '../names';
+import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -117,6 +117,29 @@ export class Exchange extends StoreConstructor {
         {
           title: 'Continue',
           onClick: async () => {
+            if (
+              this.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+              (!this.stores.userMetamask.isNetworkActual ||
+                !this.stores.userMetamask.isAuthorized)
+            ) {
+              throw new Error(
+                `Your MetaMask in on the wrong network. Please switch on ${
+                  NETWORK_NAME[this.stores.exchange.network]
+                } and try again!`,
+              );
+            }
+
+            if (
+              this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+              ((this.stores.user.isMetamask &&
+                !this.stores.user.isNetworkActual) ||
+                !this.stores.user.isAuthorized)
+            ) {
+              throw new Error(
+                `Your MetaMask in on the wrong network. Please switch on Harmony and try again!`,
+              );
+            }
+
             // this.transaction.oneAddress = this.stores.user.address;
 
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
@@ -287,11 +310,14 @@ export class Exchange extends StoreConstructor {
       this.setToken(this.token);
     }
 
+    this.stores.userMetamask.erc20TokenDetails = null;
+    this.stores.userMetamask.erc20Address = '';
     this.stores.userMetamask.ethBalance = '0';
     this.stores.userMetamask.erc20Balance = '0';
     this.stores.userMetamask.ethBUSDBalance = '0';
     this.stores.userMetamask.ethLINKBalance = '0';
 
+    this.stores.user.hrc20Address = '';
     this.stores.user.balance = '0';
     this.stores.user.hrc20Balance = '0';
     this.stores.user.hrc20Balance = '0';
