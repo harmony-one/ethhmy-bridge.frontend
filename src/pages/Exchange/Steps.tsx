@@ -28,7 +28,8 @@ const StepRow = observer(
 
     const completed = action.status === STATUS.SUCCESS;
 
-    const label = getStepsTitle(action.type, token, exchange.network) || action.type;
+    const label =
+      getStepsTitle(action.type, token, exchange.network) || action.type;
 
     const textClassName = cn(
       styles.stepRow,
@@ -129,6 +130,7 @@ const statuses: Record<STATUS, string> = {
   success: 'Success',
   in_progress: 'In progress',
   error: 'Error',
+  canceled: 'Canceled',
 };
 
 export const Steps = observer(() => {
