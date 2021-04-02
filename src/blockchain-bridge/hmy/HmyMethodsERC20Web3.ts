@@ -110,7 +110,7 @@ export class HmyMethodsERC20Web3 {
       })
       .on('transactionHash', sendTxCallback);
 
-    return response.transaction.id;
+    return response;
   };
 
   burnTokens = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
