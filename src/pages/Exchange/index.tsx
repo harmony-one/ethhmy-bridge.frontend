@@ -215,20 +215,43 @@ export class Exchange extends React.Component<
 
       case 'success':
         icon = () => (
-          <Box
-            style={{
-              background: '#1edb89',
-              borderRadius: '50%',
-            }}
-          >
-            <Icon
-              size="50"
-              style={{ width: 50, color: 'white' }}
-              glyph="CheckMark"
-            />
+          <Box direction="column" align="center">
+            <Box
+              style={{
+                background: '#1edb89',
+                borderRadius: '50%',
+              }}
+            >
+              <Icon
+                size="50"
+                style={{ width: 50, color: 'white' }}
+                glyph="CheckMark"
+              />
+            </Box>
+            <Box margin={{ vertical: 'small' }}>
+              <Text>Success</Text>
+            </Box>
+            {exchange.operation.type === EXCHANGE_MODE.ETH_TO_ONE &&
+            [
+              TOKEN.ERC20,
+              TOKEN.ETH,
+              TOKEN.BUSD,
+              TOKEN.LINK,
+              TOKEN.ERC721,
+            ].includes(exchange.token) ? (
+              <Box
+                pad={{ horizontal: 'medium', vertical: 'small' }}
+                style={{ background: 'white' }}
+              >
+                <Text style={{ textAlign: 'center' }} color="rgb(0, 173, 232)">
+                  Bridged assets can only be used in the Harmony ecosystem and
+                  currently no CEX supports deposit of the bridged assets.
+                </Text>
+              </Box>
+            ) : null}
           </Box>
         );
-        description = 'Success';
+        description = '';
         break;
     }
 
@@ -248,7 +271,9 @@ export class Exchange extends React.Component<
           pad={{ horizontal: 'small' }}
           style={{ width: '100%' }}
         >
-          <Text style={{ textAlign: 'center' }}>{description}</Text>
+          {description ? (
+            <Text style={{ textAlign: 'center' }}>{description}</Text>
+          ) : null}
           <Box margin={{ top: 'medium' }} style={{ width: '100%' }}>
             <Steps />
           </Box>
