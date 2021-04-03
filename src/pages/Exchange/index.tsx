@@ -565,8 +565,26 @@ export class Exchange extends React.Component<
 
               {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
                 <Box direction="column" fill={true}>
+                  <Box
+                    direction="column"
+                    align="start"
+                    margin={{ bottom: '6px' }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: '18px',
+                        color: '#212D5E',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {`${NETWORK_BASE_TOKEN[exchange.network]} address`}
+                    </Text>
+                    <Text color="#9698a7" size="small">
+                      (use your wallet address, never use contract address)
+                    </Text>
+                  </Box>
                   <Input
-                    label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
+                    label=""
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
@@ -606,8 +624,26 @@ export class Exchange extends React.Component<
                 </Box>
               ) : (
                 <Box direction="column" fill={true}>
+                  <Box
+                    direction="column"
+                    align="start"
+                    margin={{ bottom: '6px' }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: '18px',
+                        color: '#212D5E',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      ONE Address
+                    </Text>
+                    <Text color="#9698a7" size="small">
+                      (use your wallet address, never use contract address)
+                    </Text>
+                  </Box>
                   <Input
-                    label="ONE Address"
+                    label=""
                     name="oneAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"

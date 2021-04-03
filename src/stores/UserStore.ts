@@ -260,7 +260,7 @@ export class UserStoreEx extends StoreConstructor {
   }
 
   @action public getBalances = async () => {
-    if (this.address) {
+    if (this.address && (!this.isMetamask || this.isNetworkActual)) {
       try {
         let res = await getHmyBalance(this.address);
         this.balance = res && res.result;
@@ -448,13 +448,15 @@ export class UserStoreEx extends StoreConstructor {
 
     const exNetwork = getExNetworkMethods();
 
-    try {
-      address = await exNetwork.ethMethodsHRC20.getMappingFor(
-        hrc20Address,
-        this.stores.exchange.token === TOKEN.ONE,
-      );
-    } catch (e) {
-      console.error(e);
+    if(exNetwork) {
+      try {
+        address = await exNetwork.ethMethodsHRC20.getMappingFor(
+          hrc20Address,
+          this.stores.exchange.token === TOKEN.ONE,
+        );
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     console.log(address);

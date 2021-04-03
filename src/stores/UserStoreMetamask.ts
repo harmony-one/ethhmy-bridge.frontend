@@ -226,7 +226,7 @@ export class UserStoreMetamask extends StoreConstructor {
   @action.bound public getBalances = async () => {
     const exNetwork = getExNetworkMethods();
 
-    if (this.ethAddress) {
+    if (this.ethAddress && this.isNetworkActual) {
       try {
         if (this.erc20Address) {
           const erc20Balance = await exNetwork.ethMethodsERC20.checkEthBalance(
@@ -283,7 +283,8 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (
       this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
-      (this.stores.user.isMetamask && !this.stores.user.isNetworkActual || !this.stores.user.isAuthorized)
+      ((this.stores.user.isMetamask && !this.stores.user.isNetworkActual) ||
+        !this.stores.user.isAuthorized)
     ) {
       throw new Error(
         `Your MetaMask in on the wrong network. Please switch on Harmony and try again!`,
