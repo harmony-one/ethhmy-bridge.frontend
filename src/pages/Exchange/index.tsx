@@ -25,24 +25,27 @@ import { TokensField } from './AmountField';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
 import { ApproveAmountField } from './ApproveAmountField';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
+import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export interface ITokenInfo {
   label: string;
   maxAmount: string;
 }
 
-@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing')
+@inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing', 'tokens')
 @observer
 export class Exchange extends React.Component<
   Pick<IStores, 'user'> &
     Pick<IStores, 'exchange'> &
     Pick<IStores, 'routing'> &
     Pick<IStores, 'actionModals'> &
+    Pick<IStores, 'tokens'> &
     Pick<IStores, 'userMetamask'>
 > {
   formRef: MobxForm;
 
   @observable metamaskNetworkError = '';
+  @observable addressValidationError = '';
 
   constructor(props) {
     super(props);
@@ -50,10 +53,11 @@ export class Exchange extends React.Component<
     autorun(() => {
       const { exchange } = this.props;
 
-      if (exchange.token && exchange.mode) {
+      if (exchange.token && exchange.mode && exchange.network) {
         if (this.formRef) {
           this.formRef.resetTouched();
           this.formRef.resetErrors();
+          this.addressValidationError = '';
         }
 
         if (exchange.token === TOKEN.ERC721) {
@@ -122,6 +126,33 @@ export class Exchange extends React.Component<
     }
 
     if (needValidate) {
+      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        const methods = getExNetworkMethods();
+
+        if (!methods.web3.utils.isAddress(exchange.transaction.ethAddress)) {
+          this.addressValidationError = 'Invalid token Hex address';
+          return;
+        }
+      }
+
+      if (
+        this.props.tokens.allData.some(
+          t =>
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase(),
+        )
+      ) {
+        this.addressValidationError =
+          'You enter bridge contract address. Transfer to this address will result in loss of funds! Please, use only your wallet address';
+        return;
+      }
+
       this.formRef.validateFields().then(() => {
         callback();
       });
@@ -435,7 +466,6 @@ export class Exchange extends React.Component<
             )}
           </Box>
         ) : null}
-
         <Form
           ref={ref => (this.formRef = ref)}
           data={this.props.exchange.transaction}
@@ -540,6 +570,7 @@ export class Exchange extends React.Component<
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
+                    onChange={() => (this.addressValidationError = '')}
                   />
                   {userMetamask.isAuthorized ? (
                     <Box
@@ -548,10 +579,11 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.ethAddress =
-                          userMetamask.ethAddress)
-                      }
+                      onClick={() => {
+                        exchange.transaction.ethAddress =
+                          userMetamask.ethAddress;
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use my address
                     </Box>
@@ -562,9 +594,10 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.ethAddress = user.address)
-                      }
+                      onClick={() => {
+                        exchange.transaction.ethAddress = user.address;
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use Metamask address
                     </Box>
@@ -578,6 +611,7 @@ export class Exchange extends React.Component<
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
+                    onChange={() => (this.addressValidationError = '')}
                   />
                   {user.isAuthorized ? (
                     <Box
@@ -586,9 +620,10 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.oneAddress = user.address)
-                      }
+                      onClick={() => {
+                        exchange.transaction.oneAddress = user.address;
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use my address
                     </Box>
@@ -599,10 +634,12 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.oneAddress =
-                          userMetamask.ethAddress)
-                      }
+                      onClick={() => {
+                        exchange.transaction.oneAddress =
+                          userMetamask.ethAddress;
+
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use Metamask address
                     </Box>
@@ -617,22 +654,23 @@ export class Exchange extends React.Component<
           ) : null}
         </Form>
 
+        {this.addressValidationError ? (
+          <Text color="red">{this.addressValidationError}</Text>
+        ) : null}
+
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <Details showTotal={true} />
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.SENDING ? (
           <Details>
             <Status />
           </Details>
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
           <Details>
             <Status />
           </Details>
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <>
             {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
@@ -664,11 +702,9 @@ export class Exchange extends React.Component<
             </Box>
           </>
         ) : null}
-
         {this.metamaskNetworkError ? (
           <Box>{this.metamaskNetworkError}</Box>
         ) : null}
-
         <Box
           direction="row"
           margin={{ top: 'large' }}
