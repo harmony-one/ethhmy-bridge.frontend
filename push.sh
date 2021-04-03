@@ -34,8 +34,10 @@ if [ -z "$TAG" -o -z "$NETWORK" ]; then
 fi
 
 if [ "$NETWORK" == "mainnet" ]; then
-	sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG"
-	sudo docker push harmonyone/"$IMAGE":"$TAG"
+   sudo docker tag "$IMAGE" harmonyone/"$IMAGE":"$TAG"
+	sudo docker tag "$IMAGE" harmonyone/"$IMAGE":latest
+   sudo docker push harmonyone/"$IMAGE":"$TAG"
+	sudo docker push harmonyone/"$IMAGE":latest
 else
 	sudo docker tag "$IMAGE":"$NETWORK" harmonyone/"$IMAGE":"$TAG-$NETWORK"
 	sudo docker push harmonyone/"$IMAGE":"$TAG-$NETWORK"
