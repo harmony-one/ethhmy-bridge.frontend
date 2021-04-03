@@ -304,12 +304,6 @@ export class Exchange extends StoreConstructor {
     this.clear();
     this.network = network;
 
-    if (!this.config.tokens.includes(this.token)) {
-      this.setToken(this.config.tokens[0]);
-    } else {
-      this.setToken(this.token);
-    }
-
     this.stores.userMetamask.erc20TokenDetails = null;
     this.stores.userMetamask.erc20Address = '';
     this.stores.userMetamask.ethBalance = '0';
@@ -325,6 +319,12 @@ export class Exchange extends StoreConstructor {
     this.stores.user.hmyLINKBalance = '0';
     // this.setAddressByMode();
 
+    if (!this.config.tokens.includes(this.token)) {
+      this.setToken(this.config.tokens[0]);
+    } else {
+      this.setToken(this.token);
+    }
+
     this.setMode(this.mode);
   }
 
@@ -336,6 +336,7 @@ export class Exchange extends StoreConstructor {
 
     if (token === TOKEN.ETH) {
       this.stores.user.setHRC20Token(this.config.contracts.nativeTokenHRC20);
+      this.stores.userMetamask.erc20Address = '';
 
       this.stores.userMetamask.setTokenDetails({
         name: NETWORK_BASE_TOKEN[this.network],
