@@ -131,6 +131,10 @@ const callActionWait = async (func: (url: string) => Promise<any>) => {
       );
 
       success = res.filter(r => !!r).length >= Number(threshold);
+
+      if (!success) {
+        await sleep(5000);
+      }
     } catch (e) {
       console.error(e);
       await sleep(5000);
@@ -249,4 +253,19 @@ export const getDepositAmount = async (network: NETWORK_TYPE) => {
   );
 
   return res.body;
+};
+
+export const manage = async (
+  action: string,
+  secret: string,
+  params: { operationId: string },
+) => {
+  return callActionWait(async url => {
+    const res = await agent.post<{ body: IOperation }>(
+      `${url}/manage/actions/${action}`,
+      { secret, ...params },
+    );
+
+    return res.body;
+  });
 };
