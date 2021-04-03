@@ -38,6 +38,7 @@ export class Exchange extends React.Component<
   Pick<IStores, 'user'> &
     Pick<IStores, 'exchange'> &
     Pick<IStores, 'routing'> &
+    Pick<IStores, 'tokens'> &
     Pick<IStores, 'actionModals'> &
     Pick<IStores, 'tokens'> &
     Pick<IStores, 'userMetamask'>

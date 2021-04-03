@@ -134,6 +134,11 @@ export const EthBridge = observer((props: any) => {
     }
   }, []);
 
+  useEffect(() => {
+    tokens.init();
+    tokens.fetch();
+  }, []);
+
   return (
     <BaseContainer>
       <PageContainer>
