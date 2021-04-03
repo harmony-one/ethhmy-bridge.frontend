@@ -131,7 +131,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     align: 'right',
     render: value => (
       <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        {formatWithTwoDecimals(value)}
+        ${formatWithTwoDecimals(value)}
       </Box>
     ),
   },
