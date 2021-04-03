@@ -42,20 +42,42 @@ export function truncateAddressString(address: string, num = 12) {
   }
 
   const first = address.slice(0, num);
-  const last = address.slice(-(num));
+  const last = address.slice(-num);
   return `${first}...${last}`;
 }
 
-export const mulDecimals = (amount: string | number, decimals: string | number) => {
+export const mulDecimals = (
+  amount: string | number,
+  decimals: string | number,
+) => {
+  if (!Number(decimals)) {
+    return new BN(amount);
+  }
+
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).multipliedBy(decimalsMul);
 
   return new BN(amountStr.toFixed());
 };
 
-export const divDecimals = (amount: string | number, decimals: string | number) => {
+export const divDecimals = (
+  amount: string | number,
+  decimals: string | number,
+) => {
+  if (!Number(decimals)) {
+    return new BN(amount);
+  }
+
   const decimalsMul = `10${new Array(Number(decimals)).join('0')}`;
   const amountStr = new BigNumber(amount).dividedBy(decimalsMul);
 
   return amountStr.toFixed();
+};
+
+export const sliceByLength = (str: string, maxLength: number) => {
+  if (str && str.length > maxLength) {
+    return str.slice(0, maxLength - 2) + '...';
+  }
+
+  return str;
 };

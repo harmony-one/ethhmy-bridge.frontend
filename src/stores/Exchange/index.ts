@@ -1,22 +1,35 @@
-import { StoreConstructor } from './core/StoreConstructor';
+import { StoreConstructor } from '../core/StoreConstructor';
 import { action, computed, observable } from 'mobx';
-import { statusFetching } from '../constants';
+import { statusFetching } from '../../constants';
 import {
   ACTION_TYPE,
   EXCHANGE_MODE,
   IOperation,
+  NETWORK_TYPE,
   STATUS,
+  TConfig,
+  TFullConfig,
   TOKEN,
-} from './interfaces';
+} from '../interfaces';
 import * as operationService from 'services';
+import { getDepositAmount } from 'services';
 
-import * as contract from '../blockchain-bridge';
-import { sleep, uuid } from '../utils';
-import { getNetworkFee } from '../blockchain-bridge/eth/helpers';
+import * as contract from '../../blockchain-bridge';
+import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
+import { sleep, uuid } from '../../utils';
+import { sendHrc20Token } from './hrc20';
+import { sendErc721Token } from './erc721';
+import { getAddress } from '@harmony-js/crypto';
+import { send1ETHToken } from './1ETH';
+import { send1ONEToken } from './1ONE';
+import { getContractMethods } from './helpers';
+import { defaultEthClient } from './defaultConfig';
+import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
   BASE = 'BASE',
+  APPROVE = 'APPROVE',
   CONFIRMATION = 'CONFIRMATION',
   SENDING = 'SENDING',
   RESULT = 'RESULT',
@@ -33,18 +46,33 @@ export interface IStepConfig {
   title?: string;
 }
 
+export interface ITransaction {
+  oneAddress: string;
+  ethAddress: string;
+  amount: string | string[];
+  approveAmount: string;
+  erc20Address?: string;
+  hrc20Address?: string;
+}
+
 export class Exchange extends StoreConstructor {
   @observable error = '';
   @observable txHash = '';
   @observable actionStatus: statusFetching = 'init';
   @observable stepNumber = 0;
   @observable isFeeLoading = false;
+  @observable isDepositAmountLoading = false;
+  @observable depositAmount = 0;
 
-  defaultTransaction = {
+  @observable network: NETWORK_TYPE = NETWORK_TYPE.ETHEREUM;
+
+  defaultTransaction: ITransaction = {
     oneAddress: '',
     ethAddress: '',
     amount: '0',
+    approveAmount: '0',
     erc20Address: '',
+    hrc20Address: '',
   };
 
   @observable transaction = this.defaultTransaction;
@@ -79,7 +107,7 @@ export class Exchange extends StoreConstructor {
   get networkFee() {
     return this.mode === EXCHANGE_MODE.ETH_TO_ONE
       ? this.ethNetworkFee
-      : 0.0134438;
+      : this.depositAmount + 0.0134438;
   }
 
   stepsConfig: Array<IStepConfig> = [
@@ -89,22 +117,105 @@ export class Exchange extends StoreConstructor {
         {
           title: 'Continue',
           onClick: async () => {
-            this.stepNumber = this.stepNumber + 1;
+            if (
+              this.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+              (!this.stores.userMetamask.isNetworkActual ||
+                !this.stores.userMetamask.isAuthorized)
+            ) {
+              throw new Error(
+                `Your MetaMask in on the wrong network. Please switch on ${
+                  NETWORK_NAME[this.stores.exchange.network]
+                } and try again!`,
+              );
+            }
+
+            if (
+              this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+              ((this.stores.user.isMetamask &&
+                !this.stores.user.isNetworkActual) ||
+                !this.stores.user.isAuthorized)
+            ) {
+              throw new Error(
+                `Your MetaMask in on the wrong network. Please switch on Harmony and try again!`,
+              );
+            }
+
             // this.transaction.oneAddress = this.stores.user.address;
+
             this.transaction.erc20Address = this.stores.userMetamask.erc20Address;
+
+            if (this.stores.user.hrc20Address) {
+              this.transaction.hrc20Address = getAddress(
+                this.stores.user.hrc20Address,
+              ).checksum;
+            }
 
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
-
-                this.isFeeLoading = true;
-                this.ethNetworkFee = await getNetworkFee();
-                this.isFeeLoading = false;
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.transaction.oneAddress = this.stores.user.address;
                 break;
             }
+
+            this.transaction.approveAmount = '0';
+
+            if (
+              this.token === TOKEN.ERC721 ||
+              (this.token === TOKEN.ONE &&
+                this.mode === EXCHANGE_MODE.ONE_TO_ETH) ||
+              (this.token === TOKEN.ETH &&
+                this.mode === EXCHANGE_MODE.ETH_TO_ONE)
+            ) {
+              this.stepNumber = this.stepNumber + 2;
+            } else {
+              await this.getAllowance();
+
+              if (
+                Number(this.allowance) / 1e18 >=
+                Number(this.transaction.amount)
+              ) {
+                this.stepNumber = this.stepNumber + 2;
+              } else {
+                this.transaction.approveAmount = String(
+                  this.transaction.amount,
+                );
+                this.stepNumber = this.stepNumber + 1;
+              }
+            }
+
+            const exNetwork = getExNetworkMethods();
+
+            switch (this.mode) {
+              case EXCHANGE_MODE.ETH_TO_ONE:
+                this.isFeeLoading = true;
+                this.ethNetworkFee = await exNetwork.getNetworkFee();
+                this.isFeeLoading = false;
+                break;
+              case EXCHANGE_MODE.ONE_TO_ETH:
+                this.isFeeLoading = true;
+                this.depositAmount = await getDepositAmount(this.network);
+                this.isFeeLoading = false;
+                break;
+            }
+          },
+          validate: true,
+        },
+      ],
+    },
+    {
+      id: EXCHANGE_STEPS.APPROVE,
+      buttons: [
+        {
+          title: 'Back',
+          onClick: () => (this.stepNumber = this.stepNumber - 1),
+          transparent: true,
+        },
+        {
+          title: 'Continue',
+          onClick: () => {
+            this.stepNumber = this.stepNumber + 1;
           },
           validate: true,
         },
@@ -115,7 +226,13 @@ export class Exchange extends StoreConstructor {
       buttons: [
         {
           title: 'Back',
-          onClick: () => (this.stepNumber = this.stepNumber - 1),
+          onClick: () => {
+            if (Number(this.transaction.approveAmount) > 0) {
+              this.stepNumber = this.stepNumber - 1;
+            } else {
+              this.stepNumber = 0;
+            }
+          },
           transparent: true,
         },
         {
@@ -138,7 +255,7 @@ export class Exchange extends StoreConstructor {
           title: 'Close',
           transparent: true,
           onClick: () => {
-            this.clear();
+            this.setMode(this.mode);
             this.stepNumber = 0;
           },
         },
@@ -176,10 +293,61 @@ export class Exchange extends StoreConstructor {
   }
 
   @action.bound
+  setNetwork(network: NETWORK_TYPE) {
+    if (
+      this.operation &&
+      [STATUS.IN_PROGRESS, STATUS.WAITING].includes(this.operation.status)
+    ) {
+      return;
+    }
+
+    this.clear();
+    this.network = network;
+
+    if (!this.config.tokens.includes(this.token)) {
+      this.setToken(this.config.tokens[0]);
+    } else {
+      this.setToken(this.token);
+    }
+
+    this.stores.userMetamask.erc20TokenDetails = null;
+    this.stores.userMetamask.erc20Address = '';
+    this.stores.userMetamask.ethBalance = '0';
+    this.stores.userMetamask.erc20Balance = '0';
+    this.stores.userMetamask.ethBUSDBalance = '0';
+    this.stores.userMetamask.ethLINKBalance = '0';
+
+    this.stores.user.hrc20Address = '';
+    this.stores.user.balance = '0';
+    this.stores.user.hrc20Balance = '0';
+    this.stores.user.hrc20Balance = '0';
+    this.stores.user.hmyBUSDBalance = '0';
+    this.stores.user.hmyLINKBalance = '0';
+    // this.setAddressByMode();
+
+    this.setMode(this.mode);
+  }
+
+  @action.bound
   setToken(token: TOKEN) {
     // this.clear();
     this.token = token;
     // this.setAddressByMode();
+
+    if (token === TOKEN.ETH) {
+      this.stores.user.setHRC20Token(this.config.contracts.nativeTokenHRC20);
+
+      this.stores.userMetamask.setTokenDetails({
+        name: NETWORK_BASE_TOKEN[this.network],
+        decimals: '18',
+        erc20Address: '',
+        symbol: NETWORK_BASE_TOKEN[this.network],
+      });
+    }
+
+    if (token === TOKEN.ONE) {
+      this.stores.user.setHRC20Mapping(process.env.ONE_HRC20, true);
+    }
   }
 
   @observable operation: IOperation;
@@ -199,7 +367,7 @@ export class Exchange extends StoreConstructor {
 
       case STATUS.WAITING:
       case STATUS.IN_PROGRESS:
-        this.stepNumber = 2;
+        this.stepNumber = 3;
         this.actionStatus = 'fetching';
         break;
     }
@@ -211,7 +379,10 @@ export class Exchange extends StoreConstructor {
 
     this.mode = this.operation.type;
     this.token = this.operation.token;
-    this.transaction.amount = String(this.operation.amount);
+    this.network = this.operation.network;
+    this.transaction.amount = Array.isArray(this.operation.amount)
+      ? this.operation.amount
+      : String(this.operation.amount);
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
@@ -225,6 +396,7 @@ export class Exchange extends StoreConstructor {
       ...this.transaction,
       type: this.mode,
       token: this.token,
+      network: this.network,
       id: uuid(),
     });
 
@@ -290,8 +462,6 @@ export class Exchange extends StoreConstructor {
         });
       };
 
-      let ethMethods, hmyMethods;
-
       if (!this.stores.user.address || !this.stores.userMetamask.ethAddress) {
         await sleep(3000);
       }
@@ -308,21 +478,103 @@ export class Exchange extends StoreConstructor {
         }
       }
 
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        const hmyMethods = this.stores.user.isMetamask
+          ? contract.hmyMethodsDeposit.hmyMethodsWeb3
+          : contract.hmyMethodsDeposit.hmyMethods;
+
+        let depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+
+        if (depositOne && depositOne.status === STATUS.WAITING) {
+          await hmyMethods.deposit(depositOne.depositAmount, hash =>
+            confirmCallback(hash, depositOne.type),
+          );
+        }
+
+        while (
+          [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
+        ) {
+          depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+
+          await sleep(500);
+        }
+
+        if (depositOne.status !== STATUS.SUCCESS) {
+          return;
+        }
+      }
+
+      let ethMethods, hmyMethods;
+      const exNetwork = getExNetworkMethods();
+
       switch (this.token) {
         case TOKEN.BUSD:
-          ethMethods = contract.ethMethodsBUSD;
-          hmyMethods = contract.hmyMethodsBUSD;
+          ethMethods = exNetwork.ethMethodsBUSD;
+          hmyMethods = this.stores.user.isMetamask
+            ? contract.hmyMethodsBUSD.hmyMethodsWeb3
+            : contract.hmyMethodsBUSD.hmyMethods;
           break;
 
         case TOKEN.LINK:
-          ethMethods = contract.ethMethodsLINK;
-          hmyMethods = contract.hmyMethodsLINK;
+          ethMethods = exNetwork.ethMethodsLINK;
+          hmyMethods = this.stores.user.isMetamask
+            ? contract.hmyMethodsLINK.hmyMethodsWeb3
+            : contract.hmyMethodsLINK.hmyMethods;
           break;
 
         case TOKEN.ERC20:
-          ethMethods = contract.ethMethodsERC20;
-          hmyMethods = contract.hmyMethodsERC20;
+          ethMethods = exNetwork.ethMethodsERC20;
+
+          if (this.network === NETWORK_TYPE.ETHEREUM) {
+            hmyMethods = this.stores.user.isMetamask
+              ? contract.hmyMethodsERC20.hmyMethodsWeb3
+              : contract.hmyMethodsERC20.hmyMethods;
+          } else {
+            hmyMethods = this.stores.user.isMetamask
+              ? contract.hmyMethodsBEP20.hmyMethodsWeb3
+              : contract.hmyMethodsBEP20.hmyMethods;
+          }
           break;
+
+        case TOKEN.ONE:
+          await send1ONEToken({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
+        case TOKEN.ETH:
+          await send1ETHToken({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
+        case TOKEN.ERC721:
+          await sendErc721Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
+        case TOKEN.HRC20:
+          await sendHrc20Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
       }
 
       if (this.token === TOKEN.ERC20) {
@@ -348,11 +600,11 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            const { amount, erc20Address } = this.transaction;
+            const { approveAmount, erc20Address } = this.transaction;
 
             ethMethods.approveEthManger(
               erc20Address,
-              amount,
+              approveAmount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveEthManger.type),
             );
@@ -399,7 +651,7 @@ export class Exchange extends StoreConstructor {
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
             await hmyMethods.approveHmyManger(
               hrc20Address,
-              this.transaction.amount,
+              this.transaction.approveAmount,
               this.stores.userMetamask.erc20TokenDetails.decimals,
               hash => confirmCallback(hash, approveHmyManger.type),
             );
@@ -442,7 +694,7 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
-            ethMethods.approveEthManger(this.transaction.amount, hash =>
+            ethMethods.approveEthManger(this.transaction.approveAmount, hash =>
               confirmCallback(hash, approveEthManger.type),
             );
           }
@@ -482,8 +734,9 @@ export class Exchange extends StoreConstructor {
           );
 
           if (approveHmyManger && approveHmyManger.status === STATUS.WAITING) {
-            await hmyMethods.approveHmyManger(this.transaction.amount, hash =>
-              confirmCallback(hash, approveHmyManger.type),
+            await hmyMethods.approveHmyManger(
+              this.transaction.approveAmount,
+              hash => confirmCallback(hash, approveHmyManger.type),
             );
           }
 
@@ -522,14 +775,68 @@ export class Exchange extends StoreConstructor {
       if (e.status && e.response.body) {
         this.error = e.response.body.message;
       } else {
-        this.error = e.message;
+        this.error = e.message || e;
       }
+
       this.actionStatus = 'error';
       this.operation = null;
     }
 
     this.stepNumber = this.stepsConfig.length - 1;
   }
+
+  @observable allowance = '0';
+  @observable allowanceStatus: statusFetching = 'init';
+  @observable allowanceError = '';
+
+  @computed get needToApprove() {
+    return Number(this.transaction.amount) > Number(this.allowance) / 1e18;
+  }
+
+  @action.bound
+  clearAllowance = () => {
+    this.allowance = '0';
+    this.allowanceStatus = 'fetching';
+    this.allowanceError = '';
+  };
+
+  @action.bound
+  getAllowance = async () => {
+    this.allowance = '0';
+    this.transaction.approveAmount = '0';
+    this.allowanceStatus = 'fetching';
+    this.allowanceError = '';
+
+    const { ethMethods, hmyMethods } = getContractMethods(
+      this.token,
+      this.network,
+      this.stores.user.isMetamask,
+    );
+
+    try {
+      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        console.log(this.transaction.oneAddress, this.transaction.hrc20Address);
+
+        this.allowance = await hmyMethods.allowance(
+          this.transaction.oneAddress,
+          this.transaction.hrc20Address,
+        );
+      }
+
+      if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        console.log(this.transaction.ethAddress, this.transaction.erc20Address);
+
+        this.allowance = await ethMethods.allowance(
+          this.transaction.ethAddress,
+          this.transaction.erc20Address,
+        );
+      }
+    } catch (e) {
+      this.allowanceError = e.message;
+    }
+
+    this.allowanceStatus = 'success';
+  };
 
   clear() {
     this.transaction = this.defaultTransaction;
@@ -539,5 +846,43 @@ export class Exchange extends StoreConstructor {
     this.actionStatus = 'init';
     this.stepNumber = 0;
     this.stores.routing.push(`/${this.token}`);
+  }
+
+  @observable fullConfig: TFullConfig;
+
+  @action.bound
+  getConfig = async () => {
+    this.fullConfig = await operationService.getConfig();
+    initNetworks(this.fullConfig);
+  };
+
+  @computed
+  get config(): TConfig {
+    if (!this.fullConfig) {
+      return defaultEthClient;
+    }
+
+    if (this.network === NETWORK_TYPE.ETHEREUM) {
+      return this.fullConfig.ethClient;
+    }
+
+    if (this.network === NETWORK_TYPE.BINANCE) {
+      return this.fullConfig.binanceClient;
+    }
+
+    return this.fullConfig.ethClient;
+  }
+
+  getExplorerByNetwork(network: NETWORK_TYPE) {
+    if (!this.fullConfig) {
+      return defaultEthClient.explorerURL;
+    }
+
+    switch (network) {
+      case NETWORK_TYPE.BINANCE:
+        return this.fullConfig.binanceClient.explorerURL;
+      case NETWORK_TYPE.ETHEREUM:
+        return this.fullConfig.ethClient.explorerURL;
+    }
   }
 }

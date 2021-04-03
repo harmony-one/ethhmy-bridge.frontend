@@ -6,93 +6,108 @@ import { Error } from 'ui';
 import cn from 'classnames';
 import * as styles from './feeds.styl';
 import { useStores } from 'stores';
-import { ACTION_TYPE, IAction, STATUS } from 'stores/interfaces';
+import { ACTION_TYPE, IAction, STATUS, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
-import { STEPS_TITLE } from './steps-constants';
+import { getStepsTitle } from './steps-constants';
 
-const StepRow = ({
-  action,
-  active,
-  number,
-  hrc20Address,
-}: {
-  action: IAction;
-  hrc20Address?: string;
-  number: number;
-  active: boolean;
-}) => {
-  const completed = action.status === STATUS.SUCCESS;
+const StepRow = observer(
+  ({
+    action,
+    active,
+    number,
+    hrc20Address,
+    token,
+  }: {
+    action: IAction;
+    hrc20Address?: string;
+    number: number;
+    active: boolean;
+    token: TOKEN;
+  }) => {
+    const { exchange } = useStores();
 
-  const label = STEPS_TITLE[action.type] || action.type;
+    const completed = action.status === STATUS.SUCCESS;
 
-  const textClassName = cn(
-    styles.stepRow,
-    active ? styles.active : '',
-    completed ? styles.completed : '',
-  );
+    const label =
+      getStepsTitle(action.type, token, exchange.network) || action.type;
 
-  const explorerUrl =
-    (isEth(action.type)
-      ? process.env.ETH_EXPLORER_URL
-      : process.env.HMY_EXPLORER_URL) + '/tx/';
+    const textClassName = cn(
+      styles.stepRow,
+      active ? styles.active : '',
+      completed ? styles.completed : '',
+    );
 
-  return (
-    <Box
-      direction="column"
-      style={{ borderBottom: '1px solid #dedede' }}
-      margin={{ bottom: 'medium' }}
-    >
-      <Text className={textClassName}>{number + 1 + '. ' + label}</Text>
-      <Box direction="row" justify="between">
-        <Text className={textClassName}>Status: {statuses[action.status]}</Text>
-        {action.timestamp && (
-          <Text className={textClassName}>
-            {dateTimeFormat(action.timestamp * 1000)}
-          </Text>
-        )}
-      </Box>
-      {action.transactionHash && (
+    const explorerUrl =
+      (isEth(action.type)
+        ? exchange.config.explorerURL
+        : process.env.HMY_EXPLORER_URL) + '/tx/';
+
+    return (
+      <Box
+        direction="column"
+        style={{ borderBottom: '1px solid #dedede' }}
+        margin={{ bottom: 'medium' }}
+      >
+        <Text className={textClassName}>{number + 1 + '. ' + label}</Text>
         <Box direction="row" justify="between">
-          <Text className={textClassName}>Tx hash: </Text>
-          <a href={explorerUrl + action.transactionHash} target="_blank">
-            {truncateAddressString(action.transactionHash, 10)}
-          </a>
+          <Text className={textClassName}>
+            Status: {statuses[action.status]}
+          </Text>
+          {action.timestamp && (
+            <Text className={textClassName}>
+              {dateTimeFormat(action.timestamp * 1000)}
+            </Text>
+          )}
         </Box>
-      )}
-
-      {hrc20Address && (
-        <Box
-          direction="row"
-          justify="between"
-          align="center"
-          className={textClassName}
-        >
-          <Box direction="row" align="center">
-            <img
-              className={styles.imgToken}
-              style={{ height: 18 }}
-              src="/one.svg"
-            />
-            <Text>HRC20 address:</Text>
-          </Box>
-          <Box>
-            <a
-              href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
-              target="_blank"
-            >
-              {truncateAddressString(hrc20Address, 10)}
+        {action.transactionHash && action.transactionHash !== 'skip' ? (
+          <Box direction="row" justify="between">
+            <Text className={textClassName}>Tx hash: </Text>
+            <a href={explorerUrl + action.transactionHash} target="_blank">
+              {truncateAddressString(action.transactionHash, 10)}
             </a>
           </Box>
-        </Box>
-      )}
+        ) : null}
 
-      {action.message && (
-        <Text className={textClassName}>{action.message}</Text>
-      )}
-      {action.error && <Error error={action.error} />}
-    </Box>
-  );
-};
+        {action.transactionHash && action.transactionHash === 'skip' ? (
+          <Box direction="row" justify="between">
+            <Text className={textClassName}>Operation was skipped</Text>
+          </Box>
+        ) : null}
+
+        {hrc20Address && (
+          <Box
+            direction="row"
+            justify="between"
+            align="center"
+            className={textClassName}
+          >
+            <Box direction="row" align="center">
+              <img
+                className={styles.imgToken}
+                style={{ height: 18 }}
+                src="/one.svg"
+              />
+              <Text>HRC20 address:</Text>
+            </Box>
+            <Box>
+              <a
+                href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
+                target="_blank"
+              >
+                {truncateAddressString(hrc20Address, 10)}
+              </a>
+            </Box>
+          </Box>
+        )}
+
+        {action.message && (
+          <Text className={textClassName}>{action.message}</Text>
+        )}
+        {action.error && <Error error={action.error} />}
+      </Box>
+    );
+  },
+);
 
 const isEth = type =>
   [
@@ -101,6 +116,13 @@ const isEth = type =>
     'unlockToken',
     'unlockTokenRollback',
     'waitingBlockNumber',
+
+    // HRC20
+    'approveHRC20EthManger',
+    'getERC20Address',
+    'burnHRC20Token',
+    'mintHRC20Token',
+    'mintHRC20TokenRollback',
   ].includes(type);
 
 const statuses: Record<STATUS, string> = {
@@ -108,6 +130,7 @@ const statuses: Record<STATUS, string> = {
   success: 'Success',
   in_progress: 'In progress',
   error: 'Error',
+  canceled: 'Canceled',
 };
 
 export const Steps = observer(() => {
@@ -126,6 +149,7 @@ export const Steps = observer(() => {
           key={action.id}
           action={action}
           number={idx}
+          token={exchange.operation.token}
           active={
             action.status === STATUS.IN_PROGRESS ||
             (action.status === STATUS.WAITING &&

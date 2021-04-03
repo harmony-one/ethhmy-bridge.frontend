@@ -82,7 +82,7 @@ const IconOption = props => (
       {props.data.image ? (
         <img
           src={props.data.image}
-          style={{ width: 20, marginRight: 20 }}
+          style={{ width: 20, maxHeight: 25, marginRight: 20 }}
           alt={props.data.label}
         />
       ) : null}
@@ -98,7 +98,7 @@ const IconSingleValue = placeholder => props => (
         {props.data.image ? (
           <img
             src={props.data.image}
-            style={{ width: 20, marginRight: 10 }}
+            style={{ width: 20, maxHeight: 22, marginRight: 10 }}
             alt={props.data.label}
           />
         ) : null}

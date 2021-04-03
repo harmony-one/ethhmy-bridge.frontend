@@ -12,8 +12,8 @@ const faqConfig = [
     text: () => (
       <p>
         Horizon is a cross-chain bridge that allows exchange of crypto assets
-        (e.g., fungible/non-fungible tokens, stablecoins) between Ethereum and
-        Harmony blockchains.
+        (e.g., fungible/non-fungible tokens, stablecoins) between Ethereum,
+        Binance Smart Chain and Harmony blockchains.
         <br />
         <br />
         Horizon UI is accessible at{' '}
@@ -27,10 +27,12 @@ const faqConfig = [
     label: 'What is Horizon used for?',
     text: () => (
       <p>
-        Horizon’s main purpose is to enable transfer of assets from Ethereum to
-        Harmony. Users holding assets on Ethereum can exchange them to
-        corresponding assets on Harmony (1:1). Horizon also allows redemption of
-        the exchanged assets back to the user's Ethereum account at any time.
+        Horizon’s main purpose is to enable transfer of assets from Ethereum (or
+        Binance Smart Chain) to Harmony. Users holding assets on Ethereum (or
+        Binance Smart Chain) can exchange them to corresponding assets on
+        Harmony (1:1). Horizon also allows redemption of the exchanged assets
+        back to the user's Ethereum (or Binance Smart Chain) account at any
+        time.
       </p>
     ),
   },
@@ -41,8 +43,8 @@ const faqConfig = [
         Horizon is comprised of two core components:
         <ul>
           <li>
-            A set of smart contracts deployed on both Ethereum and Harmony
-            blockchains
+            A set of smart contracts deployed on both Ethereum (and Binance
+            Smart Chain) and Harmony blockchains
           </li>
           <li>
             A pool of validators that listens to events on both Ethereum and
@@ -63,26 +65,57 @@ const faqConfig = [
     label: 'What kind of assets can be bridged using Horizon?',
     text: () => (
       <>
-        <li>Stablecoins like BUSD, LINK, etc</li>
-        <li>Any ERC20 tokens like USDT, USDC, WETH, WBTC, etc</li>
         <li>
-          You can find information about the bridged assets at{' '}
-          <a href="https://bridge.harmony.one/tokens" target="_blank">
-            https://bridge.harmony.one/tokens
-          </a>
+          <b>From Ethereum:</b>
         </li>
+        <ul>
+          <li>Stablecoins like BUSD, LINK, etc</li>
+          <li>Any ERC20 tokens like USDT, USDC, WETH, WBTC, etc</li>
+          <li>
+            You can find information about the bridged assets at{' '}
+            <a href="https://bridge.harmony.one/tokens" target="_blank">
+              https://bridge.harmony.one/tokens
+            </a>
+          </li>
+        </ul>
+        <br />
+        <li>
+          <b>From Binance Smart Chain:</b>
+        </li>
+        <ul>
+          <li>
+            Any BEP20 tokens like Binance-Peg Ethereum Token, Binance-Peg BUSD
+            Token, Binance-Peg BUSD-T
+          </li>
+        </ul>
       </>
     ),
   },
   {
     label: 'How are assets mapped between Ethereum and Harmony?',
     text: () => (
-      <p>
-        Assets are mapped 1:1. For example, 10 “BUSD” on Ethereum after bridging
-        will be available as 10 “1BUSD” in Harmony. Here, “1BUSD” is the token
-        symbol of the token issued on Harmony corresponding to “BUSD” token
-        symbol on Ethereum.
-      </p>
+      <Box direction="column" gap="15px">
+        <p>
+          Assets are mapped 1:1. For example, 10 “BUSD” on Ethereum after
+          bridging will be available as 10 “1BUSD” on Harmony. Here, “1BUSD” is
+          the token symbol of the token issued on Harmony corresponding to
+          “BUSD” token symbol on Ethereum.
+        </p>
+        <p>
+          Same 1:1 mapping holds true for Binance Smart Chain. However, the
+          assets from two different parent chains (Ethereum or Binance Smart
+          Chain), after bridging will be represented using different bridged
+          assets on Harmony. For instance, 5 “Binance Smart Chain BUSD“ after
+          bridging will be available as 5 “bscBUSD“ on Harmony. Here, “bscBUSD”
+          is the token symbol of the token issued on Harmony corresponding to
+          “BUSD” token symbol on Binance Smart Chain.
+        </p>
+        <p>
+          And, the “1BUSD“ and “bscBUSD“ are not interchangeable, meaning one
+          cannot bridge BUSD from Ethereum to Harmony and then withdraw it on
+          Binance Smart Chain.
+        </p>
+      </Box>
     ),
   },
   {
@@ -90,7 +123,8 @@ const faqConfig = [
       'What are the two types of tokens issued on Harmony when bridged using Horizon?',
     text: () => (
       <p>
-        Horizon supports issuing of both permissioned and permissionless tokens.
+        Horizon supports issuing of both permissioned and permissionless tokens
+        for Ethereum bridging.
         <ul>
           <li>
             BUSD and LINK are issued as permissioned tokens, where partners like
@@ -106,6 +140,10 @@ const faqConfig = [
             Any other ERC20 token is bridged in a permissionless manner, where
             the bridge will issue 1:1 HRC20 tokens. For example, a user after
             bridging their USDT will receive equivalent “1USDT” HRC20 tokens.
+          </li>
+          <li>
+            For Binance Smart Chain, permissionless HRC20 tokens are issued for
+            any BEP20 token.
           </li>
         </ul>
       </p>
@@ -187,46 +225,63 @@ const faqConfig = [
   {
     label: 'Can I send native ONE tokens to Ethereum using Horizon?',
     text: () => (
-      <p>
-        Currently, Horizon only supports sending tokens from Ethereum to Harmony
-        by locking the tokens on Ethereum and minting equivalent amounts of
-        tokens on Harmony. You can send the bridged tokens back from Harmony to
-        Ethereum at any time, but you cannot send a native Harmony ONE token (or
-        any tokens originally issued on Harmony) to Ethereum yet - this feature
-        will be available soon.
-      </p>
+      <>
+        <p>
+          Yes, the Horizon bridge supports sending ONE tokens and HRC20 tokens
+          issues on Harmony to Ethereum and back. Note that, the cost for any
+          bridge transfers to Ethereum will be approximately equivalent to price
+          of 400,000 Ethereum gas.
+        </p>
+        <p>
+          The Horizon bridge does not supports sending ONE tokens and HRC20
+          tokens to Binance Smart Chain yet, but this feature will be available
+          very soon.
+        </p>
+      </>
     ),
   },
 
   {
     label: 'What tokens are supported by Horizon?',
-    text: () => <p>BUSD, LINK, any ERC20</p>,
+    text: () => (
+      <>
+        <li>For Ethereum bridging: BUSD, LINK, any ERC20</li>
+        <li>For Binance Smart Chain bridging: any BEP20</li>
+      </>
+    ),
   },
 
   {
-    label: 'What are the fees for using Horizon?',
+    label: 'What’s the cost of using the bridge?',
     text: () => (
-      <>
-        <li>Horizon service fee: 0</li>
-        <ul>
-          <li>There is no fees for using the Horizon bridge service itself</li>
-        </ul>
-        <li>From Ethereum to Harmony</li>
-        <ul>
-          <li>
-            User will pay the Ethereum transaction fee for 2 transactions
-            (approve and lock token), which is normally $1-3 in total
-          </li>
-        </ul>
-        <li>From Harmony to Ethereum</li>
-        <ul>
-          <li>
-            You will pay the Harmony transaction fee for 2 transactions (approve
-            and burn token), which is normally under a fraction of the cent
-            (negligible)
-          </li>
-        </ul>
-      </>
+      <Box direction="column" gap="15px">
+        <p>
+          <b>Sending ERC20/ETH from Ethereum to Harmony</b>
+          <br />
+          Involves two transactions (approve and lock) that requires
+          approximately 100,000 Ethereum gas in total and the cost will be paid
+          by the user. The multisig confirmation cost on the Harmony network is
+          taken care by the validators.
+        </p>
+        <p>
+          <b>
+            Sending HRC20/ONE to Ethereum or redeeming the bridged tokens back
+            to Ethereum
+          </b>{' '}
+          <br />
+          Any bridge transfers from Harmony to Ethereum involves multisig
+          confirmations by the validators, which is approximately 400,000
+          Ethereum gas. To cover this operating cost of the validators
+          (especially during the volatility of Ethereum gas price), we require
+          users to deposit an approximate network fee in ONE tokens, which is
+          equivalent to 400,000 Ethereum gas.
+        </p>
+        <p>
+          Similarly for Binance Smart Chain, however the transaction fee are
+          much lower (you get an accurate estimate of the bridge fee while using
+          the bridge).
+        </p>
+      </Box>
     ),
   },
 
@@ -264,6 +319,59 @@ const faqConfig = [
         <a href="https://github.com/harmony-one/ethhmy-bridge" target="_blank">
           https://github.com/harmony-one/ethhmy-bridge
         </a>
+      </p>
+    ),
+  },
+
+  {
+    label: 'Explaination of the bridge fee?',
+    text: () => (
+      <Box direction="column" gap="15px">
+        <li>
+          The Horizon bridge has still the lowest cost for Ethereum to Harmony
+          transfers, however Harmony to Ethereum transfers will be expensive (at
+          high Ethereum gas price). The Ethereum gas cost for our bridge is
+          comparable to every other bridge that is currently on Ethereum
+          mainnet. For example, SecretNetwork bridge, IoTex bridge, etc.
+        </li>
+        <li>
+          We have been working tirelessly on the trustless and gas-efficient
+          version of the bridge to Ethereum, which will be rolled out sometime
+          soon. The cost of transferring assets from Harmony to Ethereum is
+          expected to drastically improve. We will keep the community up to date
+          on this release.
+        </li>
+      </Box>
+    ),
+  },
+
+  {
+    label: 'Bridge issues and need help?',
+    text: () => (
+      <p>
+        <b>
+          Report any issues to bridge@harmony.one with one or more of the
+          following informations:
+        </b>
+        <Box direction="column" gap="10px" margin={{ top: '10px' }}>
+          <p>
+            1) operation id, e.g., 7fa14f19-219f8220-1f209e61-8911e539 in{' '}
+            <span>
+              https://bridge.harmony.one/busd/operations/7fa14f19-219f8220-1f209e61-8911e539
+            </span>
+            . Every bridge operation is associated with a unique operation id,
+            which is available in your webpage URL. If you didn't store the
+            operation id, it is okay, follow 2) or 3)
+          </p>
+          <p>2) your transaction hashes on Ethereum or Harmony</p>
+          <p>3) your ETH or ONE account address</p>
+          <p>
+            <span>
+              Please allow 24-48 hours for your issue resolution. Happy
+              Bridging!!!
+            </span>
+          </p>
+        </Box>
       </p>
     ),
   },

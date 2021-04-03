@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
-import { Button, Icon, Text, Title } from 'components/Base';
-import { Error } from 'ui';
+import { Icon, Text, Title } from 'components/Base';
+import { SliceTooltip } from 'ui';
 import cn from 'classnames';
 import * as styles from './wallet-balances.styl';
 import { formatWithSixDecimals, ones, truncateAddressString } from 'utils';
 import { useStores } from '../../stores';
 import { AuthWarning } from '../../components/AuthWarning';
-import { TOKEN } from '../../stores/interfaces';
+import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { getBech32Address } from '../../blockchain-bridge';
-// import { Routes } from '../../constants';
+import { WalletButton } from './WalletButton';
+import {
+  NETWORK_BASE_TOKEN,
+  NETWORK_ICON,
+  NETWORK_NAME,
+} from '../../stores/names';
 
 const AssetRow = observer<any>(props => {
   return (
@@ -22,7 +27,7 @@ const AssetRow = observer<any>(props => {
     >
       <Box direction="row" align="center" justify="center">
         <Text color={props.selected ? '#00ADE8' : null} bold={false}>
-          {props.asset}
+          <SliceTooltip value={props.asset} maxLength={18} />
         </Text>
         {props.link ? (
           <a
@@ -52,11 +57,26 @@ const AssetRow = observer<any>(props => {
 export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals, exchange } = useStores();
 
+  const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
+
+  const externalNetworkName = NETWORK_NAME[exchange.network];
+  const externalNetworkIcon = NETWORK_ICON[exchange.network];
+  const externalNetworkToken = NETWORK_BASE_TOKEN[exchange.network];
+
+  const externalSubNetworkName =
+    exchange.network === NETWORK_TYPE.ETHEREUM
+      ? process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'kovan'
+      : process.env.NETWORK === 'mainnet'
+      ? 'mainnet'
+      : 'testnet';
+
   return (
     <Box
       direction="column"
       className={styles.walletBalances}
-      margin={{ vertical: 'large' }}
+      margin={{ vertical: 'medium' }}
     >
       {/*<Title>Wallet Info</Title>*/}
 
@@ -68,18 +88,46 @@ export const WalletBalances = observer(() => {
             justify="between"
             margin={{ bottom: 'xsmall' }}
           >
-            <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/eth.svg" />
-              <Title margin={{ right: 'xsmall' }}>Ethereum</Title>
-              <Text margin={{ top: '4px' }}>(Metamask)</Text>
+            <Box direction="column" align="center">
+              <Box direction="row" align="center">
+                <img
+                  className={styles.imgToken}
+                  style={{ height: 20 }}
+                  src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+                />
+                <Title margin={{ right: 'xsmall' }}>
+                  {externalNetworkName}
+                </Title>
+              </Box>
+              <Text style={{ marginTop: 0 }}>
+                network: {externalSubNetworkName}
+              </Text>
             </Box>
+
             {userMetamask.isAuthorized && (
               <Box
+                direction="row"
+                align="center"
+                pad={{ horizontal: 'small', vertical: 'xxsmall' }}
+                style={{
+                  border: '1px solid #dedede',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                }}
                 onClick={() => {
                   userMetamask.signOut();
                 }}
-                margin={{ left: 'medium' }}
               >
+                {userMetamask.isAuthorized && (
+                  <>
+                    <img
+                      src="/metamask.svg"
+                      style={{ marginTop: -2, marginRight: 5, height: 20 }}
+                    />
+                    <Text margin={{ right: '10px' }}>Metamask</Text>
+                  </>
+                )}
+
                 <Icon
                   glyph="Logout"
                   size="24px"
@@ -91,70 +139,129 @@ export const WalletBalances = observer(() => {
           </Box>
 
           {userMetamask.isAuthorized ? (
-            <>
-              <AssetRow
-                asset="ETH Address"
-                value={truncateAddressString(userMetamask.ethAddress)}
-              />
-
-              <AssetRow
-                asset="ETH"
-                value={formatWithSixDecimals(userMetamask.ethBalance)}
-              />
-
-              {userMetamask.erc20TokenDetails ? (
+            !userMetamask.isNetworkActual ? (
+              <Box>
+                <Text>
+                  You have authorised with Metamask, but the selected network
+                  does not match{' '}
+                  <span style={{ color: 'rgb(0, 173, 232)' }}>
+                    {externalNetworkName}: {externalSubNetworkName}
+                  </span>
+                  . Please change network to {externalSubNetworkName} for
+                  transfer {externalNetworkName} -> Harmony with Metamask.
+                </Text>
+              </Box>
+            ) : (
+              <>
                 <AssetRow
-                  asset={`Ethereum ${userMetamask.erc20TokenDetails.symbol}`}
-                  value={formatWithSixDecimals(userMetamask.erc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
-                  link={`${process.env.ETH_EXPLORER_URL}/token/${userMetamask.erc20Address}`}
+                  asset={`${externalNetworkToken} Address`}
+                  value={truncateAddressString(userMetamask.ethAddress)}
                 />
-              ) : null}
 
-              <AssetRow
-                asset="Ethereum BUSD"
-                value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
-                selected={exchange.token === TOKEN.BUSD}
-                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_BUSD_CONTRACT}`}
-              />
+                <AssetRow
+                  asset={externalNetworkToken}
+                  value={formatWithSixDecimals(userMetamask.ethBalance)}
+                  selected={exchange.token === TOKEN.ETH}
+                />
 
-              <AssetRow
-                asset="Ethereum LINK"
-                value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
-                selected={exchange.token === TOKEN.LINK}
-                link={`${process.env.ETH_EXPLORER_URL}/token/${process.env.ETH_LINK_CONTRACT}`}
-                last={true}
-              />
-            </>
+                {userMetamask.erc20TokenDetails && userMetamask.erc20Address ? (
+                  <AssetRow
+                    asset={`${externalNetworkName} ${userMetamask.erc20TokenDetails.symbol}`}
+                    value={formatWithSixDecimals(userMetamask.erc20Balance)}
+                    selected={[
+                      TOKEN.ERC20,
+                      TOKEN.HRC20,
+                      TOKEN.ERC721,
+                      TOKEN.ONE,
+                    ].includes(exchange.token)}
+                    link={`${exchange.config.explorerURL}/token/${userMetamask.erc20Address}`}
+                  />
+                ) : null}
+
+                {exchange.network === NETWORK_TYPE.ETHEREUM ? (
+                  <>
+                    <AssetRow
+                      asset={`${externalNetworkName} BUSD`}
+                      value={formatWithSixDecimals(userMetamask.ethBUSDBalance)}
+                      selected={exchange.token === TOKEN.BUSD}
+                      link={`${exchange.config.explorerURL}/token/${process.env.ETH_BUSD_CONTRACT}`}
+                    />
+
+                    <AssetRow
+                      asset={`${externalNetworkName} LINK`}
+                      value={formatWithSixDecimals(userMetamask.ethLINKBalance)}
+                      selected={exchange.token === TOKEN.LINK}
+                      link={`${exchange.config.explorerURL}/token/${process.env.ETH_LINK_CONTRACT}`}
+                      last={true}
+                    />
+                  </>
+                ) : null}
+              </>
+            )
           ) : (
-            <Box direction="row" align="baseline" justify="start">
-              <Button
-                margin={{ vertical: 'medium' }}
-                onClick={() => {
-                  userMetamask.signIn(true);
-                }}
-              >
-                Connect Metamask
-              </Button>
-              {userMetamask.error ? <Error error={userMetamask.error} /> : null}
-            </Box>
+            <WalletButton
+              onClick={() => {
+                userMetamask.signIn();
+              }}
+              error={userMetamask.error}
+            >
+              <img
+                src="/metamask.svg"
+                style={{ marginRight: 15, height: 22 }}
+              />
+              Metamask
+            </WalletButton>
           )}
         </Box>
 
         <Box direction="column">
-          <Box direction="row" justify="between" margin={{ bottom: 'xsmall' }}>
-            <Box direction="row" align="center">
-              <img className={styles.imgToken} src="/one.svg" />
-              <Title margin={{ right: 'xsmall' }}>Harmony</Title>
-              <Text margin={{ top: '4px' }}>(ONE Wallet)</Text>
+          <Box
+            direction="row"
+            align="center"
+            justify="between"
+            margin={{ bottom: 'xsmall' }}
+          >
+            <Box direction="column" align="center">
+              <Box direction="row" align="center">
+                <img className={styles.imgToken} src="/one.svg" />
+                <Title margin={{ right: 'xsmall' }}>Harmony</Title>
+              </Box>
+              <Text style={{ marginTop: 0 }}>
+                network:{' '}
+                {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'testnet'}
+              </Text>
             </Box>
+
             {user.isAuthorized && (
               <Box
+                direction="row"
+                align="center"
+                pad={{ horizontal: 'small', vertical: 'xxsmall' }}
+                style={{
+                  border: '1px solid #dedede',
+                  borderRadius: 5,
+                  cursor: 'pointer',
+                }}
                 onClick={() => {
                   user.signOut();
                 }}
-                margin={{ left: 'medium' }}
               >
+                {user.isAuthorized && (
+                  <>
+                    <img
+                      src={user.isMetamask ? '/metamask.svg' : '/one.svg'}
+                      style={{
+                        marginTop: user.isMetamask ? -2 : -4,
+                        marginRight: 5,
+                        height: 20,
+                      }}
+                    />
+                    <Text margin={{ right: '10px' }}>
+                      {user.isMetamask ? 'Metamask' : 'ONE Wallet'}
+                    </Text>
+                  </>
+                )}
+
                 <Icon
                   glyph="Logout"
                   size="24px"
@@ -166,56 +273,105 @@ export const WalletBalances = observer(() => {
           </Box>
 
           {user.isAuthorized ? (
-            <>
-              <AssetRow
-                asset="Harmony Address"
-                value={truncateAddressString(user.address)}
-              />
-
-              <AssetRow
-                asset="Harmony ONE"
-                value={formatWithSixDecimals(ones(user.balance))}
-              />
-
-              {user.hrc20Address ? (
+            user.isMetamask && !user.isNetworkActual ? (
+              <Box>
+                <Text>
+                  You have authorised with Metamask, but the selected network
+                  does not match{' '}
+                  <span style={{ color: 'rgb(0, 173, 232)' }}>
+                    Harmony:{' '}
+                    {process.env.NETWORK === 'mainnet' ? 'mainnet' : 'testnet'}
+                  </span>
+                  . Please{' '}
+                  <a
+                    href="https://docs.harmony.one/home/developers/wallets/metamask"
+                    target="_blank"
+                    rel="noopener norefferer"
+                  >
+                    add
+                  </a>{' '}
+                  and select an actual network for transfer ONE -> ETH with
+                  Metamask.
+                </Text>
+              </Box>
+            ) : (
+              <>
                 <AssetRow
-                  asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
-                  value={formatWithSixDecimals(user.hrc20Balance)}
-                  selected={exchange.token === TOKEN.ERC20}
-                  link={`${
-                    process.env.HMY_EXPLORER_URL
-                  }/address/${getBech32Address(
-                    user.hrc20Address,
-                  )}?txType=hrc20`}
+                  asset="Harmony Address"
+                  value={truncateAddressString(user.address)}
                 />
-              ) : null}
 
-              <AssetRow
-                asset="Harmony BUSD"
-                value={formatWithSixDecimals(user.hmyBUSDBalance)}
-                selected={exchange.token === TOKEN.BUSD}
-                link={`${
-                  process.env.HMY_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_BUSD_CONTRACT,
-                )}?txType=hrc20`}
-              />
+                <AssetRow
+                  asset="Harmony ONE"
+                  value={formatWithSixDecimals(ones(user.balance))}
+                  selected={[TOKEN.ONE].includes(exchange.token)}
+                />
 
-              <AssetRow
-                asset="Harmony LINK"
-                value={formatWithSixDecimals(user.hmyLINKBalance)}
-                selected={exchange.token === TOKEN.LINK}
-                link={`${
-                  process.env.HMY_EXPLORER_URL
-                }/address/${getBech32Address(
-                  process.env.HMY_LINK_CONTRACT,
-                )}?txType=hrc20`}
-              />
-            </>
+                {user.hrc20Address &&
+                [TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                  exchange.token,
+                ) ? (
+                  <AssetRow
+                    asset={`Harmony ${
+                      userMetamask.erc20TokenDetails
+                        ? userMetamask.erc20TokenDetails.symbol
+                        : ''
+                    }`}
+                    value={formatWithSixDecimals(user.hrc20Balance)}
+                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                      exchange.token,
+                    )}
+                    link={`${
+                      process.env.HMY_EXPLORER_URL
+                    }/address/${getBech32Address(
+                      user.hrc20Address,
+                    )}?txType=hrc20`}
+                  />
+                ) : null}
+
+                {user.hrc20Address && exchange.token === TOKEN.ETH ? (
+                  <AssetRow
+                    asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
+                    value={formatWithSixDecimals(user.hrc20Balance)}
+                    selected={exchange.token === TOKEN.ETH}
+                    link={`${
+                      process.env.HMY_EXPLORER_URL
+                    }/address/${getBech32Address(
+                      user.hrc20Address,
+                    )}?txType=hrc20`}
+                  />
+                ) : null}
+
+                {exchange.network === NETWORK_TYPE.ETHEREUM ? (
+                  <>
+                    <AssetRow
+                      asset="Harmony BUSD"
+                      value={formatWithSixDecimals(user.hmyBUSDBalance)}
+                      selected={exchange.token === TOKEN.BUSD}
+                      link={`${
+                        process.env.HMY_EXPLORER_URL
+                      }/address/${getBech32Address(
+                        process.env.HMY_BUSD_CONTRACT,
+                      )}?txType=hrc20`}
+                    />
+
+                    <AssetRow
+                      asset="Harmony LINK"
+                      value={formatWithSixDecimals(user.hmyLINKBalance)}
+                      selected={exchange.token === TOKEN.LINK}
+                      link={`${
+                        process.env.HMY_EXPLORER_URL
+                      }/address/${getBech32Address(
+                        process.env.HMY_LINK_CONTRACT,
+                      )}?txType=hrc20`}
+                    />
+                  </>
+                ) : null}
+              </>
+            )
           ) : (
-            <Box direction="row" align="baseline" justify="start">
-              <Button
-                margin={{ vertical: 'medium' }}
+            <Box direction="column" justify="start" align="start">
+              <WalletButton
                 onClick={() => {
                   if (!user.isOneWallet) {
                     actionModals.open(() => <AuthWarning />, {
@@ -231,12 +387,27 @@ export const WalletBalances = observer(() => {
                     user.signIn();
                   }
                 }}
+                error={!user.isOneWallet && 'ONE Wallet not found'}
               >
-                Connect ONE Wallet
-              </Button>
-              {!user.isOneWallet ? (
-                <Error error="ONE Wallet not found" />
-              ) : null}
+                <img
+                  src="/one.svg"
+                  style={{ marginRight: 10, marginTop: -2 }}
+                />
+                One Wallet
+              </WalletButton>
+
+              <WalletButton
+                onClick={() => {
+                  user.signInMetamask();
+                }}
+                error={user.error}
+              >
+                <img
+                  src="/metamask.svg"
+                  style={{ marginRight: 15, height: 22 }}
+                />
+                Metamask
+              </WalletButton>
             </Box>
           )}
         </Box>

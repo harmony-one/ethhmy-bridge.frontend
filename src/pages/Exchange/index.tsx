@@ -11,16 +11,21 @@ import {
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
 import { Button, Icon, Text } from 'components/Base';
-import { formatWithSixDecimals, moreThanZero } from 'utils';
-import { Spinner } from 'ui/Spinner';
+import { divDecimals, formatWithSixDecimals, moreThanZero } from 'utils';
+import { Spinner } from 'ui';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
 import { Details } from './Details';
 import { AuthWarning } from '../../components/AuthWarning';
 import { Steps } from './Steps';
-import { autorun, computed } from 'mobx';
-import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
+import { autorun, computed, observable } from 'mobx';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
+import { TokensField } from './AmountField';
+import { MetamaskWarning } from '../../components/MetamaskWarning';
+import { ApproveAmountField } from './ApproveAmountField';
+import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
+import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export interface ITokenInfo {
   label: string;
@@ -35,9 +40,13 @@ export class Exchange extends React.Component<
     Pick<IStores, 'routing'> &
     Pick<IStores, 'tokens'> &
     Pick<IStores, 'actionModals'> &
+    Pick<IStores, 'tokens'> &
     Pick<IStores, 'userMetamask'>
 > {
   formRef: MobxForm;
+
+  @observable metamaskNetworkError = '';
+  @observable addressValidationError = '';
 
   constructor(props) {
     super(props);
@@ -45,10 +54,17 @@ export class Exchange extends React.Component<
     autorun(() => {
       const { exchange } = this.props;
 
-      if (exchange.token && exchange.mode) {
+      if (exchange.token && exchange.mode && exchange.network) {
         if (this.formRef) {
           this.formRef.resetTouched();
           this.formRef.resetErrors();
+          this.addressValidationError = '';
+        }
+
+        if (exchange.token === TOKEN.ERC721) {
+          exchange.transaction.amount = ['0'];
+        } else {
+          exchange.transaction.amount = '0';
         }
       }
     });
@@ -56,6 +72,7 @@ export class Exchange extends React.Component<
 
   onClickHandler = async (needValidate: boolean, callback: () => void) => {
     const { actionModals, user, userMetamask, exchange } = this.props;
+    exchange.error = '';
 
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
@@ -86,7 +103,57 @@ export class Exchange extends React.Component<
       }
     }
 
+    if (
+      exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      user.isMetamask &&
+      !user.isNetworkActual
+    ) {
+      return actionModals.open(() => <MetamaskWarning />, {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      });
+    }
+
+    if ([TOKEN.ERC721].includes(exchange.token) && !userMetamask.erc20Address) {
+      exchange.error = 'No token selected ';
+      throw 'No token selected ';
+    }
+
     if (needValidate) {
+      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        const methods = getExNetworkMethods();
+
+        if (!methods.web3.utils.isAddress(exchange.transaction.ethAddress)) {
+          this.addressValidationError = 'Invalid token Hex address';
+          return;
+        }
+      }
+
+      if (
+        this.props.tokens.allData.some(
+          t =>
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase(),
+        )
+      ) {
+        this.addressValidationError =
+          'You enter bridge contract address. Transfer to this address will result in loss of funds! Please, use only your wallet address';
+        return;
+      }
+
       this.formRef.validateFields().then(() => {
         callback();
       });
@@ -117,7 +184,9 @@ export class Exchange extends React.Component<
               : userMetamask.ethLINKBalance,
         };
 
+      case TOKEN.ERC721:
       case TOKEN.ERC20:
+      case TOKEN.HRC20:
         if (!userMetamask.erc20TokenDetails) {
           return { label: '', maxAmount: '0' };
         }
@@ -127,6 +196,24 @@ export class Exchange extends React.Component<
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
+              : userMetamask.erc20Balance,
+        };
+
+      case TOKEN.ETH:
+        return {
+          label: NETWORK_BASE_TOKEN[this.props.exchange.network],
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.ethBalance,
+        };
+
+      case TOKEN.ONE:
+        return {
+          label: 'ONE',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? divDecimals(user.balance, 18)
               : userMetamask.erc20Balance,
         };
 
@@ -160,20 +247,43 @@ export class Exchange extends React.Component<
 
       case 'success':
         icon = () => (
-          <Box
-            style={{
-              background: '#1edb89',
-              borderRadius: '50%',
-            }}
-          >
-            <Icon
-              size="50"
-              style={{ width: 50, color: 'white' }}
-              glyph="CheckMark"
-            />
+          <Box direction="column" align="center">
+            <Box
+              style={{
+                background: '#1edb89',
+                borderRadius: '50%',
+              }}
+            >
+              <Icon
+                size="50"
+                style={{ width: 50, color: 'white' }}
+                glyph="CheckMark"
+              />
+            </Box>
+            <Box margin={{ vertical: 'small' }}>
+              <Text>Success</Text>
+            </Box>
+            {exchange.operation.type === EXCHANGE_MODE.ETH_TO_ONE &&
+            [
+              TOKEN.ERC20,
+              TOKEN.ETH,
+              TOKEN.BUSD,
+              TOKEN.LINK,
+              TOKEN.ERC721,
+            ].includes(exchange.token) ? (
+              <Box
+                pad={{ horizontal: 'medium', vertical: 'small' }}
+                style={{ background: 'white' }}
+              >
+                <Text style={{ textAlign: 'center' }} color="rgb(0, 173, 232)">
+                  Bridged assets can only be used in the Harmony ecosystem and
+                  currently no CEX supports deposit of the bridged assets.
+                </Text>
+              </Box>
+            ) : null}
           </Box>
         );
-        description = 'Success';
+        description = '';
         break;
     }
 
@@ -193,7 +303,9 @@ export class Exchange extends React.Component<
           pad={{ horizontal: 'small' }}
           style={{ width: '100%' }}
         >
-          <Text style={{ textAlign: 'center' }}>{description}</Text>
+          {description ? (
+            <Text style={{ textAlign: 'center' }}>{description}</Text>
+          ) : null}
           <Box margin={{ top: 'medium' }} style={{ width: '100%' }}>
             <Steps />
           </Box>
@@ -212,52 +324,149 @@ export class Exchange extends React.Component<
 
     return (
       <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
-        {exchange.step.id === EXCHANGE_STEPS.BASE ? (
-          <Box direction="row">
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.BUSD ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.BUSD);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/busd.svg" />
-              <Text>BUSD</Text>
-            </Box>
+        {exchange.step.id === EXCHANGE_STEPS.BASE && exchange.fullConfig ? (
+          <Box direction="row" wrap={true} align="center" justify="start">
+            {exchange.config.tokens.includes(TOKEN.BUSD) && (
+              <Box
+                style={{ width: 140 }}
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.BUSD ? styles.selected : '',
+                )}
+                onClick={() => {
+                  exchange.setToken(TOKEN.BUSD);
+                  routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img className={styles.imgToken} src="/busd.svg" />
+                <Text>BUSD</Text>
+              </Box>
+            )}
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.LINK ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.LINK);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/link.png" />
-              <Text>LINK</Text>
-            </Box>
+            {exchange.config.tokens.includes(TOKEN.LINK) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.LINK ? styles.selected : '',
+                )}
+                onClick={() => {
+                  exchange.setToken(TOKEN.LINK);
+                  routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img className={styles.imgToken} src="/link.png" />
+                <Text>LINK</Text>
+              </Box>
+            )}
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                exchange.token === TOKEN.ERC20 ? styles.selected : '',
-              )}
-              onClick={() => {
-                exchange.setToken(TOKEN.ERC20);
-                routing.push(`/${exchange.token}`);
-              }}
-            >
-              <img className={styles.imgToken} src="/eth.svg" />
-              <Text>ERC20</Text>
-            </Box>
+            {exchange.config.tokens.includes(TOKEN.ERC20) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ERC20 ? styles.selected : '',
+                )}
+                onClick={() => {
+                  user.resetTokens();
+
+                  exchange.setToken(TOKEN.ERC20);
+                  routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>
+                  {exchange.network === NETWORK_TYPE.ETHEREUM
+                    ? 'ERC20'
+                    : 'BEP20'}
+                </Text>
+              </Box>
+            )}
+
+            {/*{exchange.config.tokens.includes(TOKEN.HRC20) && (*/}
+            {/*  <Box*/}
+            {/*    className={cn(*/}
+            {/*      styles.itemToken,*/}
+            {/*      exchange.token === TOKEN.HRC20 ? styles.selected : '',*/}
+            {/*    )}*/}
+            {/*    onClick={() => {*/}
+            {/*      user.resetTokens();*/}
+
+            {/*      exchange.setToken(TOKEN.HRC20);*/}
+            {/*      routing.push(`/${exchange.token}`);*/}
+            {/*    }}*/}
+            {/*  >*/}
+            {/*    <img className={styles.imgToken} src="/one.svg" />*/}
+            {/*    <Text>HRC20</Text>*/}
+            {/*  </Box>*/}
+            {/*)}*/}
+
+            {exchange.config.tokens.includes(TOKEN.ERC721) && (
+              <Box
+                style={{ width: 140 }}
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ERC721 ? styles.selected : '',
+                )}
+                onClick={() => {
+                  user.resetTokens();
+
+                  exchange.setToken(TOKEN.ERC721);
+                  routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img className={styles.imgToken} src="/eth.svg" />
+                <Text>ERC721</Text>
+              </Box>
+            )}
+
+            {exchange.config.tokens.includes(TOKEN.ETH) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ETH ? styles.selected : '',
+                )}
+                onClick={() => {
+                  routing.push(`/${exchange.token}`);
+                  exchange.setToken(TOKEN.ETH);
+                }}
+              >
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
+              </Box>
+            )}
+
+            {exchange.config.tokens.includes(TOKEN.ONE) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ONE ? styles.selected : '',
+                )}
+                onClick={() => {
+                  exchange.setToken(TOKEN.ONE);
+                  routing.push(`/${exchange.token}`);
+
+                  // user.setHRC20Mapping(process.env.ONE_HRC20, true);
+
+                  // user.setHRC20Token(process.env.ONE_HRC20);
+                  // userMetamask.setTokenDetails({
+                  //   name: 'Ethereum ONE',
+                  //   decimals: '18',
+                  //   erc20Address: '',
+                  //   symbol: 'ONE',
+                  // });
+                }}
+              >
+                <img className={styles.imgToken} src="/one.svg" />
+                <Text>ONE</Text>
+              </Box>
+            )}
           </Box>
         ) : null}
-
         <Form
           ref={ref => (this.formRef = ref)}
           data={this.props.exchange.transaction}
@@ -284,7 +493,23 @@ export class Exchange extends React.Component<
               {/*  </Box>*/}
               {/*</Box>*/}
 
-              {exchange.token === TOKEN.ERC20 ? <ERC20Select /> : null}
+              {exchange.token === TOKEN.ERC20 ? (
+                <ERC20Select type={exchange.token} options={true} />
+              ) : null}
+
+              {exchange.token === TOKEN.HRC20 ? (
+                <ERC20Select type={exchange.token} options={false} />
+              ) : null}
+
+              {exchange.token === TOKEN.ERC721 ? (
+                <ERC20Select type={exchange.token} options={false} />
+              ) : null}
+
+              {exchange.step.id === EXCHANGE_STEPS.BASE ? (
+                <Box margin={{ top: 'small' }} align="start">
+                  <Text color="red">{exchange.error}</Text>
+                </Box>
+              ) : null}
 
               {/*<Box direction="column" fill={true}>*/}
               {/*  <TokenDetails />*/}
@@ -296,82 +521,57 @@ export class Exchange extends React.Component<
                 fill={true}
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
-                <NumberInput
-                  label={`${this.tokenInfo.label} Amount`}
-                  name="amount"
-                  type="decimal"
-                  precision="6"
-                  delimiter="."
-                  placeholder="0"
-                  style={{ width: '100%' }}
-                  rules={[
-                    isRequired,
-                    moreThanZero,
-                    (_, value, callback) => {
-                      const errors = [];
+                {exchange.token === TOKEN.ERC721 ? (
+                  <TokensField
+                    label={this.tokenInfo.label}
+                    maxTokens={this.tokenInfo.maxAmount}
+                  />
+                ) : (
+                  <NumberInput
+                    label={`${this.tokenInfo.label} Amount`}
+                    name="amount"
+                    type="decimal"
+                    precision="6"
+                    delimiter="."
+                    placeholder="0"
+                    style={{ width: '100%' }}
+                    rules={[
+                      isRequired,
+                      moreThanZero,
+                      (_, value, callback) => {
+                        const errors = [];
 
-                      if (
-                        value &&
-                        Number(value) > Number(this.tokenInfo.maxAmount)
-                      ) {
-                        const defaultMsg = `Exceeded the maximum amount`;
-                        errors.push(defaultMsg);
-                      }
+                        if (
+                          value &&
+                          Number(value) > Number(this.tokenInfo.maxAmount)
+                        ) {
+                          const defaultMsg = `Exceeded the maximum amount`;
+                          errors.push(defaultMsg);
+                        }
 
-                      callback(errors);
-                    },
-                    (_, value, callback) => {
-                      const errors = [];
-
-                      const tokens = this.props.tokens;
-                      let token: any;
-
-                      if (exchange.token === TOKEN.BUSD) {
-                        token = tokens.allData.find(t => t.symbol === 'BUSD');
-                      }
-
-                      if (exchange.token === TOKEN.LINK) {
-                        token = tokens.allData.find(t => t.symbol === 'LINK');
-                      }
-
-                      if (exchange.token === TOKEN.ERC20) {
-                        token = tokens.allData.find(
-                          t =>
-                            t.erc20Address ===
-                            exchange.transaction.erc20Address,
-                        );
-                      }
-
-                      if (
-                        exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
-                        value &&
-                        token &&
-                        token.usdPrice &&
-                        Number(value * token.usdPrice) < 100
-                      ) {
-                        const defaultMsg = `Minimum amount must be more than 100$`;
-                        errors.push(defaultMsg);
-                      }
-
-                      callback(errors);
-                    },
-                  ]}
-                />
-                <Text size="small" style={{ textAlign: 'right' }}>
-                  <b>*Max Available</b> ={' '}
-                  {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
-                  {this.tokenInfo.label}
-                </Text>
+                        callback(errors);
+                      },
+                    ]}
+                  />
+                )}
+                {exchange.token !== TOKEN.ERC721 ? (
+                  <Text size="small" style={{ textAlign: 'right' }}>
+                    <b>*Max Available</b> ={' '}
+                    {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
+                    {this.tokenInfo.label}
+                  </Text>
+                ) : null}
               </Box>
 
               {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (
                 <Box direction="column" fill={true}>
                   <Input
-                    label="ETH Address"
+                    label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
                     name="ethAddress"
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
+                    onChange={() => (this.addressValidationError = '')}
                   />
                   {userMetamask.isAuthorized ? (
                     <Box
@@ -380,12 +580,27 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.ethAddress =
-                          userMetamask.ethAddress)
-                      }
+                      onClick={() => {
+                        exchange.transaction.ethAddress =
+                          userMetamask.ethAddress;
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use my address
+                    </Box>
+                  ) : user.isAuthorized && user.sessionType === 'metamask' ? (
+                    <Box
+                      fill={true}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
+                      onClick={() => {
+                        exchange.transaction.ethAddress = user.address;
+                        this.addressValidationError = '';
+                      }}
+                    >
+                      Use Metamask address
                     </Box>
                   ) : null}
                 </Box>
@@ -397,6 +612,7 @@ export class Exchange extends React.Component<
                     style={{ width: '100%' }}
                     placeholder="Receiver address"
                     rules={[isRequired]}
+                    onChange={() => (this.addressValidationError = '')}
                   />
                   {user.isAuthorized ? (
                     <Box
@@ -405,35 +621,57 @@ export class Exchange extends React.Component<
                         color: 'rgb(0, 173, 232)',
                         textAlign: 'right',
                       }}
-                      onClick={() =>
-                        (exchange.transaction.oneAddress = user.address)
-                      }
+                      onClick={() => {
+                        exchange.transaction.oneAddress = user.address;
+                        this.addressValidationError = '';
+                      }}
                     >
                       Use my address
+                    </Box>
+                  ) : userMetamask.isAuthorized ? (
+                    <Box
+                      fill={true}
+                      style={{
+                        color: 'rgb(0, 173, 232)',
+                        textAlign: 'right',
+                      }}
+                      onClick={() => {
+                        exchange.transaction.oneAddress =
+                          userMetamask.ethAddress;
+
+                        this.addressValidationError = '';
+                      }}
+                    >
+                      Use Metamask address
                     </Box>
                   ) : null}
                 </Box>
               )}
             </Box>
           ) : null}
+
+          {exchange.step.id === EXCHANGE_STEPS.APPROVE ? (
+            <ApproveAmountField tokenInfo={this.tokenInfo} />
+          ) : null}
         </Form>
+
+        {this.addressValidationError ? (
+          <Text color="red">{this.addressValidationError}</Text>
+        ) : null}
 
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <Details showTotal={true} />
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.SENDING ? (
           <Details>
             <Status />
           </Details>
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
           <Details>
             <Status />
           </Details>
         ) : null}
-
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <>
             {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (
@@ -460,31 +698,37 @@ export class Exchange extends React.Component<
               fill={true}
             >
               <Text color="Red500" style={{ textAlign: 'right' }}>
-                You will be prompted to sign two transactions
+                You will be prompted to sign several transactions
               </Text>
             </Box>
           </>
         ) : null}
-
+        {this.metamaskNetworkError ? (
+          <Box>{this.metamaskNetworkError}</Box>
+        ) : null}
         <Box
           direction="row"
           margin={{ top: 'large' }}
           justify="end"
           align="center"
         >
-          {exchange.step.buttons.map((conf, idx) => (
-            <Button
-              key={idx}
-              bgColor="#00ADE8"
-              style={{ width: conf.transparent ? 140 : 180 }}
-              onClick={() => {
-                this.onClickHandler(conf.validate, conf.onClick);
-              }}
-              transparent={!!conf.transparent}
-            >
-              {conf.title}
-            </Button>
-          ))}
+          {exchange.allowanceStatus === 'fetching' ? (
+            <Spinner />
+          ) : (
+            exchange.step.buttons.map((conf, idx) => (
+              <Button
+                key={idx}
+                bgColor="#00ADE8"
+                style={{ width: conf.transparent ? 140 : 180 }}
+                onClick={() => {
+                  this.onClickHandler(conf.validate, conf.onClick);
+                }}
+                transparent={!!conf.transparent}
+              >
+                {conf.title}
+              </Button>
+            ))
+          )}
         </Box>
       </Box>
     );

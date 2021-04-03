@@ -1,6 +1,8 @@
-import { IOperation, ITokenInfo } from '../stores/interfaces';
+import { IOperation, ITokenInfo, NETWORK_TYPE } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
+import { getCorrectArr } from './helpers';
+import { sleep } from '../utils';
 
 let servers = require('../../appengine-servers.json');
 
@@ -8,7 +10,7 @@ if (process.env.NETWORK === 'testnet') {
   servers = require('../../appengine-servers.testnet.json');
 }
 
-const threshold = process.env.THRESHOLD;
+const threshold = 3; //process.env.THRESHOLD;
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -25,6 +27,44 @@ const callAvailableServer = async (
   }
 
   throw error;
+};
+
+const callAvailableServerAll = async (
+  func: (url: string) => Promise<any>,
+  server = 0,
+) => {
+  let error;
+
+  const resArray = [];
+
+  for (let i = server; i < servers.length; i++) {
+    try {
+      const res = await func(servers[i]);
+
+      resArray.push(res);
+    } catch (e) {
+      error = e;
+    }
+  }
+
+  if (!resArray.length) {
+    throw error;
+  }
+
+  resArray[0].content = resArray[0].content.map((item, idx) => {
+    const arrIndex = getCorrectArr(
+      [
+        resArray[0] ? resArray[0].content[idx].actions : [],
+        resArray[1] ? resArray[1].content[idx].actions : [],
+        resArray[2] ? resArray[2].content[idx].actions : [],
+      ],
+      'status',
+    );
+
+    return { ...resArray[arrIndex].content[idx], id: item.id };
+  });
+
+  return resArray[0];
 };
 
 const callActionN = async (func: (url: string) => Promise<any>) => {
@@ -71,6 +111,44 @@ const callAction = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
+const callActionWait = async (func: (url: string) => Promise<any>) => {
+  let error;
+  let success = false;
+  let res;
+  let count = 15;
+
+  while (!success && count > 0) {
+    try {
+      res = await Promise.all(
+        servers.map(async url => {
+          try {
+            return await func(url);
+          } catch (e) {
+            error = e;
+            return false;
+          }
+        }),
+      );
+
+      success = res.filter(r => !!r).length >= Number(threshold);
+
+      if (!success) {
+        await sleep(5000);
+      }
+    } catch (e) {
+      console.error(e);
+      await sleep(5000);
+    }
+    count--;
+  }
+
+  if (success) {
+    return res[0];
+  }
+
+  throw error;
+};
+
 export const createOperation = async params => {
   return callAction(async url => {
     const res = await agent.post<IOperation>(url + '/operations', params);
@@ -84,7 +162,7 @@ export const confirmAction = async ({
   actionType,
   transactionHash,
 }) => {
-  return callAction(async url => {
+  return callActionWait(async url => {
     const res = await agent.post<{ body: IOperation }>(
       `${url}/operations/${operationId}/actions/${actionType}/confirm`,
       { transactionHash },
@@ -125,7 +203,30 @@ export const getTokensInfo = async (
     params,
   );
 
-  const content = _.uniqWith(res.body.content, _.isEqual);
+  let content = res.body.content;
+
+  content = content.filter(t => {
+    if (
+      t.symbol === '1ONE' &&
+      String(t.hrc20Address).toLowerCase() !==
+        String(process.env.ONE_HRC20).toLowerCase()
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  content = _.uniqWith(
+    content,
+    (a: any, b: any) =>
+      a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
+  );
+
+  content = content.map(c => ({
+    ...c,
+    network: c.network || NETWORK_TYPE.ETHEREUM,
+  }));
 
   return { ...res.body, content };
 };
@@ -136,4 +237,35 @@ export const mintTokens = async ({ address, token }) => {
   }>(`${servers[0]}/get-token`, { address, token });
 
   return res.body;
+};
+
+export const getConfig = async () => {
+  const res = await agent.get<{
+    body: any;
+  }>(`${servers[0]}/config`);
+
+  return res.body;
+};
+
+export const getDepositAmount = async (network: NETWORK_TYPE) => {
+  const res = await agent.get<number>(
+    `${servers[0]}/deposit-amount/${network}`,
+  );
+
+  return res.body;
+};
+
+export const manage = async (
+  action: string,
+  secret: string,
+  params: { operationId: string },
+) => {
+  return callActionWait(async url => {
+    const res = await agent.post<{ body: IOperation }>(
+      `${url}/manage/actions/${action}`,
+      { secret, ...params },
+    );
+
+    return res.body;
+  });
 };

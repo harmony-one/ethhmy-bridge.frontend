@@ -6,15 +6,16 @@ import {
   EXCHANGE_MODE,
   IAction,
   IOperation,
+  TOKEN,
 } from 'stores/interfaces';
 import * as styles from './styles.styl';
 import cn from 'classnames';
-import { dateTimeAgoFormat, truncateAddressString } from 'utils';
-import { STEPS_TITLE } from './steps-constants';
-import { IColumn, Table } from '../../components/Table';
+import { dateTimeAgoFormat, sliceByLength, truncateAddressString } from 'utils';
+import { getStepsTitle } from './steps-constants';
 import { Text } from '../../components/Base';
 import { Price } from './Components';
 import { useStores } from '../../stores';
+import { NETWORK_ICON, NETWORK_PREFIX } from '../../stores/names';
 
 export interface IExpandedRowProps {
   data: IOperation;
@@ -27,6 +28,13 @@ const isEth = type =>
     'unlockToken',
     'unlockTokenRollback',
     'waitingBlockNumber',
+
+    // HRC20
+    'approveHRC20EthManger',
+    'getERC20Address',
+    'burnHRC20Token',
+    'mintHRC20Token',
+    'mintHRC20TokenRollback',
   ].includes(type);
 
 const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
@@ -43,7 +51,13 @@ const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
     const gasLimit = Number(action.payload.gasLimit || action.payload.gas);
     const gasPrice = Number(action.payload.gasPrice);
 
-    return { isEth: false, value: (gasPrice * gasLimit) / 1e18 };
+    let value = (gasPrice * gasLimit) / 1e18;
+
+    if (action.type === ACTION_TYPE.depositOne) {
+      value = (gasPrice * gasLimit) / 1e18 + action.depositAmount;
+    }
+
+    return { isEth: false, value };
   }
 };
 
@@ -70,64 +84,6 @@ const renderActionFee = (action: IAction): string => {
     return fee.value + ' ONE';
   }
 };
-
-const actionColumns: IColumn<IAction>[] = [
-  {
-    title: 'Action',
-    key: 'type',
-    dataIndex: 'type',
-    width: 240,
-    render: value => (
-      <Box className={cn(styles.actionCell, styles.type)}>
-        {STEPS_TITLE[value]}
-      </Box>
-    ),
-  },
-  {
-    title: 'tx Hash',
-    key: 'transactionHash',
-    dataIndex: 'transactionHash',
-    width: 220,
-    render: (value, action) => (
-      <a
-        className={styles.addressLink}
-        href={
-          (isEth(action.type)
-            ? process.env.ETH_EXPLORER_URL
-            : process.env.HMY_EXPLORER_URL) +
-          '/tx/' +
-          action.transactionHash
-        }
-        target="_blank"
-      >
-        {truncateAddressString(action.transactionHash, 10)}
-      </a>
-    ),
-  },
-  {
-    title: 'Status',
-    key: 'status',
-    dataIndex: 'status',
-    width: 140,
-    render: value => (
-      <Box className={cn(styles.status, styles[value])}>{value}</Box>
-    ),
-  },
-  {
-    title: 'Age',
-    key: 'timestamp',
-    dataIndex: 'timestamp',
-    width: 140,
-    render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
-  },
-  {
-    title: 'Txn fee',
-    key: 'payload',
-    dataIndex: 'payload',
-    width: 180,
-    render: (value, data) => (data.payload ? renderActionFee(data) : '--'),
-  },
-];
 
 // export const ExpandedRow = observer((props: IExpandedRowProps) => {
 //   return (
@@ -167,12 +123,15 @@ const actionColumns: IColumn<IAction>[] = [
 // });
 
 export const ExpandedRow = observer((props: IExpandedRowProps) => {
-  const { tokens } = useStores();
+  const { tokens, exchange } = useStores();
 
   const erc20Address = props.data.erc20Address || '';
+  const hrc20Address = props.data.hrc20Address || '';
 
   const token = tokens.data.find(
-    t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+    t =>
+      t.erc20Address.toLowerCase() === erc20Address.toLowerCase() ||
+      t.hrc20Address.toLowerCase() === hrc20Address.toLowerCase(),
   );
 
   return (
@@ -199,7 +158,11 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             >
               <Box direction="row" align="center">
                 <img
-                  src={isEth(action.type) ? '/eth.svg' : 'one.svg'}
+                  src={
+                    isEth(action.type)
+                      ? NETWORK_ICON[props.data.network]
+                      : 'one.svg'
+                  }
                   style={{
                     marginRight: 15,
                     marginBottom: 2,
@@ -207,7 +170,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     width: 'auto',
                   }}
                 />
-                {STEPS_TITLE[action.type]}
+                {getStepsTitle(action.type, props.data.token)}
               </Box>
               {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>
@@ -220,7 +183,10 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
               {action.status}
             </Box>
 
-            {action.type === ACTION_TYPE.getHRC20Address && !!token ? (
+            {[
+              ACTION_TYPE.getHRC20Address,
+              ACTION_TYPE.getERC20Address,
+            ].includes(action.type) && !!token ? (
               <Box
                 className={styles.actionCell}
                 style={{ width: 220, paddingLeft: 16 }}
@@ -230,13 +196,13 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <a
                   className={styles.addressLink}
                   href={
-                    process.env.ETH_EXPLORER_URL +
+                    exchange.getExplorerByNetwork(props.data.network) +
                     '/token/' +
                     token.erc20Address
                   }
                   target="_blank"
                 >
-                  {token.symbol}
+                  {sliceByLength(token.symbol, 7)}
                 </a>
                 <span style={{ margin: '0 10px' }}>/</span>
                 <a
@@ -248,7 +214,12 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   }
                   target="_blank"
                 >
-                  1{token.symbol}
+                  {props.data.token === TOKEN.HRC20
+                    ? token.symbol.slice(1)
+                    : `${NETWORK_PREFIX[props.data.network]}${sliceByLength(
+                        token.symbol,
+                        7,
+                      )}`}
                 </a>
               </Box>
             ) : (
@@ -257,19 +228,25 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 style={{ width: 220 }}
                 align="center"
               >
-                <a
-                  className={styles.addressLink}
-                  href={
-                    (isEth(action.type)
-                      ? process.env.ETH_EXPLORER_URL
-                      : process.env.HMY_EXPLORER_URL) +
-                    '/tx/' +
-                    action.transactionHash
-                  }
-                  target="_blank"
-                >
-                  {truncateAddressString(action.transactionHash, 9)}
-                </a>
+                {action.transactionHash === 'skip' ? (
+                  <Box fill={true} margin={{ left: 'small' }} direction="row">
+                    skipped
+                  </Box>
+                ) : (
+                  <a
+                    className={styles.addressLink}
+                    href={
+                      (isEth(action.type)
+                        ? exchange.getExplorerByNetwork(props.data.network)
+                        : process.env.HMY_EXPLORER_URL) +
+                      '/tx/' +
+                      action.transactionHash
+                    }
+                    target="_blank"
+                  >
+                    {truncateAddressString(action.transactionHash, 9)}
+                  </a>
+                )}
               </Box>
             )}
 
@@ -283,6 +260,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                 <Price
                   value={Number(getActionFee(action).value)}
                   isEth={isEth(action.type)}
+                  network={props.data.network}
                 />
               ) : (
                 '--'

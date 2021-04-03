@@ -1,4 +1,4 @@
-export const tokens = [
+export const tokensMainnet = [
   {
     label: 'Tether USD (USDT)',
     href:
@@ -52,6 +52,12 @@ export const tokens = [
     href:
       'https://etherscan.io/token/0x2af5d2ad76741191d15dfe7bf6ac92d4bd912ca3',
     image: 'https://etherscan.io/token/images/leo_28_2.png',
+  },
+  {
+    label: 'YF Link (YFL)',
+    href:
+      'https://etherscan.io/token/0x28cb7e841ee97947a86B06fA4090C8451f64c0be',
+    image: 'https://etherscan.io/token/images/yflink_32.png',
   },
   {
     label: 'HuobiToken (HT)',

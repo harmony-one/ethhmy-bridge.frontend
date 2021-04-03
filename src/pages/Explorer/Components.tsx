@@ -3,10 +3,13 @@ import cn from 'classnames';
 import * as styles from './styles.styl';
 import { Text } from 'components/Base/components/Text';
 import * as React from 'react';
-import { EXCHANGE_MODE, TOKEN } from 'stores/interfaces';
+import { useEffect } from 'react';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import { observer } from 'mobx-react';
 import { useStores } from '../../stores';
-import { formatWithSixDecimals } from '../../utils';
+import { formatWithSixDecimals, sliceByLength } from '../../utils';
+import ReactTooltip from 'react-tooltip';
+import { NETWORK_BASE_TOKEN } from '../../stores/names';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -42,8 +45,18 @@ export const OperationType = (props: { type: EXCHANGE_MODE }) => {
 };
 
 export const Price = observer(
-  (props: { value: number; isEth: boolean; boxProps?: BoxProps }) => {
+  (props: {
+    value: number;
+    isEth: boolean;
+    network: NETWORK_TYPE;
+    boxProps?: BoxProps;
+  }) => {
     const { user } = useStores();
+
+    const externalNetworkRate =
+      props.network === NETWORK_TYPE.ETHEREUM ? user.ethRate : user.bnbRate;
+
+    const rate = props.isEth ? externalNetworkRate : user.oneRate;
 
     return (
       <Box
@@ -53,14 +66,11 @@ export const Price = observer(
         pad={{ right: 'medium' }}
         {...props.boxProps}
       >
-        <Text style={{ fontSize: 14 }}>{`${props.value} ${
-          props.isEth ? 'ETH' : 'ONE'
-        }`}</Text>
+        <Text style={{ fontSize: 14 }}>{`${formatWithSixDecimals(
+          props.value,
+        )} ${props.isEth ? NETWORK_BASE_TOKEN[props.network] : 'ONE'}`}</Text>
         <Text size="xsmall" color="rgba(102, 102, 102, 0.9)">
-          $
-          {formatWithSixDecimals(
-            props.value * (props.isEth ? user.ethRate : user.oneRate),
-          )}
+          ${formatWithSixDecimals(props.value * rate)}
         </Text>
       </Box>
     );
@@ -69,21 +79,44 @@ export const Price = observer(
 
 interface IERC20TokenProps {
   value: TOKEN;
+  network: NETWORK_TYPE;
   erc20Address?: string;
+  hrc20Address?: string;
 }
 
 export const ERC20Token = observer((props: IERC20TokenProps) => {
   const { tokens } = useStores();
-  const { value, erc20Address } = props;
+  const { network, value, erc20Address = '', hrc20Address = '' } = props;
 
-  if (value === TOKEN.ERC20) {
+  useEffect(() => {
+    ReactTooltip.rebuild();
+  });
+
+  if ([TOKEN.ERC20, TOKEN.ERC721, TOKEN.HRC20].includes(value)) {
     const token = tokens.data.find(
-      t => t.erc20Address.toLowerCase() === erc20Address.toLowerCase(),
+      t =>
+        t.erc20Address.toLowerCase() === erc20Address.toLowerCase() ||
+        t.hrc20Address.toLowerCase() === hrc20Address.toLowerCase(),
     );
 
     if (token) {
-      return <Box>{token.symbol}</Box>;
+      return token.symbol.length > 9 ? (
+        <Box>
+          <a data-tip={token.symbol}>{sliceByLength(token.symbol, 9)}</a>
+          <ReactTooltip place="top" type="dark" effect="solid" />
+        </Box>
+      ) : (
+        <Box>{sliceByLength(token.symbol, 9)}</Box>
+      );
     }
+  }
+
+  if (network === NETWORK_TYPE.BINANCE && value === TOKEN.ERC20) {
+    return <Box>BEP20</Box>;
+  }
+
+  if (value === TOKEN.ETH) {
+    return <Box>{NETWORK_BASE_TOKEN[network]}</Box>;
   }
 
   return <Box>{value ? value.toUpperCase() : '--'}</Box>;

@@ -5,29 +5,41 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ITokenInfo } from 'stores/interfaces';
-import {
-  dateTimeAgoFormat,
-  divDecimals,
-  formatWithTwoDecimals,
-  truncateAddressString,
-} from 'utils';
+import { ITokenInfo, NETWORK_TYPE } from 'stores/interfaces';
+import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Title, Text } from 'components/Base';
+import { Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
-import { getBech32Address } from '../../blockchain-bridge';
+import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
+import { NETWORK_ICON } from '../../stores/names';
+import { NetworkButton } from './Components';
 
-const ethAddress = value => (
-  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 20 }} src="/eth.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.ETH_EXPLORER_URL}/token/${value}`}
-      target="_blank"
-    >
-      {truncateAddressString(value, 10)}
-    </a>
-  </Box>
+const EthAddress = observer(
+  ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
+    const { exchange } = useStores();
+
+    return (
+      <Box
+        direction="row"
+        justify="start"
+        align="center"
+        style={{ marginTop: 4 }}
+      >
+        <img
+          className={styles.imgToken}
+          style={{ height: 20 }}
+          src={NETWORK_ICON[network]}
+        />
+        <a
+          className={styles.addressLink}
+          href={`${exchange.getExplorerByNetwork(network)}/token/${value}`}
+          target="_blank"
+        >
+          {truncateAddressString(value, 10)}
+        </a>
+      </Box>
+    );
+  },
 );
 
 const oneAddress = value => (
@@ -67,14 +79,24 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'erc20Address',
     dataIndex: 'erc20Address',
     width: 280,
-    render: value => ethAddress(value),
+    render: (value, data) => (
+      <EthAddress value={value} network={data.network} />
+    ),
   },
   {
     title: 'HRC20 Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
     width: 300,
-    render: value => oneAddress(getBech32Address(value)),
+    render: value => {
+      const address =
+        String(value).toLowerCase() ===
+        String(process.env.ONE_HRC20).toLowerCase()
+          ? String(value).toLowerCase()
+          : getChecksumAddress(value);
+
+      return oneAddress(address);
+    },
   },
   // {
   //   title: 'Decimals',
@@ -118,8 +140,13 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
 export const Tokens = observer((props: any) => {
   const { tokens, user } = useStores();
   const [search, setSearch] = useState('');
+  const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
 
   const [columns, setColumns] = useState(getColumns(user));
+
+  useEffect(() => {
+    tokens.selectedNetwork = network === 'ALL' ? undefined : network;
+  }, [network]);
 
   useEffect(() => {
     tokens.init();
@@ -137,20 +164,28 @@ export const Tokens = observer((props: any) => {
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
   const filteredData = tokens.data.filter(token => {
+    let iSearchOk = true;
+    let isNetworkOk = true;
+
     if (search) {
-      return (
-        Object.values(token).some(value =>
-          value
-            .toString()
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+      iSearchOk =
+        Object.values(token).some(
+          value =>
+            value &&
+            value
+              .toString()
+              .toLowerCase()
+              .includes(search.toLowerCase()),
         ) ||
         getBech32Address(token.hrc20Address).toLowerCase() ===
-          search.toLowerCase()
-      );
+          search.toLowerCase();
     }
 
-    return true;
+    if (network !== 'ALL') {
+      isNetworkOk = token.network === network;
+    }
+
+    return iSearchOk && isNetworkOk;
   });
 
   return (
@@ -173,10 +208,10 @@ export const Tokens = observer((props: any) => {
                   marginLeft: 5,
                   color: '#47b8eb',
                   fontWeight: 600,
-                  letterSpacing: 0.2
+                  letterSpacing: 0.2,
                 }}
               >
-                {formatWithTwoDecimals(tokens.totalLockedUSD)}
+                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
               </span>
             </Title>
           </Box>
@@ -188,8 +223,28 @@ export const Tokens = observer((props: any) => {
           pad={{ horizontal: '9px' }}
           margin={{ top: 'medium', bottom: 'medium' }}
           // style={{ maxWidth: 500 }}
+          direction="row"
+          justify="between"
+          gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
+          <Box direction="row" gap="10px">
+            <NetworkButton
+              type={'ALL'}
+              selectedType={network}
+              onClick={() => setNetwork('ALL')}
+            />
+            <NetworkButton
+              type={NETWORK_TYPE.BINANCE}
+              selectedType={network}
+              onClick={() => setNetwork(NETWORK_TYPE.BINANCE)}
+            />
+            <NetworkButton
+              type={NETWORK_TYPE.ETHEREUM}
+              selectedType={network}
+              onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
+            />
+          </Box>
         </Box>
 
         <Box
