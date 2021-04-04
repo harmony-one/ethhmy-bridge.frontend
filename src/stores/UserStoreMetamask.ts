@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
@@ -75,6 +75,12 @@ export class UserStoreMetamask extends StoreConstructor {
         }
       }
     }
+
+    autorun(() => {
+      if(this.isNetworkActual) {
+        this.signIn();
+      }
+    })
   }
 
   @computed public get isNetworkActual() {
@@ -300,6 +306,13 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (
+      '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+      erc20Address.toLowerCase()
+    ) {
+      throw new Error('This address already using for Native tokens');
+    }
+
+    if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.ERC721)
         .find(t => t.erc20Address === erc20Address)
@@ -381,6 +394,27 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+      (!this.isNetworkActual || !this.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on ${
+          NETWORK_NAME[this.stores.exchange.network]
+        } ${process.env.NETWORK} and try again!`,
+      );
+    }
+
+    if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      ((this.stores.user.isMetamask && !this.stores.user.isNetworkActual) ||
+        !this.stores.user.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on Harmony ${process.env.NETWORK} and try again!`,
+      );
+    }
+
+    if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.HRC20)
         .find(t => t.erc20Address === erc20Address)
@@ -394,6 +428,13 @@ export class UserStoreMetamask extends StoreConstructor {
         .find(t => t.erc20Address === erc20Address)
     ) {
       throw new Error('This address already using for ERC20 token');
+    }
+
+    if (
+      '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+      erc20Address.toLowerCase()
+    ) {
+      throw new Error('This address already using for Native tokens');
     }
 
     const details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(

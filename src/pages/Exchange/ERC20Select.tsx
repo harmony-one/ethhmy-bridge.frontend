@@ -4,12 +4,10 @@ import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Button, Checkbox, Select, Text, TextInput } from 'components/Base';
-import { tokensMainnet } from './tokens';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
-import { NETWORK_ICON } from '../../stores/names';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -52,67 +50,14 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { userMetamask, tokens, user, exchange } = useStores();
-    const [erc20, setERC20] = useState(
-      type === TOKEN.HRC20 ? user.hrc20Address : userMetamask.erc20Address,
-    );
-    const [error, setError] = useState('');
-    const [token, setToken] = useState('');
-    const [isLoading, setLoading] = useState(false);
+    const { erc20Select, exchange } = useStores();
+
     const [custom, setCustom] = useState(false);
+    const [erc20, setErc20] = useState('');
 
-    const getTokens = () => {
-      if (
-        exchange.network === NETWORK_TYPE.ETHEREUM &&
-        process.env.NETWORK !== 'testnet'
-      ) {
-        return tokensMainnet;
-      }
-
-      return tokens.allData
-        .filter(t =>
-          exchange.network === NETWORK_TYPE.ETHEREUM
-            ? !['BUSD', 'LINK'].includes(t.symbol)
-            : true,
-        )
-        .filter(t => t.network === exchange.network)
-        .map(t => ({
-          address: t.erc20Address,
-          label: `${t.name} (${t.symbol})`,
-          image: NETWORK_ICON[t.network],
-        }));
-    };
-
-    useEffect(() => {
-      setToken('');
-      setError('');
-      setLoading(true);
-      setTimeout(() => setLoading(false), 300);
-    }, [exchange.network]);
-
-    const [tokensList, setTokensList] = useState([]);
-
-    useEffect(() => {
-      // if (!!tokensList.length) {
-      //   return;
-      // }
-
-      setTokensList(getTokens());
-    }, [tokens.data, exchange.network]);
-
-    useEffect(() => {
-      if (type === TOKEN.HRC20) {
-        setERC20(user.hrc20Address);
-        setToken(user.hrc20Address);
-      } else {
-        setERC20(userMetamask.erc20Address);
-        setToken(userMetamask.erc20Address);
-      }
-    }, [userMetamask.erc20Address, user.hrc20Address]);
-
-    // if(isLoading) {
-    //   return <Spinner />
-    // }
+    useEffect(() => setErc20(erc20Select.tokenAddress), [
+      erc20Select.tokenAddress,
+    ]);
 
     return (
       <Box direction="column" margin={{ top: 'xlarge' }}>
@@ -122,7 +67,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
           </Text>
 
           <Checkbox
-            disabled={isLoading}
+            disabled={erc20Select.isLoading}
             label="use custom address"
             value={!options || custom}
             onChange={setCustom}
@@ -132,26 +77,27 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         {options && !custom ? (
           <Box margin={{ top: 'small', bottom: 'medium' }}>
             <Select
-              disabled={isLoading}
-              options={tokensList.map(t => ({
-                ...t,
-                text: t.label,
-                value: t.address,
-              }))}
-              value={token}
+              disabled={erc20Select.isLoading}
+              options={erc20Select.tokensList
+                .map(t => ({
+                  ...t,
+                  text: t.label,
+                  value: t.address,
+                }))
+                .concat({
+                  address: '',
+                  label: '',
+                  image: '',
+                  text: '',
+                  value: '',
+                })}
+              value={erc20Select.tokenAddress}
               onChange={async value => {
-                setToken(value);
-
-                setError('');
-                try {
-                  await userMetamask.setToken(value);
-                } catch (e) {
-                  setError(e.message);
-                }
+                erc20Select.setToken(value);
               }}
               placeholder={placeholder[exchange.network][type]}
             />
-            {token ? (
+            {erc20Select.tokenAddress ? (
               <Box
                 direction="row"
                 justify="between"
@@ -161,10 +107,10 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Text>Address:</Text>
                 <a
                   className={styles.addressLink}
-                  href={`${exchange.config.explorerURL}/token/${token}`}
+                  href={`${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`}
                   target="_blank"
                 >
-                  {truncateAddressString(token, 16)}
+                  {truncateAddressString(erc20Select.tokenAddress, 16)}
                 </a>
               </Box>
             ) : null}
@@ -173,41 +119,19 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
           <>
             <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
               <TextInput
-                disabled={isLoading}
+                disabled={erc20Select.isLoading}
                 placeholder={inputPlaceholder[exchange.network][type]}
                 value={erc20}
-                onChange={setERC20}
+                onChange={setErc20}
               />
             </Box>
             <Box direction="row" justify="end">
-              {isLoading ? (
+              {erc20Select.isLoading ? (
                 <Spinner boxSize={12} />
               ) : (
                 <Button
-                  disabled={isLoading}
-                  onClick={async () => {
-                    exchange.error = '';
-                    setError('');
-                    setLoading(true);
-                    try {
-                      switch (type) {
-                        case TOKEN.ERC721:
-                          await userMetamask.setERC721Token(erc20);
-                          break;
-
-                        case TOKEN.ERC20:
-                          await userMetamask.setToken(erc20);
-                          break;
-
-                        case TOKEN.HRC20:
-                          await user.setHRC20Mapping(erc20);
-                          break;
-                      }
-                    } catch (e) {
-                      setError(e.message);
-                    }
-                    setLoading(false);
-                  }}
+                  disabled={erc20Select.isLoading}
+                  onClick={async () => erc20Select.setToken(erc20)}
                 >
                   {erc20 ? 'Change token' : 'Select token'}
                 </Button>
@@ -216,9 +140,15 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
           </>
         )}
 
-        {error ? (
-          <Box>
-            <Text color="red">{error}</Text>
+        {erc20Select.error ? (
+          <Box margin={{ top: custom ? '10px' : '0px' }}>
+            <Text color="red">{erc20Select.error}</Text>
+          </Box>
+        ) : null}
+
+        {erc20Select.isOk ? (
+          <Box margin={{ top: custom ? '10px' : '0px' }}>
+            <Text color="green">Token selected successfully</Text>
           </Box>
         ) : null}
       </Box>

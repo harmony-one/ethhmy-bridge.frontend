@@ -6,6 +6,7 @@ import { Exchange } from './Exchange';
 import { Operations } from './Operations';
 import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
+import { Erc20SelectStore } from './Erc20SelectStore';
 
 export interface IStores {
   routing?: RouterStore;
@@ -15,6 +16,7 @@ export interface IStores {
   exchange?: Exchange;
   operations?: Operations;
   tokens?: Tokens;
+  erc20Select?: Erc20SelectStore;
 }
 
 const stores: IStores = {};
@@ -26,6 +28,7 @@ stores.tokens = new Tokens(stores);
 stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
+stores.erc20Select = new Erc20SelectStore(stores);
 
 if (!process.env.production) {
   window.stores = stores;

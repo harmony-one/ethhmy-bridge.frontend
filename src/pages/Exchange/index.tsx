@@ -131,7 +131,7 @@ export class Exchange extends React.Component<
         const methods = getExNetworkMethods();
 
         if (!methods.web3.utils.isAddress(exchange.transaction.ethAddress)) {
-          this.addressValidationError = 'Invalid token Hex address';
+          this.addressValidationError = 'Invalid wallet Hex address';
           return;
         }
       }

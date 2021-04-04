@@ -1,4 +1,4 @@
-import { action, computed, observable } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 import { IStores } from 'stores';
 import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
@@ -115,6 +115,14 @@ export class UserStoreEx extends StoreConstructor {
 
       this.getOneBalance();
     }
+
+    autorun(() => {
+      console.log(111);
+
+      if (this.isNetworkActual && this.isMetamask) {
+        this.signInMetamask();
+      }
+    });
   }
 
   @computed public get isNetworkActual() {
@@ -414,6 +422,13 @@ export class UserStoreEx extends StoreConstructor {
       }
 
       if (
+        '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+        hrc20Address.toLowerCase()
+      ) {
+        throw new Error('This address already using for Native tokens');
+      }
+
+      if (
         this.stores.tokens.allData
           .filter(t => t.token === TOKEN.ERC721)
           .find(t => t.hrc20Address === hrc20Address)
@@ -448,7 +463,7 @@ export class UserStoreEx extends StoreConstructor {
 
     const exNetwork = getExNetworkMethods();
 
-    if(exNetwork) {
+    if (exNetwork) {
       try {
         address = await exNetwork.ethMethodsHRC20.getMappingFor(
           hrc20Address,
