@@ -11,7 +11,7 @@ import {
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
-import { NETWORK_NAME } from './names';
+import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 
 const defaults = {};
 
@@ -318,7 +318,12 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !address) {
-      throw new Error('Address not mapping');
+      // throw new Error('Address not mapping');
+      throw new Error(
+        `Wrong token address. Use only a valid ${
+          NETWORK_ERC20_TOKEN[this.stores.exchange.network]
+        } token address, not HRC20 address`,
+      );
     }
 
     try {
@@ -328,9 +333,9 @@ export class UserStoreMetamask extends StoreConstructor {
     } catch (e) {
       if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
         throw new Error(
-          `Error to get token details from ${
-            NETWORK_NAME[this.stores.exchange.network]
-          }`,
+          `Wrong token address. Use only a valid ${
+            NETWORK_ERC20_TOKEN[this.stores.exchange.network]
+          } token address, not HRC20 address`,
         );
       }
     }
@@ -346,7 +351,11 @@ export class UserStoreMetamask extends StoreConstructor {
           };
         } catch (e) {
           if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-            throw new Error('Error to get token details from Harmony');
+            throw new Error(
+              `Wrong token address. Use only a valid ${
+                NETWORK_ERC20_TOKEN[this.stores.exchange.network]
+              } token address, not HRC20 address`,
+            );
           }
         }
       }
