@@ -45,14 +45,7 @@ export class Erc20SelectStore extends StoreConstructor {
     });
 
     reaction(
-      () => stores.userMetamask.isNetworkActual,
-      () =>
-        this.tokenAddress &&
-        setTimeout(() => this.setToken(this.tokenAddress), 500),
-    );
-
-    reaction(
-      () => stores.userMetamask.isNetworkActual,
+      () => stores.userMetamask.isNetworkActual && stores.userMetamask.isAuthorized,
       () =>
         this.tokenAddress &&
         setTimeout(() => this.setToken(this.tokenAddress), 500),
