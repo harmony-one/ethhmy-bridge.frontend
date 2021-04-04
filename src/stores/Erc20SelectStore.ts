@@ -44,16 +44,33 @@ export class Erc20SelectStore extends StoreConstructor {
       }
     });
 
-    autorun(() => {
-      console.log(
-        stores.userMetamask.isNetworkActual,
-        stores.user.isMetamask,
-        stores.user.isNetworkActual,
-      );
-      if (this.tokenAddress) {
-        setTimeout(() => this.setToken(this.tokenAddress), 500);
-      }
-    });
+    reaction(
+      () => stores.userMetamask.isNetworkActual,
+      () =>
+        this.tokenAddress &&
+        setTimeout(() => this.setToken(this.tokenAddress), 500),
+    );
+
+    reaction(
+      () => stores.userMetamask.isNetworkActual,
+      () =>
+        this.tokenAddress &&
+        setTimeout(() => this.setToken(this.tokenAddress), 500),
+    );
+
+    reaction(
+      () => stores.user.isMetamask && stores.user.isNetworkActual,
+      () =>
+        this.tokenAddress &&
+        setTimeout(() => this.setToken(this.tokenAddress), 500),
+    );
+
+    reaction(
+      () => !stores.user.isMetamask && stores.user.isAuthorized,
+      () =>
+        this.tokenAddress &&
+        setTimeout(() => this.setToken(this.tokenAddress), 500),
+    );
   }
 
   @action.bound
