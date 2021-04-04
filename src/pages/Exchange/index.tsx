@@ -580,7 +580,7 @@ export class Exchange extends React.Component<
                       {`${NETWORK_BASE_TOKEN[exchange.network]} address`}
                     </Text>
                     <Text color="#9698a7" size="small">
-                      use your wallet address, never use contract address
+                      only use your wallet address, never use contract address
                     </Text>
                   </Box>
                   <Input
@@ -639,7 +639,7 @@ export class Exchange extends React.Component<
                       ONE Address
                     </Text>
                     <Text color="#9698a7" size="small">
-                      use your wallet address, never use contract address
+                      only use your wallet address, never use contract address
                     </Text>
                   </Box>
                   <Input
