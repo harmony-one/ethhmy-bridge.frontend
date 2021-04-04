@@ -125,7 +125,7 @@ export class Exchange extends StoreConstructor {
               throw new Error(
                 `Your MetaMask in on the wrong network. Please switch on ${
                   NETWORK_NAME[this.stores.exchange.network]
-                } and try again!`,
+                } ${process.env.NETWORK} and try again!`,
               );
             }
 
@@ -136,7 +136,7 @@ export class Exchange extends StoreConstructor {
                 !this.stores.user.isAuthorized)
             ) {
               throw new Error(
-                `Your MetaMask in on the wrong network. Please switch on Harmony and try again!`,
+                `Your MetaMask in on the wrong network. Please switch on Harmony ${process.env.NETWORK} and try again!`,
               );
             }
 
