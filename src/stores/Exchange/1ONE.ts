@@ -48,7 +48,7 @@ export const send1ONEToken = async (params: {
   }
 
   if (!stores.userMetamask.erc20Address) {
-    await stores.user.setHRC20Mapping(process.env.ONE_HRC20);
+    await stores.user.setHRC20Mapping(process.env.ONE_HRC20, true);
   }
 
   if (mode === EXCHANGE_MODE.ONE_TO_ETH) {
