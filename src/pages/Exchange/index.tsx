@@ -278,7 +278,8 @@ export class Exchange extends React.Component<
               >
                 <Text style={{ textAlign: 'center' }} color="rgb(0, 173, 232)">
                   Bridged assets can only be used in the Harmony ecosystem and
-                  currently no CEX supports deposit of the bridged assets.
+                  currently no centralized exchange supports deposit of the
+                  bridged assets.
                 </Text>
               </Box>
             ) : null}
