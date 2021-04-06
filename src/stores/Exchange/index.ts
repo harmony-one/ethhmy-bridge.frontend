@@ -96,12 +96,19 @@ export class Exchange extends StoreConstructor {
     }, 3000);
 
     autorun(() => {
+      const { user, userMetamask } = this.stores;
+
       if (
         this.operation &&
         this.operation.erc20Address &&
-        !this.stores.userMetamask.erc20Address
+        !this.stores.userMetamask.erc20Address &&
+        this.network
       ) {
-        this.stores.userMetamask.setToken(this.operation.erc20Address);
+        if (userMetamask.isAuthorized && userMetamask.isNetworkActual) {
+          this.stores.userMetamask.setToken(this.operation.erc20Address);
+        } else if (user.isAuthorized && user.isNetworkActual) {
+          this.stores.userMetamask.setTokenHRC20(this.operation.erc20Address);
+        }
       }
     });
   }
@@ -865,6 +872,7 @@ export class Exchange extends StoreConstructor {
   getConfig = async () => {
     this.fullConfig = await operationService.getConfig();
     initNetworks(this.fullConfig);
+    this.setToken(this.token);
   };
 
   @computed

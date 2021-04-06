@@ -9,7 +9,7 @@ import { useStores } from 'stores';
 import { ACTION_TYPE, IAction, STATUS, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
 import { getStepsTitle } from './steps-constants';
-import { AddTokenPanel } from './AddTokenPanel';
+// import { AddTokenPanel } from './AddTokenPanel';
 
 const StepRow = observer(
   ({
@@ -102,7 +102,7 @@ const StepRow = observer(
                 </a>
               </Box>
             </Box>
-            <AddTokenPanel />
+            {/*<AddTokenPanel />*/}
           </>
         )}
 

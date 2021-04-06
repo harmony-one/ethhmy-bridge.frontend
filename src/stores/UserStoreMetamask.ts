@@ -77,10 +77,10 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     autorun(() => {
-      if(this.isNetworkActual) {
+      if (this.isNetworkActual) {
         this.signIn();
       }
-    })
+    });
   }
 
   @computed public get isNetworkActual() {
@@ -351,6 +351,42 @@ export class UserStoreMetamask extends StoreConstructor {
           } token address, not HRC20 address`,
         );
       }
+    }
+
+    this.erc20Address = erc20Address;
+
+    if (!!Number(address)) {
+      if (!this.erc20TokenDetails) {
+        try {
+          this.erc20TokenDetails = {
+            ...(await hmyMethodsERC20.hmyMethods.tokenDetails(address)),
+            erc20Address,
+          };
+        } catch (e) {
+          if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+            throw new Error(
+              `Wrong token address. Use only a valid ${
+                NETWORK_ERC20_TOKEN[this.stores.exchange.network]
+              } token address, not HRC20 address`,
+            );
+          }
+        }
+      }
+
+      this.stores.user.hrc20Address = address;
+      this.syncLocalStorage();
+    } else {
+      this.stores.user.hrc20Address = '';
+    }
+  };
+
+  setTokenHRC20 = async (erc20Address: string) => {
+    let address;
+
+    if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
+      address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
+    } else {
+      address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
     }
 
     this.erc20Address = erc20Address;

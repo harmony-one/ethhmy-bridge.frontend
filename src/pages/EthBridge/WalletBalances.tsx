@@ -337,7 +337,13 @@ export const WalletBalances = observer(() => {
                     }/address/${getBech32Address(
                       user.hrc20Address,
                     )}?txType=hrc20`}
-                    metamask={user.hrc20Address}
+                    metamask={
+                      user.isMetamask &&
+                      user.isAuthorized &&
+                      user.isNetworkActual
+                        ? user.hrc20Address
+                        : ''
+                    }
                   />
                 ) : null}
 
@@ -351,6 +357,13 @@ export const WalletBalances = observer(() => {
                     }/address/${getBech32Address(
                       user.hrc20Address,
                     )}?txType=hrc20`}
+                    metamask={
+                      user.isMetamask &&
+                      user.isAuthorized &&
+                      user.isNetworkActual
+                        ? user.hrc20Address
+                        : ''
+                    }
                   />
                 ) : null}
 
