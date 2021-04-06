@@ -26,20 +26,5 @@ export const AddTokenPanel = observer((params: { position?: string }) => {
     );
   }
 
-  if (
-    [TOKEN.ONE].includes(exchange.token) &&
-    exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
-  ) {
-    return (
-      <AddTokenString
-        hrc20Address={userMetamask.erc20Address}
-        network={exchange.operation.network}
-        symbol={userMetamask.erc20TokenDetails.symbol}
-        decimals={userMetamask.erc20TokenDetails.decimals}
-        position={params.position}
-      />
-    );
-  }
-
   return null;
 });

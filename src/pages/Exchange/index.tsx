@@ -309,6 +309,7 @@ export class Exchange extends React.Component<
           ) : null}
           <Box margin={{ top: 'medium' }} style={{ width: '100%' }}>
             <Steps />
+            <AddTokenPanel position="center" />
           </Box>
           {/*{exchange.txHash ? (*/}
           {/*  <a*/}
@@ -708,7 +709,6 @@ export class Exchange extends React.Component<
         {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
           <Details>
             <Status />
-            <AddTokenPanel position="center" />
           </Details>
         ) : null}
 

@@ -1,6 +1,6 @@
 import { Box } from 'grommet';
 import { Icon } from '../../components/Base/components/Icons';
-import { Text } from '../../components/Base';
+import { Button, Text } from '../../components/Base';
 import * as React from 'react';
 import { NETWORK_TYPE } from '../../stores/interfaces';
 import * as styles from './add-token.styl';
@@ -76,64 +76,72 @@ export const AddTokenString = observer(
       <Box
         className={styles.addTokenString}
         direction="row"
-        justify={data.position || 'start'}
+        justify={'end'}
         align="start"
-        onClick={() => {
-          // const provider = window.web3.currentProvider;
-          // @ts-ignore
-
-          if (
-            !user.isAuthorized ||
-            (user.isMetamask && !user.isNetworkActual)
-          ) {
-            actionModals.open(() => <AddTokenModal {...data} />, {
-              title: '',
-              applyText: 'Cancel',
-              closeText: '',
-              noValidation: true,
-              width: '500px',
-              showOther: true,
-              onApply: () => Promise.resolve(),
-            });
-          }
-
-          if (user.isMetamask && user.isNetworkActual) {
-            // @ts-ignore
-            window.ethereum.request(
-              {
-                // method: 'metamask_watchAsset',
-                method: 'wallet_watchAsset',
-                params: {
-                  type: 'ERC20',
-                  options: {
-                    address: data.hrc20Address,
-                    symbol: data.symbol.slice(0, 6),
-                    decimals: data.decimals,
-                    image: data.image || '',
-                  },
-                },
-                // id: Math.round(Math.random() * 100000),
-              },
-              (err, added) => {
-                console.log('provider returned', err, added);
-
-                if (err || 'error' in added) {
-                  console.log(err, added.err);
-
-                  return;
-                }
-
-                console.log('success');
-              },
-            );
-          }
-        }}
       >
-        <Text>
-          Click to add the bridged token{' '}
-          <span className={styles.link}>{data.symbol}</span> to{' '}
-          <span className={styles.link}>Metamask</span>
-        </Text>
+        <Button
+          bgColor="#00ADE8"
+          // style={{ width: 180, top: 10 }}
+          // transparent={true}
+          onClick={() => {
+            // const provider = window.web3.currentProvider;
+            // @ts-ignore
+
+            if (
+              !user.isAuthorized ||
+              (user.isMetamask && !user.isNetworkActual)
+            ) {
+              actionModals.open(() => <AddTokenModal {...data} />, {
+                title: '',
+                applyText: 'Cancel',
+                closeText: '',
+                noValidation: true,
+                width: '500px',
+                showOther: true,
+                onApply: () => Promise.resolve(),
+              });
+            }
+
+            if (user.isMetamask && user.isNetworkActual) {
+              // @ts-ignore
+              window.ethereum.request(
+                {
+                  // method: 'metamask_watchAsset',
+                  method: 'wallet_watchAsset',
+                  params: {
+                    type: 'ERC20',
+                    options: {
+                      address: data.hrc20Address,
+                      symbol: data.symbol.slice(0, 6),
+                      decimals: data.decimals,
+                      image: data.image || '',
+                    },
+                  },
+                  // id: Math.round(Math.random() * 100000),
+                },
+                (err, added) => {
+                  console.log('provider returned', err, added);
+
+                  if (err || 'error' in added) {
+                    console.log(err, added.err);
+
+                    return;
+                  }
+
+                  console.log('success');
+                },
+              );
+            }
+          }}
+        >
+          <Box margin={{ right: '4px' }}>
+            <Icon glyph="Plus" size="12px" />
+          </Box>
+          <Text color="white" size="small">
+            Add bridged <span className={styles.link}>{data.symbol}</span> to{' '}
+            <span className={styles.link}>Metamask</span>
+          </Text>
+        </Button>
       </Box>
     );
   },
