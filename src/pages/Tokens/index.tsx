@@ -13,6 +13,7 @@ import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
 import { NetworkButton } from './Components';
+import { AddTokenIcon } from '../../ui/AddToken';
 
 const EthAddress = observer(
   ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
@@ -62,9 +63,10 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     dataIndex: 'symbol',
     width: 140,
     className: styles.leftHeader,
-    render: value => (
-      <Box direction="column" justify="center" pad={{ left: 'medium' }}>
+    render: (value, data) => (
+      <Box direction="row" justify="start" pad={{ left: 'medium' }}>
         {value ? value.toUpperCase() : '--'}
+        <AddTokenIcon {...data} />
       </Box>
     ),
   },

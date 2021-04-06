@@ -16,8 +16,11 @@ import {
   NETWORK_ICON,
   NETWORK_NAME,
 } from '../../stores/names';
+import { AddTokenIcon } from '../../ui/AddToken';
 
 const AssetRow = observer<any>(props => {
+  const { exchange, userMetamask } = useStores();
+
   return (
     <Box
       className={cn(
@@ -37,9 +40,17 @@ const AssetRow = observer<any>(props => {
           >
             <Icon
               glyph="ExternalLink"
-              style={{ width: 14, margin: '0 0 2px 10px' }}
+              style={{ width: 14, margin: '0 5px 2px 10px' }}
             />
           </a>
+        ) : null}
+        {props.metamask ? (
+          <AddTokenIcon
+            hrc20Address={props.metamask}
+            symbol={userMetamask.erc20TokenDetails.symbol}
+            decimals={userMetamask.erc20TokenDetails.decimals}
+            network={exchange.network}
+          />
         ) : null}
       </Box>
 
@@ -326,6 +337,7 @@ export const WalletBalances = observer(() => {
                     }/address/${getBech32Address(
                       user.hrc20Address,
                     )}?txType=hrc20`}
+                    metamask={user.hrc20Address}
                   />
                 ) : null}
 

@@ -26,6 +26,7 @@ import { MetamaskWarning } from '../../components/MetamaskWarning';
 import { ApproveAmountField } from './ApproveAmountField';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
+import { AddTokenPanel } from './AddTokenPanel';
 
 export interface ITokenInfo {
   label: string;
@@ -703,11 +704,14 @@ export class Exchange extends React.Component<
             <Status />
           </Details>
         ) : null}
+
         {exchange.step.id === EXCHANGE_STEPS.RESULT ? (
           <Details>
             <Status />
+            <AddTokenPanel position="center" />
           </Details>
         ) : null}
+
         {exchange.step.id === EXCHANGE_STEPS.CONFIRMATION ? (
           <>
             {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE ? (

@@ -1,5 +1,5 @@
 import { StoreConstructor } from '../core/StoreConstructor';
-import { action, computed, observable } from 'mobx';
+import { action, autorun, computed, observable } from 'mobx';
 import { statusFetching } from '../../constants';
 import {
   ACTION_TYPE,
@@ -94,6 +94,16 @@ export class Exchange extends StoreConstructor {
         }
       }
     }, 3000);
+
+    autorun(() => {
+      if (
+        this.operation &&
+        this.operation.erc20Address &&
+        !this.stores.userMetamask.erc20Address
+      ) {
+        this.stores.userMetamask.setToken(this.operation.erc20Address);
+      }
+    });
   }
 
   @computed

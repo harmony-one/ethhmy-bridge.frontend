@@ -9,6 +9,7 @@ import { useStores } from 'stores';
 import { ACTION_TYPE, IAction, STATUS, TOKEN } from 'stores/interfaces';
 import { dateTimeFormat, truncateAddressString } from '../../utils';
 import { getStepsTitle } from './steps-constants';
+import { AddTokenPanel } from './AddTokenPanel';
 
 const StepRow = observer(
   ({
@@ -75,29 +76,34 @@ const StepRow = observer(
         ) : null}
 
         {hrc20Address && (
-          <Box
-            direction="row"
-            justify="between"
-            align="center"
-            className={textClassName}
-          >
-            <Box direction="row" align="center">
-              <img
-                className={styles.imgToken}
-                style={{ height: 18 }}
-                src="/one.svg"
-              />
-              <Text>HRC20 address:</Text>
+          <>
+            <Box
+              direction="row"
+              justify="between"
+              align="center"
+              className={textClassName}
+            >
+              <Box direction="row" align="center">
+                <img
+                  className={styles.imgToken}
+                  style={{ height: 18 }}
+                  src="/one.svg"
+                />
+                <Text>HRC20 address:</Text>
+              </Box>
+              <Box>
+                <a
+                  href={
+                    process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address
+                  }
+                  target="_blank"
+                >
+                  {truncateAddressString(hrc20Address, 10)}
+                </a>
+              </Box>
             </Box>
-            <Box>
-              <a
-                href={process.env.HMY_EXPLORER_URL + '/address/' + hrc20Address}
-                target="_blank"
-              >
-                {truncateAddressString(hrc20Address, 10)}
-              </a>
-            </Box>
-          </Box>
+            <AddTokenPanel />
+          </>
         )}
 
         {action.message && (
