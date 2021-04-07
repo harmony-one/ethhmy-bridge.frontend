@@ -111,6 +111,30 @@ export class Exchange extends StoreConstructor {
         }
       }
     });
+
+    window.onbeforeunload = (evt): void | string => {
+      const isOperationInProgress =
+        this.operation && this.operation.status === STATUS.IN_PROGRESS;
+
+      const isUserOwnerEth =
+        this.operation.type === EXCHANGE_MODE.ETH_TO_ONE &&
+        this.operation.ethAddress === this.stores.userMetamask.ethAddress;
+
+      const isUserOwnerHmy =
+        this.operation.type === EXCHANGE_MODE.ONE_TO_ETH &&
+        this.operation.oneAddress === this.stores.user.address;
+
+      if (isOperationInProgress && (isUserOwnerEth || isUserOwnerHmy)) {
+        evt.preventDefault();
+
+        const dialogText =
+          'Operation is in progress! Reloading the page can lead to desynchronization with the wallet.';
+
+        evt.returnValue = dialogText;
+
+        return dialogText;
+      }
+    };
   }
 
   @computed
