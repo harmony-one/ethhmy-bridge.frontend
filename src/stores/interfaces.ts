@@ -120,6 +120,7 @@ export interface ITokenInfo {
   erc20Address: string;
   hrc20Address: string;
   totalLocked: string;
+  totalSupply: string;
   totalLockedNormal: string;
   totalLockedUSD: string;
   token: TOKEN;
