@@ -5,7 +5,7 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Table } from 'components/Table';
-import { Text } from 'components/Base';
+import { Button, Text, TextInput } from 'components/Base';
 import { getColumns } from './Common';
 import { ExpandedRow } from './ExpandedRow';
 import { Select } from '../../components/Base/components/Inputs/types';
@@ -18,6 +18,7 @@ import {
   STATUS,
   TOKEN,
 } from '../../stores/interfaces';
+import { AuthWarning } from '../../components/AuthWarning';
 
 export const isStuckOperation = (o: IOperation) => {
   if (o.status === STATUS.IN_PROGRESS || o.status === STATUS.WAITING) {
@@ -54,7 +55,8 @@ export const isStuckOperation = (o: IOperation) => {
 };
 
 export const AdminExplorer = observer((props: any) => {
-  const { operations, user, tokens } = useStores();
+  const { operations, user, tokens, actionModals } = useStores();
+  const [manager, setManager] = useState('');
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
@@ -66,8 +68,50 @@ export const AdminExplorer = observer((props: any) => {
   }, [operations, tokens]);
 
   useEffect(() => {
-    setColumns(getColumns({ user }));
-  }, [user.oneRate, user.ethRate, tokens.data, tokens.fetchStatus, user]);
+    setColumns(getColumns({ user }, manager));
+  }, [
+    user.oneRate,
+    user.ethRate,
+    tokens.data,
+    tokens.fetchStatus,
+    user,
+    manager,
+  ]);
+
+  useEffect(() => {
+    actionModals.open(
+      () => {
+        const [value, onChange] = useState('');
+
+        return (
+          <Box pad="large" gap="20px">
+            <Text>Set Admin Password</Text>
+            <TextInput value={value} onChange={onChange} />
+            <Button
+              size="large"
+              onClick={() => {
+                setManager(value);
+                actionModals.closeLastModal();
+              }}
+            >
+              Save
+            </Button>
+          </Box>
+        );
+      },
+      {
+        title: 'Set Admin Password',
+        applyText: '',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      },
+    );
+  }, []);
 
   const onChangeDataFlow = (props: any) => {
     operations.onChangeDataFlow(props);
