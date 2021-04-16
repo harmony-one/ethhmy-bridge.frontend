@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Table } from 'components/Table';
 import { Button, Text, TextInput } from 'components/Base';
-import { getColumns } from './Common';
+import { getColumns, StatisticBlock } from './Common';
 import { ExpandedRow } from './ExpandedRow';
 import { Select } from '../../components/Base/components/Inputs/types';
 import { Title } from '../../components/Base/components/Title';
@@ -18,7 +18,7 @@ import {
   STATUS,
   TOKEN,
 } from '../../stores/interfaces';
-import { AuthWarning } from '../../components/AuthWarning';
+import { validators } from '../../services';
 
 export const isStuckOperation = (o: IOperation) => {
   if (o.status === STATUS.IN_PROGRESS || o.status === STATUS.WAITING) {
@@ -56,7 +56,6 @@ export const isStuckOperation = (o: IOperation) => {
 
 export const AdminExplorer = observer((props: any) => {
   const { operations, user, tokens, actionModals } = useStores();
-  const [manager, setManager] = useState('');
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
@@ -68,33 +67,48 @@ export const AdminExplorer = observer((props: any) => {
   }, [operations, tokens]);
 
   useEffect(() => {
-    setColumns(getColumns({ user }, manager));
+    setColumns(getColumns({ user }, operations.manager));
   }, [
     user.oneRate,
     user.ethRate,
     tokens.data,
     tokens.fetchStatus,
     user,
-    manager,
+    operations.manager,
   ]);
 
-  useEffect(() => {
+  const changeValidator = useCallback(() => {
     actionModals.open(
       () => {
         const [value, onChange] = useState('');
 
         return (
-          <Box pad="large" gap="20px">
-            <Text>Set Admin Password</Text>
-            <TextInput value={value} onChange={onChange} />
+          <Box pad="large" gap="30px">
+            <Title>Choose your validator</Title>
+            <Box direction="column" style={{ width: '100%' }} gap="5px">
+              <Text>Validator Url:</Text>
+              <Select
+                size="full"
+                value={operations.validatorUrl}
+                options={validators.map(v => ({ text: v, value: v }))}
+                onChange={value => {
+                  operations.validatorUrl = value;
+                }}
+              />
+            </Box>
+            <Box direction="column" style={{ width: '100%' }} gap="5px">
+              <Text>Admin Password</Text>
+              <TextInput type="password" value={value} onChange={onChange} />
+            </Box>
             <Button
               size="large"
               onClick={() => {
-                setManager(value);
+                operations.manager = value;
+                operations.fetch();
                 actionModals.closeLastModal();
               }}
             >
-              Save
+              Sign in
             </Button>
           </Box>
         );
@@ -113,6 +127,10 @@ export const AdminExplorer = observer((props: any) => {
     );
   }, []);
 
+  useEffect(() => {
+    changeValidator();
+  }, []);
+
   const onChangeDataFlow = (props: any) => {
     operations.onChangeDataFlow(props);
   };
@@ -121,12 +139,22 @@ export const AdminExplorer = observer((props: any) => {
     <BaseContainer>
       <PageContainer>
         <Box
-          direction="column"
+          direction="row"
           align="center"
-          margin={{ top: 'xlarge' }}
+          justify="between"
+          margin={{ vertical: 'xlarge' }}
           gap="20px"
         >
-          <Title size="large">Admin explorer</Title>
+          <Box direction="row" align="center">
+            <Title size="medium">
+              Validator:
+              <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
+                {operations.validatorUrl}
+              </span>
+            </Title>
+            <Button transparent={true} onClick={() => changeValidator()}>(change)</Button>
+          </Box>
+          <StatisticBlock />
         </Box>
         <Box
           direction="row"

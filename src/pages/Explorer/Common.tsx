@@ -196,12 +196,13 @@ export const getColumns = (
       render: (value, data) => {
         return (
           <Button
+            size="small"
             style={{ float: 'right', marginRight: 15 }}
             onClick={() => {
               manage(manager, data.id);
             }}
           >
-            Reset
+            Restart
           </Button>
         );
       },
@@ -210,3 +211,35 @@ export const getColumns = (
 
   return columns;
 };
+
+export const StatusField = (props: {
+  text: string;
+  error?: boolean;
+  statusText: string;
+}) => {
+  return (
+    <Box direction="row" gap="4px">
+      {props.text}:{' '}
+      <span
+        style={{
+          fontWeight: 'bold',
+          color: !props.error ? 'rgb(0, 201, 167)' : 'red',
+        }}
+      >
+        {props.statusText}
+      </span>
+    </Box>
+  );
+};
+
+export const StatisticBlock = observer(() => {
+  const { operations } = useStores();
+
+  return (
+    <Box direction="row" gap="30px">
+      <StatusField text="Validator status" statusText="OK" />
+      <StatusField text="Stuck operations" statusText="NO" />
+      <StatusField text="Need to restart" statusText="NO" />
+    </Box>
+  );
+});

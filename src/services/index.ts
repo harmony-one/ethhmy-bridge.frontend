@@ -1,4 +1,9 @@
-import { IOperation, ITokenInfo, NETWORK_TYPE } from '../stores/interfaces';
+import {
+  ACTION_TYPE,
+  IOperation,
+  ITokenInfo,
+  NETWORK_TYPE,
+} from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
 import { getCorrectArr } from './helpers';
@@ -9,6 +14,8 @@ let servers = require('../../appengine-servers.json');
 if (process.env.NETWORK === 'testnet') {
   servers = require('../../appengine-servers.testnet.json');
 }
+
+export const validators = servers;
 
 const threshold = 3; //process.env.THRESHOLD;
 
@@ -184,15 +191,14 @@ export const getOperation = async (id): Promise<IOperation> => {
 
 export const getOperations = async (
   params: any,
+  url = validators[0],
 ): Promise<{ content: IOperation[] }> => {
-  return callAvailableServer(async url => {
-    const res = await agent.get<{ body: IOperation[] }>(
-      url + '/operations/',
-      params,
-    );
+  const res = await agent.get<{ body: IOperation[] }>(
+    url + '/operations/',
+    params,
+  );
 
-    return res.body;
-  });
+  return res.body;
 };
 
 export const getTokensInfo = async (
