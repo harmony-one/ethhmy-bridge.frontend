@@ -12,14 +12,18 @@ import { ERC20Token, Price } from './Components';
 import { NETWORK_ICON } from '../../stores/names';
 import { getChecksumAddress } from '../../blockchain-bridge';
 import { observer } from 'mobx-react-lite';
-import { useStores } from '../../stores';
+import stores, { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import * as services from '../../services';
 import { Button } from '../../components/Base/components/Button';
 
-const manage = (password: string, operationId: string) => {
-  return services.manage('reset', password, { operationId });
+const manage = (operationId: string) => {
+  return services.manage(
+    'reset',
+    { operationId },
+    stores.operations.validatorUrl,
+  );
 };
 
 const EthAddress = observer<any>(
@@ -199,7 +203,7 @@ export const getColumns = (
             size="small"
             style={{ float: 'right', marginRight: 15 }}
             onClick={() => {
-              manage(manager, data.id);
+              manage(data.id);
             }}
           >
             Restart
