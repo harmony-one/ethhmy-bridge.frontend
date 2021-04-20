@@ -3,9 +3,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
-import { useStores } from 'stores';
+import stores, { useStores } from 'stores';
 import { Table } from 'components/Table';
-import { Button, Text, TextInput } from 'components/Base';
+import { Spinner } from 'ui';
+import { Button, Text } from 'components/Base';
 import { getColumns, StatisticBlock } from './Common';
 import { ExpandedRow } from './ExpandedRow';
 import { Select } from '../../components/Base/components/Inputs/types';
@@ -80,7 +81,44 @@ export const AdminExplorer = observer((props: any) => {
   const changeValidator = useCallback(() => {
     actionModals.open(
       () => {
-        const [value, onChange] = useState('');
+        const [error, setError] = useState('');
+        const [load, setLoad] = useState(true);
+        const [user, setUser] = useState();
+
+        useEffect(() => {
+          fetch(`${stores.operations.validatorUrl}/auth/login/success`, {
+            // method: 'get',
+            credentials: 'include',
+            mode: 'cors',
+          })
+            .then(response => {
+              if (response.status === 200) return response.json();
+              throw new Error('');
+            })
+            .then(responseJson => {
+              setUser(responseJson.user);
+
+              if (responseJson.user.role === 'ADMIN') {
+                operations.manager = responseJson.user.id;
+                operations.fetch();
+                actionModals.closeLastModal();
+              } else {
+                setError(
+                  'Your user role is guest, please ask admin to change it to get access to admin panel',
+                );
+              }
+            })
+            .catch(e => setError(e.message))
+            .finally(() => setLoad(false));
+        }, []);
+
+        if (load) {
+          return (
+            <Box pad="large" justify="center" align="center">
+              <Spinner />
+            </Box>
+          );
+        }
 
         return (
           <Box pad="large" gap="30px">
@@ -96,20 +134,26 @@ export const AdminExplorer = observer((props: any) => {
                 }}
               />
             </Box>
-            <Box direction="column" style={{ width: '100%' }} gap="5px">
-              <Text>Admin Password</Text>
-              <TextInput type="password" value={value} onChange={onChange} />
-            </Box>
-            <Button
-              size="large"
-              onClick={() => {
-                operations.manager = value;
-                operations.fetch();
-                actionModals.closeLastModal();
-              }}
-            >
-              Sign in
-            </Button>
+            <div style={{ width: '100%' }}>
+              <Button
+                size="large"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  window.open(
+                    `${stores.operations.validatorUrl}/auth/google`,
+                    '_self',
+                  );
+                }}
+              >
+                {user ? 'Change User' : 'Sign in with Google'}
+              </Button>
+              {error && (
+                <Box margin={{ top: 'medium' }} gap="10px">
+                  {user && <Text>Hey, {user.name}</Text>}
+                  <Text color="red">{error}</Text>
+                </Box>
+              )}
+            </div>
           </Box>
         );
       },
@@ -152,7 +196,18 @@ export const AdminExplorer = observer((props: any) => {
                 {operations.validatorUrl}
               </span>
             </Title>
-            <Button transparent={true} onClick={() => changeValidator()}>(change)</Button>
+            <Button
+              transparent={true}
+              onClick={() => {
+                fetch(`${stores.operations.validatorUrl}/auth/logout`, {
+                  // method: 'get',
+                  credentials: 'include',
+                  mode: 'cors',
+                }).finally(() => changeValidator());
+              }}
+            >
+              change (sign out)
+            </Button>
           </Box>
           <StatisticBlock />
         </Box>

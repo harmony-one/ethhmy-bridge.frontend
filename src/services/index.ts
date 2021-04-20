@@ -263,15 +263,13 @@ export const getDepositAmount = async (network: NETWORK_TYPE) => {
 
 export const manage = async (
   action: string,
-  secret: string,
   params: { operationId: string },
+  url = validators[0],
 ) => {
-  return callActionWait(async url => {
-    const res = await agent.post<{ body: IOperation }>(
-      `${url}/manage/actions/${action}`,
-      { secret, ...params },
-    );
-
-    return res.body;
+  return await fetch(`${url}/admin/actions/${action}`, {
+    method: 'post',
+    credentials: 'include',
+    mode: 'cors',
+    body: JSON.stringify(params),
   });
 };
