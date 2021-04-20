@@ -75,6 +75,33 @@ export class Exchange extends React.Component<
     const { actionModals, user, userMetamask, exchange } = this.props;
     exchange.error = '';
 
+    return actionModals.open(
+      () => (
+        <Box pad="large">
+          <Text>
+            <b>The work of the bridge is temporarily suspended.</b>
+            <br />
+            Maintenance work in progress.
+            <br />
+            We will try to continue working in the near future.
+            <br />
+            Sorry for the inconvenience.
+          </Text>
+        </Box>
+      ),
+      {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      },
+    );
+
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
         if (!user.isOneWallet) {
