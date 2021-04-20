@@ -75,32 +75,32 @@ export class Exchange extends React.Component<
     const { actionModals, user, userMetamask, exchange } = this.props;
     exchange.error = '';
 
-    return actionModals.open(
-      () => (
-        <Box pad="large">
-          <Text>
-            <b>The work of the bridge is temporarily suspended.</b>
-            <br />
-            The bridge is currently under maintenance to resolve an issue with
-            connecting to the Binance Smart Chain. We will resume the bridge
-            operation as soon as the problem is fixed
-            <br />
-            Sorry for the inconvenience.
-          </Text>
-        </Box>
-      ),
-      {
-        title: '',
-        applyText: 'Got it',
-        closeText: '',
-        noValidation: true,
-        width: '500px',
-        showOther: true,
-        onApply: () => {
-          return Promise.resolve();
-        },
-      },
-    );
+    // return actionModals.open(
+    //   () => (
+    //     <Box pad="large">
+    //       <Text>
+    //         <b>The work of the bridge is temporarily suspended.</b>
+    //         <br />
+    //         The bridge is currently under maintenance to resolve an issue with
+    //         connecting to the Binance Smart Chain. We will resume the bridge
+    //         operation as soon as the problem is fixed
+    //         <br />
+    //         Sorry for the inconvenience.
+    //       </Text>
+    //     </Box>
+    //   ),
+    //   {
+    //     title: '',
+    //     applyText: 'Got it',
+    //     closeText: '',
+    //     noValidation: true,
+    //     width: '500px',
+    //     showOther: true,
+    //     onApply: () => {
+    //       return Promise.resolve();
+    //     },
+    //   },
+    // );
 
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
