@@ -81,9 +81,9 @@ export class Exchange extends React.Component<
           <Text>
             <b>The work of the bridge is temporarily suspended.</b>
             <br />
-            Maintenance work in progress.
-            <br />
-            We will try to continue working in the near future.
+            The bridge is currently under maintenance to resolve an issue with
+            connecting to the Binance Smart Chain. We will resume the bridge
+            operation as soon as the problem is fixed
             <br />
             Sorry for the inconvenience.
           </Text>
