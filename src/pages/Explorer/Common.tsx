@@ -15,12 +15,7 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
-import * as services from '../../services';
-import { Button } from '../../components/Base/components/Button';
-
-const manage = (password: string, operationId: string) => {
-  return services.manage('reset', password, { operationId });
-};
+import { ManageButton } from './ManageButton';
 
 const EthAddress = observer<any>(
   (params: { address; operation: IOperation }) => {
@@ -194,17 +189,7 @@ export const getColumns = (
       className: styles.rightHeader,
       width: 180,
       render: (value, data) => {
-        return (
-          <Button
-            size="small"
-            style={{ float: 'right', marginRight: 15 }}
-            onClick={() => {
-              manage(manager, data.id);
-            }}
-          >
-            Restart
-          </Button>
-        );
+        return <ManageButton operation={data} />;
       },
     });
   }
