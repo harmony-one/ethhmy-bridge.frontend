@@ -19,6 +19,7 @@ import {
   TOKEN,
 } from '../../stores/interfaces';
 import { validators } from '../../services';
+import { SearchInput } from '../../components/Search';
 
 export const isStuckOperation = (o: IOperation) => {
   if (o.status === STATUS.IN_PROGRESS || o.status === STATUS.WAITING) {
@@ -55,26 +56,27 @@ export const isStuckOperation = (o: IOperation) => {
 };
 
 export const AdminExplorer = observer((props: any) => {
-  const { operations, user, tokens, actionModals } = useStores();
+  const { adminOperations, user, tokens, actionModals } = useStores();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     tokens.init();
     tokens.fetch();
-    operations.init();
-  }, [operations, tokens]);
+    adminOperations.init();
+  }, [adminOperations, tokens]);
 
   useEffect(() => {
-    setColumns(getColumns({ user }, operations.manager));
+    setColumns(getColumns({ user }, adminOperations.manager));
   }, [
     user.oneRate,
     user.ethRate,
     tokens.data,
     tokens.fetchStatus,
     user,
-    operations.manager,
+    adminOperations.manager,
   ]);
 
   const changeValidator = useCallback(() => {
@@ -89,10 +91,10 @@ export const AdminExplorer = observer((props: any) => {
               <Text>Validator Url:</Text>
               <Select
                 size="full"
-                value={operations.validatorUrl}
+                value={adminOperations.validatorUrl}
                 options={validators.map(v => ({ text: v, value: v }))}
                 onChange={value => {
-                  operations.validatorUrl = value;
+                  adminOperations.validatorUrl = value;
                 }}
               />
             </Box>
@@ -103,8 +105,8 @@ export const AdminExplorer = observer((props: any) => {
             <Button
               size="large"
               onClick={() => {
-                operations.manager = value;
-                operations.fetch();
+                adminOperations.manager = value;
+                adminOperations.fetch();
                 actionModals.closeLastModal();
               }}
             >
@@ -132,7 +134,7 @@ export const AdminExplorer = observer((props: any) => {
   }, []);
 
   const onChangeDataFlow = (props: any) => {
-    operations.onChangeDataFlow(props);
+    adminOperations.onChangeDataFlow(props);
   };
 
   return (
@@ -149,10 +151,12 @@ export const AdminExplorer = observer((props: any) => {
             <Title size="medium">
               Validator:
               <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
-                {operations.validatorUrl}
+                {adminOperations.validatorUrl}
               </span>
             </Title>
-            <Button transparent={true} onClick={() => changeValidator()}>(change)</Button>
+            <Button transparent={true} onClick={() => changeValidator()}>
+              (change)
+            </Button>
           </Box>
           <StatisticBlock />
         </Box>
@@ -164,6 +168,31 @@ export const AdminExplorer = observer((props: any) => {
           align="start"
           margin={{ top: 'medium' }}
         >
+          <Box
+            fill={true}
+            direction="row"
+            margin={{ bottom: 'medium' }}
+            justify="between"
+            align="center"
+            gap="20px"
+          >
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search by: txHash / address / amount / operation ID"
+            />
+            <Button
+              onClick={() =>
+                adminOperations.onChangeDataFlow({
+                  filters: { search },
+                })
+              }
+              style={{ width: 200 }}
+            >
+              Search
+            </Button>
+          </Box>
+
           <Box
             direction="row"
             justify="between"
@@ -180,7 +209,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: 'HMY -> ETH', value: EXCHANGE_MODE.ONE_TO_ETH },
                 ]}
                 onChange={value => {
-                  operations.onChangeDataFlow({
+                  adminOperations.onChangeDataFlow({
                     filters: { type: value },
                   });
                 }}
@@ -200,7 +229,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: STATUS.CANCELED, value: STATUS.CANCELED },
                 ]}
                 onChange={value => {
-                  operations.onChangeDataFlow({
+                  adminOperations.onChangeDataFlow({
                     filters: { status: value },
                   });
                 }}
@@ -222,7 +251,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: TOKEN.ETH, value: TOKEN.ETH },
                 ]}
                 onChange={value => {
-                  operations.onChangeDataFlow({
+                  adminOperations.onChangeDataFlow({
                     filters: { token: value },
                   });
                 }}
@@ -239,7 +268,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: NETWORK_TYPE.ETHEREUM, value: NETWORK_TYPE.ETHEREUM },
                 ]}
                 onChange={value => {
-                  operations.onChangeDataFlow({
+                  adminOperations.onChangeDataFlow({
                     filters: { network: value },
                   });
                 }}
@@ -247,10 +276,10 @@ export const AdminExplorer = observer((props: any) => {
             </Box>
           </Box>
           <Table
-            data={operations.data}
+            data={adminOperations.data}
             columns={columns}
-            isPending={operations.isPending}
-            dataLayerConfig={operations.dataFlow}
+            isPending={adminOperations.isPending}
+            dataLayerConfig={adminOperations.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
             onRowClicked={() => {}}
             tableParams={{

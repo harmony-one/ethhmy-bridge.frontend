@@ -8,6 +8,7 @@ import * as agent from 'superagent';
 import * as _ from 'lodash';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
+import qs from 'qs';
 
 let servers = require('../../appengine-servers.json');
 
@@ -264,7 +265,11 @@ export const getDepositAmount = async (network: NETWORK_TYPE) => {
 export const manage = async (
   action: string,
   secret: string,
-  params: { operationId: string },
+  params: {
+    operationId: string;
+    actionType?: ACTION_TYPE;
+    transactionHash?: string;
+  },
 ) => {
   return callActionWait(async url => {
     const res = await agent.post<{ body: IOperation }>(
@@ -274,4 +279,17 @@ export const manage = async (
 
     return res.body;
   });
+};
+
+export const getOperationsAdmin = async (
+  params: any,
+  secret: string,
+  url = validators[0],
+): Promise<{ content: IOperation[] }> => {
+  const res = await agent.post<{ body: IOperation }>(
+    `${url}/manage/operations?${qs.stringify(params)}`,
+    { secret },
+  );
+
+  return res.body;
 };

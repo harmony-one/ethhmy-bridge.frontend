@@ -4,6 +4,7 @@ import { UserStoreEx } from './UserStore';
 import { UserStoreMetamask } from './UserStoreMetamask';
 import { Exchange } from './Exchange';
 import { Operations } from './Operations';
+import { AdminOperations } from './AdminOperations';
 import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { Erc20SelectStore } from './Erc20SelectStore';
@@ -15,6 +16,7 @@ export interface IStores {
   userMetamask?: UserStoreMetamask;
   exchange?: Exchange;
   operations?: Operations;
+  adminOperations?: AdminOperations;
   tokens?: Tokens;
   erc20Select?: Erc20SelectStore;
 }
@@ -24,6 +26,7 @@ const stores: IStores = {};
 stores.routing = new RouterStore();
 stores.exchange = new Exchange(stores);
 stores.operations = new Operations(stores);
+stores.adminOperations = new AdminOperations(stores);
 stores.tokens = new Tokens(stores);
 stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);

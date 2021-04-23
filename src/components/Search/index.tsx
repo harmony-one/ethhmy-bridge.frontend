@@ -6,7 +6,11 @@ import styled from 'styled-components';
 import { baseTheme } from '../../themes';
 
 export const SearchInput = observer(
-  (params: { value: string; onChange: (value: string) => void }) => {
+  (params: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder?: string;
+  }) => {
     return (
       <StyledInput
         style={{
@@ -22,7 +26,7 @@ export const SearchInput = observer(
         renderRight={
           params.value && <CleanIcon onClick={() => params.onChange('')} />
         }
-        placeholder="Search by asset details"
+        placeholder={params.placeholder || 'Search by asset details'}
         value={params.value}
         onChange={value => params.onChange(value)}
         {...({} as any)} // dirty hack for typechecking onKeyDown
