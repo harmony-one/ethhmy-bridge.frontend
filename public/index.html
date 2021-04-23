@@ -13,13 +13,20 @@
     -->
     <link rel="manifest" href="/manifest.json" />
 
-    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
-    <script>
-      WebFont.load({
-        google: {
-          families: ['Nunito:300,400,700'],
-        },
-      });
+    <script type="text/javascript">
+      WebFontConfig = {
+        google: { families: ['Nunito:300,400,700'] },
+      };
+      (function() {
+        var wf = document.createElement('script');
+        wf.src =
+          ('https:' == document.location.protocol ? 'https' : 'http') +
+          '://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+      })();
     </script>
 
     <link
@@ -84,10 +91,10 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <!-- Start of harmonyone Zendesk Widget script -->
-<!--    <script-->
-<!--      id="ze-snippet"-->
-<!--      src="https://static.zdassets.com/ekr/snippet.js?key=cf7ce990-8d23-41d2-b8f6-e92793779c65"-->
-<!--    ></script>-->
+    <!--    <script-->
+    <!--      id="ze-snippet"-->
+    <!--      src="https://static.zdassets.com/ekr/snippet.js?key=cf7ce990-8d23-41d2-b8f6-e92793779c65"-->
+    <!--    ></script>-->
     <!-- End of harmonyone Zendesk Widget script -->
   </body>
 </html>
