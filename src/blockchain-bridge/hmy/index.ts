@@ -119,6 +119,11 @@ const hmyManagerContractHrc20 = createContract(
   process.env.HMY_HRC20_MANAGER_CONTRACT,
 );
 
+const hmyManagerContractBHrc20 = createContract(
+  hmyManagerJsonHrc20.abi,
+  process.env.HMY_BRIDGE_MANAGER,
+);
+
 const hmyManagerContract721 = createContract(
   hmyManagerJson721.abi,
   process.env.HMY_ERC721_MANAGER_CONTRACT,
@@ -149,6 +154,11 @@ export const hmyMethodsBEP20Hmy = new HmyMethodsERC20({
 export const hmyMethodsHRC20Hmy = new HmyMethodsHRC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContractHrc20.hmyContract,
+});
+
+export const hmyMethodsBHRC20Hmy = new HmyMethodsHRC20({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContractBHrc20.hmyContract,
 });
 
 export const hmyMethodsERC721Hmy = new HmyMethodsERC20({
@@ -189,6 +199,12 @@ export const hmyMethodsHRC20Web3 = new HmyMethodsHRC20Web3({
   hmyManagerContractAddress: process.env.HMY_HRC20_MANAGER_CONTRACT,
 });
 
+export const hmyMethodsBHRC20Web3 = new HmyMethodsHRC20Web3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmyManagerContractBHrc20.web3Contract,
+  hmyManagerContractAddress: process.env.HMY_BRIDGE_MANAGER,
+});
+
 export const hmyMethodsERC721Web3 = new HmyMethodsERC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContract721.web3Contract,
@@ -219,6 +235,11 @@ export const hmyMethodsBEP20 = {
 export const hmyMethodsHRC20 = {
   hmyMethods: hmyMethodsHRC20Hmy,
   hmyMethodsWeb3: hmyMethodsHRC20Web3,
+};
+
+export const hmyMethodsBHRC20 = {
+  hmyMethods: hmyMethodsBHRC20Hmy,
+  hmyMethodsWeb3: hmyMethodsBHRC20Web3,
 };
 
 export const hmyMethodsERC721 = {

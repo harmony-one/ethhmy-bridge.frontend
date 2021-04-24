@@ -49,9 +49,15 @@ export const getContractMethods = (
 
     case TOKEN.HRC20:
       ethMethods = exNetwork.ethMethodsHRC20;
-      hmyMethods = isMetamask
-        ? contract.hmyMethodsHRC20.hmyMethodsWeb3
-        : contract.hmyMethodsHRC20.hmyMethods;
+      if (network === NETWORK_TYPE.ETHEREUM) {
+        hmyMethods = isMetamask
+          ? contract.hmyMethodsHRC20.hmyMethodsWeb3
+          : contract.hmyMethodsHRC20.hmyMethods;
+      } else {
+        hmyMethods = isMetamask
+          ? contract.hmyMethodsBHRC20.hmyMethodsWeb3
+          : contract.hmyMethodsBHRC20.hmyMethods;
+      }
       break;
 
     case TOKEN.ETH:

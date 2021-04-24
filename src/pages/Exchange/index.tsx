@@ -416,23 +416,24 @@ export class Exchange extends React.Component<
               </Box>
             )}
 
-            {/*{exchange.config.tokens.includes(TOKEN.HRC20) && (*/}
-            {/*  <Box*/}
-            {/*    className={cn(*/}
-            {/*      styles.itemToken,*/}
-            {/*      exchange.token === TOKEN.HRC20 ? styles.selected : '',*/}
-            {/*    )}*/}
-            {/*    onClick={() => {*/}
-            {/*      user.resetTokens();*/}
+            {exchange.network === NETWORK_TYPE.BINANCE &&
+              exchange.config.tokens.includes(TOKEN.HRC20) && (
+                <Box
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.HRC20 ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    user.resetTokens();
 
-            {/*      exchange.setToken(TOKEN.HRC20);*/}
-            {/*      routing.push(`/${exchange.token}`);*/}
-            {/*    }}*/}
-            {/*  >*/}
-            {/*    <img className={styles.imgToken} src="/one.svg" />*/}
-            {/*    <Text>HRC20</Text>*/}
-            {/*  </Box>*/}
-            {/*)}*/}
+                    exchange.setToken(TOKEN.HRC20);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img className={styles.imgToken} src="/one.svg" />
+                  <Text>HRC20</Text>
+                </Box>
+              )}
 
             {exchange.config.tokens.includes(TOKEN.ERC721) && (
               <Box
