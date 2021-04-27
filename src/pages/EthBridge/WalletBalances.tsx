@@ -44,7 +44,7 @@ const AssetRow = observer<any>(props => {
             />
           </a>
         ) : null}
-        {props.metamask ? (
+        {props.metamask && userMetamask.erc20TokenDetails ? (
           <AddTokenIcon
             hrc20Address={props.metamask}
             symbol={userMetamask.erc20TokenDetails.symbol}
@@ -347,7 +347,9 @@ export const WalletBalances = observer(() => {
                   />
                 ) : null}
 
-                {user.hrc20Address && exchange.token === TOKEN.ETH ? (
+                {user.hrc20Address &&
+                userMetamask.erc20TokenDetails &&
+                exchange.token === TOKEN.ETH ? (
                   <AssetRow
                     asset={`Harmony ${userMetamask.erc20TokenDetails.symbol}`}
                     value={formatWithSixDecimals(user.hrc20Balance)}

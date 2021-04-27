@@ -12,9 +12,10 @@ import {
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
 import * as agent from 'superagent';
-import { IOperation, NETWORK_TYPE, TOKEN } from './interfaces';
+import { EXCHANGE_MODE, IOperation, NETWORK_TYPE, TOKEN } from './interfaces';
 import { divDecimals } from '../utils';
 import { HarmonyAddress } from '@harmony-js/crypto';
+import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 
 const Web3 = require('web3');
 
@@ -401,13 +402,35 @@ export class UserStoreEx extends StoreConstructor {
     }
 
     if (!ignoreValidations) {
-      // if (
-      //   this.stores.tokens.allData
-      //     .filter(t => t.token === TOKEN.ERC20)
-      //     .find(t => t.hrc20Address === hrc20Address)
-      // ) {
-      //   throw new Error('This address already using for ERC20 token wrapper');
-      // }
+      if (
+        this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+        (!this.stores.userMetamask.isNetworkActual ||
+          !this.stores.userMetamask.isAuthorized)
+      ) {
+        throw new Error(
+          `Your MetaMask in on the wrong network. Please switch on ${
+            NETWORK_NAME[this.stores.exchange.network]
+          } ${process.env.NETWORK} and try again!`,
+        );
+      }
+
+      if (
+        this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+        ((this.stores.user.isMetamask && !this.stores.user.isNetworkActual) ||
+          !this.stores.user.isAuthorized)
+      ) {
+        throw new Error(
+          `Your MetaMask in on the wrong network. Please switch on Harmony ${process.env.NETWORK} and try again!`,
+        );
+      }
+
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.token === TOKEN.ERC20)
+          .find(t => isAddressEqual(t.hrc20Address, hrc20Address))
+      ) {
+        throw new Error('This address already using for ERC20 token wrapper');
+      }
 
       const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');
 
@@ -431,7 +454,7 @@ export class UserStoreEx extends StoreConstructor {
       if (
         this.stores.tokens.allData
           .filter(t => t.token === TOKEN.ERC721)
-          .find(t => t.hrc20Address === hrc20Address)
+          .find(t => isAddressEqual(t.hrc20Address, hrc20Address))
       ) {
         throw new Error('This address already using for ERC721 token wrapper');
       }
@@ -455,7 +478,9 @@ export class UserStoreEx extends StoreConstructor {
         );
       }
     } catch (e) {
-      console.error(e);
+      throw new Error(
+        `Wrong token address. Use only a valid HRC20 token address, not BEP20 address`,
+      );
     }
 
     this.hrc20Address = hrc20Address;
@@ -474,7 +499,7 @@ export class UserStoreEx extends StoreConstructor {
       }
     }
 
-    console.log(address);
+    console.log('address: ', address);
 
     if (!!Number(address)) {
       this.stores.userMetamask.erc20Address = address;

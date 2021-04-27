@@ -12,6 +12,7 @@ import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
 import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
+import { isAddressEqual } from './UserStore';
 
 const defaults = {};
 
@@ -64,6 +65,10 @@ export class UserStoreMetamask extends StoreConstructor {
             this.setToken(sessionObj.erc20Address);
             break;
           case TOKEN.ONE:
+            setTimeout(() => {
+              this.stores.user.setHRC20Mapping(sessionObj.hrc20Address, true);
+            }, 1000);
+            break;
           case TOKEN.HRC20:
             setTimeout(() => {
               this.stores.user.setHRC20Mapping(sessionObj.hrc20Address);
@@ -300,7 +305,7 @@ export class UserStoreMetamask extends StoreConstructor {
     if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.HRC20)
-        .find(t => t.erc20Address === erc20Address)
+        .find(t => isAddressEqual(t.erc20Address, erc20Address))
     ) {
       throw new Error('This address already using for HRC20 token wrapper');
     }
@@ -315,7 +320,7 @@ export class UserStoreMetamask extends StoreConstructor {
     if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.ERC721)
-        .find(t => t.erc20Address === erc20Address)
+        .find(t => isAddressEqual(t.erc20Address, erc20Address))
     ) {
       throw new Error('This address already using for ERC721 token');
     }

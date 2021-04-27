@@ -123,16 +123,38 @@ module.exports = {
       }),
     ],
     splitChunks: {
+      chunks: 'all',
+      minSize: 1000000,
+      minChunks: 1,
+      maxAsyncRequests: 5,
+      maxInitialRequests: 3,
+      automaticNameDelimiter: '~',
+      name: false,
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
-          reuseExistingChunk: true,
-          chunks: 'all',
-          // filename: config.vendorFilename,
           priority: -10,
+          name: 'vendors',
+          maxSize: 240000,
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
         },
       },
     },
+    // splitChunks: {
+    //   cacheGroups: {
+    //     vendors: {
+    //       test: /[\\/]node_modules[\\/]/,
+    //       reuseExistingChunk: true,
+    //       chunks: 'all',
+    //       // filename: config.vendorFilename,
+    //       priority: -10,
+    //     },
+    //   },
+    // },
   },
   performance: {
     hints: 'warning', // enum
