@@ -63,44 +63,50 @@ export const Explorer = observer((props: any) => {
           direction="row"
           wrap={true}
           fill={true}
-          justify="between"
-          align="center"
+          justify="center"
+          align="start"
           margin={{ top: 'xlarge' }}
         >
           <Box
             direction="row"
+            fill={true}
+            justify="between"
             align="center"
-            justify="start"
-            gap="20px"
-            style={{ marginBottom: 20 }}
+            pad={{ horizontal: 'large' }}
+            margin={{ bottom: '14px' }}
           >
-            <Box direction="row" align="center">
-              <Title size="medium">
-                Validator:
-                <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
-                  {operations.validatorUrl}
-                </span>
-              </Title>
-            </Box>
-            <StatisticBlockLight />
+            {!!validator ? (
+              <Box
+                direction="row"
+                align="center"
+                justify="start"
+                gap="20px"
+              >
+                <Box direction="row" align="center">
+                  <Title size="medium">
+                    Validator:
+                    <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
+                      {operations.validatorUrl}
+                    </span>
+                  </Title>
+                </Box>
+                <StatisticBlockLight />
+              </Box>
+            ) : (
+              <Box />
+            )}
+            {isAuthorized ? (
+              <Box>
+                <Checkbox
+                  label="Only my transactions"
+                  value={hasFilters}
+                  onChange={setMyOperationsHandler}
+                />
+              </Box>
+            ) : (
+              <Box />
+            )}
           </Box>
-          {isAuthorized ? (
-            <Box
-              direction="row"
-              pad={{ horizontal: 'large' }}
-              justify="end"
-              align="center"
-              style={{ marginBottom: 20 }}
-            >
-              <Checkbox
-                label="Only my transactions"
-                value={hasFilters}
-                onChange={setMyOperationsHandler}
-              />
-            </Box>
-          ) : (
-            <Box />
-          )}
           <Table
             data={operations.data}
             columns={columns}
