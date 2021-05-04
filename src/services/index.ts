@@ -266,9 +266,11 @@ export const manage = async (
   action: string,
   secret: string,
   params: {
-    operationId: string;
+    operationId?: string;
     actionType?: ACTION_TYPE;
     transactionHash?: string;
+    value?: number;
+    network?: NETWORK_TYPE;
   },
 ) => {
   return callActionWait(async url => {
