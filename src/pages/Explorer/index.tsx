@@ -5,17 +5,24 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Table } from 'components/Table';
-import { getColumns } from './Common';
+import { getColumns, StatisticBlockLight } from './Common';
 import { ExpandedRow } from './ExpandedRow';
 import { Checkbox } from '../../components/Base/components/Inputs/types';
+import { validators } from '../../services';
+import { Title } from '../../components/Base/components/Title';
 
 export const Explorer = observer((props: any) => {
   const { operations, user, tokens, userMetamask } = useStores();
+  const validator = props.match.params.validator || 0;
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
 
   useEffect(() => {
+    const validator = props.match.params.validator || 0;
+
+    operations.validatorUrl = validators[validator] || validators[0];
+
     tokens.init();
     tokens.fetch();
     operations.init();
@@ -26,6 +33,8 @@ export const Explorer = observer((props: any) => {
   }, [user.oneRate, user.ethRate, tokens.data, tokens.fetchStatus]);
 
   const onChangeDataFlow = (props: any) => {
+    operations.validatorUrl = validators[validator] || validators[0];
+
     operations.onChangeDataFlow(props);
   };
 
@@ -54,18 +63,34 @@ export const Explorer = observer((props: any) => {
           direction="row"
           wrap={true}
           fill={true}
-          justify="center"
-          align="start"
+          justify="between"
+          align="center"
           margin={{ top: 'xlarge' }}
         >
+          <Box
+            direction="row"
+            align="center"
+            justify="start"
+            gap="20px"
+            style={{ marginBottom: 20 }}
+          >
+            <Box direction="row" align="center">
+              <Title size="medium">
+                Validator:
+                <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
+                  {operations.validatorUrl}
+                </span>
+              </Title>
+            </Box>
+            <StatisticBlockLight />
+          </Box>
           {isAuthorized ? (
             <Box
               direction="row"
               pad={{ horizontal: 'large' }}
               justify="end"
               align="center"
-              fill={true}
-              margin={{ bottom: '14px' }}
+              style={{ marginBottom: 20 }}
             >
               <Checkbox
                 label="Only my transactions"
@@ -73,7 +98,9 @@ export const Explorer = observer((props: any) => {
                 onChange={setMyOperationsHandler}
               />
             </Box>
-          ) : null}
+          ) : (
+            <Box />
+          )}
           <Table
             data={operations.data}
             columns={columns}

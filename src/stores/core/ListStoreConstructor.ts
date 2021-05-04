@@ -291,6 +291,7 @@ export class ListStoreConstructor<T> extends StoreConstructor {
       .catch((error: NormalizedError) => {
         this.fetchStatus = 'error';
         this.fetchError = error;
+        this.allData = [];
       });
   };
 
