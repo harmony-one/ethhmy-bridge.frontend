@@ -119,11 +119,11 @@ const callAction = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
-const callActionWait = async (func: (url: string) => Promise<any>) => {
+const callActionWait = async (func: (url: string) => Promise<any>, countN = 15) => {
   let error;
   let success = false;
   let res;
-  let count = 15;
+  let count = countN;
 
   while (!success && count > 0) {
     try {
@@ -280,7 +280,7 @@ export const manage = async (
     );
 
     return res.body;
-  });
+  }, 1);
 };
 
 export const getOperationsAdmin = async (
