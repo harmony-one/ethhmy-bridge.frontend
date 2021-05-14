@@ -20,7 +20,7 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
   @observable selectedNetwork: NETWORK_TYPE;
 
   @computed get totalLockedUSD() {
-    return this.data
+    return this.allData
       .filter(a =>
         this.selectedNetwork ? a.network === this.selectedNetwork : true,
       )
