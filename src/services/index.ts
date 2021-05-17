@@ -119,7 +119,10 @@ const callAction = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
-const callActionWait = async (func: (url: string) => Promise<any>, countN = 15) => {
+const callActionWait = async (
+  func: (url: string) => Promise<any>,
+  countN = 15,
+) => {
   let error;
   let success = false;
   let res;
@@ -223,6 +226,23 @@ export const getTokensInfo = async (
 
     return true;
   });
+
+  const hasAddress = (token: ITokenInfo) => {
+    return content.find(
+      t =>
+        token.type !== t.type &&
+        (token.hrc20Address === t.hrc20Address ||
+          token.erc20Address === t.erc20Address),
+    );
+  };
+
+  // content = content.filter(
+  //   t => t.network === NETWORK_TYPE.BINANCE && hasAddress(t),
+  // );
+
+  content = content.filter(
+    t => t.type !== 'hrc20' || !hasAddress(t),
+  );
 
   content = _.uniqWith(
     content,
