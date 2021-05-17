@@ -215,18 +215,6 @@ export const getTokensInfo = async (
 
   let content = res.body.content;
 
-  content = content.filter(t => {
-    if (
-      t.symbol === '1ONE' &&
-      String(t.hrc20Address).toLowerCase() !==
-        String(process.env.ONE_HRC20).toLowerCase()
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
   const hasAddress = (token: ITokenInfo) => {
     return content.find(
       t =>
@@ -236,13 +224,32 @@ export const getTokensInfo = async (
     );
   };
 
+  content = content.filter(t => {
+    if (
+      t.symbol === '1ONE' &&
+      String(t.hrc20Address).toLowerCase() !==
+        String(process.env.ONE_HRC20).toLowerCase()
+    ) {
+      return false;
+    }
+
+    if (
+      t.symbol === 'ONE' &&
+      hasAddress(t) &&
+      String(t.hrc20Address).toLowerCase() !==
+        String(process.env.ONE_HRC20).toLowerCase()
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
   // content = content.filter(
   //   t => t.network === NETWORK_TYPE.BINANCE && hasAddress(t),
   // );
 
-  content = content.filter(
-    t => t.type !== 'hrc20' || !hasAddress(t),
-  );
+  content = content.filter(t => t.type !== 'hrc20' || !hasAddress(t));
 
   content = _.uniqWith(
     content,
