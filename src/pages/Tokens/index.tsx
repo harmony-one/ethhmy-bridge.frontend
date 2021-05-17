@@ -5,10 +5,15 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ITokenInfo, NETWORK_TYPE } from 'stores/interfaces';
+import {
+  EXCHANGE_MODE,
+  ITokenInfo,
+  NETWORK_TYPE,
+  TOKEN,
+} from 'stores/interfaces';
 import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Text, Title } from 'components/Base';
+import { Select, Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
@@ -143,6 +148,7 @@ export const Tokens = observer((props: any) => {
   const { tokens, user } = useStores();
   const [search, setSearch] = useState('');
   const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
+  const [tokenType, setToken] = useState<TOKEN | 'ALL'>('ALL');
 
   const [columns, setColumns] = useState(getColumns(user));
 
@@ -172,6 +178,7 @@ export const Tokens = observer((props: any) => {
 
     let iSearchOk = true;
     let isNetworkOk = true;
+    let isTokenOk = true;
 
     if (search) {
       iSearchOk =
@@ -191,7 +198,11 @@ export const Tokens = observer((props: any) => {
       isNetworkOk = token.network === network;
     }
 
-    return iSearchOk && isNetworkOk;
+    if (tokenType !== 'ALL') {
+      isTokenOk = token.type === tokenType;
+    }
+
+    return iSearchOk && isNetworkOk && isTokenOk;
   });
 
   return (
@@ -231,10 +242,11 @@ export const Tokens = observer((props: any) => {
           // style={{ maxWidth: 500 }}
           direction="row"
           justify="between"
+          align="end"
           gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
-          <Box direction="row" gap="10px">
+          <Box direction="row" gap="10px" align="end">
             <NetworkButton
               type={'ALL'}
               selectedType={network}
@@ -250,6 +262,19 @@ export const Tokens = observer((props: any) => {
               selectedType={network}
               onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
             />
+            <Box direction="column" style={{ width: 300 }} gap="5px">
+              <Text>Token:</Text>
+              <Select
+                size="full"
+                options={[
+                  { text: 'ALL', value: 'ALL' },
+                  { text: 'ERC20', value: TOKEN.ERC20 },
+                  { text: 'HRC20', value: TOKEN.HRC20 },
+                  { text: 'ERC721', value: TOKEN.ERC721 },
+                ]}
+                onChange={setToken}
+              />
+            </Box>
           </Box>
         </Box>
 

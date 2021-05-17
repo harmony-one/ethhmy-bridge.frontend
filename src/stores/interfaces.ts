@@ -124,5 +124,6 @@ export interface ITokenInfo {
   totalLockedNormal: string;
   totalLockedUSD: string;
   token: TOKEN;
+  type: TOKEN;
   network: NETWORK_TYPE;
 }

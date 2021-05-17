@@ -305,7 +305,11 @@ export class UserStoreMetamask extends StoreConstructor {
     if (
       this.stores.tokens.allData
         .filter(t => t.token === TOKEN.HRC20)
-        .find(t => isAddressEqual(t.erc20Address, erc20Address))
+        .find(
+          t =>
+            isAddressEqual(t.erc20Address, erc20Address) ||
+            isAddressEqual(t.hrc20Address, erc20Address),
+        )
     ) {
       throw new Error('This address already using for HRC20 token wrapper');
     }

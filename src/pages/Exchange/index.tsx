@@ -531,7 +531,7 @@ export class Exchange extends React.Component<
               ) : null}
 
               {exchange.token === TOKEN.HRC20 ? (
-                <ERC20Select type={exchange.token} options={false} />
+                <ERC20Select type={exchange.token} options={true} />
               ) : null}
 
               {exchange.token === TOKEN.ERC721 ? (

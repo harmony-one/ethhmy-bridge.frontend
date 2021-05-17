@@ -45,7 +45,8 @@ export class Erc20SelectStore extends StoreConstructor {
     });
 
     reaction(
-      () => stores.userMetamask.isNetworkActual && stores.userMetamask.isAuthorized,
+      () =>
+        stores.userMetamask.isNetworkActual && stores.userMetamask.isAuthorized,
       () =>
         this.tokenAddress &&
         setTimeout(() => this.setToken(this.tokenAddress), 500),
@@ -107,13 +108,26 @@ export class Erc20SelectStore extends StoreConstructor {
       return tokensMainnet;
     }
 
+    if (this.stores.exchange.token === TOKEN.HRC20) {
+      return this.stores.tokens.allData
+        .filter(t => !['ONE'].includes(t.symbol))
+        .filter(t => t.network === this.stores.exchange.network)
+        .filter(t => t.type === this.stores.exchange.token)
+        .map(t => ({
+          address: t.hrc20Address,
+          label: `${t.name} (${t.symbol})`,
+          image: NETWORK_ICON[t.network],
+        }));
+    }
+
     return this.stores.tokens.allData
       .filter(t =>
         this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
           ? !['BUSD', 'LINK'].includes(t.symbol)
-          : true,
+          : t.symbol !== 'BNB',
       )
       .filter(t => t.network === this.stores.exchange.network)
+      .filter(t => t.type === this.stores.exchange.token)
       .map(t => ({
         address: t.erc20Address,
         label: `${t.name} (${t.symbol})`,
