@@ -68,7 +68,7 @@ export class Erc20SelectStore extends StoreConstructor {
   }
 
   @action.bound
-  setToken = async (value: string) => {
+  setToken = async (value: string, ignoreValidations = false) => {
     this.tokenAddress = value;
     this.error = '';
     this.isLoading = true;
@@ -84,7 +84,7 @@ export class Erc20SelectStore extends StoreConstructor {
           break;
 
         case TOKEN.HRC20:
-          await this.stores.user.setHRC20Mapping(value);
+          await this.stores.user.setHRC20Mapping(value, ignoreValidations);
           break;
       }
     } catch (e) {

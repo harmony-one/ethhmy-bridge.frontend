@@ -3,11 +3,19 @@ import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { Button, Checkbox, Select, Text, TextInput } from 'components/Base';
+import {
+  Button,
+  Checkbox,
+  Select,
+  Text,
+  TextInput,
+  Title,
+} from 'components/Base';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
+import { AuthWarning } from '../../components/AuthWarning';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -50,7 +58,7 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { erc20Select, exchange } = useStores();
+    const { erc20Select, exchange, actionModals } = useStores();
 
     const [custom, setCustom] = useState(false);
     const [erc20, setErc20] = useState('');
@@ -143,6 +151,45 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         {erc20Select.error ? (
           <Box margin={{ top: custom ? '10px' : '0px' }}>
             <Text color="red">{erc20Select.error}</Text>
+          </Box>
+        ) : null}
+
+        {erc20Select.error &&
+        erc20Select.error.includes('This address already using for') ? (
+          <Box
+            margin={{ top: custom ? '10px' : '0px' }}
+            fill={true}
+            align="end"
+          >
+            <Button
+              disabled={erc20Select.isLoading}
+              onClick={async () => {
+                return actionModals.open(
+                  () => (
+                    <Box pad="large" gap="10px">
+                      <Title>Warning</Title>
+                      <Text>{erc20Select.error}</Text>
+                      <Text>
+                        It can lead to the irreversible loss of your tokens
+                      </Text>
+                    </Box>
+                  ),
+                  {
+                    title: '',
+                    applyText: 'Use address anyway',
+                    closeText: '',
+                    noValidation: true,
+                    width: '500px',
+                    showOther: true,
+                    onApply: () => {
+                      return erc20Select.setToken(erc20, true);
+                    },
+                  },
+                );
+              }}
+            >
+              Use address anyway
+            </Button>
           </Box>
         ) : null}
 
