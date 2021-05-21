@@ -64,6 +64,7 @@ export enum ACTION_TYPE {
   'waitingBlockNumberHarmony' = 'waitingBlockNumberHarmony',
   'unlockToken' = 'unlockToken',
   'unlockTokenRollback' = 'unlockTokenRollback',
+  'topUpAccount' = 'topUpAccount',
 
   // HRC20
   'approveHRC20HmyManger' = 'approveHRC20HmyManger',

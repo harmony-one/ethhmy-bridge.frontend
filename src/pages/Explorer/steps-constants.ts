@@ -18,6 +18,7 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   waitingBlockNumber: 'Wait for finality',
   mintToken: 'Mint tokens',
   mintTokenRollback: 'Mint tokens (rollback)',
+  topUpAccount: 'Top up user account',
 
   // ONE TO ETH
   approveHmyManger: 'Approve burn',
