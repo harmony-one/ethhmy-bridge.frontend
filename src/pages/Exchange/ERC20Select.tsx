@@ -155,7 +155,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         ) : null}
 
         {erc20Select.error &&
-        erc20Select.error.includes('This address already using for') ? (
+        erc20Select.error.includes('This HRC20 address corresponds') ? (
           <Box
             margin={{ top: custom ? '10px' : '0px' }}
             fill={true}
@@ -167,17 +167,18 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 return actionModals.open(
                   () => (
                     <Box pad="large" gap="10px">
-                      <Title>Warning</Title>
-                      <Text>{erc20Select.error}</Text>
+                      <Title>Confirm</Title>
+                      {/*<Text>{erc20Select.error}</Text>*/}
                       <Text>
-                        It can lead to the irreversible loss of your tokens
+                        Are you sure the HRC20 address you are using is not a
+                        bridged HRC20?
                       </Text>
                     </Box>
                   ),
                   {
                     title: '',
-                    applyText: 'Use address anyway',
-                    closeText: '',
+                    applyText: 'Yes, i confirm',
+                    closeText: 'Cancel',
                     noValidation: true,
                     width: '500px',
                     showOther: true,

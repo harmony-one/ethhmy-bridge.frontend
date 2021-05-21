@@ -429,7 +429,10 @@ export class UserStoreEx extends StoreConstructor {
           .filter(t => t.token === TOKEN.ERC20)
           .find(t => isAddressEqual(t.hrc20Address, hrc20Address))
       ) {
-        throw new Error('This address already using for ERC20 token wrapper');
+        // throw new Error('This address already using for ERC20 token wrapper');
+        throw new Error(
+          'This HRC20 address corresponds to a bridged BEP20. To bridge back your BEP20, use the BEP20 option. HRC20 option is only for tokens issued on Harmony.',
+        );
       }
 
       const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');
