@@ -16,9 +16,31 @@ if (process.env.NETWORK === 'testnet') {
   servers = require('../../appengine-servers.testnet.json');
 }
 
-export const validators = servers;
+export const threshold = 3; //process.env.THRESHOLD;
 
-const threshold = 3; //process.env.THRESHOLD;
+export const getValidators = async () => {
+  const availableValidators = await Promise.all(
+    servers.map(async url => {
+      try {
+        const res = await fetch(url + '/version').then(response =>
+          response.json(),
+        );
+
+        if (!!res.version) {
+          return url;
+        }
+      } catch (e) {}
+
+      return false;
+    }),
+  );
+
+  return availableValidators.filter(v => !!v).slice(0, threshold);
+};
+
+export let validators = servers;
+
+getValidators().then(res => (validators = res));
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
