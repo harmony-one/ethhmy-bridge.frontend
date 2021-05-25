@@ -10,17 +10,17 @@ import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
 
-let servers = require('../../appengine-servers.json');
+let serversJson = require('../../appengine-servers.json');
 
 if (process.env.NETWORK === 'testnet') {
-  servers = require('../../appengine-servers.testnet.json');
+  serversJson = require('../../appengine-servers.testnet.json');
 }
 
 export const threshold = 3; //process.env.THRESHOLD;
 
 export const getValidators = async () => {
   const availableValidators = await Promise.all(
-    servers.map(async url => {
+    serversJson.map(async url => {
       try {
         const res = await fetch(url + '/version').then(response =>
           response.json(),
@@ -38,7 +38,8 @@ export const getValidators = async () => {
   return availableValidators.filter(v => !!v).slice(0, threshold);
 };
 
-export let validators = servers;
+export let validators = serversJson;
+export let servers = validators;
 
 getValidators().then(res => (validators = res));
 
