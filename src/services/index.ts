@@ -39,9 +39,12 @@ export const getValidators = async () => {
 };
 
 export let validators = serversJson;
-export let servers = validators;
+export let servers = serversJson;
 
-getValidators().then(res => (validators = res));
+getValidators().then(res => {
+  validators = res;
+  servers = res;
+});
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -344,4 +347,9 @@ export const getOperationsAdmin = async (
   );
 
   return res.body;
+};
+
+// @ts-ignore
+window.getServers = () => {
+  return servers;
 };
