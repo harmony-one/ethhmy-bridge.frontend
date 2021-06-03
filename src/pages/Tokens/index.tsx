@@ -171,7 +171,7 @@ export const Tokens = observer((props: any) => {
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data.filter(token => {
+  const filteredData = tokens.allData.filter(token => {
     if (!Number(token.totalSupply)) {
       return false;
     }
