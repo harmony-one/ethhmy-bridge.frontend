@@ -17,7 +17,7 @@ export class HmyMethodsERC20Web3 {
   private hmyManagerContract: Contract;
   hmyManagerContractAddress: string;
   private hmyTokenManagerAddress: string;
-  // private options = { gasPrice: 1000000000, gasLimit: 6721900 };
+  // private options = { gasPrice: 3000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.web3 = params.web3;
@@ -54,7 +54,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -80,7 +80,7 @@ export class HmyMethodsERC20Web3 {
         .send({
           from: accounts[0],
           gasLimit: process.env.GAS_LIMIT,
-          gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+          gasPrice: process.env.GAS_PRICE,
         })
         .on('transactionHash', sendTxCallback);
 
@@ -106,7 +106,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -122,7 +122,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -235,7 +235,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
         value: mulDecimals(amount, 18),
       })
       .on('transactionHash', sendTxCallback);
