@@ -36,7 +36,14 @@ function getSorterValue(sorter: any, dataIndex: string): sortType {
 }
 
 export const CustomHeader = (props: IHeaderProps) => {
-  const { title, column, dataLayerConfig, onChangeDataFlow, options, hasAnyActiveFilter } = props;
+  const {
+    title,
+    column,
+    dataLayerConfig,
+    onChangeDataFlow,
+    options,
+    hasAnyActiveFilter,
+  } = props;
   const { dataIndex, sortable } = column;
   const { filters = {}, sorter, sorters = {} } = dataLayerConfig;
   const filter = getFilterByKey(dataIndex, filters);
@@ -60,7 +67,10 @@ export const CustomHeader = (props: IHeaderProps) => {
     });
   };
 
-  const updateFilterByKey = (key: string, value: string | string[] | IValueProps) => {
+  const updateFilterByKey = (
+    key: string,
+    value: string | string[] | IValueProps,
+  ) => {
     const { type } = column.filter || {};
     let newValue = { [key]: value } as any;
 
@@ -84,38 +94,40 @@ export const CustomHeader = (props: IHeaderProps) => {
       filters: { ...filters, ...updatedFilters },
     });
   };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex' }}>
         <Text>{title}</Text>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            flex: '0 0 auto',
-          }}
-        >
-          <Sorter
-            sortable={sortable}
-            value={sorterValue}
-            dataIndex={dataIndex}
-            onChange={sortType => {
-              onChangeDataFlow({
-                sorters: { ...sorters, [dataIndex]: sortType },
-                sorter: sortType !== 'none' ? `${dataIndex},${sortType}` : 'none',
-              });
+        {sortable && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              flex: '0 0 auto',
             }}
-          />
-          <Filter
-            column={column}
-            value={filter}
-            onChange={updateFilterByKey}
-            updateManyFilters={updateManyFilters}
-            options={options}
-          />
-        </div>
+          >
+            <Sorter
+              sortable={sortable}
+              value={sorterValue}
+              dataIndex={dataIndex}
+              onChange={sortType => {
+                onChangeDataFlow({
+                  sorters: { ...sorters, [dataIndex]: sortType },
+                  sorter:
+                    sortType !== 'none' ? `${dataIndex},${sortType}` : 'none',
+                });
+              }}
+            />
+            <Filter
+              column={column}
+              value={filter}
+              onChange={updateFilterByKey}
+              updateManyFilters={updateManyFilters}
+              options={options}
+            />
+          </div>
+        )}
       </div>
       {hasAnyActiveFilter && (
         <SubHeader

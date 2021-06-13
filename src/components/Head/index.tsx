@@ -27,7 +27,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const { minWidth, maxWidth } = container;
 
     const isExplorer = history.location.pathname === '/explorer';
-    const isTokens = history.location.pathname === '/tokens';
+    const isTokens = history.location.pathname.startsWith('/tokens');
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';

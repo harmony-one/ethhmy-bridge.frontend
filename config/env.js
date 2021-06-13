@@ -124,6 +124,7 @@ function getClientEnvironment(publicUrl) {
         BACKEND_URL: process.env.BACKEND_URL,
         THRESHOLD: process.env.THRESHOLD,
         GET_TOKENS_SERVICE: process.env.GET_TOKENS_SERVICE,
+        SUBGRAPH_URL: process.env.SUBGRAPH_URL,
       },
     );
   // Stringify all values so we can feed into Webpack DefinePlugin
