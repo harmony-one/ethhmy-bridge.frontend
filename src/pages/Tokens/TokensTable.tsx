@@ -12,7 +12,6 @@ const columns = [
     title: 'Name',
     key: 'name',
     dataIndex: 'name',
-    width: 500,
     className: styles.leftHeader,
     render: (value, data) => (
       <Box direction="column" justify="start" pad={{ left: 'medium' }}>
@@ -44,8 +43,10 @@ const columns = [
     title: 'Volume 24H',
     key: 'volume',
     dataIndex: 'volume',
-    width: 140,
-    className: styles.rightHeaderSort,
+    sortable: true,
+    defaultSort: 'asc',
+    width: 180,
+    className: styles.rightHeader,
     render: (value, data) => {
       return (
         <Box direction="column" align="end" pad={{ right: '10px' }}>
@@ -59,8 +60,10 @@ const columns = [
     title: 'Total Locked',
     key: 'totalLocked',
     dataIndex: 'totalLocked',
-    width: 'auto',
-    className: styles.rightHeaderSort,
+    sortable: true,
+    defaultSort: 'asc',
+    width: 180,
+    className: styles.rightHeader,
     render: (value, data) => (
       <Box direction="column" align="end" pad={{ right: '10px' }}>
         {value ? formatWithTwoDecimals(formatUnits(value, data.decimals)) : 0}
