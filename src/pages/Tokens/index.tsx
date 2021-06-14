@@ -113,8 +113,8 @@ export const Tokens = observer((props: any) => {
           direction="row"
           justify="between"
           align="center"
-          margin={{ top: 'medium' }}
-          pad={{ horizontal: 'medium' }}
+          margin={{ top: 'medium', horizontal: 'small' }}
+          // pad="medium"
         >
           <Title>Bridged Assets</Title>
 
@@ -152,37 +152,39 @@ export const Tokens = observer((props: any) => {
           round="xxsmall"
           margin="small"
           pad="small"
+          border={{
+            color: '#e7ecf7',
+          }}
           gap="small"
         >
           <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Total Events:</Title>
+            <Title size="xsmall">Transfers</Title>
+            <Title size="xsmall">Total:</Title>
             <Text>{formatZeroDecimals(dataStats?.stats.eventsCount ?? 0)}</Text>
-          </Box>
-          <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Events Today:</Title>
+            <Title size="xsmall">Today:</Title>
             <Text>
               {formatZeroDecimals(dataStats?.stats.dayData[0].eventsCount ?? 0)}
             </Text>
           </Box>
           <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Total Users:</Title>
+            <Title size="xsmall">Users</Title>
+            <Title size="xsmall">Total:</Title>
             <Text>{formatZeroDecimals(dataStats?.stats.usersCount ?? 0)}</Text>
-          </Box>
-          <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Users Today:</Title>
+            <Title size="xsmall">Today:</Title>
             <Text>
               {formatZeroDecimals(
                 dataStats?.stats.dayData[0].newUsersCount ?? 0,
               )}
             </Text>
           </Box>
+          <Box direction="row" align="baseline" gap="xxsmall"></Box>
         </Box>
         <Box
-          pad={{ horizontal: '9px' }}
+          pad={{ horizontal: 'small' }}
           margin={{ top: 'medium', bottom: 'medium' }}
           direction="row"
           justify="between"
-          gap="40px"
+          // gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
           <Box direction="row" gap="10px">
@@ -210,6 +212,7 @@ export const Tokens = observer((props: any) => {
           fill={true}
           justify="center"
           align="start"
+          pad="small"
         >
           <TokensTable
             assets={filteredData}
