@@ -73,20 +73,28 @@ export function getAssets(tokens, data) {
   return assets;
 }
 
+const day = 60 * 60 * 24;
+
 export function getDailyAssetTVL(asset) {
   const data = new Map<number, BigNumber>();
+  const today = Math.floor(Date.now() / (day * 1000)) * day;
   if (asset && asset.price && asset.dayData) {
     try {
       const price = parseUnits(String(asset.price));
       const decimals = BigNumber.from(10).pow(asset.decimals);
-      for (const { totalLocked, date } of asset.dayData) {
-        data.set(
-          date,
-          BigNumber.from(totalLocked)
+      const totalLockedByDay = new Map(
+        asset.dayData.map(({ date, totalLocked }) => [date, totalLocked]),
+      );
+
+      let lastValue = BigNumber.from(0);
+      for (let date = today - 60 * day; date <= today; date = date + day) {
+        if (totalLockedByDay.has(date)) {
+          lastValue = BigNumber.from(totalLockedByDay.get(date))
             .mul(price)
             .div(decimals)
-            .div(ONE),
-        );
+            .div(ONE);
+        }
+        data.set(date, lastValue);
       }
     } catch (e) {}
   }
@@ -105,7 +113,7 @@ export function getDailyAssetsTVL(assets) {
     }
   }
 
-  return Array.from(data.entries()).sort((a, b) => (a[0] > b[0] ? 1 : -1));
+  return Array.from(data.entries());
 }
 
 export function getDailyAssetVolume(asset) {
