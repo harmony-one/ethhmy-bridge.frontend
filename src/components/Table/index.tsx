@@ -25,7 +25,7 @@ const LoaderWrap = styled.div`
 
 export interface IColumn<P = any> {
   title?: string | React.ReactNode;
-  width: number | string;
+  width?: number | string;
   sortable?: boolean;
   dataIndex?: keyof P;
   key: keyof P;
