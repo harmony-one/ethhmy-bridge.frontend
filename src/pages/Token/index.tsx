@@ -14,7 +14,8 @@ import {
 } from 'analytics/utils';
 import { RecentEvents } from './EventsTable';
 import { Text, Title } from 'components/Base';
-import { formatWithTwoDecimals } from 'utils';
+import { formatWithTwoDecimals, formatZeroDecimals } from 'utils';
+import { StatsBox } from 'components/Stats';
 
 export const Token = observer(function Token({ match }) {
   const { tokens } = useStores();
@@ -43,31 +44,32 @@ export const Token = observer(function Token({ match }) {
               justify="between"
               align="center"
               margin={{ top: 'medium', horizontal: 'small' }}
-              pad={{ horizontal: 'medium' }}
             >
               <Title>
                 {asset.name} ({asset.symbol})
               </Title>
-
-              <Box direction="column">
-                <Title size="small">
-                  Total Value Locked (USD){' '}
-                  <span
-                    style={{
-                      marginLeft: 5,
-                      color: '#47b8eb',
-                      fontWeight: 600,
-                      letterSpacing: 0.2,
-                    }}
-                  >
-                    ${formatWithTwoDecimals(formatUnits(asset.tvl, 2))}
-                  </span>
-                </Title>
-              </Box>
-
               <Text>{`Last update: ${Math.round(
                 (Date.now() - tokens.lastUpdateTime) / 1000,
               )}sec ago`}</Text>
+            </Box>
+            <Box direction="row" margin="small" gap="medium">
+              <StatsBox
+                header="Total Transactions"
+                title="Total TXs"
+                stats={formatZeroDecimals(data.asset.eventsCount)}
+              />
+              <StatsBox
+                header="Total Value Locked, USD"
+                title="TVL"
+                stats={`$${formatWithTwoDecimals(formatUnits(asset.tvl, 2))}`}
+              />
+              <StatsBox
+                header="Total Locked"
+                title="Total Locked"
+                stats={`${formatZeroDecimals(
+                  formatUnits(data.asset.totalLocked, asset.decimals),
+                )} ${asset.symbol.toUpperCase()}`}
+              />
             </Box>
             <Box direction="row" justify="between" gap="xsmall">
               <TotalLockedDailyChart

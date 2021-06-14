@@ -19,6 +19,7 @@ import {
   getDailyAssetsTVL,
   getDailyAssetsVolume,
 } from 'analytics/utils';
+import { StatsBox } from 'components/Stats';
 
 export const Tokens = observer((props: any) => {
   const { tokens, routing } = useStores();
@@ -114,27 +115,26 @@ export const Tokens = observer((props: any) => {
           justify="between"
           align="center"
           margin={{ top: 'medium', horizontal: 'small' }}
-          // pad="medium"
         >
           <Title>Bridged Assets</Title>
-
-          <Box direction="column">
-            <Title size="small">
-              Total Value Locked (USD){' '}
-              <span
-                style={{
-                  marginLeft: 5,
-                  color: '#47b8eb',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                ${formatWithTwoDecimals(tvl)}
-              </span>
-            </Title>
-          </Box>
-
           <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+        </Box>
+        <Box direction="row" margin="small" gap="medium">
+          <StatsBox
+            header="Total Transactions"
+            title="Total TXs"
+            stats={formatZeroDecimals(dataStats?.stats.eventsCount ?? 0)}
+          />
+          <StatsBox
+            header="Total Value Locked, USD"
+            title="TVL"
+            stats={`$${formatWithTwoDecimals(tvl)}`}
+          />
+          <StatsBox
+            header="Unique Users"
+            title="Users"
+            stats={formatZeroDecimals(dataStats?.stats.usersCount ?? 0)}
+          />
         </Box>
         <Box direction="row" justify="between" gap="xsmall">
           <TotalLockedDailyChart
@@ -147,44 +147,10 @@ export const Tokens = observer((props: any) => {
           />
         </Box>
         <Box
-          direction="row"
-          background="white"
-          round="xxsmall"
-          margin="small"
-          pad="small"
-          border={{
-            color: '#e7ecf7',
-          }}
-          gap="small"
-        >
-          <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Transfers</Title>
-            <Title size="xsmall">Total:</Title>
-            <Text>{formatZeroDecimals(dataStats?.stats.eventsCount ?? 0)}</Text>
-            <Title size="xsmall">Today:</Title>
-            <Text>
-              {formatZeroDecimals(dataStats?.stats.dayData[0].eventsCount ?? 0)}
-            </Text>
-          </Box>
-          <Box direction="row" align="baseline" gap="xxsmall">
-            <Title size="xsmall">Users</Title>
-            <Title size="xsmall">Total:</Title>
-            <Text>{formatZeroDecimals(dataStats?.stats.usersCount ?? 0)}</Text>
-            <Title size="xsmall">Today:</Title>
-            <Text>
-              {formatZeroDecimals(
-                dataStats?.stats.dayData[0].newUsersCount ?? 0,
-              )}
-            </Text>
-          </Box>
-          <Box direction="row" align="baseline" gap="xxsmall"></Box>
-        </Box>
-        <Box
           pad={{ horizontal: 'small' }}
           margin={{ top: 'medium', bottom: 'medium' }}
           direction="row"
           justify="between"
-          // gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
           <Box direction="row" gap="10px">
