@@ -68,7 +68,6 @@ const getEventColumns = asset => [
     title: 'Amount',
     key: 'amount',
     dataIndex: 'amount',
-    width: 160,
     align: 'right',
     className: styles.rightHeaderSort,
     render: value => (
@@ -120,7 +119,7 @@ export function RecentEvents({ asset }) {
   });
 
   return (
-    <Box direction="row" wrap={true} fill={true} justify="center" align="start">
+    <Box direction="row" wrap={true} fill={true} pad="small">
       <Table
         data={data && data.events}
         columns={getEventColumns(asset)}

@@ -42,7 +42,7 @@ export const Token = observer(function Token({ match }) {
               direction="row"
               justify="between"
               align="center"
-              margin={{ top: 'medium' }}
+              margin={{ top: 'medium', horizontal: 'small' }}
               pad={{ horizontal: 'medium' }}
             >
               <Title>
@@ -79,12 +79,7 @@ export const Token = observer(function Token({ match }) {
                 lastUpdateTime={tokens.lastUpdateTime}
               />
             </Box>
-            <Box
-              direction="row"
-              justify="between"
-              align="center"
-              margin={{ top: 'medium' }}
-            >
+            <Box direction="row" margin={{ top: 'medium' }}>
               <RecentEvents asset={asset} />
             </Box>
           </>

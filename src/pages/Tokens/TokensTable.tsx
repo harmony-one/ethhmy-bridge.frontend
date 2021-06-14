@@ -59,7 +59,7 @@ const columns = [
     title: 'Total Locked',
     key: 'totalLocked',
     dataIndex: 'totalLocked',
-    width: 140,
+    width: 'auto',
     className: styles.rightHeaderSort,
     render: (value, data) => (
       <Box direction="column" align="end" pad={{ right: '10px' }}>

@@ -129,7 +129,7 @@ export class Table extends React.Component<IProps> {
     const { paginationData } = dataLayerConfig;
 
     return (
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', flexGrow: 1 }}>
         {isPending && (
           <LoaderWrap>
             <Spinner style={{ width: 24, height: 24 }} />

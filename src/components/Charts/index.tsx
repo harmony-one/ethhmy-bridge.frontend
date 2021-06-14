@@ -84,7 +84,10 @@ export function TotalLockedDailyChart({ lastUpdateTime, data }) {
       pad="medium"
       background="white"
       margin="small"
-      round="xsmall"
+      round="xxsmall"
+      border={{
+        color: '#e7ecf7',
+      }}
     >
       <div>TVL</div>
       <div ref={chartElRef}></div>
@@ -128,7 +131,10 @@ export function VolumeDailyChart({ lastUpdateTime, data }) {
       pad="medium"
       background="white"
       margin="small"
-      round="xsmall"
+      round="xxsmall"
+      border={{
+        color: '#e7ecf7',
+      }}
     >
       <div>Volume</div>
       <div ref={chartElRef}></div>
