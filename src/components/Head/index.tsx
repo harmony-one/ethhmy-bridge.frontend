@@ -9,6 +9,8 @@ import { useStores } from '../../stores';
 import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
+import { useMediaQuery } from 'react-responsive';
+
 // import { formatWithTwoDecimals } from '../../utils';
 
 const MainLogo = styled.img`
@@ -25,6 +27,8 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const { routing, user, exchange, actionModals } = useStores();
     const { palette, container } = theme;
     const { minWidth, maxWidth } = container;
+
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     const isExplorer = history.location.pathname === '/explorer';
     const isTokens = history.location.pathname === '/tokens';
@@ -58,20 +62,24 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
         }}
       >
         <Box
-          direction="row"
+          direction={isMobile ? 'column' : 'row'}
           align="center"
           justify="between"
           style={{
             minWidth,
             maxWidth,
             margin: '0 auto',
-            padding: '0px 30px',
-            height: 100,
+            padding: isMobile ? '0px' : '0px 30px',
+            height: isMobile ? 'auto' : 100,
             minHeight: 100,
             width: '100%',
           }}
         >
-          <Box direction="row" align="center">
+          <Box
+            direction="row"
+            align="center"
+            margin={{ vertical: isMobile ? '15px' : '0px' }}
+          >
             <Box
               align="center"
               margin={{ right: 'small' }}
@@ -80,13 +88,18 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <MainLogo src="/one.svg" />
             </Box>
             <Box>
-              <Title size="medium" color="BlackTxt" bold>
+              <Title size={isMobile ? 'small' : 'medium'} color="BlackTxt" bold>
                 Horizon by Harmony
               </Title>
             </Box>
           </Box>
 
-          <Box direction="row" align="center" gap="15px">
+          <Box
+            direction="row"
+            align="center"
+            gap={isMobile ? '10px' : '15px'}
+            margin={{ bottom: isMobile ? '10px' : '0px' }}
+          >
             {getTokenServiceEnable ? (
               <Box
                 className={cn(

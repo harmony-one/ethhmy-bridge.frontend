@@ -16,6 +16,7 @@ import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
 import { AuthWarning } from '../../components/AuthWarning';
+import { useMediaQuery } from 'react-responsive';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -62,6 +63,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
 
     const [custom, setCustom] = useState(false);
     const [erc20, setErc20] = useState('');
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     useEffect(() => setErc20(erc20Select.tokenAddress), [
       erc20Select.tokenAddress,
@@ -118,7 +120,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                   href={`${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`}
                   target="_blank"
                 >
-                  {truncateAddressString(erc20Select.tokenAddress, 16)}
+                  {truncateAddressString(erc20Select.tokenAddress, isMobile ? 8 : 16)}
                 </a>
               </Box>
             ) : null}

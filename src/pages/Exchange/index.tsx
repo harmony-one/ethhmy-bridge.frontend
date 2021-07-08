@@ -356,7 +356,7 @@ export class Exchange extends React.Component<
     );
 
     return (
-      <Box direction="column" pad="xlarge" className={styles.exchangeContainer}>
+      <Box direction="column" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE && exchange.fullConfig ? (
           <Box direction="row" wrap={true} align="center" justify="start">
             {exchange.config.tokens.includes(TOKEN.BUSD) && (

@@ -17,6 +17,7 @@ import {
   NETWORK_NAME,
 } from '../../stores/names';
 import { AddTokenIcon } from '../../ui/AddToken';
+import { useMediaQuery } from 'react-responsive';
 
 const AssetRow = observer<any>(props => {
   const { exchange, userMetamask } = useStores();
@@ -67,6 +68,8 @@ const AssetRow = observer<any>(props => {
 
 export const WalletBalances = observer(() => {
   const { user, userMetamask, actionModals, exchange } = useStores();
+
+  const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
   const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
 
@@ -166,7 +169,10 @@ export const WalletBalances = observer(() => {
               <>
                 <AssetRow
                   asset={`${externalNetworkToken} Address`}
-                  value={truncateAddressString(userMetamask.ethAddress)}
+                  value={truncateAddressString(
+                    userMetamask.ethAddress,
+                    isMobile ? 6 : 12,
+                  )}
                 />
 
                 <AssetRow
@@ -309,7 +315,7 @@ export const WalletBalances = observer(() => {
               <>
                 <AssetRow
                   asset="Harmony Address"
-                  value={truncateAddressString(user.address)}
+                  value={truncateAddressString(user.address, isMobile ? 6 : 12)}
                 />
 
                 <AssetRow
@@ -398,30 +404,32 @@ export const WalletBalances = observer(() => {
             )
           ) : (
             <Box direction="column" justify="start" align="start">
-              <WalletButton
-                onClick={() => {
-                  if (!user.isOneWallet) {
-                    actionModals.open(() => <AuthWarning />, {
-                      title: '',
-                      applyText: 'Got it',
-                      closeText: '',
-                      noValidation: true,
-                      width: '500px',
-                      showOther: true,
-                      onApply: () => Promise.resolve(),
-                    });
-                  } else {
-                    user.signIn();
-                  }
-                }}
-                error={!user.isOneWallet && 'ONE Wallet not found'}
-              >
-                <img
-                  src="/one.svg"
-                  style={{ marginRight: 10, marginTop: -2 }}
-                />
-                One Wallet
-              </WalletButton>
+              {!isMobile ? (
+                <WalletButton
+                  onClick={() => {
+                    if (!user.isOneWallet) {
+                      actionModals.open(() => <AuthWarning />, {
+                        title: '',
+                        applyText: 'Got it',
+                        closeText: '',
+                        noValidation: true,
+                        width: '500px',
+                        showOther: true,
+                        onApply: () => Promise.resolve(),
+                      });
+                    } else {
+                      user.signIn();
+                    }
+                  }}
+                  error={!user.isOneWallet && 'ONE Wallet not found'}
+                >
+                  <img
+                    src="/one.svg"
+                    style={{ marginRight: 10, marginTop: -2 }}
+                  />
+                  One Wallet
+                </WalletButton>
+              ) : null}
 
               <WalletButton
                 onClick={() => {
