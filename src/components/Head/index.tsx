@@ -135,17 +135,19 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Assets</Text>
             </Box>
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                isExplorer ? styles.selected : '',
-              )}
-              onClick={() => {
-                routing.push(`/explorer`);
-              }}
-            >
-              <Text>Transactions</Text>
-            </Box>
+            {!isMobile && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  isExplorer ? styles.selected : '',
+                )}
+                onClick={() => {
+                  routing.push(`/explorer`);
+                }}
+              >
+                <Text>Transactions</Text>
+              </Box>
+            )}
 
             {/*<Box*/}
             {/*  className={cn(styles.itemToken, isInfo ? styles.selected : '')}*/}

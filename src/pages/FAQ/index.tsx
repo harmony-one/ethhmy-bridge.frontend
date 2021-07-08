@@ -387,10 +387,7 @@ export const FAQPage = () => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          className={styles.faqContainer}
-          pad={{ horizontal: 'large', top: 'large' }}
-        >
+        <Box className={styles.faqContainer}>
           <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
             <Title
               style={{
@@ -403,7 +400,10 @@ export const FAQPage = () => {
               FAQ
             </Title>
           </Box>
-          <Box style={{ background: 'white', borderRadius: 5 }} pad="xlarge">
+          <Box
+            style={{ background: 'white', borderRadius: 5 }}
+            pad={{ vertical: 'large', horizontal: 'large' }}
+          >
             {faqConfig.map((item, idx) => {
               const isExpanded = expandedIdxs.includes(idx);
 
@@ -424,7 +424,7 @@ export const FAQPage = () => {
                     {/*  styles={{ marginBottom: 2 }}*/}
                     {/*  glyph={isExpanded ? 'Minus' : 'Plus'}*/}
                     {/*/>*/}
-                    <Text size="large" style={{ marginLeft: 10 }} bold>
+                    <Text className={styles.labelText} size="large" style={{ marginLeft: 10 }} bold>
                       {item.label}
                     </Text>
                   </Box>
