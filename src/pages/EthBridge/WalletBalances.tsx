@@ -138,7 +138,9 @@ export const WalletBalances = observer(() => {
                       src="/metamask.svg"
                       style={{ marginTop: -2, marginRight: 5, height: 20 }}
                     />
-                    <Text margin={{ right: '10px' }}>Metamask</Text>
+                    {!isMobile ? (
+                      <Text margin={{ right: '10px' }}>Metamask</Text>
+                    ) : null}
                   </>
                 )}
 
@@ -273,9 +275,11 @@ export const WalletBalances = observer(() => {
                         height: 20,
                       }}
                     />
-                    <Text margin={{ right: '10px' }}>
-                      {user.isMetamask ? 'Metamask' : 'ONE Wallet'}
-                    </Text>
+                    {!isMobile ? (
+                      <Text margin={{ right: '10px' }}>
+                        {user.isMetamask ? 'Metamask' : 'ONE Wallet'}
+                      </Text>
+                    ) : null}
                   </>
                 )}
 
