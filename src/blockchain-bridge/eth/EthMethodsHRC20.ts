@@ -35,7 +35,7 @@ export class EthMethodsHRC20 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -66,7 +66,7 @@ export class EthMethodsHRC20 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
     const hrc20AddressHex = getAddress(hrc20Address).checksum;

@@ -211,7 +211,8 @@ export class UserStoreEx extends StoreConstructor {
       this.provider
         .request({ method: 'eth_requestAccounts' })
         .then(async params => {
-          const web3 = new Web3(window.web3.currentProvider);
+          // @ts-ignore
+          const web3 = new Web3(window.ethereum);
           this.metamaskChainId = await web3.eth.net.getId();
 
           this.sessionType = 'metamask';

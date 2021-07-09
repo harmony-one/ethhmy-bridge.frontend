@@ -32,7 +32,7 @@ export class EthMethodsERC20 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -57,7 +57,7 @@ export class EthMethodsERC20 {
 
   setApprovalForAllEthManger = async (erc20Address, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const MyERC20Json = require('../out/MyERC721.json');
     const erc20Contract = new this.web3.eth.Contract(
@@ -85,7 +85,7 @@ export class EthMethodsERC20 {
 
   lockTokens = async (erc20Address, userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -118,7 +118,7 @@ export class EthMethodsERC20 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -225,7 +225,7 @@ export class EthMethodsERC20 {
 
   lockNative = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

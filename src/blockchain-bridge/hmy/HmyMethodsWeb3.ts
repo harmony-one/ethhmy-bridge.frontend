@@ -32,7 +32,7 @@ export class HmyMethodsWeb3 {
 
   approveHmyManger = async (amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -53,7 +53,7 @@ export class HmyMethodsWeb3 {
 
   burnToken = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const addrHex = getAddress(userAddr).checksum;
 

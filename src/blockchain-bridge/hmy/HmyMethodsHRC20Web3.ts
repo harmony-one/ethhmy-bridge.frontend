@@ -39,7 +39,7 @@ export class HmyMethodsHRC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -84,7 +84,7 @@ export class HmyMethodsHRC20Web3 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     const res = await this.hmyManagerContract.methods
@@ -101,7 +101,7 @@ export class HmyMethodsHRC20Web3 {
 
   lockOne = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

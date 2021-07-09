@@ -27,7 +27,7 @@ export class EthMethods {
 
   approveEthManger = async (amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -46,7 +46,7 @@ export class EthMethods {
 
   lockToken = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -77,7 +77,7 @@ export class EthMethods {
 
   lockEth = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

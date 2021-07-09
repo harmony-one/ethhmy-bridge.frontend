@@ -42,7 +42,7 @@ export class HmyMethodsERC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -68,7 +68,8 @@ export class HmyMethodsERC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    // @ts-ignore
+const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let res = await hmyTokenContract.methods
       .isApprovedForAll(accounts[0], this.hmyManagerContractAddress)
@@ -99,7 +100,7 @@ export class HmyMethodsERC20Web3 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let response = await this.hmyManagerContract.methods
       .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
@@ -115,7 +116,7 @@ export class HmyMethodsERC20Web3 {
 
   burnTokens = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let response = await this.hmyManagerContract.methods
       .burnTokens(hrc20Address, amount, userAddr)
@@ -200,7 +201,7 @@ export class HmyMethodsERC20Web3 {
 
   lockOne = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

@@ -26,7 +26,7 @@ export class HmyMethodsDepositWeb3 {
 
   deposit = async (amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let res = await this.hmyManagerContract.methods
       .deposit(mulDecimals(amount, 18))
