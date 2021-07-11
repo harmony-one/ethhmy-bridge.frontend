@@ -16,7 +16,7 @@ import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
-import { sleep, uuid } from '../../utils';
+import { mulDecimals, sleep, uuid } from '../../utils';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
@@ -832,7 +832,13 @@ export class Exchange extends StoreConstructor {
   @observable allowanceError = '';
 
   @computed get needToApprove() {
-    return Number(this.transaction.amount) > Number(this.allowance) / 1e18;
+    const decimals = this.stores.userMetamask.erc20TokenDetails.decimals;
+
+    return (
+      mulDecimals(Number(this.transaction.amount), decimals).cmp(
+        Number(this.allowance),
+      ) > 0
+    );
   }
 
   @action.bound
