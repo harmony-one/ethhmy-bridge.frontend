@@ -9,6 +9,12 @@ import {
   ChartOptions,
   HistogramSeriesPartialOptions,
 } from 'lightweight-charts';
+import {
+  formatEther,
+  formatUnits,
+  parseEther,
+  parseUnits,
+} from '@ethersproject/units';
 
 export function useHistogramChart(
   ref: React.MutableRefObject<HTMLDivElement>,
@@ -54,7 +60,7 @@ export function useHistogramChart(
   return [chartRef, seriesRef];
 }
 
-export function TotalLockedDailyChart({ lastUpdateTime, data }) {
+export function TotalLockedDailyChart({ data }) {
   const chartElRef = useRef<HTMLDivElement>();
   const [chartRef, seriesRef] = useHistogramChart(chartElRef);
 
@@ -65,7 +71,12 @@ export function TotalLockedDailyChart({ lastUpdateTime, data }) {
           ([time, value]) =>
             ({
               time,
-              value: parseInt(BigNumber.from(value).toString()),
+              value:
+                parseInt(
+                  BigNumber.from(value)
+                    .div(parseUnits('1', 16))
+                    .toString(),
+                ) / 100,
             } as HistogramData),
         )
         .sort((a, b) => (a.time > b.time ? 1 : -1))
@@ -76,7 +87,7 @@ export function TotalLockedDailyChart({ lastUpdateTime, data }) {
     chartRef.current.priceScale().applyOptions({
       autoScale: true,
     });
-  }, [lastUpdateTime]);
+  }, [data]);
 
   return (
     <Box
@@ -95,7 +106,7 @@ export function TotalLockedDailyChart({ lastUpdateTime, data }) {
   );
 }
 
-export function VolumeDailyChart({ lastUpdateTime, data }) {
+export function VolumeDailyChart({ data }) {
   const chartElRef = useRef<HTMLDivElement>();
   const [chartRef, seriesRef] = useHistogramChart(
     chartElRef,
@@ -112,7 +123,12 @@ export function VolumeDailyChart({ lastUpdateTime, data }) {
           ([time, value]) =>
             ({
               time,
-              value: parseInt(BigNumber.from(value).toString()),
+              value:
+                parseInt(
+                  BigNumber.from(value)
+                    .div(parseUnits('1', 16))
+                    .toString(),
+                ) / 100,
             } as HistogramData),
         )
         .sort((a, b) => (a.time > b.time ? 1 : -1))
@@ -123,7 +139,7 @@ export function VolumeDailyChart({ lastUpdateTime, data }) {
     chartRef.current.priceScale().applyOptions({
       autoScale: true,
     });
-  }, [lastUpdateTime]);
+  }, [data]);
 
   return (
     <Box

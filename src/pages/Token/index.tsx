@@ -1,29 +1,45 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { observer } from 'mobx-react';
 import { BaseContainer, PageContainer } from 'components';
 import { Box } from 'grommet';
 import { useQuery } from '@apollo/client';
 import { ASSET_STATS } from 'analytics/queries';
-import { formatUnits } from '@ethersproject/units';
+import { formatEther, formatUnits } from '@ethersproject/units';
 import { TotalLockedDailyChart, VolumeDailyChart } from 'components/Charts';
 import { useStores } from 'stores';
-import {
-  getAsset,
-  getDailyAssetTVL,
-  getDailyAssetVolume,
-} from 'analytics/utils';
+import { getAsset } from 'analytics/utils';
 import { RecentEvents } from './EventsTable';
 import { Text, Title } from 'components/Base';
 import { formatWithTwoDecimals, formatZeroDecimals } from 'utils';
 import { StatsBox } from 'components/Stats';
 
+async function fetchAsset(id) {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/assets/${id}`);
+  return await res.json();
+}
+
+async function fetchTvl(id) {
+  const res = await fetch(
+    `${process.env.ASSETS_INFO_SERVICE}/charts/${id}/tvl`,
+  );
+  return await res.json();
+}
+
+async function fetchVolume(id) {
+  const res = await fetch(
+    `${process.env.ASSETS_INFO_SERVICE}/charts/${id}/volume`,
+  );
+  return await res.json();
+}
+
 export const Token = observer(function Token({ match }) {
-  const { tokens } = useStores();
+  const [asset, setAsset] = useState(null);
 
   useEffect(() => {
-    tokens.init();
-    tokens.fetch();
-  }, []);
+    fetchAsset(match.params.token.toLowerCase()).then(res => {
+      setAsset(res.asset);
+    });
+  }, [match.params.token]);
 
   const { data } = useQuery(ASSET_STATS, {
     variables: {
@@ -31,7 +47,20 @@ export const Token = observer(function Token({ match }) {
     },
   });
 
-  let asset = !tokens.isPending && data ? getAsset(tokens, data.asset) : null;
+  const [tvlChart, setTvlChart] = useState([]);
+  const [volumeChart, setVolumeChart] = useState([]);
+
+  useEffect(() => {
+    fetchTvl(match.params.token.toLowerCase()).then(tvl => setTvlChart(tvl));
+  }, [match.params.token]);
+
+  useEffect(() => {
+    fetchVolume(match.params.token.toLowerCase()).then(volume =>
+      setVolumeChart(volume),
+    );
+  }, [match.params.token]);
+
+  console.log(asset);
 
   return (
     <BaseContainer>
@@ -48,9 +77,6 @@ export const Token = observer(function Token({ match }) {
               <Title>
                 {asset.name} ({asset.symbol})
               </Title>
-              <Text>{`Last update: ${Math.round(
-                (Date.now() - tokens.lastUpdateTime) / 1000,
-              )}sec ago`}</Text>
             </Box>
             <Box direction="row" margin="small" gap="medium">
               <StatsBox
@@ -61,7 +87,7 @@ export const Token = observer(function Token({ match }) {
               <StatsBox
                 header="Total Value Locked, USD"
                 title="TVL"
-                stats={`$${formatWithTwoDecimals(formatUnits(asset.tvl, 2))}`}
+                stats={`$${formatWithTwoDecimals(formatEther(asset.tvl))}`}
               />
               <StatsBox
                 header="Total Locked"
@@ -72,14 +98,8 @@ export const Token = observer(function Token({ match }) {
               />
             </Box>
             <Box direction="row" justify="between" gap="xsmall">
-              <TotalLockedDailyChart
-                data={getDailyAssetTVL(asset)}
-                lastUpdateTime={tokens.lastUpdateTime}
-              />
-              <VolumeDailyChart
-                data={getDailyAssetVolume(asset)}
-                lastUpdateTime={tokens.lastUpdateTime}
-              />
+              <TotalLockedDailyChart data={tvlChart} />
+              <VolumeDailyChart data={volumeChart} />
             </Box>
             <Box direction="row" margin={{ top: 'medium' }}>
               <RecentEvents asset={asset} />

@@ -3,7 +3,7 @@ import { Table } from 'components/Table';
 import { Box } from 'grommet';
 import * as styles from './styles.styl';
 import { formatWithSixDecimals, formatWithTwoDecimals } from 'utils';
-import { formatUnits } from '@ethersproject/units';
+import { formatEther, formatUnits } from '@ethersproject/units';
 import { Text } from 'components/Base';
 import { BridgedToken, OneToken } from 'components/ExplorerLinks';
 
@@ -20,10 +20,9 @@ const columns = [
           {value} {data.symbol && <>({data.symbol.toUpperCase()})</>}
         </Text>
         <OneToken address={data.id} />
-        <BridgedToken
-          network={data.mappedNetwork}
-          address={data.mappedAddress}
-        />
+        {data.mappedAddress && (
+          <BridgedToken network={data.network} address={data.mappedAddress} />
+        )}
       </Box>
     ),
   },
@@ -35,7 +34,7 @@ const columns = [
     className: styles.rightHeaderSort,
     render: (value, data) => (
       <Box direction="column" align="end" pad={{ right: '10px' }}>
-        ${value ? formatWithSixDecimals(value) : 0}
+        ${value ? formatWithTwoDecimals(formatEther(value)) : 0}
       </Box>
     ),
   },
@@ -83,7 +82,7 @@ const columns = [
     render: (value, data) => {
       return (
         <Box direction="column" align="end" pad={{ right: 'medium' }}>
-          ${value ? formatWithTwoDecimals(formatUnits(value, 2)) : 0}
+          ${value ? formatWithTwoDecimals(formatEther(value)) : 0}
         </Box>
       );
     },

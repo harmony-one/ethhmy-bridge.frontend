@@ -11,75 +11,67 @@ import { getBech32Address } from '../../blockchain-bridge';
 import { NetworkButton } from './Components';
 import { TokensTable } from './TokensTable';
 import { useQuery } from '@apollo/client';
-import { DAILY_TOKENS_STATS, STATS_QUERY } from 'analytics/queries';
-import { BigNumber } from '@ethersproject/bignumber';
+import { STATS_QUERY } from 'analytics/queries';
 import { TotalLockedDailyChart, VolumeDailyChart } from 'components/Charts';
-import {
-  getAssets,
-  getDailyAssetsTVL,
-  getDailyAssetsVolume,
-} from 'analytics/utils';
 import { StatsBox } from 'components/Stats';
+import { formatEther } from '@ethersproject/units';
+
+async function fetchAssets() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/assets`);
+  return await res.json();
+}
+
+async function fetchTvl() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/charts/tvl`);
+  return await res.json();
+}
+
+async function fetchVolume() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/charts/volume`);
+  return await res.json();
+}
 
 export const Tokens = observer((props: any) => {
-  const { tokens, routing } = useStores();
+  const { routing, assets } = useStores();
   const [search, setSearch] = useState('');
   const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
-  const { data, startPolling, stopPolling } = useQuery(DAILY_TOKENS_STATS);
 
-  const { data: dataStats } = useQuery(STATS_QUERY);
+  const { data: statsData } = useQuery(STATS_QUERY);
 
-  useEffect(() => {
-    tokens.init();
-    tokens.fetch();
-  }, []);
+  const [tvl, setTvl] = useState(0);
+  const [tvlChart, setTvlChart] = useState([]);
 
   useEffect(() => {
-    startPolling(30000);
-    return () => {
-      stopPolling();
-    };
-  }, []);
-
-  let assets = !tokens.isPending && data ? getAssets(tokens, data) : [];
-
-  if (tokens.sorter && tokens.sorter !== 'none') {
-    const sorter = Array.isArray(tokens.sorter)
-      ? tokens.sorter[0]
-      : tokens.sorter;
-
-    const [index, direction] = sorter.split(',');
-    const dir = direction === 'asc' ? 1 : -1;
-    assets = assets.slice().sort((a, b) => {
-      if (BigNumber.isBigNumber(a[index])) {
-        return BigNumber.from(a[index]).lt(b[index]) ? dir : -dir;
-      }
-
-      return Number(a[index]) < Number(b[index]) ? dir : -dir;
+    assets.init();
+    fetchAssets().then(res => {
+      assets.set(res.assets);
+      setTvl(parseInt(formatEther(res.tvl)));
     });
-  }
+  }, []);
 
-  // useEffect(() => {
-  //   tokens.selectedNetwork = network === 'ALL' ? undefined : network;
-  // }, [network]);
+  useEffect(() => {
+    fetchTvl().then(tvl => setTvlChart(tvl));
+  }, []);
+
+  const [volumeChart, setVolumeChart] = useState([]);
+
+  useEffect(() => {
+    fetchVolume().then(volume => setVolumeChart(volume));
+  }, []);
+
+  let data = assets.isPending ? [] : assets.data;
+
+  useEffect(() => {
+    assets.selectedNetwork = network === 'ALL' ? undefined : network;
+  }, [network]);
 
   const onChangeDataFlow = (props: any) => {
-    tokens.onChangeDataFlow(props);
+    assets.onChangeDataFlow(props);
   };
 
-  const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
+  const lastUpdateAgo = Math.ceil((Date.now() - assets.lastUpdateTime) / 1000);
 
-  const volumeData = getDailyAssetsVolume(assets);
-  const tvlData = getDailyAssetsTVL(assets);
-
-  const tvl =
-    data && tvlData.length > 0 ? tvlData.reverse()[0][1].toString() : 0;
-
-  const filteredData = assets.filter(token => {
-    // if (!Number(token.totalSupply)) {
-    //   return false;
-    // }
-
+  const filteredData = data.filter(token => {
     let iSearchOk = true;
     let isNetworkOk = true;
 
@@ -117,13 +109,13 @@ export const Tokens = observer((props: any) => {
           margin={{ top: 'medium', horizontal: 'small' }}
         >
           <Title>Bridged Assets</Title>
-          <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+          {/* <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text> */}
         </Box>
         <Box direction="row" margin="small" gap="medium">
           <StatsBox
             header="Total Transactions"
             title="Total TXs"
-            stats={formatZeroDecimals(dataStats?.stats.eventsCount ?? 0)}
+            stats={formatZeroDecimals(statsData?.stats.eventsCount ?? 0)}
           />
           <StatsBox
             header="Total Value Locked, USD"
@@ -133,18 +125,12 @@ export const Tokens = observer((props: any) => {
           <StatsBox
             header="Unique Users"
             title="Users"
-            stats={formatZeroDecimals(dataStats?.stats.usersCount ?? 0)}
+            stats={formatZeroDecimals(statsData?.stats.usersCount ?? 0)}
           />
         </Box>
         <Box direction="row" justify="between" gap="xsmall">
-          <TotalLockedDailyChart
-            lastUpdateTime={tokens.lastUpdateTime}
-            data={tvlData}
-          />
-          <VolumeDailyChart
-            lastUpdateTime={tokens.lastUpdateTime}
-            data={volumeData}
-          />
+          <TotalLockedDailyChart data={tvlChart} />
+          <VolumeDailyChart data={volumeChart} />
         </Box>
         <Box
           pad={{ horizontal: 'small' }}
@@ -182,8 +168,8 @@ export const Tokens = observer((props: any) => {
         >
           <TokensTable
             assets={filteredData}
-            isPending={tokens.isPending && assets}
-            dataFlow={tokens.dataFlow}
+            isPending={assets.isPending && assets}
+            dataFlow={assets.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
             onRowClicked={row => {
               routing.push(`/tokens/${row.id}`);

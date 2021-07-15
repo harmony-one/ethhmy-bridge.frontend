@@ -206,7 +206,7 @@ export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
   const res = await agent.get<{ body: ITokenInfo[] }>(
-    process.env.ASSETS_INFO_SERVICE + '/tokens/',
+    process.env.TOKENS_INFO_SERVICE + '/tokens/',
     params,
   );
 

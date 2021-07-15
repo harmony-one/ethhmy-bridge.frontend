@@ -48,6 +48,7 @@ interface IProps {
   onRowClicked?: (rowData: any, index: number) => any;
   options?: ITableOptions;
   scroll?: { x?: string | number; y?: string | number };
+  style?: React.CSSProperties;
 }
 
 export interface ITableOptions {

@@ -77,7 +77,13 @@ export const OneAddress = ({ address }: { address: string }) => {
 };
 
 export const BridgedToken = observer(
-  ({ address, network }: { address: string; network: NETWORK_TYPE }) => {
+  ({
+    address,
+    network = NETWORK_TYPE.ETHEREUM,
+  }: {
+    address: string;
+    network: NETWORK_TYPE;
+  }) => {
     const { exchange } = useStores();
     let explorerUrl = exchange.getExplorerByNetwork(network);
 

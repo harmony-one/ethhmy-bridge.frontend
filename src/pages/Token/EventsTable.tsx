@@ -51,7 +51,7 @@ const getEventColumns = asset => [
     render: amount => {
       const value = asset?.price
         ? BigNumber.from(amount)
-            .mul(parseEther(String(asset.price)))
+            .mul(BigNumber.from(String(asset.price)))
             .div(ONE)
         : 0;
       return (
@@ -82,10 +82,10 @@ const getEventColumns = asset => [
     dataIndex: 'recipient',
     width: 420,
     render: (value, data) => {
-      if (data.type === 'MINT') {
+      if (data.type === 'MINT' || data.type === 'UNLOCK') {
         return <OneAddress address={value} />;
       }
-      if (data.type === 'BURN') {
+      if (data.type === 'BURN' || data.type === 'LOCK') {
         return <BridgedAddress address={value} network={asset.mappedNetwork} />;
       }
       return null;
@@ -96,11 +96,10 @@ const getEventColumns = asset => [
     key: 'timestamp',
     dataIndex: 'timestamp',
     width: 180,
-    className: styles.rightHeader,
-    align: 'right',
+    className: styles.rightCell,
     render: (value, data) => {
       return (
-        <Box direction="column" align="end" pad={{ right: 'medium' }}>
+        <Box direction="column" align="end">
           {timeSince(new Date(value * 1000))}
         </Box>
       );
