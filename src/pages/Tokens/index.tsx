@@ -54,7 +54,7 @@ const oneAddress = value => (
     <img className={styles.imgToken} style={{ height: 18 }} src="/one.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?txType=hrc20`}
+      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?activeTab=3`}
       target="_blank"
     >
       {truncateAddressString(value, 10)}

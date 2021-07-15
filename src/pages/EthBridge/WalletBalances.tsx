@@ -346,7 +346,7 @@ export const WalletBalances = observer(() => {
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
                       user.hrc20Address,
-                    )}?txType=hrc20`}
+                    )}?activeTab=3`}
                     metamask={
                       user.isMetamask &&
                       user.isAuthorized &&
@@ -368,7 +368,7 @@ export const WalletBalances = observer(() => {
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
                       user.hrc20Address,
-                    )}?txType=hrc20`}
+                    )}?activeTab=3`}
                     metamask={
                       user.isMetamask &&
                       user.isAuthorized &&
@@ -389,7 +389,7 @@ export const WalletBalances = observer(() => {
                         process.env.HMY_EXPLORER_URL
                       }/address/${getBech32Address(
                         process.env.HMY_BUSD_CONTRACT,
-                      )}?txType=hrc20`}
+                      )}?activeTab=3`}
                     />
 
                     <AssetRow
@@ -400,7 +400,7 @@ export const WalletBalances = observer(() => {
                         process.env.HMY_EXPLORER_URL
                       }/address/${getBech32Address(
                         process.env.HMY_LINK_CONTRACT,
-                      )}?txType=hrc20`}
+                      )}?activeTab=3`}
                     />
                   </>
                 ) : null}
