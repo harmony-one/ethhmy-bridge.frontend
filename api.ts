@@ -179,7 +179,7 @@ async function fetchPrices(date) {
 }
 
 const day = 60 * 60 * 24;
-const days = 2;
+const days = 60;
 const port = 8888;
 
 async function main() {
