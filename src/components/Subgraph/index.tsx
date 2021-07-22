@@ -1,24 +1,19 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
 import React, { Component } from 'react';
-import {SubgraphNumericComponentProp} from 'interfaces';
+import { DocumentNode } from 'graphql';
+import { SubgraphNumericComponentProp } from 'interfaces';
+import { ApolloConsumer } from '@apollo/client';
 
-export class SubgraphNumericQueryRunner extends Component<SubgraphNumericComponentProp> {
-  query: string;
-  queryResult: QueryResult;
-
-  constructor(props){
-    super(props);
-    this.query = gql`${props.query}`;
-    this.queryResult = useQuery(this.query);
-  }
-  render() {
-    if (this.queryResult.loading) return <p>Loading...</p>;
-    if (this.queryResult.error) return <p>Error :(</p>;
-    console.log(this.queryResult.data);
-    return <>
-        Success
-    </>;
-  }
+export function SubgraphNumericQueryRunner(
+  props: SubgraphNumericComponentProp,
+) {
+  const queryResult: QueryResult = useQuery(
+    gql`
+      ${props.query}
+    `,
+  );
+  if (queryResult.loading) return <p>Loading ...</p>;
+  return <h1>Succesd</h1>;
 }
 
 export default SubgraphNumericQueryRunner;

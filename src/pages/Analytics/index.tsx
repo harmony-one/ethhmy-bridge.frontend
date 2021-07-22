@@ -8,29 +8,32 @@ export const Analytics = (props: any) => {
       <PageContainer>
         <SubgraphNumericQueryRunner
           query={`
-                id
-                symbol
-                network
-                address
-                mappedAddress
-                eventsCount
-                ... on Token {
-                    locksCount
-                    unlocksCount
-                    totalLocked
-                }
-                ... on BridgedToken {
-                    mintsCount
-                    burnsCount
-                    totalLocked
-                }
-                ... on BridgedNFT {
-                    mintsCount
-                    burnsCount
-                    inventory
-                }
-                }
-            }`}
+                {
+  assets(orderBy: eventsCount, orderDirection: desc) {
+    id
+    symbol
+    network
+    address
+    mappedAddress
+    eventsCount
+    ... on Token {
+      locksCount
+      unlocksCount
+      totalLocked
+    }
+    ... on BridgedToken {
+      mintsCount
+      burnsCount
+      totalLocked
+    }
+    ... on BridgedNFT {
+      mintsCount
+      burnsCount
+      inventory
+    }
+  }
+}
+`}
         />
       </PageContainer>
     </BaseContainer>
