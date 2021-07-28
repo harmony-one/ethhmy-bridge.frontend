@@ -5,12 +5,10 @@ import {
   ApolloClient,
   InMemoryCache,
   ApolloProvider,
-  useQuery,
-  gql
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: 'http://bitcloud.live:8000',
+  uri: 'https://onebeaconme.tech/subgraphs/name/bmgalego/bridge-subgraph',
   cache: new InMemoryCache()
 });
 
