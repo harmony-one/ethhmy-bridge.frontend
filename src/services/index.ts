@@ -231,6 +231,8 @@ export const getOperations = async (
   return res.body;
 };
 
+const blackList = ['0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB'];
+
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
@@ -275,6 +277,11 @@ export const getTokensInfo = async (
   //   t => t.network === NETWORK_TYPE.BINANCE && hasAddress(t),
   // );
 
+  content = content.filter(
+    t =>
+      !blackList.includes(t.hrc20Address) &&
+      !blackList.includes(t.erc20Address),
+  );
   content = content.filter(t => t.type !== 'hrc20' || !hasAddress(t));
 
   content = _.uniqWith(
