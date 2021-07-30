@@ -269,7 +269,10 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   };
 
-  @action.bound public setToken = async (erc20Address: string) => {
+  @action.bound public setToken = async (
+    erc20Address: string,
+    ignoreValidations = false,
+  ) => {
     const exNetwork = getExNetworkMethods();
 
     this.erc20TokenDetails = null;
@@ -303,31 +306,33 @@ export class UserStoreMetamask extends StoreConstructor {
       );
     }
 
-    if (
-      this.stores.tokens.allData
-        .filter(t => t.token === TOKEN.HRC20)
-        .find(
-          t =>
-            isAddressEqual(t.erc20Address, erc20Address) ||
-            isAddressEqual(t.hrc20Address, erc20Address),
-        )
-    ) {
-      throw new Error('This address already using for HRC20 token wrapper');
-    }
+    if (!ignoreValidations) {
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.token === TOKEN.HRC20)
+          .find(
+            t =>
+              isAddressEqual(t.erc20Address, erc20Address) ||
+              isAddressEqual(t.hrc20Address, erc20Address),
+          )
+      ) {
+        throw new Error('This address already using for HRC20 token wrapper');
+      }
 
-    if (
-      '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
-      erc20Address.toLowerCase()
-    ) {
-      throw new Error('This address already using for Native tokens');
-    }
+      if (
+        '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+        erc20Address.toLowerCase()
+      ) {
+        throw new Error('This address already using for Native tokens');
+      }
 
-    if (
-      this.stores.tokens.allData
-        .filter(t => t.token === TOKEN.ERC721)
-        .find(t => isAddressEqual(t.erc20Address, erc20Address))
-    ) {
-      throw new Error('This address already using for ERC721 token');
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.token === TOKEN.ERC721)
+          .find(t => isAddressEqual(t.erc20Address, erc20Address))
+      ) {
+        throw new Error('This address already using for ERC721 token');
+      }
     }
 
     this.erc20Address = erc20Address;

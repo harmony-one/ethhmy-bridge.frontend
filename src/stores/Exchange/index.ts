@@ -435,18 +435,10 @@ export class Exchange extends StoreConstructor {
   @action.bound
   async createOperation() {
     this.operation = await operationService.createOperation({
-      // ...this.transaction,
-
-      oneAddress: '0x19b3eb3af5d93b77a5619b047de0eed7115a19e7',
-      ethAddress: '0x19b3eb3af5d93b77a5619b047de0eed7115a19e7',
-      amount: '80000',
-      approveAmount: '0',
-      erc20Address: '0x6b3595068778dd592e39a122f4f5a5cf09c90fe2',
-      hrc20Address: '',
-
-      type: EXCHANGE_MODE.ETH_TO_ONE,
-      token: TOKEN.ERC20,
-      network: NETWORK_TYPE.ETHEREUM,
+      ...this.transaction,
+      type: this.mode,
+      token: this.token,
+      network: this.network,
       id: uuid(),
     });
 
