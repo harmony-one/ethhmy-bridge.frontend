@@ -80,7 +80,7 @@ export class Erc20SelectStore extends StoreConstructor {
           break;
 
         case TOKEN.ERC20:
-          await this.stores.userMetamask.setToken(value);
+          await this.stores.userMetamask.setToken(value, ignoreValidations);
           break;
 
         case TOKEN.HRC20:

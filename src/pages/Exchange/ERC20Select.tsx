@@ -164,7 +164,8 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         ) : null}
 
         {erc20Select.error &&
-        erc20Select.error.includes('This HRC20 address corresponds') ? (
+        (erc20Select.error.includes('This HRC20 address corresponds') ||
+          erc20Select.error.includes('This address already using for')) ? (
           <Box
             margin={{ top: custom ? '10px' : '0px' }}
             fill={true}
