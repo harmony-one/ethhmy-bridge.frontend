@@ -117,10 +117,17 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Text>Address:</Text>
                 <a
                   className={styles.addressLink}
-                  href={`${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`}
+                  href={
+                    exchange.token === TOKEN.HRC20
+                      ? `${process.env.HMY_EXPLORER_URL}/address/${erc20Select.tokenAddress}`
+                      : `${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`
+                  }
                   target="_blank"
                 >
-                  {truncateAddressString(erc20Select.tokenAddress, isMobile ? 8 : 16)}
+                  {truncateAddressString(
+                    erc20Select.tokenAddress,
+                    isMobile ? 8 : 16,
+                  )}
                 </a>
               </Box>
             ) : null}
