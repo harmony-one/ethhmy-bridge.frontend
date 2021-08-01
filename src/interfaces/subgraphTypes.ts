@@ -28,7 +28,10 @@ interface Asset {
 type SubgraphNumericComponentProp =  {
     query: string,
     // this is the field that is needed when we want to aggregate the json based on a value
-    aggregateField?: string 
+    aggregateField?: string,
+    title?: string, 
+    // this value will be used to decide to show assets or users or ...
+    dataType?: string
 }
 
 export {Asset, Assets, RocketInventory, SubgraphNumericComponentProp}

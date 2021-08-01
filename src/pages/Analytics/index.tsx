@@ -12,32 +12,62 @@ export const Analytics = (props: any) => {
           <Box direction="column">
             <SubgraphNumericQueryRunner
               query={`
-               {
-                  assets(first: 1000){
-                    id
-                    symbol
-                    eventsCount
+                  {
+                    wallets(first:100){
+                      id
+                      transactionsCount
+                      eventsCount
+                      usersCount
+                      assetsCount
+                    }
                   }
-                }
                 `}
+              title="Total asset bridged"
+              dataType="assetsCount"
             />
           </Box>
           <Box direction="column">
             <SubgraphNumericQueryRunner
-              query={`
-               {
-                  assets(first: 1000){
-                    id
-                    symbol
-                    eventsCount
+             query={`
+                  {
+                    wallets(first:100){
+                      id
+                      transactionsCount
+                      eventsCount
+                      usersCount
+                      assetsCount
+                    }
                   }
-                }
                 `}
+              title="Total bridge transaction count"
+              dataType="transactionsCount"
+            />
+          </Box>
+
+          <Box direction="column">
+            <SubgraphNumericQueryRunner
+             query={`
+                  {
+                    wallets(first:100){
+                      id
+                      transactionsCount
+                      eventsCount
+                      usersCount
+                      assetsCount
+                    }
+                  }
+                `}
+              title="Number of unique bridge accounts"
+              dataType="usersCount"
             />
           </Box>
         </Box>
 
-        <Box direction="column" justify="between" margin={{ vertical: 'large' }}>
+        <Box
+          direction="column"
+          justify="between"
+          margin={{ vertical: 'large' }}
+        >
           <SubgraphDataChart
             query={`
                {
