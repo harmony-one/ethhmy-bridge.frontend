@@ -34,9 +34,11 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
 
   if (queryResult.loading)
     return (
-      <Card  fill={true}
-      background="white"
-      pad={{ horizontal: '9px', vertical: '9px' }}>
+      <Card
+        fill={true}
+        background="white"
+        pad={{ horizontal: '9px', vertical: '9px' }}
+      >
         <ResponsiveContainer width="100%" height={300}>
           <Spinner />
         </ResponsiveContainer>
