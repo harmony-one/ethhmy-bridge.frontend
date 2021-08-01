@@ -1,5 +1,6 @@
 import React from 'react';
-import { SubgraphNumericQueryRunner } from 'components/Subgraph';
+import { SubgraphNumericQueryRunner } from 'components/Subgraph/numeric';
+import { SubgraphDataChart } from 'components/Subgraph/charts';
 import { BaseContainer, PageContainer } from 'components';
 import { Box } from 'grommet';
 
@@ -7,38 +8,44 @@ export const Analytics = (props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          direction="row"
-          justify="between"
-          width="560px"
-          margin={{ vertical: 'large' }}
-        >
-          <SubgraphNumericQueryRunner
-            query={`
-                {
-                assets(orderBy: eventsCount, orderDirection: desc) {
+        <Box direction="row" justify="start" margin={{ vertical: 'large' }}>
+          <Box direction="column">
+            <SubgraphNumericQueryRunner
+              query={`
+               {
+                  assets(first: 1000){
                     id
                     symbol
-                    network
-                    address
-                    mappedAddress
                     eventsCount
-                    ... on Token {
-                    locksCount
-                    unlocksCount
-                    totalLocked
-                    }
-                    ... on BridgedToken {
-                    mintsCount
-                    burnsCount
-                    totalLocked
-                    }
-                    ... on BridgedNFT {
-                    mintsCount
-                    burnsCount
-                    inventory
-                    }
+                  }
                 }
+                `}
+            />
+          </Box>
+          <Box direction="column">
+            <SubgraphNumericQueryRunner
+              query={`
+               {
+                  assets(first: 1000){
+                    id
+                    symbol
+                    eventsCount
+                  }
+                }
+                `}
+            />
+          </Box>
+        </Box>
+
+        <Box direction="column" justify="between" margin={{ vertical: 'large' }}>
+          <SubgraphDataChart
+            query={`
+               {
+                  assets(first: 1000){
+                    id
+                    symbol
+                    eventsCount
+                  }
                 }
                 `}
           />
