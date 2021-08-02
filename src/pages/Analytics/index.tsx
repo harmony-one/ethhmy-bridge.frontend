@@ -28,7 +28,7 @@ export const Analytics = (props: any) => {
           </Box>
           <Box direction="column">
             <SubgraphNumericQueryRunner
-             query={`
+              query={`
                   {
                     wallets(first:100){
                       id
@@ -46,7 +46,7 @@ export const Analytics = (props: any) => {
 
           <Box direction="column">
             <SubgraphNumericQueryRunner
-             query={`
+              query={`
                   {
                     wallets(first:100){
                       id
@@ -62,7 +62,6 @@ export const Analytics = (props: any) => {
             />
           </Box>
         </Box>
-
         <Box
           direction="column"
           justify="between"
@@ -71,10 +70,9 @@ export const Analytics = (props: any) => {
           <SubgraphDataChart
             query={`
                {
-                  assets(first: 1000){
+                  transactions(skip: 1000, orderBy: timestamp, orderDirection: asc){
                     id
-                    symbol
-                    eventsCount
+                    timestamp
                   }
                 }
                 `}
