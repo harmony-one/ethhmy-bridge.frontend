@@ -34,5 +34,9 @@ type SubgraphNumericComponentProp =  {
     dataType?: string
 }
 
-export {Asset, Assets, RocketInventory, SubgraphNumericComponentProp}
+type SubgraphTableComponentProp =  {
+    query: string,
+}
+
+export {Asset, Assets, RocketInventory, SubgraphNumericComponentProp, SubgraphTableComponentProp}
 

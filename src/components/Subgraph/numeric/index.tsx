@@ -37,7 +37,7 @@ export function SubgraphNumericQueryRunner(
         break;
     }
   }
-  console.log(queryResult.data);
+  // console.log(queryResult.data);
   if (queryResult.loading)
     return (
      <Box

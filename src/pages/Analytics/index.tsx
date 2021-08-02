@@ -1,6 +1,7 @@
 import React from 'react';
 import { SubgraphNumericQueryRunner } from 'components/Subgraph/numeric';
-import { SubgraphDataChart } from 'components/Subgraph/charts';
+import { SubgraphDataChart, SubgraphAssetChart } from 'components/Subgraph/charts';
+import { SubGraphQueryTable } from 'components/Subgraph/tables';
 import { BaseContainer, PageContainer } from 'components';
 import { Box } from 'grommet';
 
@@ -77,6 +78,56 @@ export const Analytics = (props: any) => {
                 }
                 `}
           />
+        </Box>
+        <Box
+          direction="column"
+          justify="between"
+          margin={{ vertical: 'large' }}
+        >
+          <SubgraphAssetChart
+            query={`
+               {
+                  assets(first: 1000){
+                    id
+                    symbol
+                    eventsCount
+                  }
+                }
+                `}
+          />
+        </Box>
+         <Box
+          direction="column"
+          justify="between"
+          margin={{ vertical: 'large' }}
+        >
+          <SubGraphQueryTable 
+           query={`{
+                    assets(orderBy: eventsCount, orderDirection: desc, where: {network: %network%}) {
+                      id
+                      symbol
+                      network
+                      address
+                      mappedAddress
+                      eventsCount
+                      ... on Token {
+                        locksCount
+                        unlocksCount
+                        totalLocked
+                      }
+                      ... on BridgedToken {
+                        mintsCount
+                        burnsCount
+                        totalLocked
+                      }
+                      ... on BridgedNFT {
+                        mintsCount
+                        burnsCount
+                        inventory
+                      }
+                    }
+                  }`}
+           />
         </Box>
       </PageContainer>
     </BaseContainer>
