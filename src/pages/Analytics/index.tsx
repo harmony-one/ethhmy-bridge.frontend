@@ -9,7 +9,7 @@ export const Analytics = (props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box direction="row" justify="start" margin={{ vertical: 'large' }}>
+        <Box direction="row" justify="center" alignContent='center' margin={{ vertical: 'large' }}>
           <Box direction="column">
             <SubgraphNumericQueryRunner
               query={`
@@ -66,7 +66,7 @@ export const Analytics = (props: any) => {
         <Box
           direction="column"
           justify="between"
-          margin={{ vertical: 'large' }}
+          margin={{ vertical: 'small' }}
         >
           <SubgraphDataChart
             query={`
@@ -82,7 +82,7 @@ export const Analytics = (props: any) => {
         <Box
           direction="column"
           justify="between"
-          margin={{ vertical: 'large' }}
+          margin={{ vertical: 'small' }}
         >
           <SubgraphAssetChart
             query={`
@@ -99,7 +99,7 @@ export const Analytics = (props: any) => {
          <Box
           direction="column"
           justify="between"
-          margin={{ vertical: 'large' }}
+          margin={{ vertical: 'small' }}
         >
           <SubGraphQueryTable 
            query={`{

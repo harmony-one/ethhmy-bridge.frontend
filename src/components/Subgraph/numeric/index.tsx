@@ -1,70 +1,74 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { SubgraphNumericComponentProp } from 'interfaces';
 import { Spinner } from 'ui';
 import { Box } from 'grommet';
-import { observer } from 'mobx-react-lite';
-import { useStores } from 'stores';
-import { Text } from 'components/Base';
-import * as styles from './styles.styl';
-import cn from 'classnames';
-
+import { formatWithTwoDecimals } from 'utils';
+import { Title } from 'components/Base';
 
 export function SubgraphNumericQueryRunner(
   props: SubgraphNumericComponentProp,
 ) {
-  
   const queryResult: QueryResult = useQuery(
     gql`
       ${props.query}
     `,
   );
-  let number = 0; 
-  if(queryResult.data != undefined && queryResult.data.hasOwnProperty('wallets')){
+  let number = 0;
+  if (
+    queryResult.data != undefined &&
+    queryResult.data.hasOwnProperty('wallets')
+  ) {
     let wallets = queryResult.data.wallets[0];
-    switch(props.dataType){
-      case "transactionsCount":
+    switch (props.dataType) {
+      case 'transactionsCount':
         number = wallets.transactionsCount;
         break;
-      case "eventsCount":
+      case 'eventsCount':
         number = wallets.eventsCount;
         break;
-      case "usersCount":
+      case 'usersCount':
         number = wallets.usersCount;
         break;
-      case "assetsCount":
-        number= wallets.assetsCount;
+      case 'assetsCount':
+        number = wallets.assetsCount;
         break;
     }
   }
   // console.log(queryResult.data);
   if (queryResult.loading)
     return (
-     <Box
-      direction="column"
-      align="center"
-      justify="center"
-      gap="10px"
-      className={cn(styles.numericStaticContainer, styles.active)}
-    >
-        <Spinner />
+      <Box direction="column" pad={{ left: '20px' }}>
+        <Title size="small">
+          {props.title}
+          <span
+            style={{
+              marginLeft: 5,
+              color: '#47b8eb',
+              fontWeight: 600,
+              letterSpacing: 0.2,
+            }}
+          >
+            <Spinner />
+          </span>
+        </Title>
       </Box>
     );
   return (
-   <Box
-      direction="column"
-      align="center"
-      justify="center"
-      gap="10px"
-      className={cn(styles.numericStaticContainer, styles.active)}
-    >
-      <Text size="large" className={styles.title}>
+    <Box direction="column" justify='center' alignContent='center' pad={{ left: '20px' }}>
+      <Title size="small">
         {props.title}
-      </Text>
-
-      <Text size="small" color="#748695" className={styles.description}>
-        {number}
-      </Text>
+        <span
+          style={{
+            marginLeft: 5,
+            color: '#47b8eb',
+            fontWeight: 600,
+            letterSpacing: 0.2,
+          }}
+        >
+          ${formatWithTwoDecimals(number)}
+        </span>
+      </Title>
     </Box>
   );
 }
