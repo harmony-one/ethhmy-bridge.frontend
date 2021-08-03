@@ -241,7 +241,7 @@ export const getTokensInfo = async (
     params,
   );
 
-  let content = res.body.content;
+  let content: ITokenInfo[] = res.body.content;
 
   const hasAddress = (token: ITokenInfo) => {
     return content.find(
@@ -294,6 +294,8 @@ export const getTokensInfo = async (
     ...c,
     network: c.network || NETWORK_TYPE.ETHEREUM,
   }));
+
+  content.sort((a, b) => (a.totalLockedUSD > b.totalLockedUSD ? -1 : 1));
 
   return { ...res.body, content };
 };
