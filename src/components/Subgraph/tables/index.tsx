@@ -44,21 +44,21 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
       for (let j in baseData) {
         let currentItem = baseData[j];
         let symbol = currentItem.symbol.replace(1, '').replace('bsc', '');
-        let searchTest = (search.toUpperCase().match(new RegExp('[' + symbol.toUpperCase() + ']', 'g')) || []).join('');
-        if (
-          search !== '' &&
-          searchTest.length > 0
-        ) {
+        let searchTest = (
+          search
+            .toUpperCase()
+            .match(new RegExp('[' + symbol.toUpperCase() + ']', 'g')) || []
+        ).join('');
+        if (search !== '' && searchTest.length > 0) {
           data.push({
-            key: i+j,
+            key: i + j,
             symbol: symbol,
             eventsCount: currentItem.eventsCount,
           });
-        
-        } else if(search === '') {
+        } else if (search === '') {
           data.push({
-            key: i+j,
-            symbol:symbol,
+            key: i + j,
+            symbol: symbol,
             eventsCount: currentItem.eventsCount,
           });
         }
@@ -67,15 +67,46 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
   }
   if (queryResult.loading) {
     return (
-      <Card
-        fill={true}
-        background="white"
-        align="center"
-        justify="center"
-        pad={{ horizontal: '9px', vertical: '9px' }}
-      >
+      <div>
+        <Box direction="column" margin={{ top: 'large', bottom: 'large' }}>
+          <Box direction="row" justify="start" gap="10px">
+            <SearchInput value={''} onChange={() => {}} />
+            <Button
+              style={{
+                background: 'white',
+                border:
+                  network === NETWORK_TYPE.BINANCE
+                    ? '2px solid #00ADE8'
+                    : '2px solid rgba(0,0,0,0)',
+                color: '#212e5e',
+              }}
+            >
+              <img
+                style={{ marginRight: 10, height: 20 }}
+                src={NETWORK_ICON[NETWORK_TYPE.BINANCE]}
+              />
+              {NETWORK_NAME[NETWORK_TYPE.BINANCE]}
+            </Button>
+            <Button
+              style={{
+                background: 'white',
+                border:
+                  network === NETWORK_TYPE.ETHEREUM
+                    ? '2px solid #00ADE8'
+                    : '2px solid rgba(0,0,0,0)',
+                color: '#212e5e',
+              }}
+            >
+              <img
+                style={{ marginRight: 10, height: 20 }}
+                src={NETWORK_ICON[NETWORK_TYPE.ETHEREUM]}
+              />
+              {NETWORK_NAME[NETWORK_TYPE.ETHEREUM]}
+            </Button>
+          </Box>
+        </Box>
         <Spinner />
-      </Card>
+      </div>
     );
   }
   function handleNetworkChange(type: NETWORK_TYPE) {

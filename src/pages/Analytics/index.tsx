@@ -10,7 +10,7 @@ export const Analytics = (props: any) => {
     <BaseContainer>
       <PageContainer>
         <Box direction="row" justify="center" alignContent='center' margin={{ vertical: 'large' }}>
-          <Box direction="column">
+          <Box direction="column" margin={{ vertical: 'large' }}>
             <SubgraphNumericQueryRunner
               query={`
                   {
@@ -27,7 +27,7 @@ export const Analytics = (props: any) => {
               dataType="assetsCount"
             />
           </Box>
-          <Box direction="column">
+          <Box direction="column" margin={{ vertical: 'large' }}>
             <SubgraphNumericQueryRunner
               query={`
                   {
@@ -45,7 +45,7 @@ export const Analytics = (props: any) => {
             />
           </Box>
 
-          <Box direction="column">
+          <Box direction="column" margin={{ vertical: 'large' }}>
             <SubgraphNumericQueryRunner
               query={`
                   {

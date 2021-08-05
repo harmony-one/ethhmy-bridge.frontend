@@ -66,7 +66,7 @@ export function SubgraphNumericQueryRunner(
             letterSpacing: 0.2,
           }}
         >
-          ${formatWithTwoDecimals(number)}
+          {formatWithTwoDecimals(number)}
         </span>
       </Title>
     </Box>

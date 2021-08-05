@@ -59,21 +59,24 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
 
   if (queryResult.loading)
     return (
-      <Card
+      <Box
         fill={true}
         background="white"
         pad={{ horizontal: '9px', vertical: '9px' }}
+        justify="center"
+        align='center'
+        style={{minHeight: '300px'}}
       >
-        <ResponsiveContainer width="100%" height={300}>
+        <Box background="white" pad={{ horizontal: '9px', vertical: '9px' }}>
           <Spinner />
-        </ResponsiveContainer>
-      </Card>
+        </Box>
+      </Box>
     );
   return (
-    <Card
+    <Box
       fill={true}
       background="white"
-      pad={{ horizontal: '9px', vertical: '9px' }}
+      pad='large'
     >
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
@@ -85,7 +88,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
           <Bar dataKey="txCount" name="Daily transactions" fill="#00ADE8" />
         </BarChart>
       </ResponsiveContainer>
-    </Card>
+    </Box>
   );
 }
 
@@ -109,22 +112,21 @@ export function SubgraphAssetChart(props: SubgraphNumericComponentProp) {
 
   if (queryResult.loading)
     return (
-      <Card
+      <Box
         fill={true}
         background="white"
         pad={{ horizontal: '9px', vertical: '9px' }}
+        justify="center"
+        align='center'
+        style={{minHeight: '300px'}}
       >
-        <ResponsiveContainer width="100%" height={300}>
+        <Box background="white" pad={{ horizontal: '9px', vertical: '9px' }}>
           <Spinner />
-        </ResponsiveContainer>
-      </Card>
+        </Box>
+      </Box>
     );
   return (
-    <Card
-      fill={true}
-      background="white"
-      pad={{ horizontal: '9px', vertical: '9px' }}
-    >
+    <Box fill={true} background="white" pad="large">
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -135,7 +137,6 @@ export function SubgraphAssetChart(props: SubgraphNumericComponentProp) {
           <Bar dataKey="txCount" fill="#00ADE8" />
         </BarChart>
       </ResponsiveContainer>
-    </Card>
+    </Box>
   );
 }
-
