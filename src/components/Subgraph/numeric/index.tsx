@@ -49,7 +49,7 @@ export function SubgraphNumericQueryRunner(
               letterSpacing: 0.2,
             }}
           >
-            <Spinner />
+            Loading...
           </span>
         </Title>
       </Box>
