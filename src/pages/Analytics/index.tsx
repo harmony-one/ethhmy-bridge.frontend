@@ -79,7 +79,7 @@ export const Analytics = (props: any) => {
           <SubgraphDataChart
             query={`
                {
-                  transactions(skip: 1000, orderBy: timestamp, orderDirection: asc){
+                  transactions(skip: 300, orderBy: timestamp, orderDirection: asc){
                     id
                     timestamp
                   }

@@ -1,7 +1,8 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
-import React from 'react';
+import React, {useState} from 'react';
 import { SubgraphNumericComponentProp } from 'interfaces';
 import { Box, Card } from 'grommet';
+import { Button } from 'components/Base';
 import {
   BarChart,
   Bar,
@@ -18,7 +19,7 @@ var _ = require('lodash');
 function groupday(value, index, array) {
   let d = new Date(value['timestamp'] * 1000);
   let numericDay = Math.floor(d.getTime() / (1000 * 60 * 60 * 24));
-  value = { ...value, day: numericDay, formatedDate: formatDate(d) };
+  value = { ...value, day: numericDay, formatedDate: formatDate(d).join('-') };
   return value;
 }
 
@@ -31,10 +32,15 @@ function formatDate(date) {
   if (month.length < 2) month = '0' + month;
   if (day.length < 2) day = '0' + day;
 
-  return [year, month, day].join('-');
+  return [year, month, day];
 }
 
+
+
 export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
+
+  const [fetchDate, setFetchDate] = useState('year');
+
   const queryResult: QueryResult = useQuery(
     gql`
       ${props.query}
@@ -44,6 +50,21 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
   if (queryResult.data != undefined) {
     // console.log('chart data', queryResult.data);
     let transactions = queryResult.data.transactions;
+    transactions = transactions.filter((item) => {
+      // consider this array contains year,month and day
+      let dateArray = formatDate(item['timestamp'] * 1000);
+      switch(fetchDate){
+        case 'year':
+          return dateArray[0] === new Date().getFullYear()
+        case 'month':
+          let month =  new Date().getMonth();
+          let monthStr = ('' + month).length < 2  ? '0' + month : month 
+          return dateArray[1] === monthStr
+        default:
+          return false;
+      }
+    })
+
     const dailyTransactions = transactions.map(groupday);
     let grouped = _.groupBy(dailyTransactions, 'day');
 
@@ -64,8 +85,8 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
         background="white"
         pad={{ horizontal: '9px', vertical: '9px' }}
         justify="center"
-        align='center'
-        style={{minHeight: '300px'}}
+        align="center"
+        style={{ minHeight: '300px' }}
       >
         <Box background="white" pad={{ horizontal: '9px', vertical: '9px' }}>
           <Spinner />
@@ -73,11 +94,37 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
       </Box>
     );
   return (
-    <Box
-      fill={true}
-      background="white"
-      pad='large'
-    >
+    <Box fill={true} background="white" pad="large">
+      <Box direction="row" justify="end" pad={{horizontal: 'large'}} gap="10px" fill={true}>
+        <Button
+          style={{
+            background: 'white',
+            border:
+              fetchDate === 'year'
+                ? '2px solid #00ADE8'
+                : '2px solid rgba(0,0,0,0)',
+            color: '#212e5e',
+            padding:'1px'
+          }}
+          onClick={() => setFetchDate('year')}
+        >
+          1/y
+        </Button>
+        <Button
+          style={{
+            background: 'white',
+            border:
+              fetchDate === 'month'
+                ? '2px solid #00ADE8'
+                : '2px solid rgba(0,0,0,0)',
+            color: '#212e5e',
+            padding:'1px'
+          }}
+          onClick={() => setFetchDate('month')}
+        >
+          1/m
+        </Button>
+      </Box>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -117,8 +164,8 @@ export function SubgraphAssetChart(props: SubgraphNumericComponentProp) {
         background="white"
         pad={{ horizontal: '9px', vertical: '9px' }}
         justify="center"
-        align='center'
-        style={{minHeight: '300px'}}
+        align="center"
+        style={{ minHeight: '300px' }}
       >
         <Box background="white" pad={{ horizontal: '9px', vertical: '9px' }}>
           <Spinner />
