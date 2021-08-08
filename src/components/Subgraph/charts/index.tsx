@@ -1,5 +1,5 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { SubgraphNumericComponentProp } from 'interfaces';
 import { Box, Card } from 'grommet';
 import { Button } from 'components/Base';
@@ -35,12 +35,16 @@ function formatDate(date) {
   return [year, month, day];
 }
 
-
-
 export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
+  /* if this is equal to year the data will be filtered based on year and 
+     if its equal to month then the data will be filtered based on month 
+     Consider the year and month are hardcoded in this version also some
+     part of this component need improvement in the later versions 
+  */
 
   const [fetchDate, setFetchDate] = useState('year');
 
+  /* Executing the GraphQL query for the chart */
   const queryResult: QueryResult = useQuery(
     gql`
       ${props.query}
@@ -50,20 +54,20 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
   if (queryResult.data != undefined) {
     // console.log('chart data', queryResult.data);
     let transactions = queryResult.data.transactions;
-    transactions = transactions.filter((item) => {
+    transactions = transactions.filter(item => {
       // consider this array contains year,month and day
       let dateArray = formatDate(item['timestamp'] * 1000);
-      switch(fetchDate){
+      switch (fetchDate) {
         case 'year':
-          return dateArray[0] === new Date().getFullYear()
+          return dateArray[0] === new Date().getFullYear();
         case 'month':
-          let month =  new Date().getMonth();
-          let monthStr = ('' + month).length < 2  ? '0' + month : month 
-          return dateArray[1] === monthStr
+          let month = new Date().getMonth();
+          let monthStr = ('' + month).length < 2 ? '0' + month : month;
+          return dateArray[1] === monthStr;
         default:
           return false;
       }
-    })
+    });
 
     const dailyTransactions = transactions.map(groupday);
     let grouped = _.groupBy(dailyTransactions, 'day');
@@ -95,7 +99,13 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
     );
   return (
     <Box fill={true} background="white" pad="large">
-      <Box direction="row" justify="end" pad={{horizontal: 'large'}} gap="10px" fill={true}>
+      <Box
+        direction="row"
+        justify="end"
+        pad={{ horizontal: 'large' }}
+        gap="10px"
+        fill={true}
+      >
         <Button
           style={{
             background: 'white',
@@ -104,7 +114,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
                 ? '2px solid #00ADE8'
                 : '2px solid rgba(0,0,0,0)',
             color: '#212e5e',
-            padding:'1px'
+            padding: '1px',
           }}
           onClick={() => setFetchDate('year')}
         >
@@ -118,7 +128,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
                 ? '2px solid #00ADE8'
                 : '2px solid rgba(0,0,0,0)',
             color: '#212e5e',
-            padding:'1px'
+            padding: '1px',
           }}
           onClick={() => setFetchDate('month')}
         >

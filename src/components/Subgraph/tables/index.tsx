@@ -93,57 +93,104 @@ const columns = [
     },
   },
   {
-    title: 'Total Locked',
+    title: 'Total Asset Bridged',
     // sortable: true,
-    key: 'tvl',
-    dataIndex: 'tvl',
+    key: 'tab',
+    dataIndex: 'tab',
     width: 140,
     render: data => (
       <Box direction="column" justify="center">
-        {formatWithTwoDecimals(calculateTVL(data.symbol, data.value))}
+        {formatWithTwoDecimals(calculateTAB(data.symbol, data.value, data.moreInfo))}
       </Box>
     ),
     // className: styles.centerHeader,
     // align: 'center',
   },
   {
-    title: 'Total Locked USD',
+    title: 'Total Asset Bridged USD',
     sortable: true,
-    key: 'tvlUSD',
+    key: 'tabUSD',
     defaultSort: 'asc',
-    dataIndex: 'tvlUSD',
+    dataIndex: 'tabUSD',
     width: 210,
     className: styles.rightHeaderSort,
     render: data => (
       <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(calculateTVLUSD(data.symbol, data.value))}
+        ${formatWithTwoDecimals(calculateTABUSD(data.symbol, data.value, data.moreInfo))}
       </Box>
     ),
   },
 ];
 
-function calculateTVL(symbol, value) {
-  return value;
+function calculateTAB(symbol, value, more) {
+  if(more != undefined)
+    return value / Math.pow(10, parseInt(more.decimals));
+  return ''
 }
-function calculateTVLUSD(symbol, value) {
-  return value;
+function calculateTABUSD(symbol, value, more) {
+  if(more != undefined)
+    return (value / Math.pow(10, parseInt(more.decimals))) * parseFloat(more.price);
+  return ''
 }
 // const data = [{ symbol: 'Jack', eventsCount: 28 }];
+type ComplementaryData = {
+  isLoaded: boolean;
+  success: boolean;
+  items: {};
+};
 
 export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
   const data = [];
   const [network, setNetwork] = useState(NETWORK_TYPE.ETHEREUM);
   const [search, setSearch] = useState('');
-  // console.log('table is rendered');
+  const [complementaryData, setComplementaryData] = useState(
+    {} as ComplementaryData,
+  );
 
+  React.useEffect(function effectFunction() {
+    async function fetchComplementaryData() {
+      const response = await fetch(
+        'https://be4.bridge.hmny.io/tokens/?page=0&size=1000',
+      );
+      if (response && response.status == 200) {
+        const res: any = await response.json();
+        const result = res.content;
+    
+        let symbolsDecimal = {};
+        for (let index in result) {
+          let currentData = result[index];
+          let currentDataSymbol = currentData.symbol.replace(1, '').replace('bsc', '');
+          if(! (currentDataSymbol in symbolsDecimal)){
+            symbolsDecimal[currentDataSymbol] = {
+              decimals: currentData.decimals,
+              price: currentData.usdPrice
+            }
+          }
+        }
+
+        setComplementaryData({
+          isLoaded: true,
+          success: true,
+          items: symbolsDecimal,
+        });
+      } else {
+        setComplementaryData({
+          isLoaded: true,
+          success: false,
+          items: [],
+        });
+      }
+    }
+    fetchComplementaryData();
+  }, []);
+  // this is different than fetch so it is not included in useEffect
   let q = props.query.replace(/%\w+%/g, network);
   const queryResult: QueryResult = useQuery(
     gql`
       ${q}
     `,
   );
-  if (queryResult.data != undefined && !queryResult.loading) {
-    console.log(queryResult.data);
+  if (queryResult.data != undefined && !queryResult.loading && complementaryData.success) {
     for (let i in queryResult.data) {
       let baseData = queryResult.data[i];
       for (let j in baseData) {
@@ -154,14 +201,15 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
             .toUpperCase()
             .match(new RegExp('[' + symbol.toUpperCase() + ']', 'g')) || []
         ).join('');
+        
         if (search !== '' && searchTest.length > 0) {
           data.push({
             key: i + j,
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tvl: { value: currentItem.totalLocked, symbol: symbol },
-            tvlUSD: { value: currentItem.totalLocked, symbol: symbol },
+            tab: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tabUSD: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
             eventsCount: currentItem.eventsCount,
           });
         } else if (search === '') {
@@ -170,15 +218,16 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tvl: { value: currentItem.totalLocked, symbol: symbol },
-            tvlUSD: { value: currentItem.totalLocked, symbol: symbol },
+            tab: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tabUSD: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
             eventsCount: currentItem.eventsCount,
           });
         }
       }
     }
   }
-  if (queryResult.loading) {
+  
+  if (queryResult.loading && complementaryData.isLoaded) {
     return (
       <div>
         <Box
