@@ -8,7 +8,7 @@ import {
 } from "@apollo/client";
 
 const client = new ApolloClient({
-  uri: 'https://onebeaconme.tech/subgraphs/name/bmgalego/bridge-subgraph',
+  uri: process.env.ANALITYCS_SUBGRAPH_URL,
   cache: new InMemoryCache()
 });
 
