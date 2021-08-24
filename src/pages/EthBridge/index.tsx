@@ -91,6 +91,29 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
   );
 });
 
+
+const ExternalBridgeButton = observer(({ name, src }: { name: string, src:string }) => {
+  const { exchange } = useStores();
+
+  return (
+    <Button
+      className={
+        cn()
+      }
+      style={{
+        background: 'white',
+        border: '2px solid rgba(0,0,0,0)',
+        color: '#212e5e',
+      }}
+      onClick={() => window.open(src, '_blank').focus()}
+    >
+       <img style={{ marginRight: 10, height: 20 }} src={"./terra-luna-luna-logo.svg"} />
+          {name}
+          <img style={{marginLeft:10, height: 20}} src={"./external_link.svg"}/>
+    </Button>
+  );
+});
+
 export const EthBridge = observer((props: any) => {
   const { user, exchange, routing, userMetamask, tokens } = useStores();
 
@@ -207,6 +230,7 @@ export const EthBridge = observer((props: any) => {
             <Box direction="row" justify="start" gap="20px">
               <NetworkButton type={NETWORK_TYPE.BINANCE} />
               <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+              <ExternalBridgeButton name={"Terra"} src={"https://bridge.terra.money/"} />
             </Box>
             <WalletBalances />
           </Box>
