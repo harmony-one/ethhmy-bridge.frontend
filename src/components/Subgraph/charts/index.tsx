@@ -14,6 +14,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { Spinner } from 'ui';
+import { ChartType } from '../../../interfaces/subgraphTypes';
 var _ = require('lodash');
 
 function groupday(value, index, array) {
@@ -43,7 +44,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
   */
 
   const [fetchDate, setFetchDate] = useState('year');
-
+  let chartTitle = '';
   /* Executing the GraphQL query for the chart */
   const queryResult: QueryResult = useQuery(
     gql`
@@ -51,8 +52,9 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
     `,
   );
   let chartData = [];
-  if (queryResult.data != undefined) {
+  if (queryResult.data != undefined && props.chartType == ChartType.TRANSACTION) {
     // console.log('chart data', queryResult.data);
+    chartTitle = "Daily transactions";
     let transactions = queryResult.data.transactions;
     transactions = transactions.filter(item => {
       // consider this array contains year,month and day
@@ -73,6 +75,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
     let grouped = _.groupBy(dailyTransactions, 'day');
 
     for (let i in grouped) {
+      
       chartData.push({
         name: grouped[i][0].formatedDate,
         txCount: grouped[i].length,
@@ -81,6 +84,19 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
 
     // console.log(chartData);
   }
+
+  if (queryResult.data != undefined && props.chartType == ChartType.WALLET_DAILY) {
+    chartTitle = "Daily Transaction Fee (last 100 days)";
+    let result = queryResult.data['walletDayDatas'];
+    for(let i in result){
+      
+      chartData.push({
+        name: i,
+        txCount: result[i]['totalTransactionFee'],
+      });
+    }
+  }
+
 
   if (queryResult.loading)
     return (
@@ -99,7 +115,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
     );
   return (
     <Box fill={true} background="white" pad="large">
-      <Box
+      {props.showDateFilter && <Box
         direction="row"
         justify="end"
         pad={{ horizontal: 'large' }}
@@ -134,7 +150,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
         >
           1/m
         </Button>
-      </Box>
+      </Box>}
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -142,7 +158,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="txCount" name="Daily transactions" fill="#00ADE8" />
+          <Bar dataKey="txCount" name={chartTitle} fill="#00ADE8" />
         </BarChart>
       </ResponsiveContainer>
     </Box>

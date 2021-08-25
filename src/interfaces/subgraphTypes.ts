@@ -31,12 +31,21 @@ type SubgraphNumericComponentProp =  {
     aggregateField?: string,
     title?: string, 
     // this value will be used to decide to show assets or users or ...
-    dataType?: string
+    dataType?: string,
+    chartType?: ChartType,
+    // this is a flag to indicate whether to show the date flag or not 
+    showDateFilter?: boolean
+}
+
+enum ChartType {
+  TRANSACTION = 1,
+  WALLET_DAILY = 2,
 }
 
 type SubgraphTableComponentProp =  {
     query: string,
 }
 
-export {Asset, Assets, RocketInventory, SubgraphNumericComponentProp, SubgraphTableComponentProp}
+export {Asset, Assets, RocketInventory, 
+  SubgraphNumericComponentProp, SubgraphTableComponentProp, ChartType}
 

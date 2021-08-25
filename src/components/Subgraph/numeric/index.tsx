@@ -1,6 +1,7 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
 import React, { useState } from 'react';
 import { SubgraphNumericComponentProp } from 'interfaces';
+import { client_2 } from 'index';
 import { Spinner } from 'ui';
 import { Box } from 'grommet';
 import { formatWithTwoDecimals } from 'utils';
@@ -9,16 +10,28 @@ import { Title } from 'components/Base';
 export function SubgraphNumericQueryRunner(
   props: SubgraphNumericComponentProp,
 ) {
+  // // this commented code will be used to change the client based on the network
+  // const queryResult: QueryResult = useQuery(
+  //   gql`
+  //     ${props.query}
+  //   `,
+  //   {
+  //     client: client_2
+  //   }
+  // );
+  // todo: the client should be changed here based on the network 
   const queryResult: QueryResult = useQuery(
     gql`
       ${props.query}
     `,
   );
   let number = 0;
+  
   if (
     queryResult.data != undefined &&
     queryResult.data.hasOwnProperty('wallets')
   ) {
+    
     let wallets = queryResult.data.wallets[0];
     switch (props.dataType) {
       case 'transactionsCount':
@@ -32,6 +45,10 @@ export function SubgraphNumericQueryRunner(
         break;
       case 'assetsCount':
         number = wallets.assetsCount;
+        break;
+
+      case 'avgTransactionFee':
+        number = wallets.avgTransactionFee;
         break;
     }
   }

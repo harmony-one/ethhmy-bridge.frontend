@@ -190,6 +190,7 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
       ${q}
     `,
   );
+  console.log(queryResult.data)
   if (queryResult.data != undefined && !queryResult.loading && complementaryData.success) {
     for (let i in queryResult.data) {
       let baseData = queryResult.data[i];
@@ -208,8 +209,8 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tab: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
-            tabUSD: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tab: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tabUSD: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
             eventsCount: currentItem.eventsCount,
           });
         } else if (search === '') {
@@ -218,8 +219,8 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tab: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
-            tabUSD: { value: currentItem.totalLocked, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tab: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tabUSD: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
             eventsCount: currentItem.eventsCount,
           });
         }
