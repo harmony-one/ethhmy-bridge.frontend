@@ -150,7 +150,7 @@ function getPercentageChangeValue(symbol) {
   if (symbol in tokensPercentageChange) {
     return tokensPercentageChange[symbol];
   }
-  return '';
+  return '0';
 }
 function calculateTAB(symbol, value, more) {
   if (more != undefined) return value / Math.pow(10, parseInt(more.decimals));
