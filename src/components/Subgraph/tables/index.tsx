@@ -130,7 +130,7 @@ const columns = [
   },
 
   {
-    title: 'Volume change',
+    title: 'Volume daily',
     sortable: true,
     key: 'volumeChange',
     defaultSort: 'asc',
