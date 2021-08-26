@@ -926,6 +926,8 @@ export class Exchange extends StoreConstructor {
         return this.fullConfig.binanceClient.explorerURL;
       case NETWORK_TYPE.ETHEREUM:
         return this.fullConfig.ethClient.explorerURL;
+      case NETWORK_TYPE.HARMONY:
+        return '';
     }
   }
 }

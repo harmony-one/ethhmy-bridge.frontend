@@ -12,6 +12,9 @@ import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import { getChecksumAddress } from '../../../blockchain-bridge';
 import * as styles from './styles.styl';
 
+// this variable is defined here because we want to use in percentage columns calculation
+const tokensPercentageChange = {};
+
 const EthAddress = ({
   value,
   network,
@@ -81,7 +84,7 @@ const columns = [
     title: 'HRC20 Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
-    width: 300,
+    width: 280,
     render: value => {
       const address =
         String(value).toLowerCase() ===
@@ -97,10 +100,12 @@ const columns = [
     // sortable: true,
     key: 'tab',
     dataIndex: 'tab',
-    width: 140,
+    width: 100,
     render: data => (
       <Box direction="column" justify="center">
-        {formatWithTwoDecimals(calculateTAB(data.symbol, data.value, data.moreInfo))}
+        {formatWithTwoDecimals(
+          calculateTAB(data.symbol, data.value, data.moreInfo),
+        )}
       </Box>
     ),
     // className: styles.centerHeader,
@@ -112,25 +117,51 @@ const columns = [
     key: 'tabUSD',
     defaultSort: 'asc',
     dataIndex: 'tabUSD',
-    width: 210,
+    width: 100,
     className: styles.rightHeaderSort,
     render: data => (
       <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(calculateTABUSD(data.symbol, data.value, data.moreInfo))}
+        $
+        {formatWithTwoDecimals(
+          calculateTABUSD(data.symbol, data.value, data.moreInfo),
+        )}
+      </Box>
+    ),
+  },
+
+  {
+    title: 'Volume change',
+    sortable: true,
+    key: 'volumeChange',
+    defaultSort: 'asc',
+    dataIndex: 'volumeChange',
+    width: 100,
+    className: styles.rightHeaderSort,
+    render: data => (
+      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
+        {getPercentageChangeValue(data.symbol)} %
       </Box>
     ),
   },
 ];
-
+function getPercentageChangeValue(symbol) {
+  // console.log(symbol);
+  // console.log(tokensPercentageChange);
+  if (symbol in tokensPercentageChange) {
+    return tokensPercentageChange[symbol];
+  }
+  return '';
+}
 function calculateTAB(symbol, value, more) {
-  if(more != undefined)
-    return value / Math.pow(10, parseInt(more.decimals));
-  return ''
+  if (more != undefined) return value / Math.pow(10, parseInt(more.decimals));
+  return '';
 }
 function calculateTABUSD(symbol, value, more) {
-  if(more != undefined)
-    return (value / Math.pow(10, parseInt(more.decimals))) * parseFloat(more.price);
-  return ''
+  if (more != undefined)
+    return (
+      (value / Math.pow(10, parseInt(more.decimals))) * parseFloat(more.price)
+    );
+  return '';
 }
 // const data = [{ symbol: 'Jack', eventsCount: 28 }];
 type ComplementaryData = {
@@ -155,16 +186,18 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
       if (response && response.status == 200) {
         const res: any = await response.json();
         const result = res.content;
-    
+
         let symbolsDecimal = {};
         for (let index in result) {
           let currentData = result[index];
-          let currentDataSymbol = currentData.symbol.replace(1, '').replace('bsc', '');
-          if(! (currentDataSymbol in symbolsDecimal)){
+          let currentDataSymbol = currentData.symbol
+            .replace(1, '')
+            .replace('bsc', '');
+          if (!(currentDataSymbol in symbolsDecimal)) {
             symbolsDecimal[currentDataSymbol] = {
               decimals: currentData.decimals,
-              price: currentData.usdPrice
-            }
+              price: currentData.usdPrice,
+            };
           }
         }
 
@@ -190,28 +223,129 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
       ${q}
     `,
   );
-  console.log(queryResult.data)
-  if (queryResult.data != undefined && !queryResult.loading && complementaryData.success) {
+
+  const datasetForPecentageValue1: QueryResult = useQuery(
+    gql`
+      {
+        bridgedTokenDayDatas(
+          where: { date_gte: 1629649600 }
+          orderBy: date
+          orderDirection: asc
+        ) {
+          id
+          token {
+            symbol
+          }
+          volume
+          eventsCount
+          date
+        }
+      }
+    `,
+  );
+  if (datasetForPecentageValue1.data != undefined) {
+    let result = datasetForPecentageValue1.data['bridgedTokenDayDatas'];
+
+    for (let index in result) {
+      let currentItem = result[index];
+      for (let nextIndex in result) {
+        if (index !== nextIndex) {
+          let nextItem = result[nextIndex];
+          if (nextItem['token']['symbol'] === currentItem['token']['symbol']) {
+            tokensPercentageChange[nextItem['token']['symbol']] = Number(
+              ((nextItem['volume'] - currentItem['volume']) /
+                currentItem['volume']) *
+                100,
+            ).toFixed(2);
+          }
+        }
+      }
+    }
+    // console.log(tokensPercentageChange);
+  }
+
+  const datasetForPecentageValue2: QueryResult = useQuery(
+    gql`
+      {
+        tokenDayDatas(
+          where: { date_gte: 1629649600 }
+          orderBy: date
+          orderDirection: desc
+        ) {
+          id
+          token {
+            symbol
+          }
+          volume
+          eventsCount
+          date
+        }
+      }
+    `,
+  );
+  if (datasetForPecentageValue2.data != undefined) {
+    if (datasetForPecentageValue2.data != undefined) {
+      let result = datasetForPecentageValue2.data['bridgedTokenDayDatas'];
+
+      for (let index in result) {
+        let currentItem = result[index];
+        for (let nextIndex in result) {
+          if (index !== nextIndex) {
+            let nextItem = result[nextIndex];
+            if (
+              nextItem['token']['symbol'] === currentItem['token']['symbol']
+            ) {
+              tokensPercentageChange[nextItem['token']['symbol']] = Number(
+                ((nextItem['volume'] - currentItem['volume']) /
+                  currentItem['volume']) *
+                  100,
+              ).toFixed(2);
+            }
+          }
+        }
+      }
+      // console.log(tokensPercentageChange);
+    }
+  }
+
+  if (
+    queryResult.data != undefined &&
+    !queryResult.loading &&
+    complementaryData.success
+  ) {
     for (let i in queryResult.data) {
       let baseData = queryResult.data[i];
       for (let j in baseData) {
         let currentItem = baseData[j];
         let symbol = currentItem.symbol.replace(1, '').replace('bsc', '');
-        let searchTest = (
-          search
-            .toUpperCase()
-            .match(new RegExp('[' + symbol.toUpperCase() + ']', 'g')) || []
-        ).join('');
-        
+        let searchTest = '';
+        // the regular expression is failed in some cases
+        try {
+          searchTest = (
+            search
+              .toUpperCase()
+              .match(new RegExp('[' + symbol.toUpperCase() + ']', 'g')) || []
+          ).join('');
+        } catch (e) {}
+
         if (search !== '' && searchTest.length > 0) {
           data.push({
             key: i + j,
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tab: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
-            tabUSD: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tab: {
+              value: currentItem.volume,
+              symbol: symbol,
+              moreInfo: complementaryData.items[symbol],
+            },
+            tabUSD: {
+              value: currentItem.volume,
+              symbol: symbol,
+              moreInfo: complementaryData.items[symbol],
+            },
             eventsCount: currentItem.eventsCount,
+            volumeChange: { symbol: currentItem.symbol },
           });
         } else if (search === '') {
           data.push({
@@ -219,15 +353,24 @@ export function SubGraphQueryTable(props: SubgraphTableComponentProp) {
             symbol: symbol,
             address: { network: network, address: currentItem.mappedAddress },
             hrc20Address: currentItem.address,
-            tab: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
-            tabUSD: { value: currentItem.volume, symbol: symbol, moreInfo: complementaryData.items[symbol] },
+            tab: {
+              value: currentItem.volume,
+              symbol: symbol,
+              moreInfo: complementaryData.items[symbol],
+            },
+            tabUSD: {
+              value: currentItem.volume,
+              symbol: symbol,
+              moreInfo: complementaryData.items[symbol],
+            },
             eventsCount: currentItem.eventsCount,
+            volumeChange: { symbol: currentItem.symbol },
           });
         }
       }
     }
   }
-  
+  // the code styles in this part of project can be improved
   if (queryResult.loading && complementaryData.isLoaded) {
     return (
       <div>

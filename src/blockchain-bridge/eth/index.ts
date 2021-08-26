@@ -137,5 +137,7 @@ export const getExNetworkMethods = (): INetworkMethods => {
       return ethNetwork;
     case NETWORK_TYPE.BINANCE:
       return binanceNetwork;
+    case NETWORK_TYPE.HARMONY:
+      return undefined;
   }
 };

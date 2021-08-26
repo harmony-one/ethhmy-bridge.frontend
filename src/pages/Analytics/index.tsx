@@ -12,9 +12,10 @@ import { NETWORK_TYPE } from 'stores/interfaces';
 import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
 import { ChartType } from '../../interfaces/subgraphTypes';
 import { Box } from 'grommet';
+import { client_eth, client_bsc } from '../../components/Subgraph/clients/clients';
 
 export const Analytics = (props: any) => {
-  const [network, setNetwork] = useState(NETWORK_TYPE.ETHEREUM);
+  const [network, setNetwork] = useState(NETWORK_TYPE.HARMONY);
 
   function handleNetworkChange(type: NETWORK_TYPE) {
     setNetwork(type);
@@ -23,8 +24,7 @@ export const Analytics = (props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        {/* 
-         this are networks switch button that needs to be added 
+      
         <Box
           direction="column"
           fill={true}
@@ -38,11 +38,29 @@ export const Analytics = (props: any) => {
               style={{
                 background: 'white',
                 border:
+                  network === NETWORK_TYPE.HARMONY
+                    ? '2px solid #00ADE8'
+                    : '2px solid rgba(0,0,0,0)',
+                color: '#212e5e',
+              }}
+              onClick={() => handleNetworkChange(NETWORK_TYPE.HARMONY)}
+            >
+              <img
+                style={{ marginRight: 10, height: 20 }}
+                src={NETWORK_ICON[NETWORK_TYPE.HARMONY]}
+              />
+              {NETWORK_NAME[NETWORK_TYPE.HARMONY]}
+            </Button>
+            <Button
+              style={{
+                background: 'white',
+                border:
                   network === NETWORK_TYPE.BINANCE
                     ? '2px solid #00ADE8'
                     : '2px solid rgba(0,0,0,0)',
                 color: '#212e5e',
               }}
+              disabled={client_bsc === undefined}
               onClick={() => handleNetworkChange(NETWORK_TYPE.BINANCE)}
             >
               <img
@@ -61,6 +79,7 @@ export const Analytics = (props: any) => {
                 color: '#212e5e',
               }}
               onClick={() => handleNetworkChange(NETWORK_TYPE.ETHEREUM)}
+              disabled={client_eth === undefined}
             >
               <img
                 style={{ marginRight: 10, height: 20 }}
@@ -68,8 +87,9 @@ export const Analytics = (props: any) => {
               />
               {NETWORK_NAME[NETWORK_TYPE.ETHEREUM]}
             </Button>
+            
           </Box>
-        </Box> */}
+        </Box>
         <Box
           direction="row"
           justify="center"
@@ -91,6 +111,7 @@ export const Analytics = (props: any) => {
                 `}
               title="Total asset bridged"
               dataType="assetsCount"
+              network={network}
             />
           </Box>
           <Box direction="column" margin={{ vertical: 'large' }}>

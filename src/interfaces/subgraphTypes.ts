@@ -1,4 +1,4 @@
-
+import {NETWORK_TYPE} from '../stores/interfaces';
 
 
 
@@ -25,7 +25,7 @@ interface Asset {
   totalLocked: string;
 }
 
-type SubgraphNumericComponentProp =  {
+type SubgraphComponentProp =  {
     query: string,
     // this is the field that is needed when we want to aggregate the json based on a value
     aggregateField?: string,
@@ -34,7 +34,9 @@ type SubgraphNumericComponentProp =  {
     dataType?: string,
     chartType?: ChartType,
     // this is a flag to indicate whether to show the date flag or not 
-    showDateFilter?: boolean
+    showDateFilter?: boolean,
+    // this is for setting the right client for Apollo useQuery 
+    network?: NETWORK_TYPE
 }
 
 enum ChartType {
@@ -42,10 +44,11 @@ enum ChartType {
   WALLET_DAILY = 2,
 }
 
+
 type SubgraphTableComponentProp =  {
     query: string,
 }
 
-export {Asset, Assets, RocketInventory, 
-  SubgraphNumericComponentProp, SubgraphTableComponentProp, ChartType}
+export {Asset, Assets, RocketInventory,
+  SubgraphComponentProp, SubgraphTableComponentProp, ChartType}
 

@@ -1,37 +1,49 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
 import React, { useState } from 'react';
-import { SubgraphNumericComponentProp } from 'interfaces';
-import { client_2 } from 'index';
+import { SubgraphComponentProp } from 'interfaces';
+import { client_eth, client_bsc } from '../clients/clients';
 import { Spinner } from 'ui';
+import { NETWORK_TYPE } from 'stores/interfaces';
 import { Box } from 'grommet';
 import { formatWithTwoDecimals } from 'utils';
 import { Title } from 'components/Base';
 
 export function SubgraphNumericQueryRunner(
-  props: SubgraphNumericComponentProp,
+  props: SubgraphComponentProp,
 ) {
-  // // this commented code will be used to change the client based on the network
-  // const queryResult: QueryResult = useQuery(
-  //   gql`
-  //     ${props.query}
-  //   `,
-  //   {
-  //     client: client_2
-  //   }
-  // );
-  // todo: the client should be changed here based on the network 
-  const queryResult: QueryResult = useQuery(
-    gql`
-      ${props.query}
-    `,
-  );
-  let number = 0;
   
+  let queryResult: QueryResult;
+  if (client_eth && props.network === NETWORK_TYPE.ETHEREUM) {
+    queryResult = useQuery(
+      gql`
+        ${props.query}
+      `,
+      {
+        client: client_eth,
+      },
+    );
+  } else if (client_bsc && props.network === NETWORK_TYPE.BINANCE) {
+    queryResult = useQuery(
+      gql`
+        ${props.query}
+      `,
+      {
+        client: client_bsc,
+      },
+    );
+  } else {
+    queryResult = useQuery(
+      gql`
+        ${props.query}
+      `,
+    );
+  }
+  let number = 0;
+
   if (
     queryResult.data != undefined &&
     queryResult.data.hasOwnProperty('wallets')
   ) {
-    
     let wallets = queryResult.data.wallets[0];
     switch (props.dataType) {
       case 'transactionsCount':
@@ -72,7 +84,12 @@ export function SubgraphNumericQueryRunner(
       </Box>
     );
   return (
-    <Box direction="column" justify='center' alignContent='center' pad={{ left: '20px' }}>
+    <Box
+      direction="column"
+      justify="center"
+      alignContent="center"
+      pad={{ left: '20px' }}
+    >
       <Title size="small">
         {props.title}
         <span

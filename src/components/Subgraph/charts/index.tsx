@@ -1,6 +1,6 @@
 import { useQuery, gql, QueryResult } from '@apollo/client';
 import React, { useState } from 'react';
-import { SubgraphNumericComponentProp } from 'interfaces';
+import { SubgraphComponentProp } from 'interfaces';
 import { Box, Card } from 'grommet';
 import { Button } from 'components/Base';
 import {
@@ -36,7 +36,7 @@ function formatDate(date) {
   return [year, month, day];
 }
 
-export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
+export function SubgraphDataChart(props: SubgraphComponentProp) {
   /* if this is equal to year the data will be filtered based on year and 
      if its equal to month then the data will be filtered based on month 
      Consider the year and month are hardcoded in this version also some
@@ -165,7 +165,7 @@ export function SubgraphDataChart(props: SubgraphNumericComponentProp) {
   );
 }
 
-export function SubgraphAssetChart(props: SubgraphNumericComponentProp) {
+export function SubgraphAssetChart(props: SubgraphComponentProp) {
   const queryResult: QueryResult = useQuery(
     gql`
       ${props.query}
