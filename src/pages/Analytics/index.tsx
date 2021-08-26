@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import { SubgraphNumericQueryRunner } from 'components/Subgraph/numeric';
 import {
   SubgraphDataChart,
-  SubgraphAssetChart,
 } from 'components/Subgraph/charts';
 import { SubGraphQueryTable } from 'components/Subgraph/tables';
 import { BaseContainer, PageContainer } from 'components';
-import { SearchInput } from 'components/Search';
 import { Button } from 'components/Base';
 import { NETWORK_TYPE } from 'stores/interfaces';
 import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
 import { ChartType } from '../../interfaces/subgraphTypes';
-import { Box } from 'grommet';
+import { Box, Text } from 'grommet';
 import { client_eth, client_bsc } from '../../components/Subgraph/clients/clients';
 
 export const Analytics = (props: any) => {
@@ -24,7 +22,19 @@ export const Analytics = (props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-      
+      <Box
+          direction="column"
+          fill={true}
+          justify="center"
+          alignContent="center"
+          align="center"
+          margin={{ top: 'small', bottom: 'small' }}
+        >
+          <Text color="#c7c7c9" margin={{ top: '4px' }}>
+            The value of ANALITYCS_SUBGRAPH_URL_ETH and ANALITYCS_SUBGRAPH_URL_BSC environment variables should be set to enable their buttons 
+          </Text>
+          
+        </Box>
         <Box
           direction="column"
           fill={true}
@@ -214,12 +224,15 @@ export const Analytics = (props: any) => {
             showDateFilter={true}
           />
         </Box>
-
+         
         <Box
           direction="column"
           justify="between"
           margin={{ vertical: 'small' }}
         >
+          <Text color="#c9c9c9" margin={{ top: '4px' }}>
+            Changing top networks does not have any effect on the data in the following Table 
+          </Text>
           <SubGraphQueryTable
             query={`{
                     assets(orderBy: eventsCount, orderDirection: desc, where: {network: %network%}) {
