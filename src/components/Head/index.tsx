@@ -29,6 +29,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isExplorer = history.location.pathname === '/explorer';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
+    const isAnalyticDashboard = history.location.pathname === '/analytics';
     const isFaq = history.location.pathname === '/faq';
     const isInfo = history.location.pathname === '/info';
 
@@ -102,9 +103,22 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             ) : null}
 
             <Box
+                className={cn(
+                  styles.itemToken,
+      
+                  isAnalyticDashboard ? styles.selected : '',
+                )}
+                onClick={() => {
+                  routing.push(`/analytics`);
+                }}
+              >
+                <Text>Analytics</Text>
+              </Box>
+
+            <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens && !isAnalyticDashboard
                   ? styles.selected
                   : '',
               )}

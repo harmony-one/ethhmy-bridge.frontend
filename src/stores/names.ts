@@ -3,11 +3,13 @@ import { NETWORK_TYPE } from './interfaces';
 export const NETWORK_NAME = {
   [NETWORK_TYPE.ETHEREUM]: 'Ethereum',
   [NETWORK_TYPE.BINANCE]: 'Binance',
+  [NETWORK_TYPE.HARMONY]: 'Harmony',
 };
 
 export const NETWORK_ICON = {
   [NETWORK_TYPE.ETHEREUM]: '/eth.svg',
   [NETWORK_TYPE.BINANCE]: '/binance.png',
+  [NETWORK_TYPE.HARMONY]: '/one.svg',
 };
 
 export const NETWORK_BASE_TOKEN = {

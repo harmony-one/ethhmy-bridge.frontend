@@ -20,6 +20,12 @@ const labels: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC721]: 'ERC721 token address',
     [TOKEN.HRC20]: 'HRC20 token address',
   },
+
+  [NETWORK_TYPE.HARMONY]: {
+    [TOKEN.ERC20]: 'BEP20 token address',
+    [TOKEN.ERC721]: 'ERC721 token address',
+    [TOKEN.HRC20]: 'HRC20 token address',
+  },
 };
 
 const placeholder: Record<NETWORK_TYPE, Record<string, string>> = {
@@ -33,6 +39,12 @@ const placeholder: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC721]: 'Select your ERC721 token',
     [TOKEN.HRC20]: 'Select your HRC20 token',
   },
+
+  [NETWORK_TYPE.HARMONY]: {
+    [TOKEN.ERC20]: 'Select your BEP20 token',
+    [TOKEN.ERC721]: 'Select your ERC721 token',
+    [TOKEN.HRC20]: 'Select your HRC20 token',
+  },
 };
 
 const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
@@ -42,6 +54,11 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.HRC20]: 'Input HRC20 token address',
   },
   [NETWORK_TYPE.BINANCE]: {
+    [TOKEN.ERC20]: 'Input BEP20 token address',
+    [TOKEN.ERC721]: 'Input ERC721 token address',
+    [TOKEN.HRC20]: 'Input HRC20 token address',
+  },
+  [NETWORK_TYPE.HARMONY]: {
     [TOKEN.ERC20]: 'Input BEP20 token address',
     [TOKEN.ERC721]: 'Input ERC721 token address',
     [TOKEN.HRC20]: 'Input HRC20 token address',

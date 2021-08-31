@@ -1,6 +1,7 @@
 export enum NETWORK_TYPE {
   ETHEREUM = 'ETHEREUM',
   BINANCE = 'BINANCE',
+  HARMONY = 'HARMONY',
 }
 
 export enum EXCHANGE_MODE {

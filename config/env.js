@@ -67,6 +67,10 @@ function getClientEnvironment(publicUrl) {
         ).toString('base64'),
 
         PRIVATE_KEY: process.env.PRIVATE_KEY,
+        
+        ANALITYCS_SUBGRAPH_URL: process.env.ANALITYCS_SUBGRAPH_URL,
+        ANALITYCS_SUBGRAPH_URL_ETH: process.env.ANALITYCS_SUBGRAPH_URL_ETH,
+        ANALITYCS_SUBGRAPH_URL_BSC: process.env.ANALITYCS_SUBGRAPH_URL_BSC,
 
         ETH_BUSD_CONTRACT: process.env.ETH_BUSD_CONTRACT,
         ETH_BUSD_MANAGER_CONTRACT: process.env.ETH_BUSD_MANAGER_CONTRACT,
