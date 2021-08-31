@@ -922,10 +922,11 @@ export class Exchange extends StoreConstructor {
     }
 
     switch (network) {
-      case NETWORK_TYPE.BINANCE:
-        return this.fullConfig.binanceClient.explorerURL;
+      default:
       case NETWORK_TYPE.ETHEREUM:
         return this.fullConfig.ethClient.explorerURL;
+      case NETWORK_TYPE.BINANCE:
+        return this.fullConfig.binanceClient.explorerURL;
     }
   }
 }

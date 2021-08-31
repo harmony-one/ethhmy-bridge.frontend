@@ -1,190 +1,95 @@
-import * as React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { IColumn, Table } from 'components/Table';
-import { ITokenInfo, NETWORK_TYPE } from 'stores/interfaces';
-import { formatWithTwoDecimals, truncateAddressString } from 'utils';
-import * as styles from './styles.styl';
+import { NETWORK_TYPE } from 'stores/interfaces';
+import { formatWithTwoDecimals, formatZeroDecimals } from 'utils';
 import { Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
-import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
-import { NETWORK_ICON } from '../../stores/names';
+import { getBech32Address } from '../../blockchain-bridge';
 import { NetworkButton } from './Components';
-// import { AddTokenIcon } from '../../ui/AddToken';
+import { TokensTable } from './TokensTable';
+import { useQuery } from '@apollo/client';
+import { STATS_QUERY } from 'analytics/queries';
+import { TotalLockedDailyChart, VolumeDailyChart } from 'components/Charts';
+import { StatsBox } from 'components/Stats';
+import { formatEther } from '@ethersproject/units';
 
-const EthAddress = observer(
-  ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
-    const { exchange } = useStores();
+async function fetchAssets() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/assets`);
+  return await res.json();
+}
 
-    return (
-      <Box
-        direction="row"
-        justify="start"
-        align="center"
-        style={{ marginTop: 4 }}
-      >
-        <img
-          className={styles.imgToken}
-          style={{ height: 20 }}
-          src={NETWORK_ICON[network]}
-        />
-        <a
-          className={styles.addressLink}
-          href={`${exchange.getExplorerByNetwork(network)}/token/${value}`}
-          target="_blank"
-        >
-          {truncateAddressString(value, 10)}
-        </a>
-      </Box>
-    );
-  },
-);
+async function fetchTvl() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/charts/tvl`);
+  return await res.json();
+}
 
-const oneAddress = value => (
-  <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
-    <img className={styles.imgToken} style={{ height: 18 }} src="/one.svg" />
-    <a
-      className={styles.addressLink}
-      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?txType=hrc20`}
-      target="_blank"
-    >
-      {truncateAddressString(value, 10)}
-    </a>
-  </Box>
-);
-
-const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
-  {
-    title: 'Symbol',
-    key: 'symbol',
-    dataIndex: 'symbol',
-    width: 140,
-    className: styles.leftHeader,
-    render: (value, data) => (
-      <Box direction="row" justify="start" pad={{ left: 'medium' }}>
-        {value ? value.toUpperCase() : '--'}
-        {/*<AddTokenIcon {...data} />*/}
-      </Box>
-    ),
-  },
-  {
-    title: 'Name',
-    key: 'name',
-    dataIndex: 'name',
-    width: 160,
-  },
-  {
-    title: 'ERC20 Address',
-    key: 'erc20Address',
-    dataIndex: 'erc20Address',
-    width: 280,
-    render: (value, data) => (
-      <EthAddress value={value} network={data.network} />
-    ),
-  },
-  {
-    title: 'HRC20 Address',
-    key: 'hrc20Address',
-    dataIndex: 'hrc20Address',
-    width: 300,
-    render: value => {
-      const address =
-        String(value).toLowerCase() ===
-        String(process.env.ONE_HRC20).toLowerCase()
-          ? String(value).toLowerCase()
-          : getChecksumAddress(value);
-
-      return oneAddress(address);
-    },
-  },
-  // {
-  //   title: 'Decimals',
-  //   key: 'decimals',
-  //   dataIndex: 'decimals',
-  //   width: 100,
-  //   className: styles.centerHeader,
-  //   align: 'center',
-  // },
-  {
-    title: 'Total Locked',
-    // sortable: true,
-    key: 'totalLockedNormal',
-    dataIndex: 'totalLockedNormal',
-    width: 140,
-    render: value => (
-      <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value)}
-      </Box>
-    ),
-    // className: styles.centerHeader,
-    // align: 'center',
-  },
-  {
-    title: 'Total Locked USD',
-    sortable: true,
-    key: 'totalLockedUSD',
-    defaultSort: 'asc',
-    dataIndex: 'totalLockedUSD',
-    width: 210,
-    className: styles.rightHeaderSort,
-    align: 'right',
-    render: value => (
-      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(value)}
-      </Box>
-    ),
-  },
-];
+async function fetchVolume() {
+  const res = await fetch(`${process.env.ASSETS_INFO_SERVICE}/charts/volume`);
+  return await res.json();
+}
 
 export const Tokens = observer((props: any) => {
-  const { tokens, user } = useStores();
+  const { routing, assets } = useStores();
   const [search, setSearch] = useState('');
   const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
 
-  const [columns, setColumns] = useState(getColumns(user));
+  const { data: statsData } = useQuery(STATS_QUERY);
+
+  const [tvl, setTvl] = useState(0);
+  const [tvlChart, setTvlChart] = useState([]);
 
   useEffect(() => {
-    tokens.selectedNetwork = network === 'ALL' ? undefined : network;
-  }, [network]);
-
-  useEffect(() => {
-    tokens.init();
-    tokens.fetch();
+    assets.init();
+    fetchAssets().then(res => {
+      assets.set(res.assets);
+      setTvl(parseInt(formatEther(res.tvl)));
+    });
   }, []);
 
   useEffect(() => {
-    setColumns(getColumns(user));
-  }, [user.hmyLINKBalanceManager]);
+    fetchTvl().then(tvl => setTvlChart(tvl));
+  }, []);
+
+  const [volumeChart, setVolumeChart] = useState([]);
+
+  useEffect(() => {
+    fetchVolume().then(volume => setVolumeChart(volume));
+  }, []);
+
+  let data = assets.isPending ? [] : assets.data;
+
+  useEffect(() => {
+    assets.selectedNetwork = network === 'ALL' ? undefined : network;
+  }, [network]);
 
   const onChangeDataFlow = (props: any) => {
-    tokens.onChangeDataFlow(props);
+    assets.onChangeDataFlow(props);
   };
 
-  const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
+  const lastUpdateAgo = Math.ceil((Date.now() - assets.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data.filter(token => {
-    if (!Number(token.totalSupply)) {
-      return false;
-    }
-
+  const filteredData = data.filter(token => {
     let iSearchOk = true;
     let isNetworkOk = true;
 
     if (search) {
-      iSearchOk =
-        Object.values(token).some(
-          value =>
-            value &&
-            value
-              .toString()
-              .toLowerCase()
-              .includes(search.toLowerCase()),
-        ) ||
-        getBech32Address(token.hrc20Address).toLowerCase() ===
-          search.toLowerCase();
+      iSearchOk = [
+        token.id,
+        token.name,
+        token.symbol,
+        token.mappedAddress,
+        getBech32Address(token.id).toLowerCase(),
+      ].some(
+        value =>
+          value &&
+          value
+            .toString()
+            .toLowerCase()
+            .includes(search.toLowerCase()),
+      );
     }
 
     if (network !== 'ALL') {
@@ -201,37 +106,37 @@ export const Tokens = observer((props: any) => {
           direction="row"
           justify="between"
           align="center"
-          margin={{ top: 'medium' }}
-          pad={{ horizontal: 'medium' }}
+          margin={{ top: 'medium', horizontal: 'small' }}
         >
           <Title>Bridged Assets</Title>
-
-          <Box direction="column">
-            <Title size="small">
-              Total Value Locked (USD){' '}
-              <span
-                style={{
-                  marginLeft: 5,
-                  color: '#47b8eb',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
-              </span>
-            </Title>
-          </Box>
-
-          <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+          {/* <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text> */}
         </Box>
-
+        <Box direction="row" margin="small" gap="medium">
+          <StatsBox
+            header="Total Transactions"
+            title="Total TXs"
+            stats={formatZeroDecimals(statsData?.stats.eventsCount ?? 0)}
+          />
+          <StatsBox
+            header="Total Value Locked, USD"
+            title="TVL"
+            stats={`$${formatWithTwoDecimals(tvl)}`}
+          />
+          <StatsBox
+            header="Unique Users"
+            title="Users"
+            stats={formatZeroDecimals(statsData?.stats.usersCount ?? 0)}
+          />
+        </Box>
+        <Box direction="row" justify="between" gap="xsmall">
+          <TotalLockedDailyChart data={tvlChart} />
+          <VolumeDailyChart data={volumeChart} />
+        </Box>
         <Box
-          pad={{ horizontal: '9px' }}
+          pad={{ horizontal: 'small' }}
           margin={{ top: 'medium', bottom: 'medium' }}
-          // style={{ maxWidth: 500 }}
           direction="row"
           justify="between"
-          gap="40px"
         >
           <SearchInput value={search} onChange={setSearch} />
           <Box direction="row" gap="10px">
@@ -259,15 +164,16 @@ export const Tokens = observer((props: any) => {
           fill={true}
           justify="center"
           align="start"
+          pad="small"
         >
-          <Table
-            data={filteredData}
-            columns={columns}
-            isPending={tokens.isPending}
-            hidePagination={true}
-            dataLayerConfig={tokens.dataFlow}
+          <TokensTable
+            assets={filteredData}
+            isPending={assets.isPending && assets}
+            dataFlow={assets.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
-            onRowClicked={() => {}}
+            onRowClicked={row => {
+              routing.push(`/tokens/${row.id}`);
+            }}
           />
         </Box>
       </PageContainer>

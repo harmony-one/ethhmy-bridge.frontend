@@ -16,6 +16,10 @@
     "url": "https://github.com/harmony-one/ethhmy-bridge.frontend"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.18",
+    "@ethersproject/bignumber": "^5.1.1",
+    "@ethersproject/bytes": "^5.1.0",
+    "@ethersproject/units": "^5.1.0",
     "@harmony-js/core": "^0.1.46",
     "@metamask/detect-provider": "^1.1.0",
     "@types/react-outside-click-handler": "^1.3.0",
@@ -25,7 +29,9 @@
     "core-decorators": "^0.20.0",
     "eth-sig-util": "^2.5.3",
     "ethjs": "^0.4.0",
+    "graphql": "^15.5.0",
     "grommet": "^2.8.1",
+    "lightweight-charts": "^3.3.0",
     "lodash": "^4.17.15",
     "mobx": "5.15.0",
     "mobx-react": "6.1.4",

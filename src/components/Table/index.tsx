@@ -25,7 +25,7 @@ const LoaderWrap = styled.div`
 
 export interface IColumn<P = any> {
   title?: string | React.ReactNode;
-  width: number | string;
+  width?: number | string;
   sortable?: boolean;
   dataIndex?: keyof P;
   key: keyof P;
@@ -48,6 +48,7 @@ interface IProps {
   onRowClicked?: (rowData: any, index: number) => any;
   options?: ITableOptions;
   scroll?: { x?: string | number; y?: string | number };
+  style?: React.CSSProperties;
 }
 
 export interface ITableOptions {
@@ -129,7 +130,7 @@ export class Table extends React.Component<IProps> {
     const { paginationData } = dataLayerConfig;
 
     return (
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', flexGrow: 1 }}>
         {isPending && (
           <LoaderWrap>
             <Spinner style={{ width: 24, height: 24 }} />

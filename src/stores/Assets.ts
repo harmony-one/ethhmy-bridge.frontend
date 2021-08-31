@@ -1,12 +1,12 @@
 import { ITokenInfo, NETWORK_TYPE } from './interfaces';
 import { IStores } from './index';
 import * as services from 'services';
-import { ListStoreConstructor } from './core/ListStoreConstructor';
+import { SetListStoreConstructor } from './core/SetListStoreConstructor';
 import { computed, observable } from 'mobx';
 
-export class Tokens extends ListStoreConstructor<ITokenInfo> {
+export class Assets extends SetListStoreConstructor<any> {
   constructor(stores: IStores) {
-    super(stores, () => services.getTokensInfo({ page: 0, size: 1000 }), {
+    super(stores, {
       pollingInterval: 30000,
       isLocal: true,
       paginationData: { pageSize: 200 },

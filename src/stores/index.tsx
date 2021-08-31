@@ -6,6 +6,7 @@ import { Exchange } from './Exchange';
 import { Operations } from './Operations';
 import { AdminOperations } from './AdminOperations';
 import { Tokens } from './Tokens';
+import { Assets } from './Assets';
 import { createStoresContext } from './create-context';
 import { Erc20SelectStore } from './Erc20SelectStore';
 
@@ -18,6 +19,7 @@ export interface IStores {
   operations?: Operations;
   adminOperations?: AdminOperations;
   tokens?: Tokens;
+  assets?: Assets;
   erc20Select?: Erc20SelectStore;
 }
 
@@ -28,6 +30,7 @@ stores.exchange = new Exchange(stores);
 stores.operations = new Operations(stores);
 stores.adminOperations = new AdminOperations(stores);
 stores.tokens = new Tokens(stores);
+stores.assets = new Assets(stores);
 stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);

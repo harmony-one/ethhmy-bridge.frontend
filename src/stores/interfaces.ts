@@ -125,4 +125,5 @@ export interface ITokenInfo {
   totalLockedUSD: string;
   token: TOKEN;
   network: NETWORK_TYPE;
+  usdPrice?: number;
 }

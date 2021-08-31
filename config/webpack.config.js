@@ -105,6 +105,7 @@ module.exports = {
       themes: `${sourcePath}/themes`,
       ui: `${sourcePath}/ui`,
       utils: `${sourcePath}/utils`,
+      analytics: `${sourcePath}/analytics`,
     },
   },
   module: {
