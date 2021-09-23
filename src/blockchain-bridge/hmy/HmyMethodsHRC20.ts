@@ -138,6 +138,19 @@ export class HmyMethodsHRC20 {
     return { name, symbol, decimals: Number('0x' + decimals).toString(), erc20Address };
   };
 
+  token721Details = async erc721Address => {
+    const tokenJson = require('../out/MyERC721.json');
+    const erc20Contract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      erc721Address,
+    );
+
+    const name = await erc20Contract.methods.name().call(this.options);
+    const symbol = await erc20Contract.methods.symbol().call(this.options);
+
+    return { name, symbol, erc20Address: erc721Address };
+  };
+
   allowance = async (addr: string, erc20Address: string) => {
     const tokenJson = require('../out/MyERC20.json');
 

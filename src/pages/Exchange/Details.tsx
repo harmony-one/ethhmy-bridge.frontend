@@ -126,6 +126,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             />
           );
 
+        case TOKEN.HRC721:
         case TOKEN.ERC721:
           return (
             <>

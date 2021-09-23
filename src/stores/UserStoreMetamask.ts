@@ -19,7 +19,7 @@ const defaults = {};
 export interface IERC20Token {
   name: string;
   symbol: string;
-  decimals: string;
+  decimals?: string;
   erc20Address: string;
 }
 

@@ -78,6 +78,10 @@ export class Erc20SelectStore extends StoreConstructor {
           await this.stores.userMetamask.setERC721Token(value);
           break;
 
+        case TOKEN.HRC721:
+          await this.stores.user.setHRC721Mapping(value);
+          break;
+
         case TOKEN.ERC20:
           await this.stores.userMetamask.setToken(value);
           break;

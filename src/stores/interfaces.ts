@@ -16,6 +16,7 @@ export enum TOKEN {
   ETH = 'eth',
   ONE = 'one',
   ERC721 = 'erc721',
+  HRC721 = 'hrc721',
 }
 
 export type TConfig = {
@@ -29,6 +30,7 @@ export type TConfig = {
     linkManager: string;
     erc20Manager: string;
     erc721Manager: string;
+    hrc721Manager: string;
     multisigWallet: string;
     tokenManager: string;
     hrc20Manager: string;

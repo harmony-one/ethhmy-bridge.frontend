@@ -17,6 +17,7 @@ export interface INetworkMethods {
   ethMethodsERC20: EthMethodsERC20;
   ethMethodsHRC20: EthMethodsHRC20;
   ethMethodsERС721: EthMethodsERC20;
+  ethMethodsHRC721: EthMethodsHRC20;
   getNetworkFee: () => Promise<number>;
   getEthBalance: (address: string) => Promise<string>;
 }
@@ -80,6 +81,12 @@ const init = (config: TConfig): INetworkMethods => {
     config.contracts.erc721Manager,
   );
 
+  const ethManagerHRC721Json = require('../out/NFTEthManager.json');
+  const ethManagerContractHRC721 = new web3.eth.Contract(
+    ethManagerHRC721Json.abi,
+    config.contracts.erc721Manager,
+  );
+
   const ethMethodsERC20 = new EthMethodsERC20({
     web3: web3,
     ethManagerContract: ethManagerContract,
@@ -101,6 +108,14 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerAddress: config.contracts.erc721Manager,
   });
 
+  const ethMethodsHRC721 = new EthMethodsHRC20({
+    web3: web3,
+    ethManagerContract: ethManagerContractHRC721,
+    ethManagerAddress: config.contracts.hrc721Manager,
+    ethTokenManagerAddress: config.contracts.tokenManager,
+    gasPrice: config.gasPrice
+  });
+
   return {
     web3,
     ethMethodsBUSD,
@@ -108,6 +123,7 @@ const init = (config: TConfig): INetworkMethods => {
     ethMethodsERC20,
     ethMethodsHRC20,
     ethMethodsERС721,
+    ethMethodsHRC721,
     getNetworkFee: () => getNetworkFee(web3),
     getEthBalance: (ethAddress): Promise<string> => {
       return new Promise((resolve, reject) => {
