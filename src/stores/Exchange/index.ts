@@ -805,7 +805,6 @@ export class Exchange extends StoreConstructor {
             );
           }
 
-          debugger
           while (
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveHmyManger.status,

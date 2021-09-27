@@ -32,8 +32,6 @@ export class HmyMethodsHRC721Web3 {
     hrc721Address,
     sendTxCallback?,
   ) => {
-    console.log(3333)
-    debugger
     const tokenJson = require('../out/MyERC721.json');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
