@@ -33,6 +33,7 @@ export type TConfig = {
     hrc721Manager: string;
     multisigWallet: string;
     tokenManager: string;
+    hrc721TokenManager: string;
     hrc20Manager: string;
     ethManager: string;
     nativeTokenHRC20: string;
@@ -77,6 +78,17 @@ export enum ACTION_TYPE {
   'mintHRC20Token' = 'mintHRC20Token',
   'unlockHRC20TokenRollback' = 'unlockHRC20TokenRollback',
   'mintHRC20TokenRollback' = 'mintHRC20TokenRollback',
+
+  // HRC721
+  "getHRC721Address" = "getHRC721Address",
+  "approveHRC721HmyManger" = "approveHRC721HmyManger",
+  "approveHRC721EthManger" = "approveHRC721EthManger",
+  "lockHRC721Token" = "lockHRC721Token",
+  "unlockHRC721Token" = "unlockHRC721Token",
+  "burnHRC721Token" = "burnHRC721Token",
+  "mintHRC721Token" = "mintHRC721Token",
+  "unlockHRC721TokenRollback" = "unlockHRC721TokenRollback",
+  "mintHRC721TokenRollback" = "mintHRC721TokenRollback",
 }
 
 export enum STATUS {
@@ -112,6 +124,7 @@ export interface IOperation {
   timestamp: number;
   erc20Address?: string;
   hrc20Address?: string;
+  hrc721Address?: string;
   network: NETWORK_TYPE;
 }
 

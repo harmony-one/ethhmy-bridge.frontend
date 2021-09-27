@@ -253,14 +253,27 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                <AssetRow label="Burn" value="">
-                  <Price
-                    value={0.0067219}
-                    isEth={false}
-                    boxProps={{ pad: {} }}
-                    network={exchange.network}
-                  />
-                </AssetRow>
+                {
+                  exchange.token === TOKEN.HRC721 ? (
+                    <AssetRow label="Lock Token" value="">
+                      <Price
+                        value={0.0067219}
+                        isEth={false}
+                        boxProps={{ pad: {} }}
+                        network={exchange.network}
+                      />
+                    </AssetRow>
+                  ): (
+                    <AssetRow label="Burn" value="">
+                      <Price
+                        value={0.0067219}
+                        isEth={false}
+                        boxProps={{ pad: {} }}
+                        network={exchange.network}
+                      />
+                    </AssetRow>
+                  )
+                }
                 <AssetRow
                   label={NETWORK_NAME[exchange.network] + ' gas'}
                   value=""
@@ -287,14 +300,27 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                <AssetRow label="Lock token (~50000 gas)" value="">
-                  <Price
-                    value={exchange.networkFee / 2}
-                    isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                    boxProps={{ pad: {} }}
-                    network={exchange.network}
-                  />
-                </AssetRow>
+                {
+                  exchange.token === TOKEN.HRC721 ? (
+                    <AssetRow label="Burn token (~50000 gas)" value="">
+                      <Price
+                        value={exchange.networkFee / 2}
+                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                        boxProps={{ pad: {} }}
+                        network={exchange.network}
+                      />
+                    </AssetRow>
+                  ): (
+                    <AssetRow label="Lock token (~50000 gas)" value="">
+                      <Price
+                        value={exchange.networkFee / 2}
+                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                        boxProps={{ pad: {} }}
+                        network={exchange.network}
+                      />
+                    </AssetRow>
+                  )
+                }
               </div>
             ) : null}
 

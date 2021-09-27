@@ -56,6 +56,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public bnbRate = 0;
 
   @observable public hrc20Address = '';
+  @observable public hrc721Address = '';
   @observable public hrc20Balance = '';
 
   @observable public isInfoReading = false;
@@ -593,7 +594,7 @@ export class UserStoreEx extends StoreConstructor {
           erc20Address: '',
         };
       } else {
-        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC721.hmyMethods.token721Details(
+        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC721.hmyMethods.tokenDetails(
           hrc721Address,
         );
       }
@@ -603,7 +604,7 @@ export class UserStoreEx extends StoreConstructor {
       );
     }
 
-    this.hrc20Address = hrc721Address;
+    this.hrc721Address = hrc721Address;
     let address;
 
     const exNetwork = getExNetworkMethods();
@@ -622,10 +623,10 @@ export class UserStoreEx extends StoreConstructor {
     console.log('address: ', address);
 
     if (!!Number(address)) {
-      this.stores.userMetamask.erc20Address = address;
+      this.stores.userMetamask.erc721Address = address;
       this.stores.userMetamask.syncLocalStorage();
     } else {
-      this.stores.userMetamask.erc20Address = '';
+      this.stores.userMetamask.erc721Address = '';
     }
   };
 }

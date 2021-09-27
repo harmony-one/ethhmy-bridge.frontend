@@ -25,6 +25,7 @@ import { send1ONEToken } from './1ONE';
 import { getContractMethods } from './helpers';
 import { defaultEthClient } from './defaultConfig';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
+import { sendHrc721Token } from './hrc721';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -53,6 +54,7 @@ export interface ITransaction {
   approveAmount: string;
   erc20Address?: string;
   hrc20Address?: string;
+  hrc721Address?: string;
 }
 
 export class Exchange extends StoreConstructor {
@@ -73,6 +75,7 @@ export class Exchange extends StoreConstructor {
     approveAmount: '0',
     erc20Address: '',
     hrc20Address: '',
+    hrc721Address: '',
   };
 
   @observable transaction = this.defaultTransaction;
@@ -173,7 +176,7 @@ export class Exchange extends StoreConstructor {
             if (
               this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
               ((this.stores.user.isMetamask &&
-                !this.stores.user.isNetworkActual) ||
+                  !this.stores.user.isNetworkActual) ||
                 !this.stores.user.isAuthorized)
             ) {
               throw new Error(
@@ -189,6 +192,15 @@ export class Exchange extends StoreConstructor {
               this.transaction.hrc20Address = getAddress(
                 this.stores.user.hrc20Address,
               ).checksum;
+            }
+
+            if (this.token === TOKEN.HRC721 && this.stores.user.hrc721Address) {
+              this.transaction.hrc721Address = getAddress(
+                this.stores.user.hrc721Address,
+              ).checksum;
+            } else if (this.token === TOKEN.HRC721) {
+              alert('please click `Change token` button first!');
+              return
             }
 
             switch (this.mode) {
@@ -428,6 +440,7 @@ export class Exchange extends StoreConstructor {
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
+    this.transaction.hrc721Address = this.operation.hrc721Address;
 
     this.setStatus();
   }
@@ -535,7 +548,7 @@ export class Exchange extends StoreConstructor {
 
         while (
           [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
-        ) {
+          ) {
           depositOne = this.getActionByType(ACTION_TYPE.depositOne);
 
           await sleep(500);
@@ -608,6 +621,16 @@ export class Exchange extends StoreConstructor {
           });
           return;
 
+        case TOKEN.HRC721:
+          await sendHrc721Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
         case TOKEN.HRC20:
           await sendHrc20Token({
             transaction: this.transaction,
@@ -625,7 +648,7 @@ export class Exchange extends StoreConstructor {
         while (
           getHRC20Action &&
           [STATUS.IN_PROGRESS, STATUS.WAITING].includes(getHRC20Action.status)
-        ) {
+          ) {
           await sleep(3000);
           getHRC20Action = this.getActionByType(ACTION_TYPE.getHRC20Address);
         }
@@ -656,7 +679,7 @@ export class Exchange extends StoreConstructor {
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveEthManger.status,
             )
-          ) {
+            ) {
             approveEthManger = this.getActionByType(
               ACTION_TYPE.approveEthManger,
             );
@@ -703,7 +726,7 @@ export class Exchange extends StoreConstructor {
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveHmyManger.status,
             )
-          ) {
+            ) {
             approveHmyManger = this.getActionByType(
               ACTION_TYPE.approveHmyManger,
             );
@@ -745,7 +768,7 @@ export class Exchange extends StoreConstructor {
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveEthManger.status,
             )
-          ) {
+            ) {
             approveEthManger = this.getActionByType(
               ACTION_TYPE.approveEthManger,
             );
@@ -782,11 +805,12 @@ export class Exchange extends StoreConstructor {
             );
           }
 
+          debugger
           while (
             [STATUS.WAITING, STATUS.IN_PROGRESS].includes(
               approveHmyManger.status,
             )
-          ) {
+            ) {
             approveHmyManger = this.getActionByType(
               ACTION_TYPE.approveHmyManger,
             );
@@ -820,6 +844,7 @@ export class Exchange extends StoreConstructor {
         this.error = e.message || e;
       }
 
+      console.log(e);
       this.actionStatus = 'error';
       this.operation = null;
     }

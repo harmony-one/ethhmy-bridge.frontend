@@ -36,4 +36,15 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   mintHRC20Token: 'Mint tokens',
   unlockHRC20TokenRollback: 'Unlock tokens (rollback)',
   mintHRC20TokenRollback: 'Mint tokens (rollback)',
+
+  // HRC721
+  getHRC721Address: "Get HRC721 token",
+  approveHRC721HmyManger: "Approve lock",
+  approveHRC721EthManger: "Approve burn",
+  lockHRC721Token: "Lock tokens",
+  unlockHRC721Token: "Unlock tokens",
+  burnHRC721Token: "Burn tokens",
+  mintHRC721Token: "Mint tokens",
+  unlockHRC721TokenRollback: "Unlock tokens (rollback)",
+  mintHRC721TokenRollback: "Mint tokens (rollback)",
 };

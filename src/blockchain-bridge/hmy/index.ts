@@ -7,6 +7,8 @@ import { HmyMethodsERC20 } from './HmyMethodsERC20';
 import { HmyMethodsHRC20 } from './HmyMethodsHRC20';
 import { HmyMethodsERC20Web3 } from './HmyMethodsERC20Web3';
 import { HmyMethodsHRC20Web3 } from './HmyMethodsHRC20Web3';
+import { HmyMethodsHRC721Web3 } from './HmyMethodsHRC721Web3';
+import { HmyMethodsHRC721 } from './HmyMethodsHRC721';
 const { Harmony } = require('@harmony-js/core');
 const { ChainType } = require('@harmony-js/utils');
 
@@ -162,7 +164,7 @@ export const hmyMethodsHRC20Hmy = new HmyMethodsHRC20({
   hmyManagerContract: hmyManagerContractHrc20.hmyContract,
 });
 
-export const hmyMethodsHRC721Hmy = new HmyMethodsHRC20({
+export const hmyMethodsHRC721Hmy = new HmyMethodsHRC721({
   hmy: hmy,
   hmyManagerContract: hmyManagerContractHrc721.hmyContract,
 });
@@ -210,7 +212,7 @@ export const hmyMethodsHRC20Web3 = new HmyMethodsHRC20Web3({
   hmyManagerContractAddress: process.env.HMY_HRC20_MANAGER_CONTRACT,
 });
 
-export const hmyMethodsHRC721Web3 = new HmyMethodsHRC20Web3({
+export const hmyMethodsHRC721Web3 = new HmyMethodsHRC721Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContractHrc721.web3Contract,
   hmyManagerContractAddress: process.env.HMY_HRC721_MANAGER_CONTRACT,
