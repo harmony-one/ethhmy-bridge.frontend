@@ -5,7 +5,7 @@ export const getStepsTitle = (
   token: TOKEN,
   network: NETWORK_TYPE,
 ) => {
-  if (token === TOKEN.ERC721 && action === ACTION_TYPE.getHRC20Address) {
+  if ((token === TOKEN.ERC721 || token === TOKEN.HRC721) && action === ACTION_TYPE.getHRC20Address) {
     return 'Register user ERC72 on Harmony';
   }
 
@@ -48,6 +48,17 @@ const STEPS_TITLE_BINANCE: Record<ACTION_TYPE, string> = {
   unlockHRC20TokenRollback: 'Mint failed, unlocking tokens on Harmony',
   mintHRC20TokenRollback:
     'Unlock failed, minting back the burned tokens on Binance Smart Chain',
+
+  // HRC721
+  getHRC721Address: 'Register user HRC721 on Binance Smart Chain',
+  approveHRC721HmyManger: 'User approve bridge to lock tokens',
+  approveHRC721EthManger: 'User approve bridge to burn tokens',
+  lockHRC721Token: 'Bridge lock tokens on Harmony',
+  unlockHRC721Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC721Token: 'Bridge burn tokens on Binance Smart Chain',
+  mintHRC721Token: 'Bridge mint tokens on Binance Smart Chain',
+  unlockHRC721TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC721TokenRollback: 'Unlock failed, minting back the burned tokens on Binance Smart Chain',
 };
 
 const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
@@ -79,4 +90,15 @@ const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
   unlockHRC20TokenRollback: 'Mint failed, unlocking tokens on Harmony',
   mintHRC20TokenRollback:
     'Unlock failed, minting back the burned tokens on Ethereum',
+
+  // HRC721
+  getHRC721Address: 'Register user HRC721 on Ethereum',
+  approveHRC721HmyManger: 'User approve bridge to lock tokens',
+  approveHRC721EthManger: 'User approve bridge to burn tokens',
+  lockHRC721Token: 'Bridge lock tokens on Harmony',
+  unlockHRC721Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC721Token: 'Bridge burn tokens on Ethereum',
+  mintHRC721Token: 'Bridge mint tokens on Ethereum',
+  unlockHRC721TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC721TokenRollback: 'Unlock failed, minting back the burned tokens on Ethereum',
 };

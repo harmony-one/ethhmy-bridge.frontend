@@ -11,6 +11,7 @@ const icons: Record<TOKEN, string> = {
   [TOKEN.ERC20]: '/eth.svg',
   [TOKEN.ETH]: '/eth.svg',
   [TOKEN.ERC721]: '/eth.svg',
+  [TOKEN.HRC721]: '/one.svg',
   [TOKEN.HRC20]: '/one.svg',
   [TOKEN.ONE]: '/one.svg',
 };

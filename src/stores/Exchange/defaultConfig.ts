@@ -5,6 +5,7 @@ export const defaultEthClient: TConfig = {
   explorerURL: 'https://kovan.etherscan.io',
   tokens: [
     TOKEN.ERC721,
+    TOKEN.HRC721,
     TOKEN.HRC20,
     TOKEN.BUSD,
     TOKEN.LINK,
@@ -22,6 +23,8 @@ export const defaultEthClient: TConfig = {
     multisigWallet: '0x4D2F08369476F21D4DEB834b6EA9c41ACAd11413',
     tokenManager: '0xAa0fFF0074E898B922DBAb2c7496cdcC84A28fa0',
     hrc20Manager: '0xA64D59E4350f61679ACDE8eEC06421233Bd2B4E1',
+    hrc721Manager: '0x16a6169ADBd8DD3445Bc366dD7ec4f68b7B1d442',
+    hrc721TokenManager: '0x66e531be7251c8225e8f6ce97a9Aa1Ff2A05613c',
     ethManager: '0xCE670B66C5296e29AB39aBECBC92c60ea330F5dC',
     nativeTokenHRC20: '0x268d6fF391B41B36A13B1693BD25f87FB4E4b392',
   },

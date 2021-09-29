@@ -155,7 +155,7 @@ export const getColumns = (
       dataIndex: 'amount',
       width: 120,
       render: (value, data) =>
-        data.token === TOKEN.ERC721
+        (data.token === TOKEN.ERC721 || data.token === TOKEN.HRC721)
           ? value.length
           : formatWithSixDecimals(value),
     },

@@ -247,6 +247,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: TOKEN.LINK, value: TOKEN.LINK },
                   { text: TOKEN.HRC20, value: TOKEN.HRC20 },
                   { text: TOKEN.ERC721, value: TOKEN.ERC721 },
+                  { text: TOKEN.HRC721, value: TOKEN.HRC721 },
                   { text: TOKEN.ONE, value: TOKEN.ONE },
                   { text: TOKEN.ETH, value: TOKEN.ETH },
                 ]}

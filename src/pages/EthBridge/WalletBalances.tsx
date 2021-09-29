@@ -183,6 +183,7 @@ export const WalletBalances = observer(() => {
                       TOKEN.ERC20,
                       TOKEN.HRC20,
                       TOKEN.ERC721,
+                      TOKEN.HRC721,
                       TOKEN.ONE,
                     ].includes(exchange.token)}
                     link={`${exchange.config.explorerURL}/token/${userMetamask.erc20Address}`}
@@ -319,7 +320,7 @@ export const WalletBalances = observer(() => {
                 />
 
                 {user.hrc20Address &&
-                [TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                [TOKEN.ERC20, TOKEN.HRC20].includes(
                   exchange.token,
                 ) ? (
                   <AssetRow
@@ -329,7 +330,7 @@ export const WalletBalances = observer(() => {
                         : ''
                     }`}
                     value={formatWithSixDecimals(user.hrc20Balance)}
-                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721].includes(
+                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
                       exchange.token,
                     )}
                     link={`${
@@ -337,6 +338,35 @@ export const WalletBalances = observer(() => {
                     }/address/${getBech32Address(
                       user.hrc20Address,
                     )}?txType=hrc20`}
+                    metamask={
+                      user.isMetamask &&
+                      user.isAuthorized &&
+                      user.isNetworkActual
+                        ? user.hrc20Address
+                        : ''
+                    }
+                  />
+                ) : null}
+
+                {user.hrc20Address &&
+                [TOKEN.ERC721, TOKEN.HRC721].includes(
+                  exchange.token,
+                ) ? (
+                  <AssetRow
+                    asset={`Harmony ${
+                      userMetamask.erc20TokenDetails
+                        ? userMetamask.erc20TokenDetails.symbol
+                        : ''
+                    }`}
+                    value={formatWithSixDecimals(user.hrc20Balance)}
+                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
+                      exchange.token,
+                    )}
+                    link={`${
+                      process.env.HMY_EXPLORER_URL
+                    }/address/${getBech32Address(
+                      user.hrc20Address,
+                    )}?txType=hrc721`}
                     metamask={
                       user.isMetamask &&
                       user.isAuthorized &&
