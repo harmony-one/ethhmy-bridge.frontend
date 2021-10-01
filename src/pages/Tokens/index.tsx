@@ -5,15 +5,21 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import { ITokenInfo, NETWORK_TYPE } from 'stores/interfaces';
+import {
+  EXCHANGE_MODE,
+  ITokenInfo,
+  NETWORK_TYPE,
+  TOKEN,
+} from 'stores/interfaces';
 import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Text, Title } from 'components/Base';
+import { Select, Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
 import { NetworkButton } from './Components';
 // import { AddTokenIcon } from '../../ui/AddToken';
+import { useMediaQuery } from 'react-responsive';
 
 const EthAddress = observer(
   ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
@@ -48,7 +54,7 @@ const oneAddress = value => (
     <img className={styles.imgToken} style={{ height: 18 }} src="/one.svg" />
     <a
       className={styles.addressLink}
-      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?txType=hrc20`}
+      href={`${process.env.HMY_EXPLORER_URL}/address/${value}?activeTab=3`}
       target="_blank"
     >
       {truncateAddressString(value, 10)}
@@ -143,8 +149,10 @@ export const Tokens = observer((props: any) => {
   const { tokens, user } = useStores();
   const [search, setSearch] = useState('');
   const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
+  const [tokenType, setToken] = useState<TOKEN | 'ALL'>('ALL');
 
   const [columns, setColumns] = useState(getColumns(user));
+  const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
   useEffect(() => {
     tokens.selectedNetwork = network === 'ALL' ? undefined : network;
@@ -165,13 +173,14 @@ export const Tokens = observer((props: any) => {
 
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
-  const filteredData = tokens.data.filter(token => {
+  const filteredData = tokens.allData.filter(token => {
     if (!Number(token.totalSupply)) {
       return false;
     }
 
     let iSearchOk = true;
     let isNetworkOk = true;
+    let isTokenOk = true;
 
     if (search) {
       iSearchOk =
@@ -191,16 +200,20 @@ export const Tokens = observer((props: any) => {
       isNetworkOk = token.network === network;
     }
 
-    return iSearchOk && isNetworkOk;
+    if (tokenType !== 'ALL') {
+      isTokenOk = token.type === tokenType;
+    }
+
+    return iSearchOk && isNetworkOk && isTokenOk;
   });
 
   return (
     <BaseContainer>
       <PageContainer>
         <Box
-          direction="row"
+          direction={isMobile ? 'column' : 'row'}
           justify="between"
-          align="center"
+          align={isMobile ? 'start' : 'center'}
           margin={{ top: 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
@@ -225,16 +238,55 @@ export const Tokens = observer((props: any) => {
           <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
         </Box>
 
-        <Box
-          pad={{ horizontal: '9px' }}
-          margin={{ top: 'medium', bottom: 'medium' }}
-          // style={{ maxWidth: 500 }}
-          direction="row"
-          justify="between"
-          gap="40px"
-        >
-          <SearchInput value={search} onChange={setSearch} />
-          <Box direction="row" gap="10px">
+        {!isMobile ? (
+          <Box
+            pad={{ horizontal: '9px' }}
+            margin={{ top: 'medium', bottom: 'medium' }}
+            // style={{ maxWidth: 500 }}
+            direction={isMobile ? 'column' : 'row'}
+            justify="between"
+            align={isMobile ? 'start' : 'end'}
+            gap="40px"
+          >
+            <SearchInput value={search} onChange={setSearch} />
+            <Box direction="row" gap="10px" align="end">
+              <NetworkButton
+                type={'ALL'}
+                selectedType={network}
+                onClick={() => setNetwork('ALL')}
+              />
+              <NetworkButton
+                type={NETWORK_TYPE.BINANCE}
+                selectedType={network}
+                onClick={() => setNetwork(NETWORK_TYPE.BINANCE)}
+              />
+              <NetworkButton
+                type={NETWORK_TYPE.ETHEREUM}
+                selectedType={network}
+                onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
+              />
+              <Box direction="column" style={{ width: 300 }} gap="5px">
+                <Text>Token:</Text>
+                <Select
+                  size="full"
+                  options={[
+                    { text: 'ALL', value: 'ALL' },
+                    { text: 'ERC20', value: TOKEN.ERC20 },
+                    { text: 'HRC20', value: TOKEN.HRC20 },
+                    { text: 'ERC721', value: TOKEN.ERC721 },
+                  ]}
+                  onChange={setToken}
+                />
+              </Box>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            direction="row"
+            gap="10px"
+            align="start"
+            margin={{ top: '20px', bottom: '10px' }}
+          >
             <NetworkButton
               type={'ALL'}
               selectedType={network}
@@ -251,7 +303,7 @@ export const Tokens = observer((props: any) => {
               onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
             />
           </Box>
-        </Box>
+        )}
 
         <Box
           direction="row"
@@ -260,15 +312,73 @@ export const Tokens = observer((props: any) => {
           justify="center"
           align="start"
         >
-          <Table
-            data={filteredData}
-            columns={columns}
-            isPending={tokens.isPending}
-            hidePagination={true}
-            dataLayerConfig={tokens.dataFlow}
-            onChangeDataFlow={onChangeDataFlow}
-            onRowClicked={() => {}}
-          />
+          {isMobile ? (
+            <Table
+              data={filteredData}
+              columns={columns}
+              isPending={tokens.isPending}
+              hidePagination={true}
+              dataLayerConfig={tokens.dataFlow}
+              onChangeDataFlow={onChangeDataFlow}
+              onRowClicked={() => {}}
+              customItem={{
+                bodyStyle: {
+                  // padding: '0px 20px',
+                },
+                dir: 'column',
+                render: props => {
+                  const data = props.params as ITokenInfo;
+
+                  const hrc20Address =
+                    String(data.hrc20Address).toLowerCase() ===
+                    String(process.env.ONE_HRC20).toLowerCase()
+                      ? String(data.hrc20Address).toLowerCase()
+                      : getChecksumAddress(data.hrc20Address);
+
+                  return (
+                    <Box
+                      style={{
+                        width: 'calc(100vw - 20px)',
+                        overflow: 'hidden',
+                        borderRadius: '5px',
+                        background: 'white',
+                      }}
+                      direction="column"
+                      pad="medium"
+                      margin={{ top: '15px' }}
+                      gap="5px"
+                    >
+                      <Text bold={true}>
+                        {data.name} ({data.symbol})
+                      </Text>
+                      <Text>HRC20 Address: {oneAddress(hrc20Address)}</Text>
+                      <Text>
+                        ERC20 Address:{' '}
+                        <EthAddress
+                          value={data.erc20Address}
+                          network={data.network}
+                        />
+                      </Text>
+                      <Text>
+                        Total Locked USD: $
+                        {formatWithTwoDecimals(data.totalLockedUSD)}
+                      </Text>
+                    </Box>
+                  ) as any;
+                },
+              }}
+            />
+          ) : (
+            <Table
+              data={filteredData}
+              columns={columns}
+              isPending={tokens.isPending}
+              hidePagination={true}
+              dataLayerConfig={tokens.dataFlow}
+              onChangeDataFlow={onChangeDataFlow}
+              onRowClicked={() => {}}
+            />
+          )}
         </Box>
       </PageContainer>
     </BaseContainer>

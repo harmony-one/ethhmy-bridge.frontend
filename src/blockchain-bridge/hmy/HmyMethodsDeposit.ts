@@ -12,7 +12,7 @@ interface IHmyMethodsInitParams {
 export class HmyMethodsDeposit {
   private hmy: Harmony;
   private hmyManagerContract: Contract;
-  private options = { gasPrice: 1000000000, gasLimit: 6721900 };
+  private options = { gasPrice: 3000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.hmy = params.hmy;

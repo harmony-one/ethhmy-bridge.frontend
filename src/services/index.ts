@@ -10,15 +10,41 @@ import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
 
-let servers = require('../../appengine-servers.json');
+let serversJson = require('../../appengine-servers.json');
 
 if (process.env.NETWORK === 'testnet') {
-  servers = require('../../appengine-servers.testnet.json');
+  serversJson = require('../../appengine-servers.testnet.json');
 }
 
-export const validators = servers;
+export const threshold = 3; //process.env.THRESHOLD;
 
-const threshold = 3; //process.env.THRESHOLD;
+export const getValidators = async () => {
+  const availableValidators = await Promise.all(
+    serversJson.map(async url => {
+      try {
+        const res = await fetch(url + '/version').then(response =>
+          response.json(),
+        );
+
+        if (!!res.version) {
+          return url;
+        }
+      } catch (e) {}
+
+      return false;
+    }),
+  );
+
+  return availableValidators.filter(v => !!v).slice(0, threshold);
+};
+
+export let validators = serversJson;
+export let servers = serversJson;
+
+getValidators().then(res => {
+  validators = res;
+  servers = res;
+});
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -119,11 +145,14 @@ const callAction = async (func: (url: string) => Promise<any>) => {
   throw error;
 };
 
-const callActionWait = async (func: (url: string) => Promise<any>) => {
+const callActionWait = async (
+  func: (url: string) => Promise<any>,
+  countN = 15,
+) => {
   let error;
   let success = false;
   let res;
-  let count = 15;
+  let count = countN;
 
   while (!success && count > 0) {
     try {
@@ -202,6 +231,8 @@ export const getOperations = async (
   return res.body;
 };
 
+const blackList = ['0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB'];
+
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
@@ -210,7 +241,16 @@ export const getTokensInfo = async (
     params,
   );
 
-  let content = res.body.content;
+  let content: ITokenInfo[] = res.body.content;
+
+  const hasAddress = (token: ITokenInfo) => {
+    return content.find(
+      t =>
+        token.type !== t.type &&
+        (token.hrc20Address === t.hrc20Address ||
+          token.erc20Address === t.erc20Address),
+    );
+  };
 
   content = content.filter(t => {
     if (
@@ -221,8 +261,28 @@ export const getTokensInfo = async (
       return false;
     }
 
+    if (
+      t.symbol === 'ONE' &&
+      hasAddress(t) &&
+      String(t.hrc20Address).toLowerCase() !==
+        String(process.env.ONE_HRC20).toLowerCase()
+    ) {
+      return false;
+    }
+
     return true;
   });
+
+  // content = content.filter(
+  //   t => t.network === NETWORK_TYPE.BINANCE && hasAddress(t),
+  // );
+
+  content = content.filter(
+    t =>
+      !blackList.includes(t.hrc20Address) &&
+      !blackList.includes(t.erc20Address),
+  );
+  content = content.filter(t => t.type !== 'hrc20' || !hasAddress(t));
 
   content = _.uniqWith(
     content,
@@ -234,6 +294,8 @@ export const getTokensInfo = async (
     ...c,
     network: c.network || NETWORK_TYPE.ETHEREUM,
   }));
+
+  content.sort((a, b) => (a.totalLockedUSD > b.totalLockedUSD ? -1 : 1));
 
   return { ...res.body, content };
 };
@@ -266,9 +328,11 @@ export const manage = async (
   action: string,
   secret: string,
   params: {
-    operationId: string;
+    operationId?: string;
     actionType?: ACTION_TYPE;
     transactionHash?: string;
+    value?: number;
+    network?: NETWORK_TYPE;
   },
 ) => {
   return callActionWait(async url => {
@@ -278,7 +342,7 @@ export const manage = async (
     );
 
     return res.body;
-  });
+  }, 1);
 };
 
 export const getOperationsAdmin = async (
@@ -292,4 +356,9 @@ export const getOperationsAdmin = async (
   );
 
   return res.body;
+};
+
+// @ts-ignore
+window.getServers = () => {
+  return servers;
 };

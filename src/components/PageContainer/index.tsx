@@ -5,7 +5,6 @@ import { withTheme } from 'styled-components';
 
 export const PageContainer: React.FC<IStyledChildrenProps<BoxProps>> =
   withTheme(({ children, theme, ...props }: IStyledChildrenProps<BoxProps>) => {
-    //TODO: Придумать вариант, избавляющий от внутреннего div
     return <Box
       style={{
         height: '100%',

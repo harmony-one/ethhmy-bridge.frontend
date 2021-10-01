@@ -27,7 +27,7 @@ export const App: React.FC = () => (
         <Route exact path="/hrc20-example" component={Hrc20ContractExample} />
         <Route exact path="/faq" component={FAQPage} />
         <Route exact path="/info" component={InfoPage} />
-        <Route exact path="/explorer" component={Explorer} />
+        <Route exact path="/explorer/:validator?" component={Explorer} />
         <Route exact path="/stuck-operations" component={StuckOperations} />} />
         <Route exact path="/admin-explorer" component={AdminExplorer} />} />
         <Route exact path="/:token" component={EthBridge} />

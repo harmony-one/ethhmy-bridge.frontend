@@ -3,11 +3,20 @@ import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import { Button, Checkbox, Select, Text, TextInput } from 'components/Base';
+import {
+  Button,
+  Checkbox,
+  Select,
+  Text,
+  TextInput,
+  Title,
+} from 'components/Base';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
+import { AuthWarning } from '../../components/AuthWarning';
+import { useMediaQuery } from 'react-responsive';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -50,10 +59,11 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { erc20Select, exchange } = useStores();
+    const { erc20Select, exchange, actionModals } = useStores();
 
     const [custom, setCustom] = useState(false);
     const [erc20, setErc20] = useState('');
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     useEffect(() => setErc20(erc20Select.tokenAddress), [
       erc20Select.tokenAddress,
@@ -107,10 +117,17 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 <Text>Address:</Text>
                 <a
                   className={styles.addressLink}
-                  href={`${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`}
+                  href={
+                    exchange.token === TOKEN.HRC20
+                      ? `${process.env.HMY_EXPLORER_URL}/address/${erc20Select.tokenAddress}`
+                      : `${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`
+                  }
                   target="_blank"
                 >
-                  {truncateAddressString(erc20Select.tokenAddress, 16)}
+                  {truncateAddressString(
+                    erc20Select.tokenAddress,
+                    isMobile ? 8 : 16,
+                  )}
                 </a>
               </Box>
             ) : null}
@@ -143,6 +160,47 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
         {erc20Select.error ? (
           <Box margin={{ top: custom ? '10px' : '0px' }}>
             <Text color="red">{erc20Select.error}</Text>
+          </Box>
+        ) : null}
+
+        {erc20Select.error &&
+        (erc20Select.error.includes('This HRC20 address corresponds') ||
+          erc20Select.error.includes('This address already using for')) ? (
+          <Box
+            margin={{ top: custom ? '10px' : '0px' }}
+            fill={true}
+            align="end"
+          >
+            <Button
+              disabled={erc20Select.isLoading}
+              onClick={async () => {
+                return actionModals.open(
+                  () => (
+                    <Box pad="large" gap="10px">
+                      <Title>Confirm</Title>
+                      {/*<Text>{erc20Select.error}</Text>*/}
+                      <Text>
+                        Are you sure the HRC20 address you are using is not a
+                        bridged HRC20?
+                      </Text>
+                    </Box>
+                  ),
+                  {
+                    title: '',
+                    applyText: 'Yes, i confirm',
+                    closeText: 'Cancel',
+                    noValidation: true,
+                    width: '500px',
+                    showOther: true,
+                    onApply: () => {
+                      return erc20Select.setToken(erc20, true);
+                    },
+                  },
+                );
+              }}
+            >
+              Use address anyway
+            </Button>
           </Box>
         ) : null}
 

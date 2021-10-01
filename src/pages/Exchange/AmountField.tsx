@@ -34,8 +34,7 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
                   <div style={{ width: '100%' }}>
                     <NumberInput
                       name={`amount[${idx}]`}
-                      type="integer"
-                      precision="6"
+                      type="integerString"
                       delimiter="."
                       placeholder="0"
                       style={{ width: '100%' }}
