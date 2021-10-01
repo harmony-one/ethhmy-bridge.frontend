@@ -248,7 +248,14 @@ export class Exchange extends StoreConstructor {
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.isFeeLoading = true;
-                this.depositAmount = await getDepositAmount(this.network);
+                let otherOptions : Record<string, string> = {}
+                if (this.token === TOKEN.HRC721 && this.stores.user.hrc721Address) {
+                  const hasMapper = Number(await exNetwork.ethMethodsHRC721.getMappingFor(this.stores.user.hrc721Address))
+                  otherOptions = {
+                    gas: hasMapper ? '0': '2500000',
+                  }
+                }
+                this.depositAmount = await getDepositAmount(this.network, otherOptions);
                 this.isFeeLoading = false;
                 break;
             }

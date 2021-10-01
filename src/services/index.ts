@@ -254,9 +254,9 @@ export const getConfig = async () => {
   return res.body;
 };
 
-export const getDepositAmount = async (network: NETWORK_TYPE) => {
+export const getDepositAmount = async (network: NETWORK_TYPE, otherOptions:Record<string, string>) => {
   const res = await agent.get<number>(
-    `${servers[0]}/deposit-amount/${network}`,
+    `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(otherOptions)}`,
   );
 
   return res.body;
