@@ -25,7 +25,7 @@ export class HmyMethodsHRC721 {
   }
 
   approveHmyManger = (hrc721Address, sendTxCallback?) => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
       hrc721Address,
@@ -94,7 +94,7 @@ export class HmyMethodsHRC721 {
   };
 
   tokenDetails = async erc721Address => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const erc721Contract = this.hmy.contracts.createContract(
       tokenJson.abi,
       erc721Address,
@@ -108,7 +108,7 @@ export class HmyMethodsHRC721 {
   };
 
   allowance = async (addr: string, erc721Address: string) => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
 
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,

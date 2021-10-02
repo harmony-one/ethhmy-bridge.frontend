@@ -34,7 +34,7 @@ export class HmyMethodsHRC721Web3 {
     hrc721Address,
     sendTxCallback?,
   ) => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc721Address,
@@ -91,7 +91,7 @@ export class HmyMethodsHRC721Web3 {
   };
 
   tokenDetails = async erc721Address => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const erc721Contract = new this.web3.eth.Contract(
       tokenJson.abi,
       erc721Address,
@@ -112,7 +112,7 @@ export class HmyMethodsHRC721Web3 {
   allowance = async (addr: string, erc721Address: string) => {
     const addrHex = getAddress(addr).checksum;
 
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       erc721Address,

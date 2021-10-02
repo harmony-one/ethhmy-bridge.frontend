@@ -62,8 +62,8 @@ const createMethods = (
   };
 };
 
-const hmyBUSDJson = require('../out/MyERC20.json');
-const hmyBUSDManagerJson = require('../out/LINKHmyManager.json');
+const hmyBUSDJson = require('../out/MyERC20');
+const hmyBUSDManagerJson = require('../out/LINKHmyManager');
 const hmyBUSDContract = createContract(
   hmyBUSDJson.abi,
   process.env.HMY_BUSD_CONTRACT,
@@ -92,10 +92,10 @@ export const hmyMethodsLINK = createMethods(
   process.env.HMY_LINK_MANAGER_CONTRACT,
 );
 
-const hmyManagerJson = require('../out/HmyManagerERC20.json');
-const hmyManagerJsonHrc20 = require('../out/HmyManagerHRC20.json');
-const hmyManagerJsonHrc721 = require('../out/NFTHmyManager.json');
-const hmyManagerJson721 = require('../out/ERC721HmyManager.json');
+const hmyManagerJson = require('../out/HmyManagerERC20');
+const hmyManagerJsonHrc20 = require('../out/HmyManagerHRC20');
+const hmyManagerJsonHrc721 = require('../out/NFTHmyManager');
+const hmyManagerJson721 = require('../out/ERC721HmyManager');
 
 const hmyManagerContract = createContract(
   hmyManagerJson.abi,
@@ -271,7 +271,7 @@ export const hmyMethodsERC721 = {
   hmyMethodsWeb3: hmyMethodsERC721Web3,
 };
 
-const hmyDepositJson = require('../out/Deposit.json');
+const hmyDepositJson = require('../out/Deposit');
 const hmyDepositContract = createContract(
   hmyDepositJson.abi,
   process.env.HMY_DEPOSIT_CONTRACT,
