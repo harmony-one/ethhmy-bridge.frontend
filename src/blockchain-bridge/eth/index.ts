@@ -7,9 +7,8 @@ import { getNetworkFee } from './helpers';
 import Web3 from 'web3';
 import { EthMethodsHRC721 } from './EthMethodsHRC721';
 
-const web3URL = window.web3
-  ? window.web3.currentProvider
-  : process.env.ETH_NODE_URL;
+// @ts-ignore
+const web3URL = window.ethereum ? window.ethereum : process.env.ETH_NODE_URL;
 
 export interface INetworkMethods {
   web3: Web3;

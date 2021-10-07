@@ -21,9 +21,8 @@ export const hmy = new Harmony(
   },
 );
 
-const web3URL = window.web3
-  ? window.web3.currentProvider
-  : process.env.HMY_NODE_URL;
+// @ts-ignore
+const web3URL = window.ethereum ? window.ethereum : process.env.HMY_NODE_URL;
 
 export const hmyWeb3 = new Web3(web3URL);
 

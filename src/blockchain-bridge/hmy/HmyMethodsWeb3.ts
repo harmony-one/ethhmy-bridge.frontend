@@ -17,7 +17,7 @@ export class HmyMethodsWeb3 {
   private hmyTokenContract: Contract;
   private hmyManagerContract: Contract;
   hmyManagerContractAddress: string;
-  // private options = { gasPrice: 1000000000, gasLimit: 6721900 };
+  // private options = { gasPrice: 3000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.web3 = params.web3;
@@ -32,7 +32,7 @@ export class HmyMethodsWeb3 {
 
   approveHmyManger = async (amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -44,7 +44,7 @@ export class HmyMethodsWeb3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -53,7 +53,7 @@ export class HmyMethodsWeb3 {
 
   burnToken = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const addrHex = getAddress(userAddr).checksum;
 
@@ -62,7 +62,7 @@ export class HmyMethodsWeb3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 

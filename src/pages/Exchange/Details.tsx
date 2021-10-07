@@ -9,6 +9,7 @@ import { Price } from '../Explorer/Components';
 import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../../stores/names';
+import { useMediaQuery } from 'react-responsive';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -108,6 +109,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
     const { exchange, userMetamask } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_ONE;
 
@@ -172,12 +174,12 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
       <Box direction="column">
         <AssetRow
           label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
-          value={truncateAddressString(exchange.transaction.ethAddress)}
+          value={truncateAddressString(exchange.transaction.ethAddress, isMobile ? 7 : 12)}
           address={true}
         />
         <AssetRow
           label="ONE address"
-          value={truncateAddressString(exchange.transaction.oneAddress)}
+          value={truncateAddressString(exchange.transaction.oneAddress, isMobile ? 7 : 12)}
           address={true}
         />
         {getAmount()}
@@ -348,7 +350,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           <Box direction="column" margin={{ top: 'large' }}>
             <AssetRow
               label="Transaction hash"
-              value={truncateAddressString(exchange.txHash)}
+              value={truncateAddressString(exchange.txHash, isMobile ? 7: 12)}
               address={true}
             />
           </Box>

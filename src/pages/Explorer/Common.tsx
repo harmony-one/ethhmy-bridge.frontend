@@ -16,6 +16,7 @@ import { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import { ManageButton } from './ManageButton';
+import { useEffect } from 'react';
 
 const EthAddress = observer<any>(
   (params: { address; operation: IOperation }) => {
@@ -225,6 +226,20 @@ export const StatisticBlock = observer(() => {
       <StatusField text="Validator status" statusText="OK" />
       <StatusField text="Stuck operations" statusText="NO" />
       <StatusField text="Need to restart" statusText="NO" />
+    </Box>
+  );
+});
+
+export const StatisticBlockLight = observer(() => {
+  const { operations } = useStores();
+
+  return (
+    <Box direction="row" gap="30px">
+      <StatusField
+        text="status"
+        error={operations.fetchStatus === 'error'}
+        statusText={operations.fetchStatus === 'error' ? 'OFFLINE' : 'ONLINE'}
+      />
     </Box>
   );
 });

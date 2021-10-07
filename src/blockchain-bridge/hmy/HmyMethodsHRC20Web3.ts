@@ -15,7 +15,7 @@ export class HmyMethodsHRC20Web3 {
   private web3: Web3;
   private hmyManagerContract: Contract;
   private hmyManagerContractAddress: string;
-  // private options = { gasPrice: 1000000000, gasLimit: 6721900 };
+  // private options = { gasPrice: 3000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.web3 = params.web3;
@@ -39,7 +39,7 @@ export class HmyMethodsHRC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -51,7 +51,7 @@ export class HmyMethodsHRC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -84,7 +84,7 @@ export class HmyMethodsHRC20Web3 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     const res = await this.hmyManagerContract.methods
@@ -92,7 +92,7 @@ export class HmyMethodsHRC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -101,7 +101,7 @@ export class HmyMethodsHRC20Web3 {
 
   lockOne = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -110,7 +110,7 @@ export class HmyMethodsHRC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
         value: mulDecimals(amount, 18),
       })
       .on('transactionHash', sendTxCallback);

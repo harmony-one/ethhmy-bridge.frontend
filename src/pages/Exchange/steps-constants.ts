@@ -29,6 +29,7 @@ const STEPS_TITLE_BINANCE: Record<ACTION_TYPE, string> = {
   waitingBlockNumber: 'Wait for 15 block confirmations',
   mintToken: 'Bridge mint tokens on Harmony',
   mintTokenRollback: 'Unlock failed, minting back the burned tokens on Harmony',
+  topUpAccount: 'Top up user account to 0.001 ONE',
 
   // ONE TO ETH
   approveHmyManger: 'User approve bridge to burn tokens',
@@ -78,6 +79,8 @@ const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
   waitingBlockNumberHarmony: 'Wait for 13 block confirmations',
   unlockToken: 'Bridge unlocks tokens on Ethereum',
   unlockTokenRollback: 'Mint failed, unlocking tokens on Ethereum',
+
+  topUpAccount: 'Top up user account to 0.001 ONE',
 
   // HRC20
   approveHRC20HmyManger: 'User approve bridge to lock tokens',

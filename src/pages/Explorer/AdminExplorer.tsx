@@ -10,6 +10,7 @@ import { getColumns, StatisticBlock } from './Common';
 import { ExpandedRow } from './ExpandedRow';
 import { Select } from '../../components/Base/components/Inputs/types';
 import { Title } from '../../components/Base/components/Title';
+import * as services from '../../services';
 import {
   ACTION_TYPE,
   EXCHANGE_MODE,
@@ -53,6 +54,19 @@ export const isStuckOperation = (o: IOperation) => {
   }
 
   return false;
+};
+
+const reloadEvents = async (
+  manager: string,
+  value: number,
+  network?: NETWORK_TYPE,
+) => {
+  await services.manage('reload_events', manager, {
+    value,
+    network,
+  });
+
+  alert(`Last ${value} Events will be reloaded in next 1-2 min`);
 };
 
 export const AdminExplorer = observer((props: any) => {
@@ -160,6 +174,19 @@ export const AdminExplorer = observer((props: any) => {
           </Box>
           <StatisticBlock />
         </Box>
+
+        <Box direction="row" gap="30px" justify="end">
+          <Button style={{ background: '#c90000' }} onClick={() => reloadEvents(adminOperations.manager, 30000)}>
+            Reload Harmony Events
+          </Button>
+          <Button style={{ background: '#c90000' }} onClick={() => reloadEvents(adminOperations.manager, 10000)}>
+            Reload Ethereum Events
+          </Button>
+          <Button style={{ background: '#c90000' }} onClick={() => reloadEvents(adminOperations.manager, 10000)}>
+            Reload Binance Events
+          </Button>
+        </Box>
+
         <Box
           direction="row"
           wrap={true}

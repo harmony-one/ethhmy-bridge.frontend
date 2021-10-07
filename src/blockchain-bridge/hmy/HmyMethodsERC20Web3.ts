@@ -17,7 +17,7 @@ export class HmyMethodsERC20Web3 {
   private hmyManagerContract: Contract;
   hmyManagerContractAddress: string;
   private hmyTokenManagerAddress: string;
-  // private options = { gasPrice: 1000000000, gasLimit: 6721900 };
+  // private options = { gasPrice: 3000000000, gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.web3 = params.web3;
@@ -42,7 +42,7 @@ export class HmyMethodsERC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -54,7 +54,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -68,7 +68,8 @@ export class HmyMethodsERC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    // @ts-ignore
+const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let res = await hmyTokenContract.methods
       .isApprovedForAll(accounts[0], this.hmyManagerContractAddress)
@@ -80,7 +81,7 @@ export class HmyMethodsERC20Web3 {
         .send({
           from: accounts[0],
           gasLimit: process.env.GAS_LIMIT,
-          gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+          gasPrice: process.env.GAS_PRICE,
         })
         .on('transactionHash', sendTxCallback);
 
@@ -99,14 +100,14 @@ export class HmyMethodsERC20Web3 {
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let response = await this.hmyManagerContract.methods
       .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -115,14 +116,14 @@ export class HmyMethodsERC20Web3 {
 
   burnTokens = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     let response = await this.hmyManagerContract.methods
       .burnTokens(hrc20Address, amount, userAddr)
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
       })
       .on('transactionHash', sendTxCallback);
 
@@ -200,7 +201,7 @@ export class HmyMethodsERC20Web3 {
 
   lockOne = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await ethereum.enable();
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -235,7 +236,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: new BN(await this.web3.eth.getGasPrice()).mul(new BN(1)),
+        gasPrice: process.env.GAS_PRICE,
         value: mulDecimals(amount, 18),
       })
       .on('transactionHash', sendTxCallback);

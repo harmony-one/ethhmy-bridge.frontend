@@ -36,7 +36,7 @@ export interface IColumn<P = any> {
   className?: string;
 }
 
-interface IProps {
+interface IProps{
   data?: any[];
   columns: IColumn[];
   tableParams?: TableProps;
@@ -48,6 +48,14 @@ interface IProps {
   onRowClicked?: (rowData: any, index: number) => any;
   options?: ITableOptions;
   scroll?: { x?: string | number; y?: string | number };
+  customItem?: {
+    render: React.FunctionComponent<{ params: any }> | React.ComponentClass<{ params: any }>;
+    bodyStyle?: any;
+    bodyClassName?: string;
+    dir?: 'row' | 'column';
+    wrap?: 'wrap' | 'no-wrap';
+    wrapMargin?: string;
+  };
 }
 
 export interface ITableOptions {
@@ -125,8 +133,11 @@ export class Table extends React.Component<IProps> {
       hidePagination,
       tableParams,
       scroll = {},
+      customItem,
     } = this.props;
     const { paginationData } = dataLayerConfig;
+
+    const ItemRender = customItem ? customItem.render : null;
 
     return (
       <div style={{ position: 'relative' }}>
@@ -135,23 +146,50 @@ export class Table extends React.Component<IProps> {
             <Spinner style={{ width: 24, height: 24 }} />
           </LoaderWrap>
         )}
-        <RcTable
-          {...tableParams}
-          data={data}
-          columns={this.columns as any}
-          emptyText="No data"
-          scroll={scroll}
-          onRow={(rowData, index) => {
-            return {
-              onClick: () =>
-                onRowClicked instanceof Function &&
-                onRowClicked(rowData, index),
-              style: {
-                cursor: onRowClicked instanceof Function ? 'pointer' : 'auto',
-              },
-            };
-          }}
-        />
+        {customItem ? (
+          <div
+            style={
+              customItem.bodyStyle || customItem.bodyClassName
+                ? customItem.bodyStyle
+                : {
+                  display: 'flex',
+                  flexDirection: customItem.dir || 'column',
+                  flexWrap: customItem.wrap || 'no-wrap',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                  margin: customItem.wrapMargin
+                    ? `-${customItem.wrapMargin} 0 0 -${customItem.wrapMargin}`
+                    : '0',
+                  width: customItem.wrapMargin
+                    ? `calc(100% + 2 * ${customItem.wrapMargin})`
+                    : 'auto',
+                }
+            }
+            className={customItem.bodyClassName}
+          >
+            {data.map((item, idx) => (
+              <ItemRender key={item.id || idx} params={item} />
+            ))}
+          </div>
+        ) : (
+          <RcTable
+            {...tableParams}
+            data={data}
+            columns={this.columns as any}
+            emptyText="No data"
+            scroll={scroll}
+            onRow={(rowData, index) => {
+              return {
+                onClick: () =>
+                  onRowClicked instanceof Function &&
+                  onRowClicked(rowData, index),
+                style: {
+                  cursor: onRowClicked instanceof Function ? 'pointer' : 'auto',
+                },
+              };
+            }}
+          />
+        )}
         {!hidePagination && (
           <CustomPagination
             config={paginationData}

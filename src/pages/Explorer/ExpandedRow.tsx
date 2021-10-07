@@ -161,7 +161,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                   src={
                     isEth(action.type)
                       ? NETWORK_ICON[props.data.network]
-                      : 'one.svg'
+                      : '/one.svg'
                   }
                   style={{
                     marginRight: 15,

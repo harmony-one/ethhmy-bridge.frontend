@@ -1,8 +1,8 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, autorun, computed, observable, reaction } from 'mobx';
 import { NETWORK_TYPE, TOKEN } from './interfaces';
-import { tokensMainnet } from '../pages/Exchange/tokens';
 import { NETWORK_ICON } from './names';
+import { tokensMainnet } from '../pages/Exchange/tokens';
 
 export class Erc20SelectStore extends StoreConstructor {
   @observable tokenAddress;
@@ -45,7 +45,8 @@ export class Erc20SelectStore extends StoreConstructor {
     });
 
     reaction(
-      () => stores.userMetamask.isNetworkActual && stores.userMetamask.isAuthorized,
+      () =>
+        stores.userMetamask.isNetworkActual && stores.userMetamask.isAuthorized,
       () =>
         this.tokenAddress &&
         setTimeout(() => this.setToken(this.tokenAddress), 500),
@@ -67,7 +68,7 @@ export class Erc20SelectStore extends StoreConstructor {
   }
 
   @action.bound
-  setToken = async (value: string) => {
+  setToken = async (value: string, ignoreValidations = false) => {
     this.tokenAddress = value;
     this.error = '';
     this.isLoading = true;
@@ -83,11 +84,11 @@ export class Erc20SelectStore extends StoreConstructor {
           break;
 
         case TOKEN.ERC20:
-          await this.stores.userMetamask.setToken(value);
+          await this.stores.userMetamask.setToken(value, ignoreValidations);
           break;
 
         case TOKEN.HRC20:
-          await this.stores.user.setHRC20Mapping(value);
+          await this.stores.user.setHRC20Mapping(value, ignoreValidations);
           break;
       }
     } catch (e) {
@@ -104,24 +105,47 @@ export class Erc20SelectStore extends StoreConstructor {
 
   @computed
   get tokensList() {
-    if (
-      this.stores.exchange.network === NETWORK_TYPE.ETHEREUM &&
-      process.env.NETWORK !== 'testnet'
-    ) {
-      return tokensMainnet;
+    // if (
+    //   this.stores.exchange.network === NETWORK_TYPE.ETHEREUM &&
+    //   process.env.NETWORK !== 'testnet'
+    // ) {
+    //   return tokensMainnet;
+    // }
+
+    if (this.stores.exchange.token === TOKEN.HRC20) {
+      return this.stores.tokens.allData
+        .filter(t => !['ONE'].includes(t.symbol))
+        .filter(t => t.network === this.stores.exchange.network)
+        .filter(t => t.type === this.stores.exchange.token)
+        .map(t => ({
+          address: t.hrc20Address,
+          label: `${t.name} (${t.symbol})`,
+          image: NETWORK_ICON[t.network],
+        }));
     }
 
-    return this.stores.tokens.allData
+    const { network } = this.stores.exchange;
+
+    const filteredTokens = this.stores.tokens.allData
       .filter(t =>
-        this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
-          ? !['BUSD', 'LINK'].includes(t.symbol)
-          : true,
+        network === NETWORK_TYPE.ETHEREUM
+          ? !['BUSD', 'LINK', 'ETH'].includes(t.symbol) &&
+            !tokensMainnet.find(
+              tm => tm.address.toLowerCase() === t.erc20Address.toLowerCase(),
+            )
+          : t.symbol !== 'BNB',
       )
       .filter(t => t.network === this.stores.exchange.network)
+      .filter(t => t.type === this.stores.exchange.token)
       .map(t => ({
         address: t.erc20Address,
+        href: '',
         label: `${t.name} (${t.symbol})`,
         image: NETWORK_ICON[t.network],
       }));
+
+    return network === NETWORK_TYPE.ETHEREUM
+      ? tokensMainnet.concat(filteredTokens)
+      : filteredTokens;
   }
 }

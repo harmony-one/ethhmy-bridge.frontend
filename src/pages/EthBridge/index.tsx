@@ -12,6 +12,7 @@ import { Button, Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
 // import { ERC20Select } from '../Exchange/ERC20Select';
+import { useMediaQuery } from 'react-responsive';
 
 const LargeButton = observer(
   (props: {
@@ -24,6 +25,7 @@ const LargeButton = observer(
     const { exchange } = useStores();
 
     const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     return (
       <Box
@@ -33,6 +35,7 @@ const LargeButton = observer(
         className={cn(
           styles.largeButtonContainer,
           props.isActive ? styles.active : '',
+          isMobile ? styles.mobile : '',
         )}
         onClick={props.onClick}
         gap="10px"
@@ -93,6 +96,7 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
 
 export const EthBridge = observer((props: any) => {
   const { user, exchange, routing, userMetamask, tokens } = useStores();
+  const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
   useEffect(() => {
     tokens.init();
@@ -139,6 +143,57 @@ export const EthBridge = observer((props: any) => {
     tokens.init();
     tokens.fetch();
   }, []);
+
+  if (isMobile) {
+    return (
+      <BaseContainer>
+        <PageContainer>
+          <Box direction="column">
+            <Box direction="column" margin={{ top: 'large' }}>
+              <Box direction="row" justify="start" gap="20px">
+                <NetworkButton type={NETWORK_TYPE.BINANCE} />
+                <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+              </Box>
+
+              <WalletBalances />
+
+              <Box
+                direction="column"
+                align="center"
+                justify="center"
+                className={styles.base}
+              >
+                <Box
+                  direction="row"
+                  justify="between"
+                  width="560px"
+                  margin={{ vertical: 'large' }}
+                  wrap={true}
+                >
+                  <LargeButton
+                    title="ETH -> ONE"
+                    description="(Metamask)"
+                    onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
+                    isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                  />
+                  <LargeButton
+                    title="ONE -> ETH"
+                    reverse={true}
+                    description={
+                      user.isMetamask ? '(Metamask)' : '(ONE Wallet)'
+                    }
+                    onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
+                    isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
+                  />
+                </Box>
+                <Exchange />
+              </Box>
+            </Box>
+          </Box>
+        </PageContainer>
+      </BaseContainer>
+    );
+  }
 
   return (
     <BaseContainer>

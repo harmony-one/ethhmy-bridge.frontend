@@ -212,7 +212,8 @@ export class UserStoreEx extends StoreConstructor {
       this.provider
         .request({ method: 'eth_requestAccounts' })
         .then(async params => {
-          const web3 = new Web3(window.web3.currentProvider);
+          // @ts-ignore
+          const web3 = new Web3(window.ethereum);
           this.metamaskChainId = await web3.eth.net.getId();
 
           this.sessionType = 'metamask';
@@ -430,7 +431,10 @@ export class UserStoreEx extends StoreConstructor {
           .filter(t => t.token === TOKEN.ERC20)
           .find(t => isAddressEqual(t.hrc20Address, hrc20Address))
       ) {
-        throw new Error('This address already using for ERC20 token wrapper');
+        // throw new Error('This address already using for ERC20 token wrapper');
+        throw new Error(
+          'This HRC20 address corresponds to a bridged BEP20. To bridge back your BEP20, use the BEP20 option. HRC20 option is only for tokens issued on Harmony.',
+        );
       }
 
       const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');

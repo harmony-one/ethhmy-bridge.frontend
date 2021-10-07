@@ -2,6 +2,18 @@
   width: 270px
   height 100px
 
+  &.mobile {
+    width: 220px
+    height 100px
+    margin-top 10px;
+  }
+
+  @media (max-width 460px) {
+    &.mobile {
+      width: 100%
+    }
+  }
+
   background: #FFFFFF;
   box-shadow: 0px 10px 21px rgba(0, 173, 232, 0.13);
   border-radius: 4px;

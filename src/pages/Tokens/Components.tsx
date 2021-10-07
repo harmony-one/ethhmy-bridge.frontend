@@ -9,6 +9,7 @@ import { useStores } from '../../stores';
 import { formatWithSixDecimals } from '../../utils';
 import { Button } from '../../components/Base/components/Button';
 import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
+import { useMediaQuery } from 'react-responsive';
 
 export const OperationType = (props: { type: EXCHANGE_MODE }) => {
   return (
@@ -79,6 +80,8 @@ export const NetworkButton = observer(
     selectedType: NETWORK_TYPE | 'ALL';
     onClick: () => void;
   }) => {
+    const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
+
     return (
       <Button
         className={
@@ -94,7 +97,7 @@ export const NetworkButton = observer(
               : '2px solid rgba(0,0,0,0)',
           color: '#212e5e',
           height: 46,
-          paddingTop: 12,
+          padding: "12px 7px 0px 7px",
         }}
         onClick={onClick}
       >

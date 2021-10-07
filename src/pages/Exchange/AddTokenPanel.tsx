@@ -13,7 +13,8 @@ export const AddTokenPanel = observer((params: { position?: string }) => {
 
   if (
     [TOKEN.ERC20, TOKEN.ETH].includes(exchange.token) &&
-    exchange.mode === EXCHANGE_MODE.ETH_TO_ONE
+    exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+    exchange.operation
   ) {
     return (
       <AddTokenString

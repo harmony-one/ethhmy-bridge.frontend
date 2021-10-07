@@ -67,6 +67,7 @@ export enum ACTION_TYPE {
   'waitingBlockNumberHarmony' = 'waitingBlockNumberHarmony',
   'unlockToken' = 'unlockToken',
   'unlockTokenRollback' = 'unlockTokenRollback',
+  'topUpAccount' = 'topUpAccount',
 
   // HRC20
   'approveHRC20HmyManger' = 'approveHRC20HmyManger',
@@ -139,5 +140,6 @@ export interface ITokenInfo {
   totalLockedNormal: string;
   totalLockedUSD: string;
   token: TOKEN;
+  type: TOKEN;
   network: NETWORK_TYPE;
 }
