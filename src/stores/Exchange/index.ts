@@ -26,6 +26,7 @@ import { getContractMethods } from './helpers';
 import { defaultEthClient } from './defaultConfig';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
 import { sendHrc721Token } from './hrc721';
+import { sendHrc1155Token } from './hrc1155';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -55,6 +56,8 @@ export interface ITransaction {
   erc20Address?: string;
   hrc20Address?: string;
   hrc721Address?: string;
+  hrc1155Address?: string;
+  hrc1155TokenId?: string;
 }
 
 export class Exchange extends StoreConstructor {
@@ -203,6 +206,15 @@ export class Exchange extends StoreConstructor {
               return
             }
 
+            if (this.token === TOKEN.HRC1155 && this.stores.user.hrc1155Address) {
+              this.transaction.hrc1155Address = getAddress(
+                this.stores.user.hrc1155Address,
+              ).checksum;
+            } else if (this.token === TOKEN.HRC1155) {
+              alert('please click `Change token` button first!');
+              return
+            }
+
             switch (this.mode) {
               case EXCHANGE_MODE.ETH_TO_ONE:
                 this.transaction.ethAddress = this.stores.userMetamask.ethAddress;
@@ -216,6 +228,7 @@ export class Exchange extends StoreConstructor {
 
             if (
               (this.token === TOKEN.ERC721 || this.token === TOKEN.HRC721) ||
+              (this.token === TOKEN.HRC1155) ||
               (this.token === TOKEN.ONE &&
                 this.mode === EXCHANGE_MODE.ONE_TO_ETH) ||
               (this.token === TOKEN.ETH &&
@@ -255,6 +268,7 @@ export class Exchange extends StoreConstructor {
                     gas: hasMapper ? '0': '2500000',
                   }
                 }
+                // todo hrc1155 gas price
                 this.depositAmount = await getDepositAmount(this.network, otherOptions);
                 this.isFeeLoading = false;
                 break;
@@ -448,6 +462,8 @@ export class Exchange extends StoreConstructor {
     this.transaction.oneAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
     this.transaction.hrc721Address = this.operation.hrc721Address;
+    this.transaction.hrc1155Address = this.operation.hrc1155Address;
+    this.transaction.hrc1155TokenId = this.operation.hrc1155TokenId;
 
     this.setStatus();
   }
@@ -630,6 +646,16 @@ export class Exchange extends StoreConstructor {
 
         case TOKEN.HRC721:
           await sendHrc721Token({
+            transaction: this.transaction,
+            mode: this.mode,
+            stores: this.stores,
+            getActionByType: this.getActionByType,
+            confirmCallback: confirmCallback,
+          });
+          return;
+
+        case TOKEN.HRC1155:
+          await sendHrc1155Token({
             transaction: this.transaction,
             mode: this.mode,
             stores: this.stores,

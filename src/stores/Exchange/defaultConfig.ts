@@ -6,6 +6,7 @@ export const defaultEthClient: TConfig = {
   tokens: [
     TOKEN.ERC721,
     TOKEN.HRC721,
+    TOKEN.HRC1155,
     TOKEN.HRC20,
     TOKEN.BUSD,
     TOKEN.LINK,
@@ -25,6 +26,8 @@ export const defaultEthClient: TConfig = {
     hrc20Manager: '0xA64D59E4350f61679ACDE8eEC06421233Bd2B4E1',
     hrc721Manager: '0x4500Bbc8e248629C20F0b87F865eD1C8649572B9',
     hrc721TokenManager: '0x66e531be7251c8225e8f6ce97a9Aa1Ff2A05613c',
+    hrc1155Manager: '0x692C7829108079cecF8122c354A2d5eD40301A7C',
+    hrc1155TokenManager: '0x8F82233Ba5f8cd265958122498116a012D9406a0',
     ethManager: '0xCE670B66C5296e29AB39aBECBC92c60ea330F5dC',
     nativeTokenHRC20: '0x268d6fF391B41B36A13B1693BD25f87FB4E4b392',
   },

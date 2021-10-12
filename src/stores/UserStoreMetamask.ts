@@ -39,6 +39,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @observable erc20Address: string = '';
   @observable erc721Address: string = '';
+  @observable erc1155Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
   @observable erc20Balance: string = '';
 

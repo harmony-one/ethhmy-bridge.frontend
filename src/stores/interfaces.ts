@@ -17,6 +17,7 @@ export enum TOKEN {
   ONE = 'one',
   ERC721 = 'erc721',
   HRC721 = 'hrc721',
+  HRC1155 = 'hrc1155',
 }
 
 export type TConfig = {
@@ -30,11 +31,13 @@ export type TConfig = {
     linkManager: string;
     erc20Manager: string;
     erc721Manager: string;
-    hrc721Manager: string;
     multisigWallet: string;
     tokenManager: string;
-    hrc721TokenManager: string;
     hrc20Manager: string;
+    hrc721Manager: string;
+    hrc721TokenManager: string;
+    hrc1155Manager: string;
+    hrc1155TokenManager: string;
     ethManager: string;
     nativeTokenHRC20: string;
   };
@@ -90,6 +93,17 @@ export enum ACTION_TYPE {
   'mintHRC721Token' = 'mintHRC721Token',
   'unlockHRC721TokenRollback' = 'unlockHRC721TokenRollback',
   'mintHRC721TokenRollback' = 'mintHRC721TokenRollback',
+
+  // HRC1155
+  'getHRC1155Address' = 'getHRC1155Address',
+  'approveHRC1155HmyManger' = 'approveHRC1155HmyManger',
+  'approveHRC1155EthManger' = 'approveHRC1155EthManger',
+  'lockHRC1155Token' = 'lockHRC1155Token',
+  'unlockHRC1155Token' = 'unlockHRC1155Token',
+  'burnHRC1155Token' = 'burnHRC1155Token',
+  'mintHRC1155Token' = 'mintHRC1155Token',
+  'unlockHRC1155TokenRollback' = 'unlockHRC1155TokenRollback',
+  'mintHRC1155TokenRollback' = 'mintHRC1155TokenRollback',
 }
 
 export enum STATUS {
@@ -126,6 +140,8 @@ export interface IOperation {
   erc20Address?: string;
   hrc20Address?: string;
   hrc721Address?: string;
+  hrc1155Address?: string;
+  hrc1155TokenId?: string;
   network: NETWORK_TYPE;
 }
 

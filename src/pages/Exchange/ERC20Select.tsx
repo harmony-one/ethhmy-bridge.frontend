@@ -23,6 +23,7 @@ const labels: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC20]: 'ERC20 token address',
     [TOKEN.ERC721]: 'ERC721 token address',
     [TOKEN.HRC721]: 'HRC721 token address',
+    [TOKEN.HRC1155]: 'HRC1155 token address',
     [TOKEN.HRC20]: 'HRC20 token address',
   },
   [NETWORK_TYPE.BINANCE]: {
@@ -37,6 +38,7 @@ const placeholder: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC20]: 'Select your ERC20 token',
     [TOKEN.ERC721]: 'Select your ERC721 token',
     [TOKEN.HRC721]: 'Select your HRC721 token',
+    [TOKEN.HRC1155]: 'Select your HRC1155 token',
     [TOKEN.HRC20]: 'Select your HRC20 token',
   },
   [NETWORK_TYPE.BINANCE]: {
@@ -51,6 +53,7 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC20]: 'Input ERC20 token address',
     [TOKEN.ERC721]: 'Input ERC721 token address',
     [TOKEN.HRC721]: 'Input HRC721 token address',
+    [TOKEN.HRC1155]: 'Input HRC1155 token address',
     [TOKEN.HRC20]: 'Input HRC20 token address',
   },
   [NETWORK_TYPE.BINANCE]: {

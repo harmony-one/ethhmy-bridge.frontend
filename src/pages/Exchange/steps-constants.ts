@@ -60,6 +60,17 @@ const STEPS_TITLE_BINANCE: Record<ACTION_TYPE, string> = {
   mintHRC721Token: 'Bridge mint tokens on Binance Smart Chain',
   unlockHRC721TokenRollback: 'Mint failed, unlocking tokens on Harmony',
   mintHRC721TokenRollback: 'Unlock failed, minting back the burned tokens on Binance Smart Chain',
+
+  // HRC1155
+  getHRC1155Address: 'Register user HRC1155 on Binance Smart Chain',
+  approveHRC1155HmyManger: 'User approve bridge to lock tokens',
+  approveHRC1155EthManger: 'User approve bridge to burn tokens',
+  lockHRC1155Token: 'Bridge lock tokens on Harmony',
+  unlockHRC1155Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC1155Token: 'Bridge burn tokens on Binance Smart Chain',
+  mintHRC1155Token: 'Bridge mint tokens on Binance Smart Chain',
+  unlockHRC1155TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC1155TokenRollback: 'Unlock failed, minting back the burned tokens on Binance Smart Chain',
 };
 
 const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
@@ -104,4 +115,15 @@ const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
   mintHRC721Token: 'Bridge mint tokens on Ethereum',
   unlockHRC721TokenRollback: 'Mint failed, unlocking tokens on Harmony',
   mintHRC721TokenRollback: 'Unlock failed, minting back the burned tokens on Ethereum',
+
+  // HRC1155
+  getHRC1155Address: 'Register user HRC1155 on Ethereum',
+  approveHRC1155HmyManger: 'User approve bridge to lock tokens',
+  approveHRC1155EthManger: 'User approve bridge to burn tokens',
+  lockHRC1155Token: 'Bridge lock tokens on Harmony',
+  unlockHRC1155Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC1155Token: 'Bridge burn tokens on Ethereum',
+  mintHRC1155Token: 'Bridge mint tokens on Ethereum',
+  unlockHRC1155TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC1155TokenRollback: 'Unlock failed, minting back the burned tokens on Ethereum',
 };

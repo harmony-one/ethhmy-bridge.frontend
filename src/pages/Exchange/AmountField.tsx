@@ -6,6 +6,7 @@ import { Button, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { observer } from 'mobx-react-lite';
 import { CloseIcon, SliceTooltip } from 'ui';
+import { TOKEN } from '../../stores/interfaces';
 
 export const TokensField = observer<{ label: string; maxTokens: string }>(
   (params: { label: string; maxTokens: string }) => {
@@ -14,7 +15,13 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
     return (
       <>
         <Text bold={true} size="large">
-          <SliceTooltip value={params.label} maxLength={18} /> Token IDs
+            {
+              exchange.token === TOKEN.HRC721 ? (
+                <><SliceTooltip value={params.label} maxLength={18} /> Token ID</>
+              ) : (
+                <><SliceTooltip value={params.label} maxLength={18} /> Token IDs</>
+              )
+            }
         </Text>
         <Box
           direction="column"
@@ -62,20 +69,24 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
                 </Box>
               ))
             : null}
-          <Button
-            bgColor="#00ADE8"
-            style={{ width: 180, top: 10 }}
-            onClick={() => {
-              if (
-                Array.isArray(exchange.transaction.amount) &&
-                exchange.transaction.amount.length < Number(params.maxTokens)
-              ) {
-                exchange.transaction.amount.push('0');
-              }
-            }}
-          >
-            Add Token Id
-          </Button>
+            {
+              exchange.token !== TOKEN.HRC721 && (
+                <Button
+                  bgColor="#00ADE8"
+                  style={{ width: 180, top: 10 }}
+                  onClick={() => {
+                    if (
+                      Array.isArray(exchange.transaction.amount) &&
+                      exchange.transaction.amount.length < Number(params.maxTokens)
+                    ) {
+                      exchange.transaction.amount.push('0');
+                    }
+                  }}
+                >
+                  Add Token Id
+                </Button>
+              )
+            }
         </Box>
       </>
     );

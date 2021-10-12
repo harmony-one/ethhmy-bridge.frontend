@@ -113,6 +113,7 @@ export const EthBridge = observer((props: any) => {
           TOKEN.ETH,
           TOKEN.ERC721,
           TOKEN.HRC721,
+          TOKEN.HRC1155,
           TOKEN.HRC20,
           TOKEN.ONE,
         ].includes(props.match.params.token)

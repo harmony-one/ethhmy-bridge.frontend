@@ -6,7 +6,7 @@ import {
   getExNetworkMethods,
   getHmyBalance,
   hmyMethodsBUSD,
-  hmyMethodsERC20,
+  hmyMethodsERC20, hmyMethodsHRC1155,
   hmyMethodsHRC20, hmyMethodsHRC721,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
@@ -56,6 +56,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public bnbRate = 0;
 
   @observable public hrc20Address = '';
+  @observable public hrc1155Address = '';
   @observable public hrc721Address = '';
   @observable public hrc20Balance = '';
 
@@ -631,6 +632,120 @@ export class UserStoreEx extends StoreConstructor {
       this.stores.userMetamask.syncLocalStorage();
     } else {
       this.stores.userMetamask.erc721Address = '';
+    }
+  };
+
+
+  @action.bound public setHRC1155Mapping = async (
+    hrc1155Address: string,
+    ignoreValidations?: boolean,
+  ) => {
+    this.hrc20Balance = '0';
+    this.hrc20Address = '';
+    this.stores.userMetamask.erc20Address = '';
+
+    if (!hrc1155Address) {
+      throw new Error('Address field is empty');
+    }
+
+    if (!ignoreValidations) {
+      if (
+        this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+        (!this.stores.userMetamask.isNetworkActual ||
+          !this.stores.userMetamask.isAuthorized)
+      ) {
+        throw new Error(
+          `Your MetaMask in on the wrong network. Please switch on ${
+            NETWORK_NAME[this.stores.exchange.network]
+          } ${process.env.NETWORK} and try again!`,
+        );
+      }
+
+      if (
+        this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+        ((this.stores.user.isMetamask && !this.stores.user.isNetworkActual) ||
+          !this.stores.user.isAuthorized)
+      ) {
+        throw new Error(
+          `Your MetaMask in on the wrong network. Please switch on Harmony ${process.env.NETWORK} and try again!`,
+        );
+      }
+
+      if (
+        this.stores.tokens.allData
+          .filter(t => t.token === TOKEN.ERC20)
+          .find(t => isAddressEqual(t.hrc20Address, hrc1155Address))
+      ) {
+        throw new Error('This address already using for ERC20 token wrapper');
+      }
+
+      const busd = this.stores.tokens.allData.find(v => v.symbol === 'BUSD');
+
+      if (busd && isAddressEqual(busd.hrc20Address, hrc1155Address)) {
+        throw new Error('This address already using for BUSD token wrapper');
+      }
+
+      const link = this.stores.tokens.allData.find(v => v.symbol === 'LINK');
+
+      if (link && isAddressEqual(link.hrc20Address, hrc1155Address)) {
+        throw new Error('This address already using for LINK token wrapper');
+      }
+
+      if (
+        '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+        hrc1155Address.toLowerCase()
+      ) {
+        throw new Error('This address already using for Native tokens');
+      }
+
+      // if (process.env.ETH_HRC20 === hrc20Address) {
+      //   throw new Error('This address already using for Harmony Eth token');
+      // }
+    }
+
+    try {
+      if (this.stores.exchange.token === TOKEN.ONE) {
+        this.stores.userMetamask.erc20TokenDetails = {
+          name: 'Ethereum One',
+          symbol: 'ONE',
+          decimals: '18',
+          erc20Address: '',
+        };
+      } else {
+        this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC1155.hmyMethods.tokenDetails(
+          hrc1155Address,
+        );
+      }
+    } catch (e) {
+      console.log(e)
+      throw new Error(
+        `Wrong token address. Use only a valid HRC1155 token address`,
+      );
+    }
+
+    this.hrc1155Address = hrc1155Address;
+    let address;
+
+    const exNetwork = getExNetworkMethods();
+
+    if (exNetwork) {
+      try {
+        address = await exNetwork.ethMethodsHRC1155.getMappingFor(
+          hrc1155Address,
+          this.stores.exchange.token === TOKEN.ONE,
+        );
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    console.log('address: ', address);
+
+    if (!!Number(address)) {
+      this.stores.userMetamask.erc1155Address = address;
+      this.stores.userMetamask.syncLocalStorage();
+    } else {
+      this.stores.userMetamask.erc1155Address = '';
     }
   };
 }

@@ -22,6 +22,7 @@ import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 import { TokensField } from './AmountField';
+import { TokensHRC1155Field } from './HRC1155AmountField';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
 import { ApproveAmountField } from './ApproveAmountField';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
@@ -67,6 +68,10 @@ export class Exchange extends React.Component<
           exchange.transaction.amount = ['0'];
         } else {
           exchange.transaction.amount = '0';
+        }
+
+        if (exchange.token === TOKEN.HRC1155) {
+          exchange.transaction.hrc1155TokenId = '0';
         }
       }
     });
@@ -215,6 +220,7 @@ export class Exchange extends React.Component<
 
       case TOKEN.ERC721:
       case TOKEN.HRC721:
+      case TOKEN.HRC1155:
       case TOKEN.ERC20:
       case TOKEN.HRC20:
         if (!userMetamask.erc20TokenDetails) {
@@ -301,6 +307,7 @@ export class Exchange extends React.Component<
               TOKEN.LINK,
               TOKEN.ERC721,
               TOKEN.HRC721,
+              TOKEN.HRC1155,
             ].includes(exchange.token) ? (
               <Box
                 pad={{ horizontal: 'medium', vertical: 'small' }}
@@ -476,6 +483,25 @@ export class Exchange extends React.Component<
               </Box>
             )}
 
+            {exchange.config.tokens.includes(TOKEN.HRC1155) && (
+              <Box
+                style={{ width: 140 }}
+                className={cn(
+                        styles.itemToken,
+                        exchange.token === TOKEN.HRC1155 ? styles.selected : '',
+                )}
+                onClick={() => {
+                    user.resetTokens();
+
+                    exchange.setToken(TOKEN.HRC1155);
+                    routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img className={styles.imgToken} src="/one.svg" />
+                <Text>HRC1155</Text>
+              </Box>
+             )}
+
             {exchange.config.tokens.includes(TOKEN.ETH) && (
               <Box
                 className={cn(
@@ -564,6 +590,10 @@ export class Exchange extends React.Component<
                 <ERC20Select type={exchange.token} options={false} />
               ) : null}
 
+              {exchange.token === TOKEN.HRC1155 ? (
+                <ERC20Select type={exchange.token} options={false} />
+              ) : null}
+
               {exchange.step.id === EXCHANGE_STEPS.BASE ? (
                 <Box margin={{ top: 'small' }} align="start">
                   <Text color="red">{exchange.error}</Text>
@@ -585,7 +615,9 @@ export class Exchange extends React.Component<
                     label={this.tokenInfo.label}
                     maxTokens={this.tokenInfo.maxAmount}
                   />
-                ) : (
+                ) : (exchange.token === TOKEN.HRC1155) ? (
+                  <TokensHRC1155Field label={this.tokenInfo.label} />
+                ): (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
                     name="amount"
@@ -613,7 +645,7 @@ export class Exchange extends React.Component<
                     ]}
                   />
                 )}
-                {exchange.token !== TOKEN.ERC721 && exchange.token !== TOKEN.HRC721 ? (
+                {exchange.token !== TOKEN.ERC721 && exchange.token !== TOKEN.HRC721 && exchange.token !== TOKEN.HRC1155 ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}
                     {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
