@@ -30,6 +30,80 @@ export const abi: AbiItem[] = [
       },
       {
         'indexed': false,
+        'internalType': 'uint256[]',
+        'name': 'tokenIds',
+        'type': 'uint256[]',
+      },
+      {
+        'indexed': false,
+        'internalType': 'address',
+        'name': 'recipient',
+        'type': 'address',
+      },
+      {
+        'indexed': false,
+        'internalType': 'uint256[]',
+        'name': 'amounts',
+        'type': 'uint256[]',
+      },
+    ],
+    'name': 'BatchBurned',
+    'type': 'event',
+  },
+  {
+    'anonymous': false,
+    'inputs': [
+      {
+        'indexed': false,
+        'internalType': 'address',
+        'name': 'oneToken',
+        'type': 'address',
+      },
+      {
+        'indexed': false,
+        'internalType': 'uint256[]',
+        'name': 'tokenIds',
+        'type': 'uint256[]',
+      },
+      {
+        'indexed': false,
+        'internalType': 'address',
+        'name': 'recipient',
+        'type': 'address',
+      },
+      {
+        'indexed': false,
+        'internalType': 'bytes32',
+        'name': 'receiptId',
+        'type': 'bytes32',
+      },
+      {
+        'indexed': false,
+        'internalType': 'uint256[]',
+        'name': 'amounts',
+        'type': 'uint256[]',
+      },
+    ],
+    'name': 'BatchMinted',
+    'type': 'event',
+  },
+  {
+    'anonymous': false,
+    'inputs': [
+      {
+        'indexed': true,
+        'internalType': 'address',
+        'name': 'token',
+        'type': 'address',
+      },
+      {
+        'indexed': true,
+        'internalType': 'address',
+        'name': 'sender',
+        'type': 'address',
+      },
+      {
+        'indexed': false,
         'internalType': 'uint256',
         'name': 'tokenId',
         'type': 'uint256',
@@ -248,9 +322,9 @@ export const abi: AbiItem[] = [
         'type': 'address',
       },
       {
-        'internalType': 'uint256',
-        'name': 'amount',
-        'type': 'uint256',
+        'internalType': 'uint256[]',
+        'name': 'amounts',
+        'type': 'uint256[]',
       },
     ],
     'name': 'burnTokens',
@@ -323,9 +397,9 @@ export const abi: AbiItem[] = [
         'type': 'bytes32',
       },
       {
-        'internalType': 'uint256',
-        'name': 'amount',
-        'type': 'uint256',
+        'internalType': 'uint256[]',
+        'name': 'amounts',
+        'type': 'uint256[]',
       },
       {
         'internalType': 'bytes',

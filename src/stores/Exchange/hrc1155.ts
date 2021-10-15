@@ -55,8 +55,8 @@ export const sendHrc1155Token = async (params: {
       await ethMethods.burnToken(
         mapperAddress,
         stores.user.address,
-        transaction.hrc1155TokenId,
-        transaction.amount,
+        [transaction.hrc1155TokenId],
+        [transaction.amount],
         hash => confirmCallback(hash, lockToken.type),
       );
     }
@@ -100,12 +100,11 @@ export const sendHrc1155Token = async (params: {
       const burnToken = getActionByType(ACTION_TYPE.lockHRC1155Token);
 
       if (burnToken && burnToken.status === STATUS.WAITING) {
-        debugger
         await hmyMethods.lockTokens(
           hrc1155Address,
           transaction.ethAddress,
-          transaction.hrc1155TokenId,
-          transaction.amount,
+          [transaction.hrc1155TokenId],
+          [transaction.amount],
           hash => confirmCallback(hash, burnToken.type),
         );
       }

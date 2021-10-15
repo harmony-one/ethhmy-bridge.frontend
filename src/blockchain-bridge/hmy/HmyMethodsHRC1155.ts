@@ -69,8 +69,8 @@ export class HmyMethodsHRC1155 {
   lockTokens = async (
     erc1155Address,
     userAddr,
-    tokenId,
-    amount,
+    tokenIds,
+    amounts,
     sendTxCallback?,
   ) => {
     return new Promise(async (resolve, reject) => {
@@ -81,7 +81,7 @@ export class HmyMethodsHRC1155 {
         await connectToOneWallet(this.hmyManagerContract.wallet, null, reject);
 
         const res = await this.hmyManagerContract.methods
-          .lockHRC1155Tokens(erc1155Address, [tokenId], hmyAddrHex, amount, [])
+          .lockHRC1155Tokens(erc1155Address, tokenIds, hmyAddrHex, amounts, [])
           .send(this.options)
           .on('transactionHash', sendTxCallback);
 

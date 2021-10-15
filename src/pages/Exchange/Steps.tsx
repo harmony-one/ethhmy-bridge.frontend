@@ -132,14 +132,14 @@ const isEth = type =>
 
     // HRC721
     'approveHRC721EthManger',
-    'getERC20Address',
+    'getHRC721Address',
     'burnHRC721Token',
     'mintHRC721Token',
     'mintHRC721TokenRollback',
 
     // HRC1155
     'approveHRC1155EthManger',
-    'getERC20Address',
+    'getHRC1155Address',
     'burnHRC1155Token',
     'mintHRC1155Token',
     'mintHRC1155TokenRollback',

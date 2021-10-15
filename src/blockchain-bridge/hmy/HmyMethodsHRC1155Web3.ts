@@ -72,8 +72,8 @@ export class HmyMethodsHRC1155Web3 {
   lockTokens = async (
     erc1155Address,
     userAddr,
-    tokenId,
-    amount,
+    tokenIds,
+    amounts,
     sendTxCallback?,
   ) => {
     // @ts-ignore
@@ -81,7 +81,7 @@ export class HmyMethodsHRC1155Web3 {
     const hmyAddrHex = getAddress(userAddr).checksum;
 
     const res = await this.hmyManagerContract.methods
-      .lockHRC1155Tokens(erc1155Address, [tokenId], hmyAddrHex, amount, [])
+      .lockHRC1155Tokens(erc1155Address, tokenIds, hmyAddrHex, amounts, [])
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,

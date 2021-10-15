@@ -64,8 +64,8 @@ export class EthMethodsHRC1155 {
   burnToken = async (
     hrc721Address,
     userAddr,
-    tokenId,
-    amount,
+    tokenIds,
+    amounts,
     sendTxCallback?,
   ) => {
     // @ts-ignore
@@ -73,13 +73,13 @@ export class EthMethodsHRC1155 {
     const hmyAddrHex = getAddress(userAddr).checksum;
     const hrc721AddressHex = getAddress(hrc721Address).checksum;
 
-    let estimateGas = 0
+    let estimateGas = 0;
     try {
       estimateGas = await this.ethManagerContract.methods
-        .burnTokens(hrc721AddressHex, [tokenId], hmyAddrHex, amount)
+        .burnTokens(hrc721AddressHex, tokenIds, hmyAddrHex, amounts)
         .estimateGas({ from: accounts[0] });
-    }catch (e){
-      console.log(e)
+    } catch (e) {
+      console.log(e);
     }
 
     const gasLimit = Math.max(
@@ -87,7 +87,7 @@ export class EthMethodsHRC1155 {
       Number(process.env.ETH_GAS_LIMIT),
     );
     let transaction = await this.ethManagerContract.methods
-      .burnTokens(hrc721AddressHex, [tokenId], hmyAddrHex, amount)
+      .burnTokens(hrc721AddressHex, tokenIds, hmyAddrHex, amounts)
       .send({
         from: accounts[0],
         gas: new BN(gasLimit),
