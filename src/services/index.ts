@@ -231,7 +231,10 @@ export const getOperations = async (
   return res.body;
 };
 
-const blackList = ['0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB'];
+const blackList = [
+  '0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB',
+  '0x396f0eD7375aB5b0e92F890B3799043c7Da8F855',
+];
 
 export const getTokensInfo = async (
   params: any,
