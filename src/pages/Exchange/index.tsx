@@ -22,7 +22,6 @@ import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 import { TokensField } from './AmountField';
-import { TokensHRC1155Field } from './HRC1155AmountField';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
 import { ApproveAmountField } from './ApproveAmountField';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
@@ -612,7 +611,32 @@ export class Exchange extends React.Component<
                     maxTokens={this.tokenInfo.maxAmount}
                   />
                 ) : (exchange.token === TOKEN.HRC1155) ? (
-                  <TokensHRC1155Field label={this.tokenInfo.label} />
+                  <NumberInput
+                    label={`${this.tokenInfo.label} Amount`}
+                    name="amount"
+                    type="decimal"
+                    precision="0"
+                    delimiter="."
+                    placeholder="0"
+                    style={{ width: '100%' }}
+                    rules={[
+                      isRequired,
+                      moreThanZero,
+                      (_, value, callback) => {
+                        const errors = [];
+
+                        if (
+                          value &&
+                          Number(value) > Number(this.tokenInfo.maxAmount)
+                        ) {
+                          const defaultMsg = `Exceeded the maximum amount`;
+                          errors.push(defaultMsg);
+                        }
+
+                        callback(errors);
+                      },
+                    ]}
+                  />
                 ): (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
