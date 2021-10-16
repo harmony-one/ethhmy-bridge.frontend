@@ -109,6 +109,18 @@ export class HmyMethodsHRC721Web3 {
     };
   };
 
+  balanceOf =  async (erc721Address: string) => {
+    const tokenJson = require('../out/MyERC721');
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+    const erc721Contract = new this.web3.eth.Contract(
+      tokenJson.abi,
+      erc721Address,
+    );
+
+    return await erc721Contract.methods.balanceOf(accounts[0]).call();
+  };
+
   allowance = async (addr: string, erc721Address: string) => {
     const addrHex = getAddress(addr).checksum;
 

@@ -107,6 +107,20 @@ export class HmyMethodsHRC721 {
     return { name, symbol, baseURI, erc721Address };
   };
 
+  balanceOf =  async (erc721Address: string) => {
+    const tokenJson = require('../out/MyERC721');
+    // @ts-ignore
+    let { address } = await window.onewallet.getAccount();
+    const hmyAddrHex = getAddress(address).checksum;
+    const erc721Contract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      erc721Address,
+    );
+
+    return await erc721Contract.methods.balanceOf(hmyAddrHex).call(this.options);
+  };
+
+
   allowance = async (addr: string, erc721Address: string) => {
     const tokenJson = require('../out/MyERC721');
 

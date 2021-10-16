@@ -625,6 +625,14 @@ export class UserStoreEx extends StoreConstructor {
       }
     }
 
+    const hmyMethodsBase = hmyMethodsHRC721;
+
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc721Address)).toString()
+
     console.log('address: ', address);
 
     if (!!Number(address)) {
@@ -738,6 +746,14 @@ export class UserStoreEx extends StoreConstructor {
         console.error(e);
       }
     }
+
+    const hmyMethodsBase = hmyMethodsHRC1155;
+
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc1155Address, this.stores.erc20Select.hrc1155TokenId)).toString()
 
     console.log('address: ', address);
 

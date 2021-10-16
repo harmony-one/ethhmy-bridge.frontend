@@ -15,27 +15,6 @@ export const TokensHRC1155Field = observer<{ label: string; }>(
     return (
       <>
         <Text bold={true} size="large">
-            <SliceTooltip value={params.label} maxLength={18} /> Token ID
-        </Text>
-        <Box
-          direction="column"
-          align="end"
-          fill={true}
-          margin={{ top: 'small' }}
-        >
-          <div style={{ width: '100%' }}>
-            <NumberInput
-              name={`hrc1155TokenId`}
-              type="integerString"
-              delimiter="."
-              placeholder="0"
-              style={{ width: '100%' }}
-              rules={[isRequired]}
-            />
-          </div>
-        </Box>
-
-        <Text bold={true} size="large">
           <SliceTooltip value={params.label} maxLength={18} /> Amount
         </Text>
         <Box

@@ -3,20 +3,13 @@ import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
-import {
-  Button,
-  Checkbox,
-  Select,
-  Text,
-  TextInput,
-  Title,
-} from 'components/Base';
+import { Button, Checkbox, Select, Text, TextInput, Title } from 'components/Base';
 import * as styles from './styles.styl';
 import { truncateAddressString } from '../../utils';
 import { NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Spinner } from '../../ui/Spinner';
-import { AuthWarning } from '../../components/AuthWarning';
 import { useMediaQuery } from 'react-responsive';
+import { isRequired, NumberInput } from '../../components/Form';
 
 const labels: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.ETHEREUM]: {
@@ -69,11 +62,17 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
 
     const [custom, setCustom] = useState(false);
     const [erc20, setErc20] = useState('');
+    const [hrc1155TokenId, setHrc1155TokenIdOri] = useState('');
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     useEffect(() => setErc20(erc20Select.tokenAddress), [
       erc20Select.tokenAddress,
     ]);
+
+    const setHrc1155TokenId = (hrc1155TokenId) => {
+      erc20Select.hrc1155TokenId = hrc1155TokenId
+      setHrc1155TokenIdOri(hrc1155TokenId)
+    }
 
     return (
       <Box direction="column" margin={{ top: 'xlarge' }}>
@@ -148,6 +147,30 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 onChange={setErc20}
               />
             </Box>
+            {
+              type === TOKEN.HRC1155 && (
+                <>
+                  <Text bold={true} size="large">
+                    HRC1155 token ID
+                  </Text>
+                  <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
+                    <div style={{ width: '100%' }}>
+                      <NumberInput
+                        disabled={erc20Select.isLoading}
+                        name={`hrc1155TokenId`}
+                        type="integerString"
+                        delimiter="."
+                        placeholder="0"
+                        style={{ width: '100%' }}
+                        rules={[isRequired]}
+                        value={hrc1155TokenId}
+                        onChange={setHrc1155TokenId}
+                      />
+                    </div>
+                  </Box>
+                </>
+              )
+            }
             <Box direction="row" justify="end">
               {erc20Select.isLoading ? (
                 <Spinner boxSize={12} />

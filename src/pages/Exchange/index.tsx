@@ -218,17 +218,13 @@ export class Exchange extends React.Component<
               : userMetamask.ethLINKBalance,
         };
 
-      case TOKEN.ERC721:
       case TOKEN.HRC721:
       case TOKEN.HRC1155:
+      case TOKEN.ERC721:
       case TOKEN.ERC20:
       case TOKEN.HRC20:
-        if (!userMetamask.erc20TokenDetails) {
-          return { label: '', maxAmount: '0' };
-        }
-
         return {
-          label: userMetamask.erc20TokenDetails.symbol,
+          label: userMetamask.erc20TokenDetails ? userMetamask.erc20TokenDetails.symbol : '',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
@@ -649,6 +645,13 @@ export class Exchange extends React.Component<
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}
                     {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
+                    {this.tokenInfo.label}
+                  </Text>
+                ) : null}
+                {exchange.token === TOKEN.HRC1155 ? (
+                  <Text size="small" style={{ textAlign: 'right' }}>
+                    <b>*Max Available</b> ={' '}
+                    {this.tokenInfo.maxAmount || '0'}{' '}
                     {this.tokenInfo.label}
                   </Text>
                 ) : null}
