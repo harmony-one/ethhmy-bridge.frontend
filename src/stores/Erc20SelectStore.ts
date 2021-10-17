@@ -1,6 +1,6 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, autorun, computed, observable, reaction } from 'mobx';
-import { NETWORK_TYPE, TOKEN } from './interfaces';
+import { NETWORK_TYPE, OpenSeaValideResponse, TOKEN } from './interfaces';
 import { NETWORK_ICON } from './names';
 import { tokensMainnet } from '../pages/Exchange/tokens';
 
@@ -9,6 +9,7 @@ export class Erc20SelectStore extends StoreConstructor {
   @observable hrc1155TokenId;
   @observable error = '';
   @observable isLoading = false;
+  @observable erc20VerifiedInfo : OpenSeaValideResponse | null = null;
 
   constructor(stores) {
     super(stores);

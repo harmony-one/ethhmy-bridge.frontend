@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Box } from 'grommet';
+import { Box, Grid } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Button, Checkbox, Select, Text, TextInput, Title } from 'components/Base';
@@ -58,7 +58,7 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
 
 export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
   ({ type, options }) => {
-    const { erc20Select, exchange, actionModals } = useStores();
+    const { erc20Select, exchange, actionModals, user } = useStores();
 
     const [custom, setCustom] = useState(false);
     const [erc20, setErc20] = useState('');
@@ -171,18 +171,46 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                 </>
               )
             }
-            <Box direction="row" justify="end">
-              {erc20Select.isLoading ? (
-                <Spinner boxSize={12} />
-              ) : (
-                <Button
-                  disabled={erc20Select.isLoading}
-                  onClick={async () => erc20Select.setToken(erc20)}
-                >
-                  {erc20 ? 'Change token' : 'Select token'}
-                </Button>
-              )}
-            </Box>
+            <Grid columns={['1/2', '1/2']}>
+              <Box direction="column" align="start">
+                { erc20 !== "" && erc20Select.erc20VerifiedInfo
+                && erc20Select.erc20VerifiedInfo.collection.safelist_request_status === 'verified'
+                // && erc20Select.erc20VerifiedInfo.address === erc20
+                && (
+                  <a target="_blank" rel="noreferrer" href={`https://opensea.io/collection/${erc20Select.erc20VerifiedInfo.collection.slug}`}>
+                    <svg width='186.5'
+                         height='28' role='img' aria-label='VERIFIED BY: OPENSEA'>
+                      <clipPath id="r">
+                        <rect width="186.5" height="28" rx="3" fill="#fff" />
+                      </clipPath>
+                      <g clip-path="url(#r)" shape-rendering='crispEdges'>
+                        <rect width='101.75' height='28' fill='#555' />
+                        <rect x='101.75' width='84.75' height='28' fill='#0083e9' />
+                      </g>
+                      <g fill='#fff' text-anchor='middle' font-family='Verdana,Geneva,DejaVu Sans,sans-serif'
+                         text-rendering='geometricPrecision' font-size='100'>
+                        <text transform='scale(.1)' x='508.75' y='175' textLength='777.5' fill='#fff'>VERIFIED BY</text>
+                        <text transform='scale(.1)' x='1441.25' y='175' textLength='607.5' fill='#fff'
+                              font-weight='bold'>OPENSEA
+                        </text>
+                      </g>
+                    </svg>
+                  </a>
+                )}
+              </Box>
+              <Box direction="column" align="end">
+                {erc20Select.isLoading ? (
+                  <Spinner boxSize={12} />
+                ) : (
+                  <Button
+                    disabled={erc20Select.isLoading}
+                    onClick={async () => erc20Select.setToken(erc20)}
+                  >
+                    {erc20 ? 'Change token' : 'Select token'}
+                  </Button>
+                )}
+              </Box>
+            </Grid>
           </>
         )}
 

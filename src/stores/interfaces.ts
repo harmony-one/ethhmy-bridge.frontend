@@ -159,3 +159,11 @@ export interface ITokenInfo {
   type: TOKEN;
   network: NETWORK_TYPE;
 }
+
+export interface OpenSeaValideResponse {
+  collection: {
+    safelist_request_status: string,
+    slug: string,
+  },
+  address: string,
+}
