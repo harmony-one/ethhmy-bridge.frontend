@@ -175,7 +175,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
               <Box direction="column" align="start">
                 { erc20 !== "" && erc20Select.erc20VerifiedInfo
                 && erc20Select.erc20VerifiedInfo.collection.safelist_request_status === 'verified'
-                // && erc20Select.erc20VerifiedInfo.address === erc20
+                && erc20Select.erc20VerifiedInfo.address === erc20
                 && (
                   <a target="_blank" rel="noreferrer" href={`https://opensea.io/collection/${erc20Select.erc20VerifiedInfo.collection.slug}`}>
                     <svg width='186.5'

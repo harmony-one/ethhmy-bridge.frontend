@@ -359,7 +359,6 @@ export const getOperationsAdmin = async (
 };
 
 export const hasOpenSeaValid = async (erc20Address: string): Promise<OpenSeaValideResponse | null> => {
-  erc20Address = '0x9a534628b4062e123ce7ee2222ec20b86e16ca8f'
   try {
     const res = await agent.get<OpenSeaValideResponse>(
       `https://api.opensea.io/api/v1/asset_contract/${erc20Address}?format=json`,
