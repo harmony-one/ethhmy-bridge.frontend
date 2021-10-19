@@ -147,6 +147,19 @@ export class EthMethodsHRC1155 {
     return ress;
   };
 
+  balanceOf =  async (erc1155Address: string, tokenId: string) => {
+    const tokenJson = require('../out/MyERC1155');
+    // @ts-ignore
+    const accounts = await ethereum.enable();
+    const erc1155Contract = new this.web3.eth.Contract(
+      tokenJson.abi,
+      erc1155Address,
+    );
+
+    return await erc1155Contract.methods.balanceOf(accounts[0], tokenId).call();
+  };
+
+
   totalSupply = async hrc721Address => {
     const MyERC1155Json = require('../out/MyERC1155');
     const erc1155Contract = new this.web3.eth.Contract(

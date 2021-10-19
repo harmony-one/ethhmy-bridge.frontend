@@ -735,6 +735,7 @@ export class UserStoreEx extends StoreConstructor {
     let address;
 
     const exNetwork = getExNetworkMethods();
+    const tokenId = this.stores.erc20Select.hrc1155TokenId || '0'
 
     if (exNetwork) {
       try {
@@ -742,6 +743,8 @@ export class UserStoreEx extends StoreConstructor {
           hrc1155Address,
           this.stores.exchange.token === TOKEN.ONE,
         );
+
+        this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsHRC1155.balanceOf(address, tokenId)).toString()
       } catch (e) {
         console.error(e);
       }
@@ -753,7 +756,7 @@ export class UserStoreEx extends StoreConstructor {
       ? hmyMethodsBase.hmyMethodsWeb3
       : hmyMethodsBase.hmyMethods;
 
-    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc1155Address, this.stores.erc20Select.hrc1155TokenId)).toString()
+    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc1155Address, tokenId)).toString()
 
     console.log('address: ', address);
 

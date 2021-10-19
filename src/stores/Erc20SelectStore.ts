@@ -6,7 +6,7 @@ import { tokensMainnet } from '../pages/Exchange/tokens';
 
 export class Erc20SelectStore extends StoreConstructor {
   @observable tokenAddress;
-  @observable hrc1155TokenId;
+  @observable hrc1155TokenId = '0';
   @observable error = '';
   @observable isLoading = false;
   @observable erc20VerifiedInfo : OpenSeaValideResponse | null = null;
