@@ -36,7 +36,7 @@ export class HmyMethodsERC20Web3 {
     decimals,
     sendTxCallback?,
   ) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -62,7 +62,7 @@ export class HmyMethodsERC20Web3 {
   };
 
   setApprovalForAll = async (hrc20Address, sendTxCallback?) => {
-    const tokenJson = require('../out/MyERC721.json');
+    const tokenJson = require('../out/MyERC721');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -164,7 +164,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
   };
 
   checkHmyBalance = async (hrc20Address, addr: string) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -176,7 +176,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
   };
 
   totalSupply = async hrc20Address => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -188,7 +188,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
   allowance = async (addr: string, erc20Address: string) => {
     const addrHex = getAddress(addr).checksum;
 
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       erc20Address,

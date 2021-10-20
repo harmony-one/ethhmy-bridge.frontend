@@ -33,7 +33,7 @@ export class HmyMethodsHRC20Web3 {
     decimals,
     sendTxCallback?,
   ) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -59,7 +59,7 @@ export class HmyMethodsHRC20Web3 {
   };
 
   checkHmyBalance = async (hrc20Address, addr: string) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       hrc20Address,
@@ -119,7 +119,7 @@ export class HmyMethodsHRC20Web3 {
   };
 
   tokenDetails = async erc20Address => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       tokenJson.abi,
       erc20Address,
@@ -140,7 +140,7 @@ export class HmyMethodsHRC20Web3 {
   allowance = async (addr: string, erc20Address: string) => {
     const addrHex = getAddress(addr).checksum;
 
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
       erc20Address,

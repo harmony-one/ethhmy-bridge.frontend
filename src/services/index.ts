@@ -2,7 +2,7 @@ import {
   ACTION_TYPE,
   IOperation,
   ITokenInfo,
-  NETWORK_TYPE,
+  NETWORK_TYPE, OpenSeaValideResponse,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
@@ -319,9 +319,9 @@ export const getConfig = async () => {
   return res.body;
 };
 
-export const getDepositAmount = async (network: NETWORK_TYPE) => {
+export const getDepositAmount = async (network: NETWORK_TYPE, otherOptions:Record<string, string>) => {
   const res = await agent.get<number>(
-    `${servers[0]}/deposit-amount/${network}`,
+    `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(otherOptions)}`,
   );
 
   return res.body;
@@ -359,6 +359,18 @@ export const getOperationsAdmin = async (
   );
 
   return res.body;
+};
+
+export const hasOpenSeaValid = async (erc20Address: string): Promise<OpenSeaValideResponse | null> => {
+  try {
+    const res = await agent.get<OpenSeaValideResponse>(
+      `https://api.opensea.io/api/v1/asset_contract/${erc20Address}?format=json`,
+    );
+
+    return res.body;
+  } catch (e) {
+    return null;
+  }
 };
 
 // @ts-ignore

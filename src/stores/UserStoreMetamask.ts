@@ -13,14 +13,15 @@ import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
 import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
+import * as services from '../services';
 
 const defaults = {};
 
 export interface IERC20Token {
   name: string;
   symbol: string;
-  decimals: string;
-  erc20Address: string;
+  decimals?: string;
+  erc20Address?: string;
 }
 
 export class UserStoreMetamask extends StoreConstructor {
@@ -38,6 +39,9 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable public ethLINKBalance: string = '0';
 
   @observable erc20Address: string = '';
+  @observable erc20ValidAddress: string = '';
+  @observable erc721Address: string = '';
+  @observable erc1155Address: string = '';
   @observable erc20TokenDetails: IERC20Token;
   @observable erc20Balance: string = '';
 
@@ -492,6 +496,7 @@ export class UserStoreMetamask extends StoreConstructor {
       erc20Address,
     );
     this.erc20Address = erc20Address;
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc20Address);
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 

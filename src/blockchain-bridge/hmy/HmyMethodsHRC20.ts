@@ -25,7 +25,7 @@ export class HmyMethodsHRC20 {
   }
 
   approveHmyManger = (hrc20Address, amount, decimals, sendTxCallback?) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
       hrc20Address,
@@ -57,7 +57,7 @@ export class HmyMethodsHRC20 {
   };
 
   checkHmyBalance = async (hrc20Address, addr: string) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
       hrc20Address,
@@ -125,7 +125,7 @@ export class HmyMethodsHRC20 {
   };
 
   tokenDetails = async erc20Address => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
     const erc20Contract = this.hmy.contracts.createContract(
       tokenJson.abi,
       erc20Address,
@@ -138,8 +138,21 @@ export class HmyMethodsHRC20 {
     return { name, symbol, decimals: Number('0x' + decimals).toString(), erc20Address };
   };
 
+  token721Details = async erc721Address => {
+    const tokenJson = require('../out/MyERC721');
+    const erc20Contract = this.hmy.contracts.createContract(
+      tokenJson.abi,
+      erc721Address,
+    );
+
+    const name = await erc20Contract.methods.name().call(this.options);
+    const symbol = await erc20Contract.methods.symbol().call(this.options);
+
+    return { name, symbol, erc20Address: erc721Address };
+  };
+
   allowance = async (addr: string, erc20Address: string) => {
-    const tokenJson = require('../out/MyERC20.json');
+    const tokenJson = require('../out/MyERC20');
 
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,

@@ -5,6 +5,8 @@ import { NETWORK_TYPE, TConfig, TFullConfig } from '../../stores/interfaces';
 import stores from '../../stores';
 import { getNetworkFee } from './helpers';
 import Web3 from 'web3';
+import { EthMethodsHRC721 } from './EthMethodsHRC721';
+import { EthMethodsHRC1155 } from './EthMethodsHRC1155';
 
 // @ts-ignore
 const web3URL = window.ethereum ? window.ethereum : process.env.ETH_NODE_URL;
@@ -16,6 +18,8 @@ export interface INetworkMethods {
   ethMethodsERC20: EthMethodsERC20;
   ethMethodsHRC20: EthMethodsHRC20;
   ethMethodsERС721: EthMethodsERC20;
+  ethMethodsHRC721: EthMethodsHRC721;
+  ethMethodsHRC1155: EthMethodsHRC1155;
   getNetworkFee: () => Promise<number>;
   getEthBalance: (address: string) => Promise<string>;
 }
@@ -23,25 +27,25 @@ export interface INetworkMethods {
 const init = (config: TConfig): INetworkMethods => {
   const web3 = new Web3(web3URL);
 
-  const ethBUSDJson = require('../out/MyERC20.json');
+  const ethBUSDJson = require('../out/MyERC20');
   const ethBUSDContract = new web3.eth.Contract(
     ethBUSDJson.abi,
     config.contracts.busd,
   );
 
-  const ethBUSDManagerJson = require('../out/LINKEthManager.json');
+  const ethBUSDManagerJson = require('../out/LINKEthManager');
   const ethBUSDManagerContract = new web3.eth.Contract(
     ethBUSDManagerJson.abi,
     config.contracts.busdManager,
   );
 
-  const ethLINKJson = require('../out/MyERC20.json');
+  const ethLINKJson = require('../out/MyERC20');
   const ethLINKContract = new web3.eth.Contract(
     ethLINKJson.abi,
     config.contracts.link,
   );
 
-  const ethLINKManagerJson = require('../out/LINKEthManager.json');
+  const ethLINKManagerJson = require('../out/LINKEthManager');
   const ethLINKManagerContract = new web3.eth.Contract(
     ethLINKManagerJson.abi,
     config.contracts.linkManager,
@@ -61,22 +65,34 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerAddress: config.contracts.linkManager,
   });
 
-  const ethManagerJson = require('../out/EthManagerERC20.json');
+  const ethManagerJson = require('../out/EthManagerERC20');
   const ethManagerContract = new web3.eth.Contract(
     ethManagerJson.abi,
     config.contracts.erc20Manager,
   );
 
-  const ethManagerJsonHrc20 = require('../out/EthManagerHRC20.json');
+  const ethManagerJsonHrc20 = require('../out/EthManagerHRC20');
   const ethManagerContractHrc20 = new web3.eth.Contract(
     ethManagerJsonHrc20.abi,
     config.contracts.hrc20Manager,
   );
 
-  const ethManagerERC721Json = require('../out/ERC721EthManager.json');
+  const ethManagerERC721Json = require('../out/ERC721EthManager');
   const ethManagerContractERC721 = new web3.eth.Contract(
     ethManagerERC721Json.abi,
     config.contracts.erc721Manager,
+  );
+
+  const ethManagerHRC721Json = require('../out/NFTEthManager');
+  const ethManagerContractHRC721 = new web3.eth.Contract(
+    ethManagerHRC721Json.abi,
+    config.contracts.hrc721Manager,
+  );
+
+  const ethManagerHRC1155Json = require('../out/HRC1155EthManager');
+  const ethManagerContractHRC1155 = new web3.eth.Contract(
+    ethManagerHRC1155Json.abi,
+    config.contracts.hrc1155Manager,
   );
 
   const ethMethodsERC20 = new EthMethodsERC20({
@@ -100,6 +116,22 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerAddress: config.contracts.erc721Manager,
   });
 
+  const ethMethodsHRC721 = new EthMethodsHRC721({
+    web3: web3,
+    ethManagerContract: ethManagerContractHRC721,
+    ethManagerAddress: config.contracts.hrc721Manager,
+    ethTokenManagerAddress: config.contracts.hrc721TokenManager,
+    gasPrice: config.gasPrice
+  });
+
+  const ethMethodsHRC1155 = new EthMethodsHRC1155({
+    web3: web3,
+    ethManagerContract: ethManagerContractHRC1155,
+    ethManagerAddress: config.contracts.hrc1155Manager,
+    ethTokenManagerAddress: config.contracts.hrc1155TokenManager,
+    gasPrice: config.gasPrice
+  });
+
   return {
     web3,
     ethMethodsBUSD,
@@ -107,6 +139,8 @@ const init = (config: TConfig): INetworkMethods => {
     ethMethodsERC20,
     ethMethodsHRC20,
     ethMethodsERС721,
+    ethMethodsHRC721,
+    ethMethodsHRC1155,
     getNetworkFee: () => getNetworkFee(web3),
     getEthBalance: (ethAddress): Promise<string> => {
       return new Promise((resolve, reject) => {

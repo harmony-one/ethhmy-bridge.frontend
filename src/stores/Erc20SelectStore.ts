@@ -1,13 +1,15 @@
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, autorun, computed, observable, reaction } from 'mobx';
-import { NETWORK_TYPE, TOKEN } from './interfaces';
+import { NETWORK_TYPE, OpenSeaValideResponse, TOKEN } from './interfaces';
 import { NETWORK_ICON } from './names';
 import { tokensMainnet } from '../pages/Exchange/tokens';
 
 export class Erc20SelectStore extends StoreConstructor {
   @observable tokenAddress;
+  @observable hrc1155TokenId = '0';
   @observable error = '';
   @observable isLoading = false;
+  @observable erc20VerifiedInfo : OpenSeaValideResponse | null = null;
 
   constructor(stores) {
     super(stores);
@@ -77,6 +79,14 @@ export class Erc20SelectStore extends StoreConstructor {
       switch (this.stores.exchange.token) {
         case TOKEN.ERC721:
           await this.stores.userMetamask.setERC721Token(value);
+          break;
+
+        case TOKEN.HRC721:
+          await this.stores.user.setHRC721Mapping(value);
+          break;
+
+        case TOKEN.HRC1155:
+          await this.stores.user.setHRC1155Mapping(value);
           break;
 
         case TOKEN.ERC20:

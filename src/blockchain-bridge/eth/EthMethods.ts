@@ -90,7 +90,7 @@ export class EthMethods {
     //   Number(process.env.ETH_GAS_LIMIT),
     // );
 
-    const EthManagerJson = require('../out/EthManager.json');
+    const EthManagerJson = require('../out/EthManager');
 
     const managerContract = new this.web3.eth.Contract(
       EthManagerJson.abi,

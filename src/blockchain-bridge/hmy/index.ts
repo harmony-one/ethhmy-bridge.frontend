@@ -7,6 +7,10 @@ import { HmyMethodsERC20 } from './HmyMethodsERC20';
 import { HmyMethodsHRC20 } from './HmyMethodsHRC20';
 import { HmyMethodsERC20Web3 } from './HmyMethodsERC20Web3';
 import { HmyMethodsHRC20Web3 } from './HmyMethodsHRC20Web3';
+import { HmyMethodsHRC721Web3 } from './HmyMethodsHRC721Web3';
+import { HmyMethodsHRC721 } from './HmyMethodsHRC721';
+import { HmyMethodsHRC1155 } from './HmyMethodsHRC1155';
+import { HmyMethodsHRC1155Web3 } from './HmyMethodsHRC1155Web3';
 const { Harmony } = require('@harmony-js/core');
 const { ChainType } = require('@harmony-js/utils');
 
@@ -59,8 +63,8 @@ const createMethods = (
   };
 };
 
-const hmyBUSDJson = require('../out/MyERC20.json');
-const hmyBUSDManagerJson = require('../out/LINKHmyManager.json');
+const hmyBUSDJson = require('../out/MyERC20');
+const hmyBUSDManagerJson = require('../out/LINKHmyManager');
 const hmyBUSDContract = createContract(
   hmyBUSDJson.abi,
   process.env.HMY_BUSD_CONTRACT,
@@ -89,9 +93,11 @@ export const hmyMethodsLINK = createMethods(
   process.env.HMY_LINK_MANAGER_CONTRACT,
 );
 
-const hmyManagerJson = require('../out/HmyManagerERC20.json');
-const hmyManagerJsonHrc20 = require('../out/HmyManagerHRC20.json');
-const hmyManagerJson721 = require('../out/ERC721HmyManager.json');
+const hmyManagerJson = require('../out/HmyManagerERC20');
+const hmyManagerJsonHrc20 = require('../out/HmyManagerHRC20');
+const hmyManagerJsonHrc721 = require('../out/NFTHmyManager');
+const hmyManagerJsonHrc1155 = require('../out/HRC1155HmyManager');
+const hmyManagerJson721 = require('../out/ERC721HmyManager');
 
 const hmyManagerContract = createContract(
   hmyManagerJson.abi,
@@ -116,6 +122,16 @@ const hmyManagerContractBEP20 = createContract(
 const hmyManagerContractHrc20 = createContract(
   hmyManagerJsonHrc20.abi,
   process.env.HMY_HRC20_MANAGER_CONTRACT,
+);
+
+const hmyManagerContractHrc721 = createContract(
+  hmyManagerJsonHrc721.abi,
+  process.env.HMY_HRC721_MANAGER_CONTRACT,
+);
+
+const hmyManagerContractHrc1155 = createContract(
+  hmyManagerJsonHrc1155.abi,
+  process.env.HMY_HRC1155_MANAGER_CONTRACT,
 );
 
 const hmyManagerContractBHrc20 = createContract(
@@ -153,6 +169,16 @@ export const hmyMethodsBEP20Hmy = new HmyMethodsERC20({
 export const hmyMethodsHRC20Hmy = new HmyMethodsHRC20({
   hmy: hmy,
   hmyManagerContract: hmyManagerContractHrc20.hmyContract,
+});
+
+export const hmyMethodsHRC721Hmy = new HmyMethodsHRC721({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContractHrc721.hmyContract,
+});
+
+export const hmyMethodsHRC1155Hmy = new HmyMethodsHRC1155({
+  hmy: hmy,
+  hmyManagerContract: hmyManagerContractHrc1155.hmyContract,
 });
 
 export const hmyMethodsBHRC20Hmy = new HmyMethodsHRC20({
@@ -198,6 +224,18 @@ export const hmyMethodsHRC20Web3 = new HmyMethodsHRC20Web3({
   hmyManagerContractAddress: process.env.HMY_HRC20_MANAGER_CONTRACT,
 });
 
+export const hmyMethodsHRC721Web3 = new HmyMethodsHRC721Web3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmyManagerContractHrc721.web3Contract,
+  hmyManagerContractAddress: process.env.HMY_HRC721_MANAGER_CONTRACT,
+});
+
+export const hmyMethodsHRC1155Web3 = new HmyMethodsHRC1155Web3({
+  web3: hmyWeb3,
+  hmyManagerContract: hmyManagerContractHrc1155.web3Contract,
+  hmyManagerContractAddress: process.env.HMY_HRC1155_MANAGER_CONTRACT,
+});
+
 export const hmyMethodsBHRC20Web3 = new HmyMethodsHRC20Web3({
   web3: hmyWeb3,
   hmyManagerContract: hmyManagerContractBHrc20.web3Contract,
@@ -236,6 +274,16 @@ export const hmyMethodsHRC20 = {
   hmyMethodsWeb3: hmyMethodsHRC20Web3,
 };
 
+export const hmyMethodsHRC721 = {
+  hmyMethods: hmyMethodsHRC721Hmy,
+  hmyMethodsWeb3: hmyMethodsHRC721Web3,
+};
+
+export const hmyMethodsHRC1155 = {
+  hmyMethods: hmyMethodsHRC1155Hmy,
+  hmyMethodsWeb3: hmyMethodsHRC1155Web3,
+};
+
 export const hmyMethodsBHRC20 = {
   hmyMethods: hmyMethodsBHRC20Hmy,
   hmyMethodsWeb3: hmyMethodsBHRC20Web3,
@@ -246,7 +294,7 @@ export const hmyMethodsERC721 = {
   hmyMethodsWeb3: hmyMethodsERC721Web3,
 };
 
-const hmyDepositJson = require('../out/Deposit.json');
+const hmyDepositJson = require('../out/Deposit');
 const hmyDepositContract = createContract(
   hmyDepositJson.abi,
   process.env.HMY_DEPOSIT_CONTRACT,

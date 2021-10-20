@@ -42,7 +42,7 @@ export class EthMethodsHRC20 {
       return;
     }
 
-    const MyERC20Json = require('../out/MyERC20.json');
+    const MyERC20Json = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
@@ -93,7 +93,7 @@ export class EthMethodsHRC20 {
   };
 
   checkEthBalance = async (erc20Address, addr) => {
-    const MyERC20Json = require('../out/MyERC20.json');
+    const MyERC20Json = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
@@ -107,7 +107,7 @@ export class EthMethodsHRC20 {
       throw new Error('Invalid token address');
     }
 
-    const MyERC20Json = require('../out/MyERC20.json');
+    const MyERC20Json = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       erc20Address,
@@ -129,7 +129,7 @@ export class EthMethodsHRC20 {
       throw new Error('Invalid token address');
     }
 
-    const TokenManagerJson = require('../out/TokenManager.json');
+    const TokenManagerJson = require('../out/TokenManager');
 
     const tokenManager = new this.web3.eth.Contract(
       TokenManagerJson.abi,
@@ -148,7 +148,7 @@ export class EthMethodsHRC20 {
   };
 
   totalSupply = async hrc20Address => {
-    const MyERC20Json = require('../out/MyERC20.json');
+    const MyERC20Json = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
       hrc20Address,
@@ -162,7 +162,7 @@ export class EthMethodsHRC20 {
       throw new Error('Invalid token address');
     }
 
-    const MyERC20Json = require('../out/MyERC20.json');
+    const MyERC20Json = require('../out/MyERC20');
 
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
