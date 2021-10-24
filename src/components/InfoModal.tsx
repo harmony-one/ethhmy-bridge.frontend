@@ -4,6 +4,8 @@ import { useStores } from '../stores';
 import { useEffect } from 'react';
 import { Info } from './Info';
 import { InfoNew, InfoNew2 } from './InfoNew';
+import { Box } from 'grommet';
+import { Text } from './Base/components/Text';
 
 export const InfoModal = observer(() => {
   const { user, exchange, actionModals } = useStores();
@@ -12,25 +14,40 @@ export const InfoModal = observer(() => {
     exchange.getConfig();
   }, []);
 
-  // useEffect(() => {
-  //   if (!user.isInfoReading) {
-  //     actionModals.open(
-  //       () => <Info title="Welcome to Ethereum <> Harmony Bridge" />,
-  //       {
-  //         title: '',
-  //         applyText: 'Got it',
-  //         closeText: '',
-  //         noValidation: true,
-  //         width: '1000px',
-  //         showOther: true,
-  //         onApply: () => {
-  //           user.setInfoReading();
-  //           return Promise.resolve();
-  //         },
-  //       },
-  //     );
-  //   }
-  // }, [user.isInfoReading]);
+  useEffect(() => {
+    actionModals.open(
+      () => (
+        <Box pad="large">
+          <Text>
+            <b>The work of the bridge is temporarily suspended.</b>
+            <br />
+            <br />
+            Due to congestion in the bridge and slowness in getting rpc
+            response, we have many pending bridge operations.
+            <br />
+            We need couple of hours to fix all the pending/stuck transfers.
+            <br />
+            We have temporarily disabled new operations and will reopen as soon
+            as we fix the issues.
+            <br />
+            <br />
+            Sorry for the temporary inconvenience.
+          </Text>
+        </Box>
+      ),
+      {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '700px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      },
+    );
+  }, []);
   //
   useEffect(() => {
     if (!user.isInfoNewReading) {
