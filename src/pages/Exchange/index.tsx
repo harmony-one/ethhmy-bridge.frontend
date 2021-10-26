@@ -69,7 +69,7 @@ export class Exchange extends React.Component<
           exchange.transaction.amount = '0';
         }
 
-        if (exchange.token === TOKEN.HRC1155) {
+        if (exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155) {
           exchange.transaction.hrc1155TokenId = '0';
         }
       }
@@ -218,6 +218,7 @@ export class Exchange extends React.Component<
         };
 
       case TOKEN.HRC721:
+      case TOKEN.ERC1155:
       case TOKEN.HRC1155:
       case TOKEN.ERC721:
       case TOKEN.ERC20:
@@ -302,6 +303,7 @@ export class Exchange extends React.Component<
               TOKEN.LINK,
               TOKEN.ERC721,
               TOKEN.HRC721,
+              TOKEN.ERC1155,
               TOKEN.HRC1155,
             ].includes(exchange.token) ? (
               <Box
@@ -478,6 +480,25 @@ export class Exchange extends React.Component<
               </Box>
             )}
 
+            {exchange.config.tokens.includes(TOKEN.ERC1155) && (
+              <Box
+                style={{ width: 140 }}
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ERC1155 ? styles.selected : '',
+                )}
+                onClick={() => {
+                  user.resetTokens();
+
+                  exchange.setToken(TOKEN.ERC1155);
+                  routing.push(`/${exchange.token}`);
+                }}
+              >
+                <img className={styles.imgToken} src="/eth.svg" />
+                <Text>ERC1155</Text>
+              </Box>
+            )}
+
             {exchange.config.tokens.includes(TOKEN.HRC1155) && (
               <Box
                 style={{ width: 140 }}
@@ -589,6 +610,10 @@ export class Exchange extends React.Component<
                 <ERC20Select type={exchange.token} options={false} />
               ) : null}
 
+              {exchange.token === TOKEN.ERC1155 ? (
+                <ERC20Select type={exchange.token} options={false} />
+              ) : null}
+
               {exchange.step.id === EXCHANGE_STEPS.BASE ? (
                 <Box margin={{ top: 'small' }} align="start">
                   <Text color="red">{exchange.error}</Text>
@@ -610,7 +635,7 @@ export class Exchange extends React.Component<
                     label={this.tokenInfo.label}
                     maxTokens={this.tokenInfo.maxAmount}
                   />
-                ) : (exchange.token === TOKEN.HRC1155) ? (
+                ) : (exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155) ? (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
                     name="amount"
@@ -665,14 +690,14 @@ export class Exchange extends React.Component<
                     ]}
                   />
                 )}
-                {exchange.token !== TOKEN.ERC721 && exchange.token !== TOKEN.HRC721 && exchange.token !== TOKEN.HRC1155 ? (
+                {exchange.token !== TOKEN.ERC721 && exchange.token !== TOKEN.HRC721 && exchange.token !== TOKEN.ERC1155 && exchange.token !== TOKEN.HRC1155 ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}
                     {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
                     {this.tokenInfo.label}
                   </Text>
                 ) : null}
-                {exchange.token === TOKEN.HRC1155 ? (
+                {(exchange.token === TOKEN.HRC1155 || exchange.token === TOKEN.ERC1155) ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}
                     {this.tokenInfo.maxAmount || '0'}{' '}

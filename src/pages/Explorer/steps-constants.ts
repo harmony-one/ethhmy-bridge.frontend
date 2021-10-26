@@ -59,4 +59,15 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   mintHRC1155Token: 'Mint tokens',
   unlockHRC1155TokenRollback: 'Unlock tokens (rollback)',
   mintHRC1155TokenRollback: 'Mint tokens (rollback)',
+
+  // ERC1155
+  getERC1155Address: 'Get ERC1155 token',
+  approveERC1155HmyManger: 'Approve lock',
+  approveERC1155EthManger: 'Approve burn',
+  lockERC1155Token: 'Lock tokens',
+  unlockERC1155Token: 'Unlock tokens',
+  burnERC1155Token: 'Burn tokens',
+  mintERC1155Token: 'Mint tokens',
+  unlockERC1155TokenRollback: 'Unlock tokens (rollback)',
+  mintERC1155TokenRollback: 'Mint tokens (rollback)',
 };

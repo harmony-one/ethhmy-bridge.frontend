@@ -52,6 +52,12 @@ export const getContractMethods = (
         ? contract.hmyMethodsHRC1155.hmyMethodsWeb3
         : contract.hmyMethodsHRC1155.hmyMethods;
       break;
+    case TOKEN.ERC1155:
+      ethMethods = exNetwork.ethMethodsERC1155;
+      hmyMethods = isMetamask
+        ? contract.hmyMethodsERC1155.hmyMethodsWeb3
+        : contract.hmyMethodsERC1155.hmyMethods;
+      break;
     case TOKEN.ERC721:
       ethMethods = exNetwork.ethMethodsERС721;
       hmyMethods = isMetamask

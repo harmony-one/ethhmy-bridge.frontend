@@ -143,6 +143,12 @@ const isEth = type =>
     'burnHRC1155Token',
     'mintHRC1155Token',
     'mintHRC1155TokenRollback',
+
+    // ERC1155
+    'approveERC1155EthManger',
+    'lockERC1155Token',
+    'unlockERC1155Token',
+    'unlockERC1155TokenRollback',
   ].includes(type);
 
 const statuses: Record<STATUS, string> = {
