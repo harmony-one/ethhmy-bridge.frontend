@@ -272,7 +272,6 @@ export class EthMethodsERC1155 {
         .call();
     } catch (e) {
       console.error(e);
-      debugger;
     }
 
     return res;
