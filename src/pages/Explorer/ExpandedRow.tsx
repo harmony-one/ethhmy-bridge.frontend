@@ -35,6 +35,29 @@ const isEth = type =>
     'burnHRC20Token',
     'mintHRC20Token',
     'mintHRC20TokenRollback',
+
+    // HRC721
+    'getHRC721Address',
+    'approveHRC721EthManger',
+    'getHRC721Address',
+    'burnHRC721Token',
+    'mintHRC721Token',
+    'mintHRC721TokenRollback',
+
+    // HRC1155
+    'getHRC1155Address',
+    'approveHRC1155EthManger',
+    'getHRC1155Address',
+    'burnHRC1155Token',
+    'mintHRC1155Token',
+    'mintHRC1155TokenRollback',
+
+    // ERC1155
+    'getERC1155Address',
+    'approveERC1155EthManger',
+    'lockERC1155Token',
+    'unlockERC1155Token',
+    'unlockERC1155TokenRollback',
   ].includes(type);
 
 const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
