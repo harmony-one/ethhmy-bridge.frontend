@@ -103,6 +103,41 @@ export class Exchange extends React.Component<
       );
     }
 
+    if (
+      exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      exchange.network === NETWORK_TYPE.BINANCE
+    ) {
+      return actionModals.open(
+        () => (
+          <Box pad="large">
+            <Text>
+              <b>Harmony to Binance operations is temporarily suspended.</b>
+              <br />
+              <br />
+              We are currently facing RPC issue on the BSC side which we are
+              actively working to resolve.
+              <br />
+              Meanwhile, we have disabled BSC bridging temporarily.
+              <br />
+              <br />
+              Sorry for the inconvenience. We will update soon.
+            </Text>
+          </Box>
+        ),
+        {
+          title: '',
+          applyText: 'Got it',
+          closeText: '',
+          noValidation: true,
+          width: '500px',
+          showOther: true,
+          onApply: () => {
+            return Promise.resolve();
+          },
+        },
+      );
+    }
+
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
         if (!user.isOneWallet) {
