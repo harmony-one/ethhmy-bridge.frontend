@@ -39,7 +39,7 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   mintHRC20TokenRollback: 'Mint tokens (rollback)',
 
   // HRC721
-  getHRC721Address: 'Get HRC721 token',
+  getHRC721Address: 'Get ERC721 token',
   approveHRC721HmyManger: 'Approve lock',
   approveHRC721EthManger: 'Approve burn',
   lockHRC721Token: 'Lock tokens',
@@ -50,7 +50,7 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   mintHRC721TokenRollback: 'Mint tokens (rollback)',
 
   // HRC1155
-  getHRC1155Address: 'Get HRC1155 token',
+  getHRC1155Address: 'Get ERC1155 token',
   approveHRC1155HmyManger: 'Approve lock',
   approveHRC1155EthManger: 'Approve burn',
   lockHRC1155Token: 'Lock tokens',
@@ -61,7 +61,7 @@ const STEPS_TITLE: Record<ACTION_TYPE, string> = {
   mintHRC1155TokenRollback: 'Mint tokens (rollback)',
 
   // ERC1155
-  getERC1155Address: 'Get ERC1155 token',
+  getERC1155Address: 'Get HRC1155 token',
   approveERC1155HmyManger: 'Approve lock',
   approveERC1155EthManger: 'Approve burn',
   lockERC1155Token: 'Lock tokens',

@@ -131,6 +131,7 @@ const isEth = type =>
     'mintHRC20TokenRollback',
 
     // HRC721
+    'getHRC721Address',
     'approveHRC721EthManger',
     'getHRC721Address',
     'burnHRC721Token',
@@ -138,6 +139,7 @@ const isEth = type =>
     'mintHRC721TokenRollback',
 
     // HRC1155
+    'getHRC1155Address',
     'approveHRC1155EthManger',
     'getHRC1155Address',
     'burnHRC1155Token',

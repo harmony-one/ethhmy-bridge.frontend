@@ -53,7 +53,6 @@ const isEth = type =>
     'mintHRC1155TokenRollback',
 
     // ERC1155
-    'getERC1155Address',
     'approveERC1155EthManger',
     'lockERC1155Token',
     'unlockERC1155Token',
