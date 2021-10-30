@@ -192,7 +192,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     width: 'auto',
                   }}
                 />
-                {getStepsTitle(action.type, props.data.token)}
+                {getStepsTitle(action, props.data.token)}
               </Box>
               {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>
