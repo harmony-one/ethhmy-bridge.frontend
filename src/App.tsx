@@ -14,6 +14,7 @@ import { InfoPage } from './pages/Info';
 import { TransactionExample, Hrc20ContractExample } from './pages/Examples';
 import { StuckOperations } from './pages/Explorer/StuckOperations';
 import { AdminExplorer } from './pages/Explorer/AdminExplorer';
+import { HelpPage } from './interfaces/NeedHelp';
 
 export const App: React.FC = () => (
   <Providers>
@@ -26,6 +27,7 @@ export const App: React.FC = () => (
         <Route exact path="/tx-example" component={TransactionExample} />
         <Route exact path="/hrc20-example" component={Hrc20ContractExample} />
         <Route exact path="/faq" component={FAQPage} />
+        <Route exact path="/help" component={HelpPage} />
         <Route exact path="/info" component={InfoPage} />
         <Route exact path="/explorer/:validator?" component={Explorer} />
         <Route exact path="/stuck-operations" component={StuckOperations} />} />
