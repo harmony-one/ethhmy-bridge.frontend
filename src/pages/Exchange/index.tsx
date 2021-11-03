@@ -220,49 +220,53 @@ export class Exchange extends React.Component<
 
       this.formRef.validateFields().then(async () => {
         try {
-          await new Promise((res, rej) => {
-            actionModals.open(
-              () => (
-                <Box pad="large">
-                  <Text>
-                    <Title>Important</Title>
-                    <br />
-                    <li>Bridge does not swap tokens, it only wraps it.</li>
-                    <br />
-                    <li>Never use exchange wallet (e.g. Binance) in bridge</li>
-                    <br />
-                    <li>Double check the receiver address</li>
-                    <br />
-                    <li>
-                      Make sure that the token you are bridging has liquidity
-                      (or use) on Harmony
-                    </li>
-                    <br />
-                    <li>
-                      Make sure to select the correct token type (if doubt, go
-                      to Need Help or FAQ sections)
-                    </li>
-                  </Text>
-                </Box>
-              ),
-              {
-                title: '',
-                applyText: 'Yes I confirm',
-                closeText: 'Cancel',
-                noValidation: true,
-                width: '500px',
-                showOther: true,
-                onApply: () => {
-                  res();
-                  return Promise.resolve();
+          if (this.props.exchange.step.id === EXCHANGE_STEPS.BASE) {
+            await new Promise((res, rej) => {
+              actionModals.open(
+                () => (
+                  <Box pad="large">
+                    <Text>
+                      <Title>Important</Title>
+                      <br />
+                      <li>Bridge does not swap tokens, it only wraps it.</li>
+                      <br />
+                      <li>
+                        Never use exchange wallet (e.g. Binance) in bridge
+                      </li>
+                      <br />
+                      <li>Double check the receiver address</li>
+                      <br />
+                      <li>
+                        Make sure that the token you are bridging has liquidity
+                        (or use) on Harmony
+                      </li>
+                      <br />
+                      <li>
+                        Make sure to select the correct token type (if doubt, go
+                        to Need Help or FAQ sections)
+                      </li>
+                    </Text>
+                  </Box>
+                ),
+                {
+                  title: '',
+                  applyText: 'Yes I confirm',
+                  closeText: 'Cancel',
+                  noValidation: true,
+                  width: '500px',
+                  showOther: true,
+                  onApply: () => {
+                    res();
+                    return Promise.resolve();
+                  },
+                  onClose: () => {
+                    rej();
+                    return Promise.resolve();
+                  },
                 },
-                onClose: () => {
-                  rej();
-                  return Promise.resolve();
-                },
-              },
-            );
-          });
+              );
+            });
+          }
         } catch (e) {
           return;
         }
