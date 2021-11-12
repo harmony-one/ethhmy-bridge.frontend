@@ -10,7 +10,7 @@ import {
 } from 'components/Form';
 import { inject, observer } from 'mobx-react';
 import { IStores } from 'stores';
-import { Button, Icon, Text } from 'components/Base';
+import { Button, Icon, Text, Title } from 'components/Base';
 import { divDecimals, formatWithSixDecimals, moreThanZero } from 'utils';
 import { Spinner } from 'ui';
 import { EXCHANGE_STEPS } from '../../stores/Exchange';
@@ -107,6 +107,41 @@ export class Exchange extends React.Component<
       );
     }
 
+    // if (
+    //   exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+    //   exchange.network === NETWORK_TYPE.BINANCE
+    // ) {
+    //   return actionModals.open(
+    //     () => (
+    //       <Box pad="large">
+    //         <Text>
+    //           <b>Harmony to Binance operations is temporarily suspended.</b>
+    //           <br />
+    //           <br />
+    //           We are currently facing RPC issue on the BSC side which we are
+    //           actively working to resolve.
+    //           <br />
+    //           Meanwhile, we have disabled BSC bridging temporarily.
+    //           <br />
+    //           <br />
+    //           Sorry for the inconvenience. We will update soon.
+    //         </Text>
+    //       </Box>
+    //     ),
+    //     {
+    //       title: '',
+    //       applyText: 'Got it',
+    //       closeText: '',
+    //       noValidation: true,
+    //       width: '500px',
+    //       showOther: true,
+    //       onApply: () => {
+    //         return Promise.resolve();
+    //       },
+    //     },
+    //   );
+    // }
+
     if (!user.isAuthorized) {
       if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
         if (!user.isOneWallet) {
@@ -187,7 +222,59 @@ export class Exchange extends React.Component<
         return;
       }
 
-      this.formRef.validateFields().then(() => {
+      this.formRef.validateFields().then(async () => {
+        try {
+          if (this.props.exchange.step.id === EXCHANGE_STEPS.BASE) {
+            await new Promise((res, rej) => {
+              actionModals.open(
+                () => (
+                  <Box pad="large">
+                    <Text>
+                      <Title>Important</Title>
+                      <br />
+                      <li>Bridge does not swap tokens, it only wraps it.</li>
+                      <br />
+                      <li>
+                        Never use exchange wallet (e.g. Binance) in bridge
+                      </li>
+                      <br />
+                      <li>Double check the receiver address</li>
+                      <br />
+                      <li>
+                        Make sure that the token you are bridging has liquidity
+                        (or use) on Harmony
+                      </li>
+                      <br />
+                      <li>
+                        Make sure to select the correct token type (if doubt, go
+                        to Need Help or FAQ sections)
+                      </li>
+                    </Text>
+                  </Box>
+                ),
+                {
+                  title: '',
+                  applyText: 'Yes I confirm',
+                  closeText: 'Cancel',
+                  noValidation: true,
+                  width: '500px',
+                  showOther: true,
+                  onApply: () => {
+                    res();
+                    return Promise.resolve();
+                  },
+                  onClose: () => {
+                    rej();
+                    return Promise.resolve();
+                  },
+                },
+              );
+            });
+          }
+        } catch (e) {
+          return;
+        }
+
         callback();
       });
     } else {

@@ -34,6 +34,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
+    const isHelp = history.location.pathname === '/help';
     const isInfo = history.location.pathname === '/info';
 
     const goToBridge = () => {
@@ -117,7 +118,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             <Box
               className={cn(
                 styles.itemToken,
-                !isInfo && !isFaq && !isExplorer && !isGetTokens && !isTokens
+                !isInfo &&
+                  !isFaq &&
+                  !isHelp &&
+                  !isExplorer &&
+                  !isGetTokens &&
+                  !isTokens
                   ? styles.selected
                   : '',
               )}
@@ -155,6 +161,13 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             {/*>*/}
             {/*  <Text>Info</Text>*/}
             {/*</Box>*/}
+
+            <Box
+              className={cn(styles.itemToken, isHelp ? styles.selected : '')}
+              onClick={() => routing.push('/help')}
+            >
+              <Text>Need Help</Text>
+            </Box>
 
             <Box
               className={cn(styles.itemToken, isFaq ? styles.selected : '')}

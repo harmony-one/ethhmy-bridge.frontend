@@ -234,7 +234,9 @@ export const getOperations = async (
 const blackList = [
   '0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB',
   '0x396f0eD7375aB5b0e92F890B3799043c7Da8F855',
-];
+  '0x35C4693D6554Ad7e48D0065Cd554f8d7921Cd192',
+  '0xCDe4a5a9aD0C31Ab07b34716427aE2484ac194e7',
+].map(a => a.toLowerCase());
 
 export const getTokensInfo = async (
   params: any,
@@ -282,8 +284,8 @@ export const getTokensInfo = async (
 
   content = content.filter(
     t =>
-      !blackList.includes(t.hrc20Address) &&
-      !blackList.includes(t.erc20Address),
+      !blackList.includes(t.hrc20Address.toLowerCase()) &&
+      !blackList.includes(t.erc20Address.toLowerCase()),
   );
   content = content.filter(t => t.type !== 'hrc20' || !hasAddress(t));
 
