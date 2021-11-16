@@ -417,7 +417,7 @@ export const WalletBalances = observer(() => {
                 ) : null}
 
                 {user.hrc1155Address &&
-                [TOKEN.HRC1155].includes(
+                [TOKEN.ERC1155, TOKEN.HRC1155].includes(
                   exchange.token,
                 ) ? (
                   <AssetRow

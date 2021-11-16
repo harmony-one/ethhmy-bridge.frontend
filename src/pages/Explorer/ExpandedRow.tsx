@@ -35,6 +35,28 @@ const isEth = type =>
     'burnHRC20Token',
     'mintHRC20Token',
     'mintHRC20TokenRollback',
+
+    // HRC721
+    'getHRC721Address',
+    'approveHRC721EthManger',
+    'getHRC721Address',
+    'burnHRC721Token',
+    'mintHRC721Token',
+    'mintHRC721TokenRollback',
+
+    // HRC1155
+    'getHRC1155Address',
+    'approveHRC1155EthManger',
+    'getHRC1155Address',
+    'burnHRC1155Token',
+    'mintHRC1155Token',
+    'mintHRC1155TokenRollback',
+
+    // ERC1155
+    'approveERC1155EthManger',
+    'lockERC1155Token',
+    'unlockERC1155Token',
+    'unlockERC1155TokenRollback',
   ].includes(type);
 
 const getActionFee = (action: IAction): { isEth: boolean; value: number } => {
@@ -170,7 +192,7 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
                     width: 'auto',
                   }}
                 />
-                {getStepsTitle(action.type, props.data.token)}
+                {getStepsTitle(action, props.data.token)}
               </Box>
               {action.error ? <Text color="red">{action.error}</Text> : null}
             </Box>

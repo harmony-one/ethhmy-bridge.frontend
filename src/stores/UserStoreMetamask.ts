@@ -4,9 +4,9 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
   getExNetworkMethods,
-  hmyMethodsBEP20,
+  hmyMethodsBEP20, hmyMethodsERC1155,
   hmyMethodsERC20,
-  hmyMethodsERC721,
+  hmyMethodsERC721, hmyMethodsHRC1155,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
@@ -509,6 +509,95 @@ export class UserStoreMetamask extends StoreConstructor {
       this.syncLocalStorage();
     } else {
       this.stores.user.hrc20Address = '';
+    }
+  };
+
+  @action.bound public setERC1155Token = async (erc1155Address: string) => {
+    const exNetwork = getExNetworkMethods();
+
+    this.erc20TokenDetails = null;
+    this.erc20Address = '';
+    this.erc20Balance = '0';
+    this.stores.user.hrc20Address = '';
+    this.stores.user.hrc20Balance = '0';
+
+    if (!erc1155Address) {
+      throw new Error('Address field is empty');
+    }
+
+    if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+      (!this.isNetworkActual || !this.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on ${
+          NETWORK_NAME[this.stores.exchange.network]
+        } ${process.env.NETWORK} and try again!`,
+      );
+    }
+
+    if (
+      this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      ((this.stores.user.isMetamask && !this.stores.user.isNetworkActual) ||
+        !this.stores.user.isAuthorized)
+    ) {
+      throw new Error(
+        `Your MetaMask in on the wrong network. Please switch on Harmony ${process.env.NETWORK} and try again!`,
+      );
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.token === TOKEN.HRC20)
+        .find(t => t.erc20Address === erc1155Address)
+    ) {
+      throw new Error('This address already using for HRC20 token wrapper');
+    }
+
+    if (
+      this.stores.tokens.allData
+        .filter(t => t.token === TOKEN.ERC20)
+        .find(t => t.erc20Address === erc1155Address)
+    ) {
+      throw new Error('This address already using for ERC20 token');
+    }
+
+    if (
+      '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'.toLowerCase() ===
+      erc1155Address.toLowerCase()
+    ) {
+      throw new Error('This address already using for Native tokens');
+    }
+
+    const details = await exNetwork.ethMethodsERC1155.tokenDetailsERC1155(
+      erc1155Address,
+    );
+    this.erc1155Address = erc1155Address;
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc1155Address);
+    const tokenId = this.stores.erc20Select.hrc1155TokenId || '0';
+
+    this.erc20TokenDetails = { ...details, decimals: '0' };
+    this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
+
+    const address = await hmyMethodsERC1155.hmyMethods.getMappingFor(
+      erc1155Address,
+    );
+
+    if (!!Number(address)) {
+      const hmyMethodsBase = hmyMethodsERC1155;
+      const hmyMethods = this.stores.user.isMetamask
+        ? hmyMethodsBase.hmyMethodsWeb3
+        : hmyMethodsBase.hmyMethods;
+
+      try {
+        this.stores.user.hrc20Balance = Number(await hmyMethods.balanceOf(address, tokenId)).toString();
+      } catch (e) {
+        // nop
+      }
+      this.stores.user.hrc1155Address = address;
+      this.syncLocalStorage();
+    } else {
+      this.stores.user.hrc1155Address = '';
     }
   };
 

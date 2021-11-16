@@ -56,6 +56,7 @@ export class UserStoreEx extends StoreConstructor {
   @observable public bnbRate = 0;
 
   @observable public hrc20Address = '';
+  @observable public erc1155Address = '';
   @observable public hrc1155Address = '';
   @observable public hrc721Address = '';
   @observable public hrc20Balance = '';
