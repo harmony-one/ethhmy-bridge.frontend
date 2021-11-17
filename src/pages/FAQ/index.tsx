@@ -375,6 +375,76 @@ const faqConfig = [
       </p>
     ),
   },
+
+  {
+    label:
+      'What is the difference between ERC1155 or HRC1155 and ERC721 or HRC721?',
+    text: () => (
+      <Box direction="column" gap="15px">
+        <li>
+          ERC and HRC are the same token standard as Harmony is EVM compatible.
+          The tokens launched by ERC721/ERC1155 are Non-Fungible Token. In
+          ERC721, each token in the contract has a unique tokenid, and the
+          amount is 1. ERC1155 is a collection of fungible token and
+          non-fungible token distinguished by tokenid and the amount of tokens
+          corresponding to each tokenid can be greater than 1. Compared to
+          ERC721, ERC1155 adds more token operation methods and supports batch
+          operations, added convenience and scalability.
+        </li>
+      </Box>
+    ),
+  },
+
+  {
+    label:
+      'Why do I need to enter the tokenid when sending ERC1155 or HRC1155?',
+    text: () => (
+      <Box direction="column" gap="15px">
+        <li>
+          Since ERC1155 or HRC1155 uses tokenid to distinguish different tokens
+          in the contract, you need to specify the tokenid of the transferred
+          asset in the contract when transferring assets based on ERC1155 or
+          HRC1155. In most cases, you can query your account through the block
+          explorer to obtain the tokenid of the asset you need to send.
+        </li>
+      </Box>
+    ),
+  },
+
+  {
+    label:
+      'How to fill in the quantity when sending NFT based on ERC1155 or HRC1155?',
+    text: () => (
+      <Box direction="column" gap="15px">
+        <li>
+          Since the tokens in the ERC1155 or HRC1155 contract can be fungible
+          tokens or non-fungible token, we have added an additional field,
+          “amount” to the input panel of ERC1155 or HRC1155 on GUI. If the asset
+          you are transferring is a fungible token, you need to fill in the
+          amount you expect to transfer. If the asset you are transferring is a
+          non-fungible token, you can fill in 1.
+        </li>
+      </Box>
+    ),
+  },
+
+  {
+    label:
+      'Why does a certification mark appear when I input part of ERC1155 or ERC721?',
+    text: () => (
+      <Box direction="column" gap="15px">
+        <li>
+          In order to prevent malicious fraud in crypto, when you transfer
+          ERC1155 or ERC721 from Ethereum to Harmony, the bridge automatically
+          checks the contract address you filled in with the verified items in
+          the well-known NFT exchange OpenSea. If the contract address has been
+          verified in OpenSea, the bridge will display the verified mark at the
+          bottom of the address bar to ensure that you can quickly identify the
+          authentication of the project.
+        </li>
+      </Box>
+    ),
+  },
 ];
 
 export const FAQPage = () => {
@@ -424,7 +494,12 @@ export const FAQPage = () => {
                     {/*  styles={{ marginBottom: 2 }}*/}
                     {/*  glyph={isExpanded ? 'Minus' : 'Plus'}*/}
                     {/*/>*/}
-                    <Text className={styles.labelText} size="large" style={{ marginLeft: 10 }} bold>
+                    <Text
+                      className={styles.labelText}
+                      size="large"
+                      style={{ marginLeft: 10 }}
+                      bold
+                    >
                       {item.label}
                     </Text>
                   </Box>
