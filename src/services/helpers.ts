@@ -81,3 +81,7 @@ export function getCorrectArr(arrays, propertyName) {
 
   return getMaxEntry(indexes);
 }
+
+export const objKeys = Object.keys as <T extends object>(
+  obj: T,
+) => Array<keyof T>;

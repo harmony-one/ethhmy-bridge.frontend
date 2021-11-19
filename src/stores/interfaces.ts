@@ -144,7 +144,7 @@ export interface IOperation {
   type: EXCHANGE_MODE;
   token: TOKEN;
   status: STATUS;
-  amount: number;
+  amount: string;
   fee: number;
   ethAddress: string;
   oneAddress: string;
@@ -177,8 +177,8 @@ export interface ITokenInfo {
 
 export interface OpenSeaValideResponse {
   collection: {
-    safelist_request_status: string,
-    slug: string,
-  },
-  address: string,
+    safelist_request_status: string;
+    slug: string;
+  };
+  address: string;
 }
