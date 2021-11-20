@@ -182,3 +182,11 @@ export interface OpenSeaValideResponse {
   },
   address: string,
 }
+
+export interface OpenSeaSingleAssetResponse {
+  name: string,
+  image_preview_url: string,
+  collection: {
+    name: string,
+  },
+}

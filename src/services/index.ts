@@ -2,7 +2,7 @@ import {
   ACTION_TYPE,
   IOperation,
   ITokenInfo,
-  NETWORK_TYPE, OpenSeaValideResponse,
+  NETWORK_TYPE, OpenSeaSingleAssetResponse, OpenSeaValideResponse,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
@@ -367,6 +367,18 @@ export const hasOpenSeaValid = async (erc20Address: string): Promise<OpenSeaVali
   try {
     const res = await agent.get<OpenSeaValideResponse>(
       `https://api.opensea.io/api/v1/asset_contract/${erc20Address}?format=json`,
+    );
+
+    return res.body;
+  } catch (e) {
+    return null;
+  }
+};
+
+export const getOpenSeaSingleAsset = async (assetAddress: string, assetId: string): Promise<OpenSeaSingleAssetResponse | null> => {
+  try {
+    const res = await agent.get<OpenSeaSingleAssetResponse>(
+      `https://api.opensea.io/api/v1/asset/${assetAddress}/${assetId}/?format=json`,
     );
 
     return res.body;

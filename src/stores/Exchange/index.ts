@@ -12,7 +12,7 @@ import {
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
-import { getDepositAmount } from 'services';
+import { getDepositAmount, getOpenSeaSingleAsset } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
@@ -28,6 +28,7 @@ import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
 import { sendHrc721Token } from './hrc721';
 import { sendHrc1155Token } from './hrc1155';
 import { sendErc1155Token } from './erc1155';
+import * as services from '../../services';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -61,6 +62,8 @@ export interface ITransaction {
   hrc1155TokenId?: string;
   erc1155Address?: string;
   erc1155TokenId?: string;
+  nftName?: string;
+  nftImageUrl?: string;
 }
 
 export class Exchange extends StoreConstructor {
@@ -82,6 +85,8 @@ export class Exchange extends StoreConstructor {
     erc20Address: '',
     hrc20Address: '',
     hrc721Address: '',
+    nftName: '',
+    nftImageUrl: '',
   };
 
   @observable transaction = this.defaultTransaction;
@@ -226,6 +231,32 @@ export class Exchange extends StoreConstructor {
             } else if (this.token === TOKEN.ERC1155) {
               alert('please click `Change token` button first!');
               return
+            }
+
+            // get NFT metadata
+            if (this.token === TOKEN.ERC721 || this.token === TOKEN.ERC1155) {
+              let nftAddress, nftTokenId;
+              switch (this.token) {
+                case TOKEN.ERC721:
+                  nftAddress = this.transaction.erc20Address;
+                  nftTokenId = this.transaction.amount[0];
+                  break;
+                case TOKEN.ERC1155:
+                  nftAddress = this.transaction.erc1155Address;
+                  nftTokenId = this.transaction.erc1155TokenId;
+                  break;
+              }
+
+              const OpenSeaRes = await services.getOpenSeaSingleAsset(nftAddress, nftTokenId);
+
+              if (OpenSeaRes) {
+                if (OpenSeaRes.name) {
+                  this.transaction.nftName = OpenSeaRes.name;
+                } else {
+                  this.transaction.nftName = OpenSeaRes.collection.name + " #" + nftTokenId;
+                }
+                this.transaction.nftImageUrl = OpenSeaRes.image_preview_url;
+              }
             }
 
             switch (this.mode) {
