@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Box } from 'grommet';
+import { Box, Image } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { Icon, Text } from 'components/Base';
 import { useStores } from 'stores';
@@ -170,6 +170,27 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
       }
     };
 
+    const getImage = () => {
+      if (exchange.transaction.nftImageUrl !== '') {
+        return (
+          <Box margin={{bottom: "20px"}} align="center">
+            <Box width="small" direction="row" margin={{bottom: "5px"}}>
+              <Image
+                fit="cover"
+                src={exchange.transaction.nftImageUrl}
+              />
+            </Box>
+            <Box direction="row">
+              <Text size="small" bold={true}>
+                {exchange.transaction.nftName}
+              </Text>
+            </Box>
+          </Box>
+        );
+      }
+      return ""
+    };
+
     return (
       <Box direction="column">
         <AssetRow
@@ -183,6 +204,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           address={true}
         />
         {getAmount()}
+
+        {getImage()}
 
         {/*{exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (*/}
         {/*  <AssetRow label="Deposit amount" value="">*/}
