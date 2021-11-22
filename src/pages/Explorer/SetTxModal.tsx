@@ -7,10 +7,10 @@ import { Button, Select, Text, TextInput, Title } from '../../components/Base';
 import { observer } from 'mobx-react';
 
 interface Props {
-  operation: IOperation,
+  operation: IOperation;
 }
 
-export const SetTxModal: React.FC<Props> = observer(({operation}) => {
+export const SetTxModal: React.FC<Props> = observer(({ operation }) => {
   const { adminOperations, actionModals } = useStores();
   const [action, setAction] = useState<ACTION_TYPE>();
   const [value, onChange] = useState('');
@@ -61,7 +61,7 @@ export const SetTxModal: React.FC<Props> = observer(({operation}) => {
           size="large"
           onClick={() => {
             handleRestartOperation();
-            actionModals.closeLastModal()
+            actionModals.closeLastModal();
           }}
         >
           Restart Operation
@@ -69,7 +69,6 @@ export const SetTxModal: React.FC<Props> = observer(({operation}) => {
       </Box>
     </Box>
   );
-
 });
 
 SetTxModal.displayName = 'SetTxModal';

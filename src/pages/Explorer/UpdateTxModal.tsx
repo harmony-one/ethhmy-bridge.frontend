@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   EXCHANGE_MODE,
   IOperation,
@@ -12,6 +12,8 @@ import { objKeys } from '../../services/helpers';
 import { MobxForm } from '../../components/Form';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react-lite';
+import { useStores } from '../../stores';
+import { bridgeSDK } from './bridgeSDK';
 
 interface Props {
   operation: IOperation;
@@ -30,80 +32,91 @@ const typeOptions = enumToSelectOptions(EXCHANGE_MODE);
 const tokenOptions = enumToSelectOptions(TOKEN);
 const networkOptions = enumToSelectOptions(NETWORK_TYPE);
 
-const formData = observable({
-  type: '',
-  network: '',
-  token: '',
-  amount: '',
-  oneAddress: '',
-  ethAddress: '',
-  erc20Address: '',
-  hrc20Address: '',
-  hrc721Address: '',
-});
-
 export const UpdateTxModal: React.FC<Props> = observer(({ operation }) => {
   const [form, setForm] = useState<MobxForm>();
+  const { actionModals } = useStores();
+  const [isLoading, setLoading] = useState(false);
+
+  const formData = useMemo(() => {
+    return observable({
+      type: operation.type,
+      network: operation.network,
+      token: operation.token,
+      amount: operation.amount,
+      oneAddress: operation.oneAddress,
+      ethAddress: operation.ethAddress,
+      erc20Address: operation.erc20Address,
+      hrc20Address: operation.hrc20Address,
+      hrc721Address: operation.hrc721Address,
+    });
+  }, [operation]);
 
   const handleSubmit = useCallback(() => {
-    console.log('### create tx');
-  }, []);
+    setLoading(true);
+    bridgeSDK
+      // @ts-ignore
+      .createOperation(formData)
+      .then(() => {
+        setLoading(false);
+        actionModals.closeLastModal();
+      })
+      .catch(err => {
+        console.error('### err', err);
+        setLoading(false);
+      });
+  }, [actionModals, formData]);
 
   return (
     <Form ref={ref => setForm(ref)} data={formData}>
       <Box gap="small">
         <Box>
           <Text>Type:</Text>
-          <Select name="type" options={typeOptions} value={operation.type} />
+          <Select name="type" options={typeOptions} />
         </Box>
         <Box>
           <Text>Network Type:</Text>
-          <Select
-            name="network"
-            options={networkOptions}
-            value={operation.network}
-          />
+          <Select name="network" options={networkOptions} />
         </Box>
         <Box>
           <Text>Token:</Text>
-          <Select
-            name="token"
-            size="full"
-            value={operation.token}
-            options={tokenOptions}
-          />
+          <Select name="token" size="full" options={tokenOptions} />
         </Box>
         <Box>
           <Text>Amount:</Text>
-          <NumberInput value={operation.amount} name="amount" />
+          <NumberInput name="amount" />
         </Box>
         <Box>
           <Text>oneAddress:</Text>
-          <Input value={operation.oneAddress} name="oneAddress" />
+          <Input type="string" name="oneAddress" />
         </Box>
         <Box>
           <Text>ethAddress:</Text>
-          <Input value={operation.ethAddress} name="ethAddress" />
+          <Input type="string" name="ethAddress" />
         </Box>
         {operation.erc20Address && (
           <Box>
             <Text>erc20Address:</Text>
-            <Input value={operation.erc20Address} name="erc20Address" />
+            <Input type="string" name="erc20Address" />
           </Box>
         )}
         {operation.hrc20Address && (
           <Box>
-            <Text>hrc20Address:</Text>
-            <Input value={operation.hrc20Address} name="hrc20Address" />
+            <Input label="hrc20Address" type="string" name="hrc20Address" />
           </Box>
         )}
         {operation.hrc721Address && (
           <Box>
             <Text>hrc721Address:</Text>
-            <Input value={operation.hrc721Address} name="hrc721Address" />
+            <Input type="string" name="hrc721Address" />
           </Box>
         )}
-        <Button bgColor="#00ADE8" onClick={handleSubmit} transparent={false}>
+        <Button
+          isLoading={isLoading}
+          disabled={isLoading}
+          bgColor="#00ADE8"
+          onClick={handleSubmit}
+          transparent={false}
+        >
           Create
         </Button>
       </Box>
