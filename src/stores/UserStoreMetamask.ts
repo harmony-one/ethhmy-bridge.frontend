@@ -3,8 +3,8 @@ import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
-  getExNetworkMethods,
-  hmyMethodsBEP20, hmyMethodsERC1155,
+  getExNetworkMethods, hmyMethodsBEP1155,
+  hmyMethodsBEP20, hmyMethodsBEP721, hmyMethodsERC1155,
   hmyMethodsERC20,
   hmyMethodsERC721, hmyMethodsHRC1155,
 } from '../blockchain-bridge';
@@ -500,7 +500,12 @@ export class UserStoreMetamask extends StoreConstructor {
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
-    const address = await hmyMethodsERC721.hmyMethods.getMappingFor(
+    const hmyMethodsBase =
+      this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
+        ? hmyMethodsERC721
+        : hmyMethodsBEP721;
+
+    const address = await hmyMethodsBase.hmyMethods.getMappingFor(
       erc20Address,
     );
 
@@ -579,12 +584,16 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = { ...details, decimals: '0' };
     this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
 
-    const address = await hmyMethodsERC1155.hmyMethods.getMappingFor(
+    const hmyMethodsBase =
+      this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
+        ? hmyMethodsERC1155
+        : hmyMethodsBEP1155;
+
+    const address = await hmyMethodsBase.hmyMethods.getMappingFor(
       erc1155Address,
     );
 
     if (!!Number(address)) {
-      const hmyMethodsBase = hmyMethodsERC1155;
       const hmyMethods = this.stores.user.isMetamask
         ? hmyMethodsBase.hmyMethodsWeb3
         : hmyMethodsBase.hmyMethods;

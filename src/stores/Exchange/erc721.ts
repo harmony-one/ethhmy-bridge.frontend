@@ -1,8 +1,8 @@
-import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
+import { ACTION_TYPE, EXCHANGE_MODE, IAction, NETWORK_TYPE, STATUS } from '../interfaces';
 import { sleep } from '../../utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { hmyMethodsERC721 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsBEP721, hmyMethodsBHrc721, hmyMethodsERC721, hmyMethodsHRC721 } from '../../blockchain-bridge/hmy';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const sendErc721Token = async (params: {
@@ -19,9 +19,14 @@ export const sendErc721Token = async (params: {
     stores,
     mode,
   } = params;
+  const hmyMethodsBase =
+    stores.exchange.network === NETWORK_TYPE.ETHEREUM
+      ? hmyMethodsERC721
+      : hmyMethodsBEP721;
+
   const hmyMethods = stores.user.isMetamask
-    ? hmyMethodsERC721.hmyMethodsWeb3
-    : hmyMethodsERC721.hmyMethods;
+    ? hmyMethodsBase.hmyMethodsWeb3
+    : hmyMethodsBase.hmyMethods;
 
   const ethMethods = getExNetworkMethods().ethMethodsERС721;
 

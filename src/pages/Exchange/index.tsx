@@ -485,6 +485,52 @@ export class Exchange extends React.Component<
               </Box>
             )}
 
+
+            {exchange.config.tokens.includes(TOKEN.ETH) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ETH ? styles.selected : '',
+                )}
+                onClick={() => {
+                  routing.push(`/${exchange.token}`);
+                  exchange.setToken(TOKEN.ETH);
+                }}
+              >
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
+              </Box>
+            )}
+
+            {exchange.config.tokens.includes(TOKEN.ONE) && (
+              <Box
+                className={cn(
+                  styles.itemToken,
+                  exchange.token === TOKEN.ONE ? styles.selected : '',
+                )}
+                onClick={() => {
+                  exchange.setToken(TOKEN.ONE);
+                  routing.push(`/${exchange.token}`);
+
+                  // user.setHRC20Mapping(process.env.ONE_HRC20, true);
+
+                  // user.setHRC20Token(process.env.ONE_HRC20);
+                  // userMetamask.setTokenDetails({
+                  //   name: 'Ethereum ONE',
+                  //   decimals: '18',
+                  //   erc20Address: '',
+                  //   symbol: 'ONE',
+                  // });
+                }}
+              >
+                <img className={styles.imgToken} src="/one.svg" />
+                <Text>ONE</Text>
+              </Box>
+            )}
+
             {exchange.config.tokens.includes(TOKEN.ERC20) && (
               <Box
                 className={cn(
@@ -543,8 +589,15 @@ export class Exchange extends React.Component<
                   routing.push(`/${exchange.token}`);
                 }}
               >
-                <img className={styles.imgToken} src="/eth.svg" />
-                <Text>ERC721</Text>
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>
+                  {exchange.network === NETWORK_TYPE.ETHEREUM
+                    ? 'ERC721'
+                    : 'BEP721'}
+                </Text>
               </Box>
             )}
 
@@ -581,8 +634,15 @@ export class Exchange extends React.Component<
                   routing.push(`/${exchange.token}`);
                 }}
               >
-                <img className={styles.imgToken} src="/eth.svg" />
-                <Text>ERC1155</Text>
+                <img
+                  className={styles.imgToken}
+                  src={NETWORK_ICON[exchange.network]}
+                />
+                <Text>
+                  {exchange.network === NETWORK_TYPE.ETHEREUM
+                    ? 'ERC1155'
+                    : 'BEP1155'}
+                </Text>
               </Box>
             )}
 
@@ -604,51 +664,6 @@ export class Exchange extends React.Component<
                 <Text>HRC1155</Text>
               </Box>
              )}
-
-            {exchange.config.tokens.includes(TOKEN.ETH) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ETH ? styles.selected : '',
-                )}
-                onClick={() => {
-                  routing.push(`/${exchange.token}`);
-                  exchange.setToken(TOKEN.ETH);
-                }}
-              >
-                <img
-                  className={styles.imgToken}
-                  src={NETWORK_ICON[exchange.network]}
-                />
-                <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
-              </Box>
-            )}
-
-            {exchange.config.tokens.includes(TOKEN.ONE) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ONE ? styles.selected : '',
-                )}
-                onClick={() => {
-                  exchange.setToken(TOKEN.ONE);
-                  routing.push(`/${exchange.token}`);
-
-                  // user.setHRC20Mapping(process.env.ONE_HRC20, true);
-
-                  // user.setHRC20Token(process.env.ONE_HRC20);
-                  // userMetamask.setTokenDetails({
-                  //   name: 'Ethereum ONE',
-                  //   decimals: '18',
-                  //   erc20Address: '',
-                  //   symbol: 'ONE',
-                  // });
-                }}
-              >
-                <img className={styles.imgToken} src="/one.svg" />
-                <Text>ONE</Text>
-              </Box>
-            )}
           </Box>
         ) : null}
         <Form

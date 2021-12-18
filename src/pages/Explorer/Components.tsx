@@ -113,8 +113,21 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
     }
   }
 
-  if (network === NETWORK_TYPE.BINANCE && value === TOKEN.ERC20) {
-    return <Box>BEP20</Box>;
+  if (network === NETWORK_TYPE.BINANCE) {
+    switch (value){
+      case TOKEN.ERC20:
+        return <Box>BEP20</Box>;
+      case TOKEN.ERC721:
+        return <Box>BEP721</Box>;
+      case TOKEN.ERC1155:
+        return <Box>BEP1155</Box>;
+      case TOKEN.HRC20:
+        return <Box>HRC20</Box>;
+      case TOKEN.HRC721:
+        return <Box>HRC721</Box>;
+      case TOKEN.HRC1155:
+        return <Box>HRC1155</Box>;
+    }
   }
 
   if (value === TOKEN.ETH) {
