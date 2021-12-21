@@ -62,6 +62,30 @@ const oneAddress = value => (
   </Box>
 );
 
+const getAssetAddress = (data, type) => {
+  let assetPrefix;
+  switch (type) {
+    case "origin":
+      assetPrefix = "erc";
+      break;
+    case "mapping":
+      assetPrefix = "hrc";
+      break;
+  }
+
+  if (data.type.indexOf(assetPrefix) !== -1) {
+    return <EthAddress value={data.erc20Address} network={data.network} />
+  } else {
+    const address =
+      String(data.hrc20Address).toLowerCase() ===
+      String(process.env.ONE_HRC20).toLowerCase()
+        ? String(data.hrc20Address).toLowerCase()
+        : getChecksumAddress(data.hrc20Address);
+
+    return oneAddress(address);
+  }
+}
+
 const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   {
     title: 'Symbol',
@@ -83,28 +107,33 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 160,
   },
   {
-    title: 'ERC20 Address',
+    title: 'Type',
+    key: 'type',
+    dataIndex: 'type',
+    width: 100,
+    render: (value, data) => (
+      <Box direction="row" justify="start">
+        {value.toUpperCase()}
+      </Box>
+    ),
+  },
+  {
+    title: 'Origin Address',
     key: 'erc20Address',
     dataIndex: 'erc20Address',
     width: 280,
     render: (value, data) => (
-      <EthAddress value={value} network={data.network} />
+      getAssetAddress(data, "origin")
     ),
   },
   {
-    title: 'HRC20 Address',
+    title: 'Mapping Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
-    width: 300,
-    render: value => {
-      const address =
-        String(value).toLowerCase() ===
-        String(process.env.ONE_HRC20).toLowerCase()
-          ? String(value).toLowerCase()
-          : getChecksumAddress(value);
-
-      return oneAddress(address);
-    },
+    width: 280,
+    render: (value, data) => (
+      getAssetAddress(data, "mapping")
+    ),
   },
   // {
   //   title: 'Decimals',
@@ -134,14 +163,20 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'totalLockedUSD',
     defaultSort: 'asc',
     dataIndex: 'totalLockedUSD',
-    width: 210,
+    width: 200,
     className: styles.rightHeaderSort,
     align: 'right',
-    render: value => (
-      <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-        ${formatWithTwoDecimals(value)}
+    render: (value, data) => {
+      let lockedMoney;
+      if (data.type.indexOf("721") !== -1 || data.type.indexOf("1155") !== -1) {
+        lockedMoney = '-';
+      } else {
+        lockedMoney = "$"+formatWithTwoDecimals(value);
+      }
+      return <Box direction="column" justify="center" pad={{ right: 'medium' }}>
+        {lockedMoney}
       </Box>
-    ),
+    },
   },
 ];
 
@@ -174,7 +209,7 @@ export const Tokens = observer((props: any) => {
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
   const filteredData = tokens.allData.filter(token => {
-    if (!Number(token.totalSupply)) {
+    if ((token.type === "erc20" || token.type === "hrc20") && !Number(token.totalSupply)) {
       return false;
     }
 
@@ -269,11 +304,15 @@ export const Tokens = observer((props: any) => {
                 <Text>Token:</Text>
                 <Select
                   size="full"
+                  value={tokenType}
                   options={[
                     { text: 'ALL', value: 'ALL' },
                     { text: 'ERC20', value: TOKEN.ERC20 },
                     { text: 'HRC20', value: TOKEN.HRC20 },
                     { text: 'ERC721', value: TOKEN.ERC721 },
+                    { text: 'ERC1155', value: TOKEN.ERC1155 },
+                    { text: 'HRC721', value: TOKEN.HRC721 },
+                    { text: 'HRC1155', value: TOKEN.HRC1155 },
                   ]}
                   onChange={setToken}
                 />
