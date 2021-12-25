@@ -3,15 +3,20 @@ import { statusFetching } from '../constants';
 import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
-  getExNetworkMethods, hmyMethodsBEP1155,
-  hmyMethodsBEP20, hmyMethodsBEP721, hmyMethodsERC1155,
+  getExNetworkMethods,
+  hmyMethodsBEP1155,
+  hmyMethodsBEP20,
+  hmyMethodsBEP721,
+  hmyMethodsERC1155,
   hmyMethodsERC20,
-  hmyMethodsERC721, hmyMethodsHRC1155,
+  hmyMethodsERC721,
+  hmyMethodsPERC1155,
+  hmyMethodsPERC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
-import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
+import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
 
@@ -102,14 +107,17 @@ export class UserStoreMetamask extends StoreConstructor {
             return Number(this.metamaskChainId) === 42;
           case NETWORK_TYPE.BINANCE:
             return Number(this.metamaskChainId) === 97;
+          case NETWORK_TYPE.POLYGON:
+            return Number(this.metamaskChainId) === 80001;
         }
-
       case 'mainnet':
         switch (this.stores.exchange.network) {
           case NETWORK_TYPE.ETHEREUM:
             return Number(this.metamaskChainId) === 1;
           case NETWORK_TYPE.BINANCE:
             return Number(this.metamaskChainId) === 56;
+          case NETWORK_TYPE.POLYGON:
+            return Number(this.metamaskChainId) === 137;
         }
     }
 
@@ -500,12 +508,18 @@ export class UserStoreMetamask extends StoreConstructor {
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
-    const hmyMethodsBase =
-      this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
-        ? hmyMethodsERC721
-        : hmyMethodsBEP721;
+    const networkMap = {
+      [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC721,
+      [NETWORK_TYPE.BINANCE]: hmyMethodsBEP721,
+      [NETWORK_TYPE.POLYGON]: hmyMethodsPERC721,
+    }
 
-    const address = await hmyMethodsBase.hmyMethods.getMappingFor(
+    const hmyMethodsBase = networkMap[this.stores.exchange.network]
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    const address = await hmyMethods.getMappingFor(
       erc20Address,
     );
 
@@ -584,12 +598,18 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = { ...details, decimals: '0' };
     this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
 
-    const hmyMethodsBase =
-      this.stores.exchange.network === NETWORK_TYPE.ETHEREUM
-        ? hmyMethodsERC1155
-        : hmyMethodsBEP1155;
+    const networkMap = {
+      [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC1155,
+      [NETWORK_TYPE.BINANCE]: hmyMethodsBEP1155,
+      [NETWORK_TYPE.POLYGON]: hmyMethodsPERC1155,
+    }
 
-    const address = await hmyMethodsBase.hmyMethods.getMappingFor(
+    const hmyMethodsBase = networkMap[this.stores.exchange.network]
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    const address = await hmyMethods.getMappingFor(
       erc1155Address,
     );
 

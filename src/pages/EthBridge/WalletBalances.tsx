@@ -29,18 +29,18 @@ const AssetRow = observer<any>(props => {
         props.last ? '' : styles.underline,
       )}
     >
-      <Box direction="row" align="center" justify="center">
+      <Box direction='row' align='center' justify='center'>
         <Text color={props.selected ? '#00ADE8' : null} bold={false}>
           <SliceTooltip value={props.asset} maxLength={18} />
         </Text>
         {props.link ? (
           <a
             href={props.link}
-            target="_blank"
+            target='_blank'
             style={{ textDecoration: 'none' }}
           >
             <Icon
-              glyph="ExternalLink"
+              glyph='ExternalLink'
               style={{ width: 14, margin: '0 5px 2px 10px' }}
             />
           </a>
@@ -55,7 +55,7 @@ const AssetRow = observer<any>(props => {
         ) : null}
       </Box>
 
-      <Box direction="column" align="end">
+      <Box direction='column' align='end'>
         <Box className={styles.priceColumn}>
           <Text color={props.selected ? '#00ADE8' : null} bold={true}>
             {props.value}
@@ -77,37 +77,57 @@ export const WalletBalances = observer(() => {
   const externalNetworkIcon = NETWORK_ICON[exchange.network];
   const externalNetworkToken = NETWORK_BASE_TOKEN[exchange.network];
 
-  const externalSubNetworkName =
-    exchange.network === NETWORK_TYPE.ETHEREUM
-      ? process.env.NETWORK === 'mainnet'
+  let externalSubNetworkName;
+
+  /**
+   *     exchange.network === NETWORK_TYPE.ETHEREUM
+   *       ? process.env.NETWORK === 'mainnet'
+   *         ? 'mainnet'
+   *         : 'kovan'
+   *       : process.env.NETWORK === 'mainnet'
+   *       ? 'mainnet'
+   *       : 'testnet';
+   */
+  switch (exchange.network) {
+    case NETWORK_TYPE.ETHEREUM:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
         ? 'mainnet'
-        : 'kovan'
-      : process.env.NETWORK === 'mainnet'
-      ? 'mainnet'
-      : 'testnet';
+        : 'kovan';
+      break;
+    case NETWORK_TYPE.BINANCE:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'testnet';
+      break;
+    case NETWORK_TYPE.POLYGON:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'mumbai';
+      break;
+  }
 
   return (
     <Box
-      direction="column"
+      direction='column'
       className={styles.walletBalances}
       margin={{ vertical: 'medium' }}
     >
       {/*<Title>Wallet Info</Title>*/}
 
       <Box className={styles.container}>
-        <Box direction="column" margin={{ bottom: 'large' }}>
+        <Box direction='column' margin={{ bottom: 'large' }}>
           <Box
-            direction="row"
-            align="center"
-            justify="between"
+            direction='row'
+            align='center'
+            justify='between'
             margin={{ bottom: 'xsmall' }}
           >
-            <Box direction="column" align="center">
-              <Box direction="row" align="center">
+            <Box direction='column' align='center'>
+              <Box direction='row' align='center'>
                 <img
                   className={styles.imgToken}
                   style={{ height: 20 }}
-                  src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+                  src={externalNetworkIcon}
                 />
                 <Title margin={{ right: 'xsmall' }}>
                   {externalNetworkName}
@@ -120,8 +140,8 @@ export const WalletBalances = observer(() => {
 
             {userMetamask.isAuthorized && (
               <Box
-                direction="row"
-                align="center"
+                direction='row'
+                align='center'
                 pad={{ horizontal: 'small', vertical: 'xxsmall' }}
                 style={{
                   border: '1px solid #dedede',
@@ -135,7 +155,7 @@ export const WalletBalances = observer(() => {
                 {userMetamask.isAuthorized && (
                   <>
                     <img
-                      src="/metamask.svg"
+                      src='/metamask.svg'
                       style={{ marginTop: -2, marginRight: 5, height: 20 }}
                     />
                     {!isMobile ? (
@@ -145,10 +165,10 @@ export const WalletBalances = observer(() => {
                 )}
 
                 <Icon
-                  glyph="Logout"
-                  size="24px"
+                  glyph='Logout'
+                  size='24px'
                   style={{ opacity: 0.5 }}
-                  color="BlackTxt"
+                  color='BlackTxt'
                 />
               </Box>
             )}
@@ -226,7 +246,7 @@ export const WalletBalances = observer(() => {
               error={userMetamask.error}
             >
               <img
-                src="/metamask.svg"
+                src='/metamask.svg'
                 style={{ marginRight: 15, height: 22 }}
               />
               Metamask
@@ -234,16 +254,16 @@ export const WalletBalances = observer(() => {
           )}
         </Box>
 
-        <Box direction="column">
+        <Box direction='column'>
           <Box
-            direction="row"
-            align="center"
-            justify="between"
+            direction='row'
+            align='center'
+            justify='between'
             margin={{ bottom: 'xsmall' }}
           >
-            <Box direction="column" align="center">
-              <Box direction="row" align="center">
-                <img className={styles.imgToken} src="/one.svg" />
+            <Box direction='column' align='center'>
+              <Box direction='row' align='center'>
+                <img className={styles.imgToken} src='/one.svg' />
                 <Title margin={{ right: 'xsmall' }}>Harmony</Title>
               </Box>
               <Text style={{ marginTop: 0 }}>
@@ -254,8 +274,8 @@ export const WalletBalances = observer(() => {
 
             {user.isAuthorized && (
               <Box
-                direction="row"
-                align="center"
+                direction='row'
+                align='center'
                 pad={{ horizontal: 'small', vertical: 'xxsmall' }}
                 style={{
                   border: '1px solid #dedede',
@@ -285,10 +305,10 @@ export const WalletBalances = observer(() => {
                 )}
 
                 <Icon
-                  glyph="Logout"
-                  size="24px"
+                  glyph='Logout'
+                  size='24px'
                   style={{ opacity: 0.5 }}
-                  color="BlackTxt"
+                  color='BlackTxt'
                 />
               </Box>
             )}
@@ -306,9 +326,9 @@ export const WalletBalances = observer(() => {
                   </span>
                   . Please{' '}
                   <a
-                    href="https://docs.harmony.one/home/developers/wallets/metamask"
-                    target="_blank"
-                    rel="noopener norefferer"
+                    href='https://docs.harmony.one/home/developers/wallets/metamask'
+                    target='_blank'
+                    rel='noopener norefferer'
                   >
                     add
                   </a>{' '}
@@ -319,12 +339,12 @@ export const WalletBalances = observer(() => {
             ) : (
               <>
                 <AssetRow
-                  asset="Harmony Address"
+                  asset='Harmony Address'
                   value={truncateAddressString(user.address, isMobile ? 6 : 12)}
                 />
 
                 <AssetRow
-                  asset="Harmony ONE"
+                  asset='Harmony ONE'
                   value={formatWithSixDecimals(ones(user.balance))}
                   selected={[TOKEN.ONE].includes(exchange.token)}
                 />
@@ -470,7 +490,7 @@ export const WalletBalances = observer(() => {
                 {exchange.network === NETWORK_TYPE.ETHEREUM ? (
                   <>
                     <AssetRow
-                      asset="Harmony BUSD"
+                      asset='Harmony BUSD'
                       value={formatWithSixDecimals(user.hmyBUSDBalance)}
                       selected={exchange.token === TOKEN.BUSD}
                       link={`${
@@ -481,7 +501,7 @@ export const WalletBalances = observer(() => {
                     />
 
                     <AssetRow
-                      asset="Harmony LINK"
+                      asset='Harmony LINK'
                       value={formatWithSixDecimals(user.hmyLINKBalance)}
                       selected={exchange.token === TOKEN.LINK}
                       link={`${
@@ -495,7 +515,7 @@ export const WalletBalances = observer(() => {
               </>
             )
           ) : (
-            <Box direction="column" justify="start" align="start">
+            <Box direction='column' justify='start' align='start'>
               {!isMobile ? (
                 <WalletButton
                   onClick={() => {
@@ -516,7 +536,7 @@ export const WalletBalances = observer(() => {
                   error={!user.isOneWallet && 'ONE Wallet not found'}
                 >
                   <img
-                    src="/one.svg"
+                    src='/one.svg'
                     style={{ marginRight: 10, marginTop: -2 }}
                   />
                   One Wallet
@@ -530,7 +550,7 @@ export const WalletBalances = observer(() => {
                 error={user.error}
               >
                 <img
-                  src="/metamask.svg"
+                  src='/metamask.svg'
                   style={{ marginRight: 15, height: 22 }}
                 />
                 Metamask

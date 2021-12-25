@@ -410,6 +410,19 @@ export class Exchange extends React.Component<
         break;
     }
 
+    let ercPrefix = ""
+    switch (exchange.network){
+      case NETWORK_TYPE.BINANCE:
+        ercPrefix = "ERC"
+        break
+      case NETWORK_TYPE.POLYGON:
+        ercPrefix = "PERC"
+        break
+      case NETWORK_TYPE.ETHEREUM:
+        ercPrefix = "BEP"
+        break
+    }
+
     const Status = () => (
       <Box
         direction="column"
@@ -549,9 +562,7 @@ export class Exchange extends React.Component<
                   src={NETWORK_ICON[exchange.network]}
                 />
                 <Text>
-                  {exchange.network === NETWORK_TYPE.ETHEREUM
-                    ? 'ERC20'
-                    : 'BEP20'}
+                  {`${ercPrefix}20`}
                 </Text>
               </Box>
             )}
@@ -594,9 +605,7 @@ export class Exchange extends React.Component<
                   src={NETWORK_ICON[exchange.network]}
                 />
                 <Text>
-                  {exchange.network === NETWORK_TYPE.ETHEREUM
-                    ? 'ERC721'
-                    : 'BEP721'}
+                  {`${ercPrefix}721`}
                 </Text>
               </Box>
             )}
@@ -639,9 +648,7 @@ export class Exchange extends React.Component<
                   src={NETWORK_ICON[exchange.network]}
                 />
                 <Text>
-                  {exchange.network === NETWORK_TYPE.ETHEREUM
-                    ? 'ERC1155'
-                    : 'BEP1155'}
+                  {`${ercPrefix}1155`}
                 </Text>
               </Box>
             )}

@@ -39,55 +39,56 @@ export const getContractMethods = (
           : contract.hmyMethodsBEP20.hmyMethods;
       }
       break;
-    case TOKEN.HRC721:
+    case TOKEN.HRC721:{
       ethMethods = exNetwork.ethMethodsHRC721;
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsHRC721.hmyMethodsWeb3
-          : contract.hmyMethodsHRC721.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBHrc721.hmyMethodsWeb3
-          : contract.hmyMethodsBHrc721.hmyMethods;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsHRC721,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBHRC721,
+        [NETWORK_TYPE.POLYGON]: contract.hmyMethodsPHRC721,
       }
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
       break;
-    case TOKEN.HRC1155:
+    }
+    case TOKEN.HRC1155:{
       ethMethods = exNetwork.ethMethodsHRC1155;
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsHRC1155.hmyMethodsWeb3
-          : contract.hmyMethodsHRC1155.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBHrc1155.hmyMethodsWeb3
-          : contract.hmyMethodsBHrc1155.hmyMethods;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsHRC1155,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBHRC1155,
+        [NETWORK_TYPE.POLYGON]: contract.hmyMethodsPHRC1155,
       }
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
       break;
-    case TOKEN.ERC1155:
+    }
+    case TOKEN.ERC1155:{
       ethMethods = exNetwork.ethMethodsERC1155;
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsERC1155.hmyMethodsWeb3
-          : contract.hmyMethodsERC1155.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBEP1155.hmyMethodsWeb3
-          : contract.hmyMethodsBEP1155.hmyMethods;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsERC1155,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBEP1155,
+        [NETWORK_TYPE.POLYGON]: contract.hmyMethodsPERC1155,
       }
-      break;
-    case TOKEN.ERC721:
-      ethMethods = exNetwork.ethMethodsERС721;
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsERC721.hmyMethodsWeb3
-          : contract.hmyMethodsERC721.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBEP721.hmyMethodsWeb3
-          : contract.hmyMethodsBEP721.hmyMethods;
-      }
-      break;
 
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
+      break;
+    }
+    case TOKEN.ERC721:{
+      ethMethods = exNetwork.ethMethodsERС721;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsERC721,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBEP721,
+        [NETWORK_TYPE.POLYGON]: contract.hmyMethodsPERC721,
+      }
+
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
+      break;
+    }
     case TOKEN.HRC20:
       ethMethods = exNetwork.ethMethodsHRC20;
       if (network === NETWORK_TYPE.ETHEREUM) {

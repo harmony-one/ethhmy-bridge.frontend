@@ -12,7 +12,7 @@ import {
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
-import { getDepositAmount, getOpenSeaSingleAsset } from 'services';
+import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
@@ -1036,6 +1036,10 @@ export class Exchange extends StoreConstructor {
       return this.fullConfig.binanceClient;
     }
 
+    if (this.network === NETWORK_TYPE.POLYGON) {
+      return this.fullConfig.polygonClient;
+    }
+
     return this.fullConfig.ethClient;
   }
 
@@ -1049,6 +1053,8 @@ export class Exchange extends StoreConstructor {
         return this.fullConfig.binanceClient.explorerURL;
       case NETWORK_TYPE.ETHEREUM:
         return this.fullConfig.ethClient.explorerURL;
+      case NETWORK_TYPE.POLYGON:
+        return this.fullConfig.polygonClient.explorerURL;
     }
   }
 }

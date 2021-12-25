@@ -6,7 +6,7 @@ export const getStepsTitle = (
   network: NETWORK_TYPE,
 ) => {
   if ((token === TOKEN.ERC721 || token === TOKEN.HRC721) && action === ACTION_TYPE.getHRC20Address) {
-    return 'Register user ERC72 on Harmony';
+    return 'Register user ERC721 on Harmony';
   }
 
   switch (network) {
