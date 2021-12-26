@@ -413,13 +413,13 @@ export class Exchange extends React.Component<
     let ercPrefix = ""
     switch (exchange.network){
       case NETWORK_TYPE.BINANCE:
-        ercPrefix = "ERC"
+        ercPrefix = "BEP"
         break
       case NETWORK_TYPE.POLYGON:
         ercPrefix = "PERC"
         break
       case NETWORK_TYPE.ETHEREUM:
-        ercPrefix = "BEP"
+        ercPrefix = "ERC"
         break
     }
 

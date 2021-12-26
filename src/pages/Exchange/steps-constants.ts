@@ -14,6 +14,8 @@ export const getStepsTitle = (
       return STEPS_TITLE_ETHEREUM[action];
     case NETWORK_TYPE.BINANCE:
       return STEPS_TITLE_BINANCE[action];
+    case NETWORK_TYPE.POLYGON:
+      return STEPS_TITLE_POLYGON[action];
     default:
       return STEPS_TITLE_ETHEREUM[action];
   }
@@ -82,6 +84,72 @@ const STEPS_TITLE_BINANCE: Record<ACTION_TYPE, string> = {
   mintERC1155Token: 'Bridge mint tokens on Binance Smart Chain',
   unlockERC1155TokenRollback: 'Mint failed, unlocking tokens on Harmony',
   mintERC1155TokenRollback: 'Unlock failed, minting back the burned tokens on Binance Smart Chain',
+};
+
+
+const STEPS_TITLE_POLYGON: Record<ACTION_TYPE, string> = {
+  depositOne: 'Deposit ONE tokens',
+  withdrawOne: 'Withdraw ONE tokens',
+
+  getHRC20Address: 'Register user BEP20 on Harmony',
+  approveEthManger: 'User approve bridge to lock tokens ',
+  lockToken: 'Bridge lock tokens on Polygon',
+  waitingBlockNumber: 'Wait for 15 block confirmations',
+  mintToken: 'Bridge mint tokens on Harmony',
+  mintTokenRollback: 'Unlock failed, minting back the burned tokens on Harmony',
+  topUpAccount: 'Top up user account to 0.001 ONE',
+
+  // ONE TO ETH
+  approveHmyManger: 'User approve bridge to burn tokens',
+  burnToken: 'Bridge burn tokens on Harmony',
+  waitingBlockNumberHarmony: 'Wait for 13 block confirmations',
+  unlockToken: 'Bridge unlocks tokens on Polygon',
+  unlockTokenRollback: 'Mint failed, unlocking tokens on Polygon',
+
+  // HRC20
+  approveHRC20HmyManger: 'User approve bridge to lock tokens',
+  approveHRC20EthManger: 'User approve bridge to burn tokens',
+  getERC20Address: 'Register user HRC20 on Polygon',
+  lockHRC20Token: 'Bridge lock tokens on Harmony',
+  unlockHRC20Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC20Token: 'Bridge burn tokens on Polygon',
+  mintHRC20Token: 'Bridge mint tokens on Polygon',
+  unlockHRC20TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC20TokenRollback:
+    'Unlock failed, minting back the burned tokens on Polygon',
+
+  // HRC721
+  getHRC721Address: 'Register user HRC721 on Polygon',
+  approveHRC721HmyManger: 'User approve bridge to lock tokens',
+  approveHRC721EthManger: 'User approve bridge to burn tokens',
+  lockHRC721Token: 'Bridge lock tokens on Harmony',
+  unlockHRC721Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC721Token: 'Bridge burn tokens on Polygon',
+  mintHRC721Token: 'Bridge mint tokens on Polygon',
+  unlockHRC721TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC721TokenRollback: 'Unlock failed, minting back the burned tokens on Polygon',
+
+  // HRC1155
+  getHRC1155Address: 'Register user HRC1155 on Polygon',
+  approveHRC1155HmyManger: 'User approve bridge to lock tokens',
+  approveHRC1155EthManger: 'User approve bridge to burn tokens',
+  lockHRC1155Token: 'Bridge lock tokens on Harmony',
+  unlockHRC1155Token: 'Bridge unlocks tokens on Harmony',
+  burnHRC1155Token: 'Bridge burn tokens on Polygon',
+  mintHRC1155Token: 'Bridge mint tokens on Polygon',
+  unlockHRC1155TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintHRC1155TokenRollback: 'Unlock failed, minting back the burned tokens on Polygon',
+
+  // ERC1155
+  getERC1155Address: 'Register user ERC1155 on Polygon',
+  approveERC1155HmyManger: 'User approve bridge to lock tokens',
+  approveERC1155EthManger: 'User approve bridge to burn tokens',
+  lockERC1155Token: 'Bridge lock tokens on Harmony',
+  unlockERC1155Token: 'Bridge unlocks tokens on Harmony',
+  burnERC1155Token: 'Bridge burn tokens on Polygon',
+  mintERC1155Token: 'Bridge mint tokens on Polygon',
+  unlockERC1155TokenRollback: 'Mint failed, unlocking tokens on Harmony',
+  mintERC1155TokenRollback: 'Unlock failed, minting back the burned tokens on Polygon',
 };
 
 const STEPS_TITLE_ETHEREUM: Record<ACTION_TYPE, string> = {
