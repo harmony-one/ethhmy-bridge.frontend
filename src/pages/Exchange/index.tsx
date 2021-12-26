@@ -208,13 +208,13 @@ export class Exchange extends React.Component<
         this.props.tokens.allData.some(
           t =>
             t.erc20Address.toLowerCase() ===
-              exchange.transaction.ethAddress.toLowerCase() ||
+            exchange.transaction.ethAddress.toLowerCase() ||
             t.hrc20Address.toLowerCase() ===
-              exchange.transaction.ethAddress.toLowerCase() ||
+            exchange.transaction.ethAddress.toLowerCase() ||
             t.erc20Address.toLowerCase() ===
-              exchange.transaction.oneAddress.toLowerCase() ||
+            exchange.transaction.oneAddress.toLowerCase() ||
             t.hrc20Address.toLowerCase() ===
-              exchange.transaction.oneAddress.toLowerCase(),
+            exchange.transaction.oneAddress.toLowerCase(),
         )
       ) {
         this.addressValidationError =
@@ -411,12 +411,12 @@ export class Exchange extends React.Component<
     }
 
     let ercPrefix = ""
-    switch (exchange.network){
+    switch (exchange.network) {
       case NETWORK_TYPE.BINANCE:
         ercPrefix = "BEP"
         break
       case NETWORK_TYPE.POLYGON:
-        ercPrefix = "PERC"
+        ercPrefix = "ERC"
         break
       case NETWORK_TYPE.ETHEREUM:
         ercPrefix = "ERC"
@@ -464,110 +464,114 @@ export class Exchange extends React.Component<
     return (
       <Box direction="column" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE && exchange.fullConfig ? (
-          <Box direction="row" wrap={true} align="center" justify="start">
-            {exchange.config.tokens.includes(TOKEN.BUSD) && (
-              <Box
-                style={{ width: 140 }}
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.BUSD ? styles.selected : '',
-                )}
-                onClick={() => {
-                  exchange.setToken(TOKEN.BUSD);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img className={styles.imgToken} src="/busd.svg" />
-                <Text>BUSD</Text>
-              </Box>
+          <Box>
+            {exchange.network != NETWORK_TYPE.POLYGON && (
+              <Text size="large" bold>Token</Text>
             )}
+            <Box direction="row" wrap={true} align="center" justify="start">
+              {exchange.config.tokens.includes(TOKEN.BUSD) && (
+                <Box
+                  style={{ width: 140 }}
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.BUSD ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    exchange.setToken(TOKEN.BUSD);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img className={styles.imgToken} src="/busd.svg" />
+                  <Text>BUSD</Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.LINK) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.LINK ? styles.selected : '',
-                )}
-                onClick={() => {
-                  exchange.setToken(TOKEN.LINK);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img className={styles.imgToken} src="/link.png" />
-                <Text>LINK</Text>
-              </Box>
-            )}
+              {exchange.config.tokens.includes(TOKEN.LINK) && (
+                <Box
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.LINK ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    exchange.setToken(TOKEN.LINK);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img className={styles.imgToken} src="/link.png" />
+                  <Text>LINK</Text>
+                </Box>
+              )}
 
 
-            {exchange.config.tokens.includes(TOKEN.ETH) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ETH ? styles.selected : '',
-                )}
-                onClick={() => {
-                  routing.push(`/${exchange.token}`);
-                  exchange.setToken(TOKEN.ETH);
-                }}
-              >
-                <img
-                  className={styles.imgToken}
-                  src={NETWORK_ICON[exchange.network]}
-                />
-                <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
-              </Box>
-            )}
+              {exchange.config.tokens.includes(TOKEN.ETH) && (
+                <Box
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.ETH ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    routing.push(`/${exchange.token}`);
+                    exchange.setToken(TOKEN.ETH);
+                  }}
+                >
+                  <img
+                    className={styles.imgToken}
+                    src={NETWORK_ICON[exchange.network]}
+                  />
+                  <Text>{NETWORK_BASE_TOKEN[exchange.network]}</Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.ONE) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ONE ? styles.selected : '',
-                )}
-                onClick={() => {
-                  exchange.setToken(TOKEN.ONE);
-                  routing.push(`/${exchange.token}`);
+              {exchange.config.tokens.includes(TOKEN.ONE) && (
+                <Box
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.ONE ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    exchange.setToken(TOKEN.ONE);
+                    routing.push(`/${exchange.token}`);
 
-                  // user.setHRC20Mapping(process.env.ONE_HRC20, true);
+                    // user.setHRC20Mapping(process.env.ONE_HRC20, true);
 
-                  // user.setHRC20Token(process.env.ONE_HRC20);
-                  // userMetamask.setTokenDetails({
-                  //   name: 'Ethereum ONE',
-                  //   decimals: '18',
-                  //   erc20Address: '',
-                  //   symbol: 'ONE',
-                  // });
-                }}
-              >
-                <img className={styles.imgToken} src="/one.svg" />
-                <Text>ONE</Text>
-              </Box>
-            )}
+                    // user.setHRC20Token(process.env.ONE_HRC20);
+                    // userMetamask.setTokenDetails({
+                    //   name: 'Ethereum ONE',
+                    //   decimals: '18',
+                    //   erc20Address: '',
+                    //   symbol: 'ONE',
+                    // });
+                  }}
+                >
+                  <img className={styles.imgToken} src="/one.svg" />
+                  <Text>ONE</Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.ERC20) && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ERC20 ? styles.selected : '',
-                )}
-                onClick={() => {
-                  user.resetTokens();
+              {exchange.config.tokens.includes(TOKEN.ERC20) && (
+                <Box
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.ERC20 ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    user.resetTokens();
 
-                  exchange.setToken(TOKEN.ERC20);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img
-                  className={styles.imgToken}
-                  src={NETWORK_ICON[exchange.network]}
-                />
-                <Text>
-                  {`${ercPrefix}20`}
-                </Text>
-              </Box>
-            )}
+                    exchange.setToken(TOKEN.ERC20);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img
+                    className={styles.imgToken}
+                    src={NETWORK_ICON[exchange.network]}
+                  />
+                  <Text>
+                    {`${ercPrefix}20`}
+                  </Text>
+                </Box>
+              )}
 
-            {exchange.network === NETWORK_TYPE.BINANCE &&
+              {exchange.network === NETWORK_TYPE.BINANCE &&
               exchange.config.tokens.includes(TOKEN.HRC20) && (
                 <Box
                   className={cn(
@@ -585,92 +589,96 @@ export class Exchange extends React.Component<
                   <Text>HRC20</Text>
                 </Box>
               )}
+            </Box>
 
-            {exchange.config.tokens.includes(TOKEN.ERC721) && (
-              <Box
-                style={{ width: 140 }}
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ERC721 ? styles.selected : '',
-                )}
-                onClick={() => {
-                  user.resetTokens();
+            <Text size="large" bold>NFT</Text>
+            <Box direction="row" wrap={true} align="center" justify="start">
+              {exchange.config.tokens.includes(TOKEN.ERC721) && (
+                <Box
+                  style={{ width: 140 }}
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.ERC721 ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    user.resetTokens();
 
-                  exchange.setToken(TOKEN.ERC721);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img
-                  className={styles.imgToken}
-                  src={NETWORK_ICON[exchange.network]}
-                />
-                <Text>
-                  {`${ercPrefix}721`}
-                </Text>
-              </Box>
-            )}
+                    exchange.setToken(TOKEN.ERC721);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img
+                    className={styles.imgToken}
+                    src={NETWORK_ICON[exchange.network]}
+                  />
+                  <Text>
+                    {`${ercPrefix}721`}
+                  </Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.HRC721) && (
-              <Box
-                style={{ width: 140 }}
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.HRC721 ? styles.selected : '',
-                )}
-                onClick={() => {
-                  user.resetTokens();
+              {exchange.config.tokens.includes(TOKEN.HRC721) && (
+                <Box
+                  style={{ width: 140 }}
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.HRC721 ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    user.resetTokens();
 
-                  exchange.setToken(TOKEN.HRC721);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img className={styles.imgToken} src="/one.svg" />
-                <Text>HRC721</Text>
-              </Box>
-            )}
+                    exchange.setToken(TOKEN.HRC721);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img className={styles.imgToken} src="/one.svg" />
+                  <Text>HRC721</Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.ERC1155) && (
-              <Box
-                style={{ width: 140 }}
-                className={cn(
-                  styles.itemToken,
-                  exchange.token === TOKEN.ERC1155 ? styles.selected : '',
-                )}
-                onClick={() => {
-                  user.resetTokens();
+              {exchange.config.tokens.includes(TOKEN.ERC1155) && (
+                <Box
+                  style={{ width: 140 }}
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.ERC1155 ? styles.selected : '',
+                  )}
+                  onClick={() => {
+                    user.resetTokens();
 
-                  exchange.setToken(TOKEN.ERC1155);
-                  routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img
-                  className={styles.imgToken}
-                  src={NETWORK_ICON[exchange.network]}
-                />
-                <Text>
-                  {`${ercPrefix}1155`}
-                </Text>
-              </Box>
-            )}
+                    exchange.setToken(TOKEN.ERC1155);
+                    routing.push(`/${exchange.token}`);
+                  }}
+                >
+                  <img
+                    className={styles.imgToken}
+                    src={NETWORK_ICON[exchange.network]}
+                  />
+                  <Text>
+                    {`${ercPrefix}1155`}
+                  </Text>
+                </Box>
+              )}
 
-            {exchange.config.tokens.includes(TOKEN.HRC1155) && (
-              <Box
-                style={{ width: 140 }}
-                className={cn(
-                        styles.itemToken,
-                        exchange.token === TOKEN.HRC1155 ? styles.selected : '',
-                )}
-                onClick={() => {
+              {exchange.config.tokens.includes(TOKEN.HRC1155) && (
+                <Box
+                  style={{ width: 140 }}
+                  className={cn(
+                    styles.itemToken,
+                    exchange.token === TOKEN.HRC1155 ? styles.selected : '',
+                  )}
+                  onClick={() => {
                     user.resetTokens();
 
                     exchange.setToken(TOKEN.HRC1155);
                     routing.push(`/${exchange.token}`);
-                }}
-              >
-                <img className={styles.imgToken} src="/one.svg" />
-                <Text>HRC1155</Text>
-              </Box>
-             )}
+                  }}
+                >
+                  <img className={styles.imgToken} src="/one.svg" />
+                  <Text>HRC1155</Text>
+                </Box>
+              )}
+            </Box>
           </Box>
         ) : null}
         <Form
@@ -771,7 +779,7 @@ export class Exchange extends React.Component<
                       },
                     ]}
                   />
-                ): (
+                ) : (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
                     name="amount"

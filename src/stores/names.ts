@@ -9,7 +9,7 @@ export const NETWORK_NAME = {
 export const NETWORK_ICON = {
   [NETWORK_TYPE.ETHEREUM]: '/eth.svg',
   [NETWORK_TYPE.BINANCE]: '/binance.png',
-  [NETWORK_TYPE.POLYGON]: '/polygon.jpg',
+  [NETWORK_TYPE.POLYGON]: '/polygon.png',
 };
 
 export const NETWORK_BASE_TOKEN = {

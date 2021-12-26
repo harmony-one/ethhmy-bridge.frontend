@@ -36,7 +36,7 @@ const LargeButton = observer(
         networkName = 'ETH'
         break
       case  NETWORK_TYPE.POLYGON:
-        networkImg = '/polygon.jpg'
+        networkImg = '/polygon.png'
         networkName = 'Polygon'
         break
       case  NETWORK_TYPE.BINANCE:
@@ -171,8 +171,9 @@ export const EthBridge = observer((props: any) => {
           <Box direction="column">
             <Box direction="column" margin={{ top: 'large' }}>
               <Box direction="row" justify="start" gap="20px">
-                <NetworkButton type={NETWORK_TYPE.BINANCE} />
                 <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+                <NetworkButton type={NETWORK_TYPE.BINANCE} />
+                <NetworkButton type={NETWORK_TYPE.POLYGON} />
               </Box>
 
               <WalletBalances />
@@ -281,8 +282,8 @@ export const EthBridge = observer((props: any) => {
 
           <Box direction="column" margin={{ top: 'large' }}>
             <Box direction="row" justify="start" gap="20px">
-              <NetworkButton type={NETWORK_TYPE.BINANCE} />
               <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+              <NetworkButton type={NETWORK_TYPE.BINANCE} />
               <NetworkButton type={NETWORK_TYPE.POLYGON} />
             </Box>
             <WalletBalances />
