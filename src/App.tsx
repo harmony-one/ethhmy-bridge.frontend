@@ -14,6 +14,7 @@ import { InfoPage } from './pages/Info';
 import { TransactionExample, Hrc20ContractExample } from './pages/Examples';
 import { StuckOperations } from './pages/Explorer/StuckOperations';
 import { AdminExplorer } from './pages/Explorer/AdminExplorer';
+import { AdminExplorerFullHistory } from './pages/Explorer/AdminExplorerFullHistory';
 import { HelpPage } from './interfaces/NeedHelp';
 
 export const App: React.FC = () => (
@@ -31,7 +32,14 @@ export const App: React.FC = () => (
         <Route exact path="/info" component={InfoPage} />
         <Route exact path="/explorer/:validator?" component={Explorer} />
         <Route exact path="/stuck-operations" component={StuckOperations} />} />
-        <Route exact path="/admin-explorer" component={AdminExplorer} />} />
+        <Route exact path="/admin-explorer" component={AdminExplorer} />
+        } />
+        <Route
+          exact
+          path="/admin-explorer-full-history"
+          component={AdminExplorerFullHistory}
+        />
+        } />
         <Route exact path="/:token" component={EthBridge} />
         <Route
           exact

@@ -36,7 +36,7 @@ export interface IColumn<P = any> {
   className?: string;
 }
 
-interface IProps{
+interface IProps {
   data?: any[];
   columns: IColumn[];
   tableParams?: TableProps;
@@ -49,7 +49,9 @@ interface IProps{
   options?: ITableOptions;
   scroll?: { x?: string | number; y?: string | number };
   customItem?: {
-    render: React.FunctionComponent<{ params: any }> | React.ComponentClass<{ params: any }>;
+    render:
+      | React.FunctionComponent<{ params: any }>
+      | React.ComponentClass<{ params: any }>;
     bodyStyle?: any;
     bodyClassName?: string;
     dir?: 'row' | 'column';
@@ -152,18 +154,18 @@ export class Table extends React.Component<IProps> {
               customItem.bodyStyle || customItem.bodyClassName
                 ? customItem.bodyStyle
                 : {
-                  display: 'flex',
-                  flexDirection: customItem.dir || 'column',
-                  flexWrap: customItem.wrap || 'no-wrap',
-                  justifyContent: 'flex-start',
-                  alignItems: 'flex-start',
-                  margin: customItem.wrapMargin
-                    ? `-${customItem.wrapMargin} 0 0 -${customItem.wrapMargin}`
-                    : '0',
-                  width: customItem.wrapMargin
-                    ? `calc(100% + 2 * ${customItem.wrapMargin})`
-                    : 'auto',
-                }
+                    display: 'flex',
+                    flexDirection: customItem.dir || 'column',
+                    flexWrap: customItem.wrap || 'no-wrap',
+                    justifyContent: 'flex-start',
+                    alignItems: 'flex-start',
+                    margin: customItem.wrapMargin
+                      ? `-${customItem.wrapMargin} 0 0 -${customItem.wrapMargin}`
+                      : '0',
+                    width: customItem.wrapMargin
+                      ? `calc(100% + 2 * ${customItem.wrapMargin})`
+                      : 'auto',
+                  }
             }
             className={customItem.bodyClassName}
           >
@@ -192,6 +194,7 @@ export class Table extends React.Component<IProps> {
         )}
         {!hidePagination && (
           <CustomPagination
+            type="paging"
             config={paginationData}
             onChange={config => {
               onChangeDataFlow({ paginationData: config });
