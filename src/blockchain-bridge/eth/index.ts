@@ -172,11 +172,12 @@ const init = (config: TConfig): INetworkMethods => {
   };
 };
 
-let ethNetwork: INetworkMethods, binanceNetwork: INetworkMethods;
+let ethNetwork: INetworkMethods, binanceNetwork: INetworkMethods, polygonNetwork: INetworkMethods;
 
 export const initNetworks = (fullCinfig: TFullConfig) => {
   ethNetwork = init(fullCinfig.ethClient);
   binanceNetwork = init(fullCinfig.binanceClient);
+  polygonNetwork = init(fullCinfig.polygonClient);
 };
 
 export const getExNetworkMethods = (): INetworkMethods => {
@@ -185,5 +186,7 @@ export const getExNetworkMethods = (): INetworkMethods => {
       return ethNetwork;
     case NETWORK_TYPE.BINANCE:
       return binanceNetwork;
+    case NETWORK_TYPE.POLYGON:
+      return polygonNetwork;
   }
 };

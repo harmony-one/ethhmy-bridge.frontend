@@ -24,6 +24,18 @@ const labels: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC20]: 'BEP20 token address',
     [TOKEN.ERC721]: 'ERC721 token address',
     [TOKEN.HRC20]: 'HRC20 token address',
+    [TOKEN.ERC721]: 'BEP721 token address',
+    [TOKEN.HRC721]: 'HRC721 token address',
+    [TOKEN.ERC1155]: 'BEP1155 token address',
+    [TOKEN.HRC1155]: 'HRC1155 token address',
+  },
+  [NETWORK_TYPE.POLYGON]: {
+    [TOKEN.ERC20]: 'ERC20 token address',
+    [TOKEN.ERC721]: 'ERC721 token address',
+    [TOKEN.HRC721]: 'HRC721 token address',
+    [TOKEN.ERC1155]: 'ERC1155 token address',
+    [TOKEN.HRC1155]: 'HRC1155 token address',
+    [TOKEN.HRC20]: 'HRC20 token address',
   },
 };
 
@@ -40,6 +52,18 @@ const placeholder: Record<NETWORK_TYPE, Record<string, string>> = {
     [TOKEN.ERC20]: 'Select your BEP20 token',
     [TOKEN.ERC721]: 'Select your ERC721 token',
     [TOKEN.HRC20]: 'Select your HRC20 token',
+    [TOKEN.ERC721]: 'Select your BEP721 token',
+    [TOKEN.HRC721]: 'Select your HRC721 token',
+    [TOKEN.ERC1155]: 'Select your BEP1155 token',
+    [TOKEN.HRC1155]: 'Select your HRC1155 token',
+  },
+  [NETWORK_TYPE.POLYGON]: {
+    [TOKEN.ERC20]: 'Select your ERC20 token',
+    [TOKEN.ERC721]: 'Select your ERC721 token',
+    [TOKEN.HRC721]: 'Select your HRC721 token',
+    [TOKEN.ERC1155]: 'Select your ERC1155 token',
+    [TOKEN.HRC1155]: 'Select your HRC1155 token',
+    [TOKEN.HRC20]: 'Select your HRC20 token',
   },
 };
 
@@ -55,6 +79,18 @@ const inputPlaceholder: Record<NETWORK_TYPE, Record<string, string>> = {
   [NETWORK_TYPE.BINANCE]: {
     [TOKEN.ERC20]: 'Input BEP20 token address',
     [TOKEN.ERC721]: 'Input ERC721 token address',
+    [TOKEN.HRC20]: 'Input HRC20 token address',
+    [TOKEN.ERC721]: 'Input BEP721 token address',
+    [TOKEN.HRC721]: 'Input HRC721 token address',
+    [TOKEN.ERC1155]: 'Input BEP1155 token address',
+    [TOKEN.HRC1155]: 'Input HRC1155 token address',
+  },
+  [NETWORK_TYPE.POLYGON]: {
+    [TOKEN.ERC20]: 'Input ERC20 token address',
+    [TOKEN.ERC721]: 'Input ERC721 token address',
+    [TOKEN.HRC721]: 'Input HRC721 token address',
+    [TOKEN.ERC1155]: 'Input ERC1155 token address',
+    [TOKEN.HRC1155]: 'Input HRC1155 token address',
     [TOKEN.HRC20]: 'Input HRC20 token address',
   },
 };

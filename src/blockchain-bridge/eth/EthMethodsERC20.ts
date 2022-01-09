@@ -245,7 +245,6 @@ export class EthMethodsERC20 {
         .call();
     } catch (e) {
       console.error(e);
-      debugger;
     }
 
     return res;

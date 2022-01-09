@@ -111,7 +111,7 @@ export class HmyMethodsHRC1155 {
 
     const name = await tryOrDefault(erc1155Contract.methods.name().call(this.options), '');
     const symbol = await tryOrDefault(erc1155Contract.methods.symbol().call(this.options), '');
-    const baseURI = await erc1155Contract.methods.uri(0).call(this.options);
+    const baseURI = await tryOrDefault(erc1155Contract.methods.uri(0).call(this.options), '');
 
     return { name, symbol, baseURI, erc1155Address };
   };
