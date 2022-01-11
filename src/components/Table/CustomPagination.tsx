@@ -3,11 +3,12 @@ import { Select } from 'components/Base';
 import { observer } from 'mobx-react';
 import styled from 'styled-components';
 import { Box } from 'grommet';
-import { Pager } from './Pager';
+import { Pager, PagerSimple } from './Pager';
 
 interface IPaginationPanelProps {
   activeColor?: string;
   theme?: any;
+  type?: 'paging' | 'default';
   config: IPaginationConfig;
   onChange?: (props: any) => void;
 }
@@ -16,6 +17,7 @@ interface IPaginationConfig {
   currentPage?: number;
   totalPages?: number;
   pageSize?: number;
+  totalElements?: number;
 }
 
 const PaginationWrap = styled.div<any>`
@@ -44,19 +46,41 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
     });
   };
 
+  renderPaper() {
+    const { activeColor, config, type } = this.props;
+    const { currentPage, totalElements, pageSize, totalPages } = config;
+
+    const hasNext = totalElements === pageSize || totalPages > currentPage;
+
+    if (type === 'paging') {
+      return (
+        <PagerSimple
+          current={currentPage}
+          hasNext={hasNext}
+          hasPrev={currentPage > 1}
+          goToPage={this.goToPage}
+        />
+      );
+    }
+
+    return (
+      <Pager
+        current={currentPage}
+        total={totalPages}
+        offset={2}
+        activeColor={activeColor}
+        goToPage={this.goToPage}
+      />
+    );
+  }
+
   render() {
-    const { activeColor, config } = this.props;
-    const { currentPage, totalPages, pageSize } = config;
+    const { config } = this.props;
+    const { pageSize } = config;
 
     return (
       <PaginationWrap>
-        <Pager
-          current={currentPage}
-          total={totalPages}
-          offset={2}
-          activeColor={activeColor}
-          goToPage={this.goToPage}
-        />
+        {this.renderPaper()}
         <Box width="266px">
           <Select
             name="pageSize"

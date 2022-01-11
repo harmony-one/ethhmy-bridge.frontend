@@ -2,7 +2,9 @@ import {
   ACTION_TYPE,
   IOperation,
   ITokenInfo,
-  NETWORK_TYPE, OpenSeaSingleAssetResponse, OpenSeaValideResponse,
+  NETWORK_TYPE,
+  OpenSeaSingleAssetResponse,
+  OpenSeaValideResponse,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
@@ -321,9 +323,14 @@ export const getConfig = async () => {
   return res.body;
 };
 
-export const getDepositAmount = async (network: NETWORK_TYPE, otherOptions:Record<string, string>) => {
+export const getDepositAmount = async (
+  network: NETWORK_TYPE,
+  otherOptions: Record<string, string>,
+) => {
   const res = await agent.get<number>(
-    `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(otherOptions)}`,
+    `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(
+      otherOptions,
+    )}`,
   );
 
   return res.body;
@@ -350,6 +357,19 @@ export const manage = async (
   }, 1);
 };
 
+export const getOperationsAdminFullHistory = async (
+  params: any,
+  secret: string,
+  url = validators[0],
+): Promise<{ content: IOperation[] }> => {
+  const res = await agent.post<{ body: IOperation }>(
+    `${url}/manage/operations/history?${qs.stringify(params)}`,
+    { secret },
+  );
+
+  return res.body;
+};
+
 export const getOperationsAdmin = async (
   params: any,
   secret: string,
@@ -363,7 +383,9 @@ export const getOperationsAdmin = async (
   return res.body;
 };
 
-export const hasOpenSeaValid = async (erc20Address: string): Promise<OpenSeaValideResponse | null> => {
+export const hasOpenSeaValid = async (
+  erc20Address: string,
+): Promise<OpenSeaValideResponse | null> => {
   try {
     const res = await agent.get<OpenSeaValideResponse>(
       `https://api.opensea.io/api/v1/asset_contract/${erc20Address}?format=json`,
@@ -375,7 +397,10 @@ export const hasOpenSeaValid = async (erc20Address: string): Promise<OpenSeaVali
   }
 };
 
-export const getOpenSeaSingleAsset = async (assetAddress: string, assetId: string): Promise<OpenSeaSingleAssetResponse | null> => {
+export const getOpenSeaSingleAsset = async (
+  assetAddress: string,
+  assetId: string,
+): Promise<OpenSeaSingleAssetResponse | null> => {
   try {
     const res = await agent.get<OpenSeaSingleAssetResponse>(
       `https://api.opensea.io/api/v1/asset/${assetAddress}/${assetId}/?format=json`,
