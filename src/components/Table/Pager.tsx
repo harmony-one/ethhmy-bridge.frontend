@@ -1,5 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import { Button } from '../Base';
+import { useCallback } from 'react';
+import { Box } from 'grommet';
 
 interface IPagerProps {
   current: number;
@@ -25,7 +28,11 @@ const PagerWrap = styled.div<any>`
   display: flex;
 `;
 
-function generatePageList(current: number, total: number, offset: number): IPageClickerProps[] {
+function generatePageList(
+  current: number,
+  total: number,
+  offset: number,
+): IPageClickerProps[] {
   let pageList: IPageClickerProps[] = [];
 
   if (current < 1) {
@@ -111,6 +118,48 @@ function generatePageList(current: number, total: number, offset: number): IPage
   return pageList;
 }
 
+interface IPagerSimpleProps {
+  current: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  goToPage(page: number): void;
+}
+
+export const PagerSimple: React.FunctionComponent<IPagerSimpleProps> = props => {
+  const { hasPrev, hasNext, current, goToPage } = props;
+
+  const handleGoPrev = useCallback(() => {
+    goToPage(current - 1);
+  }, [current, goToPage]);
+
+  const handleGoNext = useCallback(() => {
+    goToPage(current + 1);
+  }, [current, goToPage]);
+
+  return (
+    <Box direction="row" gap="xsmall">
+      <Button
+        disabled={!hasPrev}
+        pad="12px"
+        size="auto"
+        fontSize="16px"
+        onClick={handleGoPrev}
+      >
+        prev
+      </Button>
+      <Button
+        disabled={!hasNext}
+        pad="12px"
+        size="auto"
+        fontSize="16px"
+        onClick={handleGoNext}
+      >
+        next
+      </Button>
+    </Box>
+  );
+};
+
 export const Pager: React.FunctionComponent<IPagerProps> = props => {
   const { current, offset = 2, total, goToPage, activeColor } = props;
   const pageList = generatePageList(current, total, offset);
@@ -118,7 +167,12 @@ export const Pager: React.FunctionComponent<IPagerProps> = props => {
   return (
     <PagerWrap>
       {pageList.map(page => (
-        <PagerCell key={page.value} {...page} activeColor={activeColor} onClick={goToPage} />
+        <PagerCell
+          key={page.value}
+          {...page}
+          activeColor={activeColor}
+          onClick={goToPage}
+        />
       ))}
     </PagerWrap>
   );
@@ -143,7 +197,8 @@ const StyledPageCell = styled.div<any>`
   height: 32px;
   width: 32px;
   border-radius: 4px;
-  border: ${props => `1px solid ${props.type === 'dots' ? 'transparent' : '#e7ecf7'}`};
+  border: ${props =>
+    `1px solid ${props.type === 'dots' ? 'transparent' : '#e7ecf7'}`};
   background-color: ${getBgColor};
   color: ${props => (props.type === 'active' ? 'white' : 'black')};
   cursor: ${props => (props.type === 'default' ? 'pointer' : 'auto')};

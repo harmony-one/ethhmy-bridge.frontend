@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -70,28 +70,37 @@ const reloadEvents = async (
   alert(`Last ${value} Events will be reloaded in next 1-2 min`);
 };
 
-export const AdminExplorer = observer((props: any) => {
-  const { adminOperations, user, tokens, actionModals } = useStores();
+export const AdminExplorerFullHistory = observer((props: any) => {
+  const { adminOperationsFull, user, tokens, actionModals } = useStores();
 
   const [expandedRowKeys, setExpandedRowKeys] = useState([]);
   const [columns, setColumns] = useState(getColumns({ user }));
-  const [search, setSearch] = useState('');
+
+  const [search, setSearch] = useState({
+    amount: '',
+    ethAddress: '',
+    oneAddress: '',
+  });
+
+  const updateSearch = (filterName: keyof typeof search) => (value: string) => {
+    setSearch({ ...search, [filterName]: value });
+  };
 
   useEffect(() => {
     tokens.init();
     tokens.fetch();
-    adminOperations.init();
-  }, [adminOperations, tokens]);
+    adminOperationsFull.init();
+  }, [adminOperationsFull, tokens]);
 
   useEffect(() => {
-    setColumns(getColumns({ user }, adminOperations.manager));
+    setColumns(getColumns({ user }, adminOperationsFull.manager));
   }, [
     user.oneRate,
     user.ethRate,
     tokens.data,
     tokens.fetchStatus,
     user,
-    adminOperations.manager,
+    adminOperationsFull.manager,
   ]);
 
   const changeValidator = useCallback(() => {
@@ -106,10 +115,10 @@ export const AdminExplorer = observer((props: any) => {
               <Text>Validator Url:</Text>
               <Select
                 size="full"
-                value={adminOperations.validatorUrl}
+                value={adminOperationsFull.validatorUrl}
                 options={validators.map(v => ({ text: v, value: v }))}
                 onChange={value => {
-                  adminOperations.validatorUrl = value;
+                  adminOperationsFull.validatorUrl = value;
                 }}
               />
             </Box>
@@ -120,8 +129,8 @@ export const AdminExplorer = observer((props: any) => {
             <Button
               size="large"
               onClick={() => {
-                adminOperations.manager = value;
-                adminOperations.fetch();
+                adminOperationsFull.manager = value;
+                adminOperationsFull.fetch();
                 actionModals.closeLastModal();
               }}
             >
@@ -149,7 +158,7 @@ export const AdminExplorer = observer((props: any) => {
   }, []);
 
   const onChangeDataFlow = (props: any) => {
-    adminOperations.onChangeDataFlow(props);
+    adminOperationsFull.onChangeDataFlow(props);
   };
 
   return (
@@ -158,10 +167,10 @@ export const AdminExplorer = observer((props: any) => {
         <Box align="end">
           <Button>
             <NavLink
-              style={{ color: 'inherit' }}
-              to="/admin-explorer-full-history"
+              style={{ color: 'inherit', textDecoration: 'none' }}
+              to="/admin-explorer"
             >
-              Full history
+              Back
             </NavLink>
           </Button>
         </Box>
@@ -176,7 +185,7 @@ export const AdminExplorer = observer((props: any) => {
             <Title size="medium">
               Validator:
               <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
-                {adminOperations.validatorUrl}
+                {adminOperationsFull.validatorUrl}
               </span>
             </Title>
             <Button transparent={true} onClick={() => changeValidator()}>
@@ -189,19 +198,19 @@ export const AdminExplorer = observer((props: any) => {
         <Box direction="row" gap="30px" justify="end">
           <Button
             style={{ background: '#c90000' }}
-            onClick={() => reloadEvents(adminOperations.manager, 30000)}
+            onClick={() => reloadEvents(adminOperationsFull.manager, 30000)}
           >
             Reload Harmony Events
           </Button>
           <Button
             style={{ background: '#c90000' }}
-            onClick={() => reloadEvents(adminOperations.manager, 10000)}
+            onClick={() => reloadEvents(adminOperationsFull.manager, 10000)}
           >
             Reload Ethereum Events
           </Button>
           <Button
             style={{ background: '#c90000' }}
-            onClick={() => reloadEvents(adminOperations.manager, 10000)}
+            onClick={() => reloadEvents(adminOperationsFull.manager, 10000)}
           >
             Reload Binance Events
           </Button>
@@ -221,17 +230,27 @@ export const AdminExplorer = observer((props: any) => {
             margin={{ bottom: 'medium' }}
             justify="between"
             align="center"
-            gap="20px"
+            gap="small"
           >
             <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="Search by: txHash / address / amount / operation ID"
+              value={search.amount}
+              onChange={updateSearch('amount')}
+              placeholder="amount"
+            />
+            <SearchInput
+              value={search.oneAddress}
+              onChange={updateSearch('oneAddress')}
+              placeholder="oneAddress"
+            />
+            <SearchInput
+              value={search.ethAddress}
+              onChange={updateSearch('ethAddress')}
+              placeholder="ethAddress"
             />
             <Button
               onClick={() =>
-                adminOperations.onChangeDataFlow({
-                  filters: { search },
+                adminOperationsFull.onChangeDataFlow({
+                  filters: { ...search },
                 })
               }
               style={{ width: 200 }}
@@ -256,7 +275,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: 'HMY -> ETH', value: EXCHANGE_MODE.ONE_TO_ETH },
                 ]}
                 onChange={value => {
-                  adminOperations.onChangeDataFlow({
+                  adminOperationsFull.onChangeDataFlow({
                     filters: { type: value },
                   });
                 }}
@@ -276,7 +295,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: STATUS.CANCELED, value: STATUS.CANCELED },
                 ]}
                 onChange={value => {
-                  adminOperations.onChangeDataFlow({
+                  adminOperationsFull.onChangeDataFlow({
                     filters: { status: value },
                   });
                 }}
@@ -301,7 +320,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: TOKEN.ETH, value: TOKEN.ETH },
                 ]}
                 onChange={value => {
-                  adminOperations.onChangeDataFlow({
+                  adminOperationsFull.onChangeDataFlow({
                     filters: { token: value },
                   });
                 }}
@@ -318,7 +337,7 @@ export const AdminExplorer = observer((props: any) => {
                   { text: NETWORK_TYPE.ETHEREUM, value: NETWORK_TYPE.ETHEREUM },
                 ]}
                 onChange={value => {
-                  adminOperations.onChangeDataFlow({
+                  adminOperationsFull.onChangeDataFlow({
                     filters: { network: value },
                   });
                 }}
@@ -326,10 +345,10 @@ export const AdminExplorer = observer((props: any) => {
             </Box>
           </Box>
           <Table
-            data={adminOperations.data}
+            data={adminOperationsFull.data}
             columns={columns}
-            isPending={adminOperations.isPending}
-            dataLayerConfig={adminOperations.dataFlow}
+            isPending={adminOperationsFull.isPending}
+            dataLayerConfig={adminOperationsFull.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
             onRowClicked={() => {}}
             tableParams={{
