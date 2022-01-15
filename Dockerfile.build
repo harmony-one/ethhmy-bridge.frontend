@@ -4,6 +4,7 @@ EXPOSE 3000
 RUN mkdir /app
 WORKDIR /app
 
+RUN apk update && apk add bash
 RUN apk add git
 
 ENV PATH /app/node_modules/.bin:$PATH
