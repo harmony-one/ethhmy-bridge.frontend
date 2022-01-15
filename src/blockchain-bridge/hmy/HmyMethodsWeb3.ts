@@ -44,7 +44,7 @@ export class HmyMethodsWeb3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -62,7 +62,7 @@ export class HmyMethodsWeb3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 

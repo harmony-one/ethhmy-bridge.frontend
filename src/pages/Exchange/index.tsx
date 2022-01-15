@@ -111,35 +111,35 @@ export class Exchange extends React.Component<
     //   exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
     //   exchange.network === NETWORK_TYPE.BINANCE
     // ) {
-      return actionModals.open(
-        () => (
-          <Box pad="large">
-            <Text>
-              <b>Harmony Bridge is temporarily suspended.</b>
-              <br />
-              <br />
-              We are currently facing RPC issue on the Harmony side which we are
-              actively working to resolve.
-              <br />
-              Meanwhile, we have disabled bridging temporarily.
-              <br />
-              <br />
-              Sorry for the inconvenience. We will update soon.
-            </Text>
-          </Box>
-        ),
-        {
-          title: '',
-          applyText: 'Got it',
-          closeText: '',
-          noValidation: true,
-          width: '500px',
-          showOther: true,
-          onApply: () => {
-            return Promise.resolve();
-          },
-        },
-      );
+    //   return actionModals.open(
+    //     () => (
+    //       <Box pad="large">
+    //         <Text>
+    //           <b>Harmony Bridge is temporarily suspended.</b>
+    //           <br />
+    //           <br />
+    //           We are currently facing RPC issue on the Harmony side which we are
+    //           actively working to resolve.
+    //           <br />
+    //           Meanwhile, we have disabled bridging temporarily.
+    //           <br />
+    //           <br />
+    //           Sorry for the inconvenience. We will update soon.
+    //         </Text>
+    //       </Box>
+    //     ),
+    //     {
+    //       title: '',
+    //       applyText: 'Got it',
+    //       closeText: '',
+    //       noValidation: true,
+    //       width: '500px',
+    //       showOther: true,
+    //       onApply: () => {
+    //         return Promise.resolve();
+    //       },
+    //     },
+    //   );
     // }
 
     if (!user.isAuthorized) {

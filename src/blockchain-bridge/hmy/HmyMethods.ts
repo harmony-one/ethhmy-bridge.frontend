@@ -14,7 +14,7 @@ export class HmyMethods {
   private hmy: Harmony;
   private hmyTokenContract: Contract;
   private hmyManagerContract: Contract;
-  private options = { gasPrice: 3000000000, gasLimit: 6721900 };
+  private options = { gasPrice: Number(process.env.GAS_PRICE), gasLimit: 6721900 };
 
   constructor(params: IHmyMethodsInitParams) {
     this.hmy = params.hmy;

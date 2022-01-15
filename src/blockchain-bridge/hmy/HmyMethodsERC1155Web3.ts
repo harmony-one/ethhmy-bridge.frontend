@@ -49,7 +49,7 @@ export class HmyMethodsERC1155Web3 {
         .send({
           from: accounts[0],
           gasLimit: process.env.GAS_LIMIT,
-          gasPrice: process.env.GAS_PRICE,
+          gasPrice: Number(process.env.GAS_PRICE),
         })
         .on('transactionHash', sendTxCallback);
 
@@ -75,7 +75,7 @@ export class HmyMethodsERC1155Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -99,7 +99,7 @@ export class HmyMethodsERC1155Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -224,7 +224,7 @@ export class HmyMethodsERC1155Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
         value: mulDecimals(amount, 18),
       })
       .on('transactionHash', sendTxCallback);

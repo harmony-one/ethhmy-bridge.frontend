@@ -16,7 +16,7 @@
     "url": "https://github.com/harmony-one/ethhmy-bridge.frontend"
   },
   "dependencies": {
-    "@harmony-js/core": "^0.1.46",
+    "@harmony-js/core": "^0.1.55",
     "@metamask/detect-provider": "^1.1.0",
     "@types/react-outside-click-handler": "^1.3.0",
     "async-validator": "1.11.5",

@@ -54,7 +54,7 @@ export class HmyMethodsERC20Web3 {
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -81,7 +81,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
         .send({
           from: accounts[0],
           gasLimit: process.env.GAS_LIMIT,
-          gasPrice: process.env.GAS_PRICE,
+          gasPrice: Number(process.env.GAS_PRICE),
         })
         .on('transactionHash', sendTxCallback);
 
@@ -107,7 +107,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -123,7 +123,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
       })
       .on('transactionHash', sendTxCallback);
 
@@ -236,7 +236,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
-        gasPrice: process.env.GAS_PRICE,
+        gasPrice: Number(process.env.GAS_PRICE),
         value: mulDecimals(amount, 18),
       })
       .on('transactionHash', sendTxCallback);
