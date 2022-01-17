@@ -1,6 +1,9 @@
 FROM node:14.5.0-alpine
 EXPOSE 3000
 
+RUN apk update && apk add bash
+RUN apk add git
+
 RUN mkdir /app
 WORKDIR /app
 
