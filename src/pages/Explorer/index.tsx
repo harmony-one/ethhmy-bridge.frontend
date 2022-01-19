@@ -10,6 +10,7 @@ import { ExpandedRow } from './ExpandedRow';
 import { Checkbox } from '../../components/Base/components/Inputs/types';
 import { validators } from '../../services';
 import { Title } from '../../components/Base/components/Title';
+import { PaginationType } from '../../components/Table/CustomPagination';
 
 export const Explorer = observer((props: any) => {
   const { operations, user, tokens, userMetamask } = useStores();
@@ -76,12 +77,7 @@ export const Explorer = observer((props: any) => {
             margin={{ bottom: '14px' }}
           >
             {!!validator ? (
-              <Box
-                direction="row"
-                align="center"
-                justify="start"
-                gap="20px"
-              >
+              <Box direction="row" align="center" justify="start" gap="20px">
                 <Box direction="row" align="center">
                   <Title size="medium">
                     Validator:
@@ -108,6 +104,9 @@ export const Explorer = observer((props: any) => {
             )}
           </Box>
           <Table
+            paginationType={
+              hasFilters ? PaginationType.PAGING : PaginationType.DEFAULT
+            }
             data={operations.data}
             columns={columns}
             isPending={operations.isPending}

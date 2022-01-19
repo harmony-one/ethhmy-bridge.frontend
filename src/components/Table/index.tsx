@@ -4,7 +4,7 @@ import { computed, observable } from 'mobx';
 import RcTable from 'rc-table';
 import { Spinner } from './Spinner';
 import 'rc-table/assets/index.css';
-import { CustomPagination } from './CustomPagination';
+import { CustomPagination, PaginationType } from './CustomPagination';
 import { CustomHeader } from './CustomHeader';
 import styled from 'styled-components';
 import { isFilterApplied } from './utils/filters';
@@ -43,6 +43,7 @@ interface IProps {
   theme?: any;
   dataLayerConfig?: any;
   isPending?: boolean;
+  paginationType?: PaginationType;
   hidePagination?: boolean;
   onChangeDataFlow?: (props: any) => void;
   onRowClicked?: (rowData: any, index: number) => any;
@@ -125,19 +126,40 @@ export class Table extends React.Component<IProps> {
     onChangeDataFlow({ ...dataLayerConfig, sorter });
   }
 
+  renderPagination() {
+    const {
+      hidePagination,
+      paginationType,
+      onChangeDataFlow,
+      dataLayerConfig,
+    } = this.props;
+    const { paginationData } = dataLayerConfig;
+
+    if (hidePagination) {
+      return null;
+    }
+
+    return (
+      <CustomPagination
+        type={paginationType}
+        config={paginationData}
+        onChange={config => {
+          onChangeDataFlow({ paginationData: config });
+        }}
+        activeColor="Blue600"
+      />
+    );
+  }
+
   render() {
     const {
       data,
-      dataLayerConfig,
-      onChangeDataFlow,
       onRowClicked,
       isPending,
-      hidePagination,
       tableParams,
       scroll = {},
       customItem,
     } = this.props;
-    const { paginationData } = dataLayerConfig;
 
     const ItemRender = customItem ? customItem.render : null;
 
@@ -192,16 +214,7 @@ export class Table extends React.Component<IProps> {
             }}
           />
         )}
-        {!hidePagination && (
-          <CustomPagination
-            type="paging"
-            config={paginationData}
-            onChange={config => {
-              onChangeDataFlow({ paginationData: config });
-            }}
-            activeColor="Blue600"
-          />
-        )}
+        {this.renderPagination()}
       </div>
     );
   }

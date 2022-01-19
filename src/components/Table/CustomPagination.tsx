@@ -5,10 +5,15 @@ import styled from 'styled-components';
 import { Box } from 'grommet';
 import { Pager, PagerSimple } from './Pager';
 
+export enum PaginationType {
+  PAGING = 'paging',
+  DEFAULT = 'default',
+}
+
 interface IPaginationPanelProps {
   activeColor?: string;
   theme?: any;
-  type?: 'paging' | 'default';
+  type?: PaginationType;
   config: IPaginationConfig;
   onChange?: (props: any) => void;
 }
@@ -46,13 +51,13 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
     });
   };
 
-  renderPaper() {
+  renderPager() {
     const { activeColor, config, type } = this.props;
     const { currentPage, totalElements, pageSize, totalPages } = config;
 
     const hasNext = totalElements === pageSize || totalPages > currentPage;
 
-    if (type === 'paging') {
+    if (type === PaginationType.PAGING) {
       return (
         <PagerSimple
           current={currentPage}
@@ -80,7 +85,7 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
 
     return (
       <PaginationWrap>
-        {this.renderPaper()}
+        {this.renderPager()}
         <Box width="266px">
           <Select
             name="pageSize"
