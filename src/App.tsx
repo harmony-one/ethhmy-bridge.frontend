@@ -6,6 +6,7 @@ import { Redirect, Route, Switch } from 'react-router';
 import { ActionModals } from './components/ActionModals';
 import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
+import { Portfolio } from './pages/Explorer/Portfolio';
 import { MintTokens } from './pages/MintTokens';
 import { Tokens } from './pages/Tokens';
 import { IdentityTokens } from './pages/IdentityTokens';
@@ -35,6 +36,7 @@ export const App: React.FC = () => (
         <Route exact path="/info" component={InfoPage} />
         <Route exact path="/support" component={SupportPage} />
         <Route exact path="/explorer/:validator?" component={Explorer} />
+        <Route exact path="/portfolio/" component={Portfolio} />
         <Route exact path="/stuck-operations" component={StuckOperations} />} />
         <Route exact path="/admin-explorer" component={AdminExplorer} />
         } />

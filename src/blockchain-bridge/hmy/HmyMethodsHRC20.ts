@@ -3,6 +3,7 @@ import { Contract } from '@harmony-js/contract';
 import { connectToOneWallet } from './helpers';
 import { mulDecimals } from '../../utils';
 import { getAddress } from '@harmony-js/crypto';
+import BN from 'bn.js';
 
 interface IHmyMethodsInitParams {
   hmy: Harmony;
@@ -13,7 +14,10 @@ interface IHmyMethodsInitParams {
 export class HmyMethodsHRC20 {
   private hmy: Harmony;
   private hmyManagerContract: Contract;
-  private options = { gasPrice: Number(process.env.GAS_PRICE), gasLimit: 6721900 };
+  private options = {
+    gasPrice: Number(process.env.GAS_PRICE),
+    gasLimit: 6721900,
+  };
 
   constructor(params: IHmyMethodsInitParams) {
     this.hmy = params.hmy;
@@ -56,7 +60,7 @@ export class HmyMethodsHRC20 {
     });
   };
 
-  checkHmyBalance = async (hrc20Address, addr: string) => {
+  checkHmyBalance = async (hrc20Address, addr: string): Promise<BN> => {
     const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = this.hmy.contracts.createContract(
       tokenJson.abi,
@@ -135,7 +139,12 @@ export class HmyMethodsHRC20 {
     const symbol = await erc20Contract.methods.symbol().call(this.options);
     const decimals = await erc20Contract.methods.decimals().call(this.options);
 
-    return { name, symbol, decimals: Number('0x' + decimals).toString(), erc20Address };
+    return {
+      name,
+      symbol,
+      decimals: Number('0x' + decimals).toString(),
+      erc20Address,
+    };
   };
 
   token721Details = async erc721Address => {
