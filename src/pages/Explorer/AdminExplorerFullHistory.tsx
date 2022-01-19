@@ -22,6 +22,7 @@ import {
 import { validators } from '../../services';
 import { SearchInput } from '../../components/Search';
 import { NavLink } from 'react-router-dom';
+import { PaginationType } from '../../components/Table/CustomPagination';
 
 export const isStuckOperation = (o: IOperation) => {
   if (o.status === STATUS.IN_PROGRESS || o.status === STATUS.WAITING) {
@@ -347,6 +348,7 @@ export const AdminExplorerFullHistory = observer((props: any) => {
           <Table
             data={adminOperationsFull.data}
             columns={columns}
+            paginationType={PaginationType.PAGING}
             isPending={adminOperationsFull.isPending}
             dataLayerConfig={adminOperationsFull.dataFlow}
             onChangeDataFlow={onChangeDataFlow}
