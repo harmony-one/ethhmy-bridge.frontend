@@ -238,6 +238,7 @@ const blackList = [
   '0x396f0eD7375aB5b0e92F890B3799043c7Da8F855',
   '0x35C4693D6554Ad7e48D0065Cd554f8d7921Cd192',
   '0xCDe4a5a9aD0C31Ab07b34716427aE2484ac194e7',
+  '0x1B65653b2f653c5f35c7746BA6676Ff59288eEd1'
 ].map(a => a.toLowerCase());
 
 export const getTokensInfo = async (

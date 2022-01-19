@@ -11,7 +11,7 @@ import {
   NETWORK_TYPE,
   TOKEN,
 } from 'stores/interfaces';
-import { formatWithTwoDecimals, truncateAddressString } from 'utils';
+import { formatWithTwoDecimals, formatZeroDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import { Select, Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
@@ -265,7 +265,7 @@ export const Tokens = observer((props: any) => {
                   letterSpacing: 0.2,
                 }}
               >
-                ${formatWithTwoDecimals(tokens.totalLockedUSD)}
+                ${formatZeroDecimals(tokens.totalLockedUSD)}
               </span>
             </Title>
           </Box>
