@@ -5,6 +5,7 @@ import {
   NETWORK_TYPE,
   OpenSeaSingleAssetResponse,
   OpenSeaValideResponse,
+  TFullConfig,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import * as _ from 'lodash';
@@ -316,7 +317,7 @@ export const mintTokens = async ({ address, token }) => {
   return res.body;
 };
 
-export const getConfig = async () => {
+export const getConfig = async (): Promise<TFullConfig> => {
   const res = await agent.get<{
     body: any;
   }>(`${servers[0]}/config`);

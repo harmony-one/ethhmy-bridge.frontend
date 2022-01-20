@@ -9,6 +9,7 @@ import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { Erc20SelectStore } from './Erc20SelectStore';
 import { AdminOperationsFull } from './AdminOperationsFull';
+import { Portfolio } from './Portfolio';
 
 export interface IStores {
   routing?: RouterStore;
@@ -17,6 +18,7 @@ export interface IStores {
   userMetamask?: UserStoreMetamask;
   exchange?: Exchange;
   operations?: Operations;
+  portfolio?: Portfolio;
   adminOperations?: AdminOperations;
   adminOperationsFull?: AdminOperationsFull;
   tokens?: Tokens;
@@ -28,6 +30,7 @@ const stores: IStores = {};
 stores.routing = new RouterStore();
 stores.exchange = new Exchange(stores);
 stores.operations = new Operations(stores);
+stores.portfolio = new Portfolio(stores);
 stores.adminOperations = new AdminOperations(stores);
 stores.adminOperationsFull = new AdminOperationsFull(stores);
 stores.tokens = new Tokens(stores);
