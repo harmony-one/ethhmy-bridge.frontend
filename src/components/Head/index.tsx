@@ -31,6 +31,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
     const isExplorer = history.location.pathname === '/explorer';
+    const isPortfolio = history.location.pathname === '/portfolio';
     const isTokens = history.location.pathname === '/tokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
@@ -122,6 +123,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                   !isFaq &&
                   !isHelp &&
                   !isExplorer &&
+                  !isPortfolio &&
                   !isGetTokens &&
                   !isTokens
                   ? styles.selected
@@ -159,7 +161,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Box
                 className={cn(
                   styles.itemToken,
-                  isExplorer ? styles.selected : '',
+                  isPortfolio ? styles.selected : '',
                 )}
                 onClick={() => {
                   routing.push(`/portfolio`);
