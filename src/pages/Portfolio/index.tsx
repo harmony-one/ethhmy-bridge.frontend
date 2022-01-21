@@ -8,8 +8,8 @@ import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import {
+  formatWithSixDecimals,
   formatWithTwoDecimals,
-  formatZeroDecimals,
   truncateAddressString,
 } from 'utils';
 import * as styles from './styles.styl';
@@ -177,43 +177,6 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   //   className: styles.centerHeader,
   //   align: 'center',
   // },
-  {
-    title: 'Total Locked',
-    // sortable: true,
-    key: 'totalLockedNormal',
-    dataIndex: 'totalLockedNormal',
-    width: 140,
-    render: value => (
-      <Box direction="column" justify="center">
-        {formatWithTwoDecimals(value)}
-      </Box>
-    ),
-    // className: styles.centerHeader,
-    // align: 'center',
-  },
-  {
-    title: 'Total Locked USD',
-    sortable: true,
-    key: 'totalLockedUSD',
-    defaultSort: 'asc',
-    dataIndex: 'totalLockedUSD',
-    width: 200,
-    className: styles.rightHeaderSort,
-    align: 'right',
-    render: (value, data) => {
-      let lockedMoney;
-      if (data.type.indexOf('721') !== -1 || data.type.indexOf('1155') !== -1) {
-        lockedMoney = '-';
-      } else {
-        lockedMoney = '$' + formatWithTwoDecimals(value);
-      }
-      return (
-        <Box direction="column" justify="center" pad={{ right: 'medium' }}>
-          {lockedMoney}
-        </Box>
-      );
-    },
-  },
 ];
 
 export const Portfolio = observer((props: any) => {
