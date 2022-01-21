@@ -2,14 +2,11 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
+import utils from 'web3-utils';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import {
-  ITokenInfo,
-  NETWORK_TYPE,
-  TOKEN,
-} from 'stores/interfaces';
+import { ITokenInfo, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
 import {
   formatWithTwoDecimals,
   formatZeroDecimals,
@@ -65,7 +62,7 @@ const oneAddress = value => (
   </Box>
 );
 
-const getAssetAddress = (data, type) => {
+const getAssetAddress = (data, type: 'origin' | 'mapping') => {
   let assetPrefix;
   switch (type) {
     case 'origin':
@@ -86,6 +83,24 @@ const getAssetAddress = (data, type) => {
         : getChecksumAddress(data.hrc20Address);
 
     return oneAddress(address);
+  }
+};
+
+const getAssetBalance = (data, type: 'origin' | 'mapping') => {
+  let assetPrefix;
+  switch (type) {
+    case 'origin':
+      assetPrefix = 'erc';
+      break;
+    case 'mapping':
+      assetPrefix = 'hrc';
+      break;
+  }
+
+  if (data.type.indexOf(assetPrefix) !== -1) {
+    return data.erc20Balance;
+  } else {
+    return data.hrc20Balance;
   }
 };
 
@@ -125,14 +140,28 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     key: 'erc20Address',
     dataIndex: 'erc20Address',
     width: 280,
-    render: (value, data) => getAssetAddress(data, 'origin'),
+    render: (value, data) => {
+      return (
+        <div>
+          {getAssetAddress(data, 'origin')}
+          {utils.fromWei(getAssetBalance(data, 'origin') || '0')}
+        </div>
+      );
+    },
   },
   {
     title: 'Mapping Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
     width: 280,
-    render: (value, data) => getAssetAddress(data, 'mapping'),
+    render: (value, data) => {
+      return (
+        <div>
+          {getAssetAddress(data, 'mapping')}
+          {utils.fromWei(getAssetBalance(data, 'mapping') || '0')}
+        </div>
+      );
+    },
   },
   // {
   //   title: 'Decimals',
@@ -182,7 +211,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
 ];
 
 export const Portfolio = observer((props: any) => {
-  const { tokens, user, portfolio } = useStores();
+  const { tokens, user, userMetamask, portfolio } = useStores();
   const [search, setSearch] = useState('');
   const [network, setNetwork] = useState<NETWORK_TYPE | 'ALL'>('ALL');
   const [tokenType, setToken] = useState<TOKEN | 'ALL'>('ALL');
@@ -198,11 +227,13 @@ export const Portfolio = observer((props: any) => {
     await tokens.init();
     await tokens.fetch();
 
-    const ethAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
-    const oneAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
+    // const ethAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
+    // const oneAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
+    const ethAddress = userMetamask.ethAddress;
+    const oneAddress = user.address;
 
     await portfolio.loadOperationList(ethAddress, oneAddress);
-  }
+  };
 
   useEffect(() => {
     loadUserOperations();
@@ -258,34 +289,6 @@ export const Portfolio = observer((props: any) => {
   return (
     <BaseContainer>
       <PageContainer>
-        <Box
-          direction={isMobile ? 'column' : 'row'}
-          justify="between"
-          align={isMobile ? 'start' : 'center'}
-          margin={{ top: 'medium' }}
-          pad={{ horizontal: 'medium' }}
-        >
-          <Title>Bridged Assets</Title>
-
-          <Box direction="column">
-            <Title size="small">
-              Total Value Locked (USD){' '}
-              <span
-                style={{
-                  marginLeft: 5,
-                  color: '#47b8eb',
-                  fontWeight: 600,
-                  letterSpacing: 0.2,
-                }}
-              >
-                ${formatZeroDecimals(tokens.totalLockedUSD)}
-              </span>
-            </Title>
-          </Box>
-
-          <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
-        </Box>
-
         {!isMobile ? (
           <Box
             pad={{ horizontal: '9px' }}
