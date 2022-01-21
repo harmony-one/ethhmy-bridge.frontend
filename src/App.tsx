@@ -6,7 +6,7 @@ import { Redirect, Route, Switch } from 'react-router';
 import { ActionModals } from './components/ActionModals';
 import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
-import { Portfolio } from './pages/Explorer/Portfolio';
+import { Portfolio } from './pages/Portfolio';
 import { MintTokens } from './pages/MintTokens';
 import { Tokens } from './pages/Tokens';
 import { InfoModal } from './components/InfoModal';
