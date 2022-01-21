@@ -144,7 +144,10 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
       return (
         <div>
           {getAssetAddress(data, 'origin')}
-          {utils.fromWei(getAssetBalance(data, 'origin') || '0')} {data.symbol}
+          {formatWithSixDecimals(
+            utils.fromWei(getAssetBalance(data, 'origin') || '0'),
+          )}{' '}
+          {data.symbol}
         </div>
       );
     },
@@ -158,7 +161,10 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
       return (
         <div>
           {getAssetAddress(data, 'mapping')}
-          {utils.fromWei(getAssetBalance(data, 'mapping') || '0')} {data.symbol}
+          {formatWithSixDecimals(
+            utils.fromWei(getAssetBalance(data, 'mapping') || '0'),
+          )}{' '}
+          {data.symbol}
         </div>
       );
     },
