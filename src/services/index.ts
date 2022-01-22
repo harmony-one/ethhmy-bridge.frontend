@@ -233,15 +233,6 @@ export const getOperations = async (
   return res.body;
 };
 
-const blackList = [
-  '0xE5F70B8B83F0B0AcA360bAf0A8831B67F9FA3BbB',
-  '0x396f0eD7375aB5b0e92F890B3799043c7Da8F855',
-  '0x35C4693D6554Ad7e48D0065Cd554f8d7921Cd192',
-  '0xCDe4a5a9aD0C31Ab07b34716427aE2484ac194e7',
-  '0x1B65653b2f653c5f35c7746BA6676Ff59288eEd1',
-  '0xD918c8C0Ac09C987c6B3B3D9c37d3A24F85A6071',
-].map(a => a.toLowerCase());
-
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
@@ -250,63 +241,7 @@ export const getTokensInfo = async (
     params,
   );
 
-  let content: ITokenInfo[] = res.body.content;
-
-  const hasAddress = (token: ITokenInfo) => {
-    return content.find(
-      t =>
-        token.type !== t.type &&
-        (token.hrc20Address === t.hrc20Address ||
-          token.erc20Address === t.erc20Address),
-    );
-  };
-
-  content = content.filter(t => {
-    if (
-      t.symbol === '1ONE' &&
-      String(t.hrc20Address).toLowerCase() !==
-        String(process.env.ONE_HRC20).toLowerCase()
-    ) {
-      return false;
-    }
-
-    if (
-      t.symbol === 'ONE' &&
-      hasAddress(t) &&
-      String(t.hrc20Address).toLowerCase() !==
-        String(process.env.ONE_HRC20).toLowerCase()
-    ) {
-      return false;
-    }
-
-    return true;
-  });
-
-  // content = content.filter(
-  //   t => t.network === NETWORK_TYPE.BINANCE && hasAddress(t),
-  // );
-
-  content = content.filter(
-    t =>
-      !blackList.includes(t.hrc20Address.toLowerCase()) &&
-      !blackList.includes(t.erc20Address.toLowerCase()),
-  );
-  content = content.filter(t => t.type !== 'hrc20' || !hasAddress(t));
-
-  content = _.uniqWith(
-    content,
-    (a: any, b: any) =>
-      a.erc20Address === b.erc20Address && a.hrc20Address === b.hrc20Address,
-  );
-
-  content = content.map(c => ({
-    ...c,
-    network: c.network || NETWORK_TYPE.ETHEREUM,
-  }));
-
-  content.sort((a, b) => (a.totalLockedUSD > b.totalLockedUSD ? -1 : 1));
-
-  return { ...res.body, content };
+  return res.body;
 };
 
 export const mintTokens = async ({ address, token }) => {
@@ -412,6 +347,17 @@ export const getOpenSeaSingleAsset = async (
   } catch (e) {
     return null;
   }
+};
+
+export const getUIConfig = async (): Promise<{
+  assetsBlackList: string[];
+  blockers: string[];
+}> => {
+  const res = await agent.get<{ body: IOperation }>(
+    `${validators[0]}/ui-config`,
+  );
+
+  return res.body;
 };
 
 // @ts-ignore

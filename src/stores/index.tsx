@@ -9,6 +9,7 @@ import { Tokens } from './Tokens';
 import { createStoresContext } from './create-context';
 import { Erc20SelectStore } from './Erc20SelectStore';
 import { AdminOperationsFull } from './AdminOperationsFull';
+import { UIConfig } from './UIConfig';
 
 export interface IStores {
   routing?: RouterStore;
@@ -20,6 +21,7 @@ export interface IStores {
   adminOperations?: AdminOperations;
   adminOperationsFull?: AdminOperationsFull;
   tokens?: Tokens;
+  uiConfig?: UIConfig;
   erc20Select?: Erc20SelectStore;
 }
 
@@ -35,6 +37,7 @@ stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
 stores.erc20Select = new Erc20SelectStore(stores);
+stores.uiConfig = new UIConfig(stores);
 
 if (!process.env.production) {
   window.stores = stores;

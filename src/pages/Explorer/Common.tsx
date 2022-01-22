@@ -16,7 +16,6 @@ import { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import { ManageButton } from './ManageButton';
-import { useEffect } from 'react';
 
 const EthAddress = observer<any>(
   (params: { address; operation: IOperation }) => {
