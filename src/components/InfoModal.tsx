@@ -6,10 +6,11 @@ import { Info } from './Info';
 import { InfoNew, InfoNew2 } from './InfoNew';
 
 export const InfoModal = observer(() => {
-  const { user, exchange, actionModals } = useStores();
+  const { user, exchange, actionModals, uiConfig } = useStores();
 
   useEffect(() => {
     exchange.getConfig();
+    uiConfig.init();
   }, []);
 
   // useEffect(() => {

@@ -16,7 +16,6 @@ import { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import { ManageButton } from './ManageButton';
-import { useEffect } from 'react';
 
 const EthAddress = observer<any>(
   (params: { address; operation: IOperation }) => {
@@ -93,7 +92,7 @@ export const getColumns = (
         data.type === EXCHANGE_MODE.ETH_TO_ONE ? (
           oneAddress(data.oneAddress)
         ) : (
-          <EthAddress address={value} operation={data} />
+          <EthAddress address={data.ethAddress} operation={data} />
         ),
     },
 

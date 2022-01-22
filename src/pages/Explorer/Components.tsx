@@ -95,7 +95,7 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
   if ([TOKEN.ERC20, TOKEN.ERC721, TOKEN.HRC721, TOKEN.HRC20].includes(value)) {
     const token =
       tokens.fetchStatus !== 'init' &&
-      tokens.allData.find(
+      tokens.fullTokensList.find(
         t =>
           t.erc20Address.toLowerCase() === erc20Address.toLowerCase() ||
           t.hrc20Address.toLowerCase() === hrc20Address.toLowerCase(),
