@@ -96,24 +96,24 @@ const faqConfig = [
     text: () => (
       <Box direction="column" gap="15px">
         <p>
-          Assets are mapped 1:1. For example, 10 “BUSD” on Ethereum after
-          bridging will be available as 10 “1BUSD” on Harmony. Here, “1BUSD” is
-          the token symbol of the token issued on Harmony corresponding to
-          “BUSD” token symbol on Ethereum.
+          Assets are mapped 1:1. For example, 10 “USDC” on Ethereum after
+          bridging will be available as 10 “1USDC” on Harmony. Here, “1USDC” is
+          the token symbol of the token on Harmony corresponding to
+          “USDC” token symbol on Ethereum.
         </p>
         <p>
           Same 1:1 mapping holds true for Binance Smart Chain. However, the
           assets from two different parent chains (Ethereum or Binance Smart
           Chain), after bridging will be represented using different bridged
-          assets on Harmony. For instance, 5 “Binance Smart Chain BUSD“ after
-          bridging will be available as 5 “bscBUSD“ on Harmony. Here, “bscBUSD”
+          assets on Harmony. For instance, 5 “Binance Smart Chain USDC“ after
+          bridging will be available as 5 “bscUSDC“ on Harmony. Here, “bscUSDC”
           is the token symbol of the token issued on Harmony corresponding to
-          “BUSD” token symbol on Binance Smart Chain.
+          “USDC” token symbol on Binance Smart Chain.
         </p>
         <p>
-          And, the “1BUSD“ and “bscBUSD“ are not interchangeable, meaning one
-          cannot bridge BUSD from Ethereum to Harmony and then withdraw it on
-          Binance Smart Chain.
+          And, the “1USDC“ and “bscUSDC“ on Harmony chain are not interchangeable, meaning one
+          cannot bridge USDC from Ethereum to Harmony and then withdraw it on
+          Binance Smart Chain. Same for other tokens.
         </p>
       </Box>
     ),
@@ -132,9 +132,9 @@ const faqConfig = [
             smart contracts such that bridge can issue full-feature smart
             contract tokens for the corresponding Ethereum tokens. This enables
             full utilization of the bridged tokens. For example, the bridged
-            “1LINK” on Harmony can be directly used to pay the oracle providers
+            “LINK” on Harmony can be directly used to pay the oracle providers
             through chainlink’s oracle smart contract, which would not have been
-            possible if “1LINK” was HRC20.
+            possible if “LINK” was HRC20.
           </li>
           <li>
             Any other ERC20 token is bridged in a permissionless manner, where
@@ -188,6 +188,16 @@ const faqConfig = [
     ),
   },
 
+    {
+        label: 'What account can I use to receive bridged tokens?',
+        text: () => (
+            <p>
+                You need to be able to open your wallet in the network you sent your tokens to. Check that there are no network restrictions that prevents you from it. Also check if there is no limitations on a token type you can receive.
+                Never send tokens to an exchange account.
+            </p>
+        ),
+    },
+
   {
     label: 'Can I send my bridged tokens back from Harmony to Ethereum?',
     text: () => (
@@ -198,6 +208,16 @@ const faqConfig = [
       </p>
     ),
   },
+
+    {
+        label: 'Can I send the Ethereum bridged tokens to Binance?',
+        text: () => (
+            <p>
+                No, Ethereum bridged tokens can only be sent back to Ethereum. Same
+                applies for Binance bridged tokens.
+            </p>
+        ),
+    },
 
   {
     label: 'Can I bridge as many tokens as I want, or is there a limit?',
@@ -231,11 +251,6 @@ const faqConfig = [
           issues on Harmony to Ethereum and back. Note that, the cost for any
           bridge transfers to Ethereum will be approximately equivalent to price
           of 400,000 Ethereum gas.
-        </p>
-        <p>
-          The Horizon bridge does not supports sending ONE tokens and HRC20
-          tokens to Binance Smart Chain yet, but this feature will be available
-          very soon.
         </p>
       </>
     ),
@@ -324,7 +339,7 @@ const faqConfig = [
   },
 
   {
-    label: 'Explaination of the bridge fee?',
+    label: 'Explanation of the bridge fee?',
     text: () => (
       <Box direction="column" gap="15px">
         <li>
@@ -343,38 +358,49 @@ const faqConfig = [
         </li>
       </Box>
     ),
+
+
   },
 
-  {
-    label: 'Bridge issues and need help?',
-    text: () => (
-      <p>
-        <b>
-          Report any issues to bridge@harmony.one with one or more of the
-          following informations:
-        </b>
-        <Box direction="column" gap="10px" margin={{ top: '10px' }}>
-          <p>
-            1) operation id, e.g., 7fa14f19-219f8220-1f209e61-8911e539 in{' '}
-            <span>
-              https://bridge.harmony.one/busd/operations/7fa14f19-219f8220-1f209e61-8911e539
-            </span>
-            . Every bridge operation is associated with a unique operation id,
-            which is available in your webpage URL. If you didn't store the
-            operation id, it is okay, follow 2) or 3)
-          </p>
-          <p>2) your transaction hashes on Ethereum or Harmony</p>
-          <p>3) your ETH or ONE account address</p>
-          <p>
-            <span>
-              Please allow 24-48 hours for your issue resolution. Happy
-              Bridging!!!
-            </span>
-          </p>
-        </Box>
-      </p>
-    ),
-  },
+  // {
+  //   label: 'Bridge issues and need help?',
+  //   text: () => (
+  //     <p>
+  //       <b>
+  //         Report any issues to bridge@harmony.one with one or more of the
+  //         following informations:
+  //       </b>
+  //       <Box direction="column" gap="10px" margin={{ top: '10px' }}>
+  //         <p>
+  //           1) operation id, e.g., 7fa14f19-219f8220-1f209e61-8911e539 in{' '}
+  //           <span>
+  //             https://bridge.harmony.one/busd/operations/7fa14f19-219f8220-1f209e61-8911e539
+  //           </span>
+  //           . Every bridge operation is associated with a unique operation id,
+  //           which is available in your webpage URL. If you didn't store the
+  //           operation id, it is okay, follow 2) or 3)
+  //         </p>
+  //         <p>2) your transaction hashes on Ethereum or Harmony</p>
+  //         <p>3) your ETH or ONE account address</p>
+  //         <p>
+  //           <span>
+  //             Please allow 24-48 hours for your issue resolution. Happy
+  //             Bridging!!!
+  //           </span>
+  //         </p>
+  //       </Box>
+  //     </p>
+  //   ),
+  // },
+
+    {
+        label: 'Bridge issues and need help?',
+        text: () => (
+            <p>
+                See https://bridge.harmony.one/help
+            </p>
+        ),
+    },
 
   {
     label:

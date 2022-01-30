@@ -7,345 +7,33 @@ import { BaseContainer } from 'components/BaseContainer';
 import { Icon } from 'components/Base/components/Icons';
 
 const faqConfig = [
-  // {
-  //   label: 'What is Horizon bridge?',
-  //   text: () => (
-  //     <p>
-  //       Horizon is a cross-chain bridge that allows exchange of crypto assets
-  //       (e.g., fungible/non-fungible tokens, stablecoins) between Ethereum,
-  //       Binance Smart Chain and Harmony blockchains.
-  //       <br />
-  //       <br />
-  //       Horizon UI is accessible at{' '}
-  //       <a href="https://bridge.harmony.one/" target="_blank">
-  //         https://bridge.harmony.one/
-  //       </a>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'What is Horizon used for?',
-  //   text: () => (
-  //     <p>
-  //       Horizon’s main purpose is to enable transfer of assets from Ethereum (or
-  //       Binance Smart Chain) to Harmony. Users holding assets on Ethereum (or
-  //       Binance Smart Chain) can exchange them to corresponding assets on
-  //       Harmony (1:1). Horizon also allows redemption of the exchanged assets
-  //       back to the user's Ethereum (or Binance Smart Chain) account at any
-  //       time.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'How does Horizon work?',
-  //   text: () => (
-  //     <p>
-  //       Horizon is comprised of two core components:
-  //       <ul>
-  //         <li>
-  //           A set of smart contracts deployed on both Ethereum (and Binance
-  //           Smart Chain) and Harmony blockchains
-  //         </li>
-  //         <li>
-  //           A pool of validators that listens to events on both Ethereum and
-  //           Harmony bridge smart contracts. When a token lock action is detected
-  //           on Ethereum blockchain, the pool of validators validates it and
-  //           relays the finalized information to the Harmony blockchain: here,
-  //           the same amount of a bridged token is minted. On the opposite, when
-  //           a bridged token burn is detected on Harmony blockchain, the pool of
-  //           validators validates it and relays the finalized information to the
-  //           Ethereum blockchain, where the same amount of the original token is
-  //           unlocked.
-  //         </li>
-  //       </ul>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'What kind of assets can be bridged using Horizon?',
-  //   text: () => (
-  //     <>
-  //       <li>
-  //         <b>From Ethereum:</b>
-  //       </li>
-  //       <ul>
-  //         <li>Stablecoins like BUSD, LINK, etc</li>
-  //         <li>Any ERC20 tokens like USDT, USDC, WETH, WBTC, etc</li>
-  //         <li>
-  //           You can find information about the bridged assets at{' '}
-  //           <a href="https://bridge.harmony.one/tokens" target="_blank">
-  //             https://bridge.harmony.one/tokens
-  //           </a>
-  //         </li>
-  //       </ul>
-  //       <br />
-  //       <li>
-  //         <b>From Binance Smart Chain:</b>
-  //       </li>
-  //       <ul>
-  //         <li>
-  //           Any BEP20 tokens like Binance-Peg Ethereum Token, Binance-Peg BUSD
-  //           Token, Binance-Peg BUSD-T
-  //         </li>
-  //       </ul>
-  //     </>
-  //   ),
-  // },
-  // {
-  //   label: 'How are assets mapped between Ethereum and Harmony?',
-  //   text: () => (
-  //     <Box direction="column" gap="15px">
-  //       <p>
-  //         Assets are mapped 1:1. For example, 10 “BUSD” on Ethereum after
-  //         bridging will be available as 10 “1BUSD” on Harmony. Here, “1BUSD” is
-  //         the token symbol of the token issued on Harmony corresponding to
-  //         “BUSD” token symbol on Ethereum.
-  //       </p>
-  //       <p>
-  //         Same 1:1 mapping holds true for Binance Smart Chain. However, the
-  //         assets from two different parent chains (Ethereum or Binance Smart
-  //         Chain), after bridging will be represented using different bridged
-  //         assets on Harmony. For instance, 5 “Binance Smart Chain BUSD“ after
-  //         bridging will be available as 5 “bscBUSD“ on Harmony. Here, “bscBUSD”
-  //         is the token symbol of the token issued on Harmony corresponding to
-  //         “BUSD” token symbol on Binance Smart Chain.
-  //       </p>
-  //       <p>
-  //         And, the “1BUSD“ and “bscBUSD“ are not interchangeable, meaning one
-  //         cannot bridge BUSD from Ethereum to Harmony and then withdraw it on
-  //         Binance Smart Chain.
-  //       </p>
-  //     </Box>
-  //   ),
-  // },
-  // {
-  //   label:
-  //     'What are the two types of tokens issued on Harmony when bridged using Horizon?',
-  //   text: () => (
-  //     <p>
-  //       Horizon supports issuing of both permissioned and permissionless tokens
-  //       for Ethereum bridging.
-  //       <ul>
-  //         <li>
-  //           BUSD and LINK are issued as permissioned tokens, where partners like
-  //           Binance, ChainLink can work with Harmony to deploy their audited
-  //           smart contracts such that bridge can issue full-feature smart
-  //           contract tokens for the corresponding Ethereum tokens. This enables
-  //           full utilization of the bridged tokens. For example, the bridged
-  //           “1LINK” on Harmony can be directly used to pay the oracle providers
-  //           through chainlink’s oracle smart contract, which would not have been
-  //           possible if “1LINK” was HRC20.
-  //         </li>
-  //         <li>
-  //           Any other ERC20 token is bridged in a permissionless manner, where
-  //           the bridge will issue 1:1 HRC20 tokens. For example, a user after
-  //           bridging their USDT will receive equivalent “1USDT” HRC20 tokens.
-  //         </li>
-  //         <li>
-  //           For Binance Smart Chain, permissionless HRC20 tokens are issued for
-  //           any BEP20 token.
-  //         </li>
-  //       </ul>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label:
-  //     'What is the difference between permissioned token (BUSD/LINK) vs permission-less token (ERC20)?',
-  //   text: () => (
-  //     <p>
-  //       Permissioned tokens (BUSD, LINK) will have the full-features of the
-  //       token’s smart contract, whereas permissionless tokens are issued as
-  //       HRC20 with only ERC20-like features.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Does the token supply increase when using Horizon?',
-  //   text: () => (
-  //     <p>
-  //       No: The supply of the original token never change as a result of using
-  //       Horizon: Horizon bridge locks a certain amount of a token on Ethereum
-  //       blockchain (essentially taking it out of circulation) and mints the
-  //       exact same amount of tokens on the Harmony blockchain, that represents
-  //       in all respects the original token (i.e. regenerating the locked
-  //       supply). As a result, the circulating supply of the original token will
-  //       stay the same: it's just split across two different blockchains instead
-  //       of one.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'What happens to my original tokens if I sell the bridged tokens?',
-  //   text: () => (
-  //     <p>
-  //       Once you use Horizon to transfer your original tokens from Ethereum to
-  //       Harmony, the original tokens get stored and locked in the Horizon
-  //       contracts: you do not own those tokens on Ethereum anymore. On the other
-  //       side, you now own the same amount of tokens that gets sent to you on the
-  //       Harmony blockchain.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Can I send my bridged tokens back from Harmony to Ethereum?',
-  //   text: () => (
-  //     <p>
-  //       Yes: you can send the bridged tokens from Harmony to Ethereum at any
-  //       time, and receive back the same amount of the original token on
-  //       Ethereum.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Can I bridge as many tokens as I want, or is there a limit?',
-  //   text: () => (
-  //     <p>
-  //       There is no limit on the amount of tokens that can be bridged from
-  //       Ethereum to Harmony.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Are bridged tokens transferable?',
-  //   text: () => (
-  //     <p>
-  //       Yes. You can transfer the bridged tokens to other users and they can
-  //       redeem them back to their Ethereum accounts. This is possible because
-  //       when you lock your token, it gets pooled into a bridge smart contract
-  //       from which any redeem request can be serviced without tying the locked
-  //       tokens and redemption to a specific user account.
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Can I send native ONE tokens to Ethereum using Horizon?',
-  //   text: () => (
-  //     <>
-  //       <p>
-  //         Yes, the Horizon bridge supports sending ONE tokens and HRC20 tokens
-  //         issues on Harmony to Ethereum and back. Note that, the cost for any
-  //         bridge transfers to Ethereum will be approximately equivalent to price
-  //         of 400,000 Ethereum gas.
-  //       </p>
-  //       <p>
-  //         The Horizon bridge does not supports sending ONE tokens and HRC20
-  //         tokens to Binance Smart Chain yet, but this feature will be available
-  //         very soon.
-  //       </p>
-  //     </>
-  //   ),
-  // },
-  // {
-  //   label: 'What tokens are supported by Horizon?',
-  //   text: () => (
-  //     <>
-  //       <li>For Ethereum bridging: BUSD, LINK, any ERC20</li>
-  //       <li>For Binance Smart Chain bridging: any BEP20</li>
-  //     </>
-  //   ),
-  // },
-  // {
-  //   label: 'What’s the cost of using the bridge?',
-  //   text: () => (
-  //     <Box direction="column" gap="15px">
-  //       <p>
-  //         <b>Sending ERC20/ETH from Ethereum to Harmony</b>
-  //         <br />
-  //         Involves two transactions (approve and lock) that requires
-  //         approximately 100,000 Ethereum gas in total and the cost will be paid
-  //         by the user. The multisig confirmation cost on the Harmony network is
-  //         taken care by the validators.
-  //       </p>
-  //       <p>
-  //         <b>
-  //           Sending HRC20/ONE to Ethereum or redeeming the bridged tokens back
-  //           to Ethereum
-  //         </b>{' '}
-  //         <br />
-  //         Any bridge transfers from Harmony to Ethereum involves multisig
-  //         confirmations by the validators, which is approximately 400,000
-  //         Ethereum gas. To cover this operating cost of the validators
-  //         (especially during the volatility of Ethereum gas price), we require
-  //         users to deposit an approximate network fee in ONE tokens, which is
-  //         equivalent to 400,000 Ethereum gas.
-  //       </p>
-  //       <p>
-  //         Similarly for Binance Smart Chain, however the transaction fee are
-  //         much lower (you get an accurate estimate of the bridge fee while using
-  //         the bridge).
-  //       </p>
-  //     </Box>
-  //   ),
-  // },
-  // {
-  //   label: 'Is Horizon bridge audited?',
-  //   text: () => (
-  //     <p>
-  //       Yes, the Horizon bridge is fully audited and approved by{' '}
-  //       <a href="https://blog.peckshield.com" target="_blank">
-  //         Peckshield Inc.
-  //       </a>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Is there a tutorial explaining how to use Horizon?',
-  //   text: () => (
-  //     <p>
-  //       <a
-  //         href="https://docs.harmony.one/home/showcases/crosschain/horizon-bridge"
-  //         target="_blank"
-  //       >
-  //         https://docs.harmony.one/home/showcases/crosschain/horizon-bridge
-  //       </a>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Is Horizon open source?',
-  //   text: () => (
-  //     <p>
-  //       Yes: Horizon code is open source, you can find it on GitHub:
-  //       <a href="https://github.com/harmony-one/ethhmy-bridge" target="_blank">
-  //         https://github.com/harmony-one/ethhmy-bridge
-  //       </a>
-  //     </p>
-  //   ),
-  // },
-  // {
-  //   label: 'Explaination of the bridge fee?',
-  //   text: () => (
-  //     <Box direction="column" gap="15px">
-  //       <li>
-  //         The Horizon bridge has still the lowest cost for Ethereum to Harmony
-  //         transfers, however Harmony to Ethereum transfers will be expensive (at
-  //         high Ethereum gas price). The Ethereum gas cost for our bridge is
-  //         comparable to every other bridge that is currently on Ethereum
-  //         mainnet. For example, SecretNetwork bridge, IoTex bridge, etc.
-  //       </li>
-  //       <li>
-  //         We have been working tirelessly on the trustless and gas-efficient
-  //         version of the bridge to Ethereum, which will be rolled out sometime
-  //         soon. The cost of transferring assets from Harmony to Ethereum is
-  //         expected to drastically improve. We will keep the community up to date
-  //         on this release.
-  //       </li>
-  //     </Box>
-  //   ),
-  // },
-  {
-    label: 'Got a bridge error in the end',
-    text: () => (
-      <p>
-        Email <span>bridge@harmony.one</span> your wallet address or any
-        transaction hash related to the failed transfer. Please allow 24-48
-        hours to resolve. Do not email, if you have a bridge question or doubt,
-        you won't get a reply. For question/doubt, look at <b>FAQ</b> section or
-        ask in the bridge channels (discord, telegram).
-      </p>
-    ),
-  },
+    {
+        label: 'Transaction is pending for too long',
+        text: () => (
+            <p>
+                If your transaction is pending for too long, you can manage it via your wallet. We can’t make it faster or cancel it.
+                If transaction is on Harmony side, make sure you use
+                <a href="https://docs.harmony.one/home/network/wallets/browser-extensions-wallets/metamask-wallet">
+                    recommended settings
+                </a>
+                for Harmony network.
+            </p>
+        ),
+    },
+
+    {
+        label: 'Operation has been in progress for too long',
+        text: () => (
+            <p>
+                Normally it takes less than 20 minutes per step to complete a transaction. Delays are also possible but they won’t affect your funds.
+                <br>
+                    If your operation is in progress on the final step for more than an hour, please report to a #bridge channel in the Discord community. Please don’t send a request to support in this case, it’ll be ignored unless you send an update that your operation ended up with an error.
+                    If there are many operations in progress, it’s usually because of global RPC issues. In this case, the support team can’t make it faster for you.
+                </br>
+            </p>
+        ),
+    },
+
   {
     label: 'Bridge success, but tokens not in wallet',
     text: () => (
@@ -363,8 +51,9 @@ const faqConfig = [
       </p>
     ),
   },
+
   {
-    label: 'I bridged my tokens by only received 0.01 ONE in my account',
+    label: 'I bridged my tokens but only received 0.01 ONE in my account',
     text: () => (
       <p>
         Bridge does not swap tokens, it only provides wrapped tokens. For the
@@ -383,37 +72,120 @@ const faqConfig = [
       </p>
     ),
   },
+
+    {
+        label: 'Got a bridge error in the end',
+        text: () => (
+            <p>
+                You have an error in the end if the last (mint/unlock) transaction status is error, and all the transactions before was successful.
+                <br>
+                    Email <span>bridge@harmony.one</span> your wallet address and any transaction hash related to the failed transfer or operaion ID. We need all the data in text format.
+                    In subject always mention token amount, token type type and transfer direction (ETH->HMY/HMY->BSC, etc). Describe your problem.
+                    Please allow 24-48 hours to resolve.
+                    Do not email, if you have a bridge question or doubt,
+                    you won't get a reply. For question/doubt, look at <b>FAQ</b> section or
+                    ask in the bridge channels (discord, telegram).
+                </br>
+            </p>
+        ),
+    },
+
   {
-    label: 'By mistake sent tokens to exchance wallet (e.g. Binance)',
+    label: 'Deposited ONE was’t withdrawn for failed HMY→BSC / HMY→ETH operation',
     text: () => (
       <p>
-        Unfortunately your tokens are permanently lost and is not recoverable.
+          The deposits of all failed transactions are returned after the 1-hour timeout.
+          If you do not receive the deposit back even after the timeout, then email <span>bridge@harmony.one</span>.
+          If you send email earlier, it will be ignored.
+          Include in your email deposit transaction hash/URL, operation ID and wallet address. If you don't have an operation ID, mention operation day and time with a timezone.
+          In subject always mention token amount, token type type and transfer direction (BSC->HMY/HMY->BSC). Describe your problem.
+          We need all the data in text format. Please allow 24-48 hours to resolve.
       </p>
     ),
   },
 
-  {
-    label: 'My bridge transaction failed and I lost my deposit',
-    text: () => (
-      <p>
-        The deposits of all failed transactions are returned back after the 1
-        hour timeout. If you do not receive the deposit back even after the
-        timeout, then email <span>bridge@harmony.one</span>.
-      </p>
-    ),
-  },
-  {
-    label: 'Can I send the Ethereum bridged tokens to BSC?',
-    text: () => (
-      <p>
-        No, ethereum bridged tokens can only be sent back to ethereum. Same
-        applies for BSC bridged tokens.
-      </p>
-    ),
-  },
+    {
+        label: 'Incomplete operation. Funds are locked/burnt on the first chain and not unlocked/minted on the other',
+        text: () => (
+            <p>
+                This is the case when your bridged amount was locked/burnt on the first chain, but your operation failed on this step. If you was experiencing connection issues during the operation, it’s probably your case.
+
+                <ul>This is your case if all this conditions are met in the same time:
+                <li> You have lock/burn Harmony bridge transaction in your first chain explorer on the same amount and time as the operation.</li>
+                <li> However, there is no successful bridge operation with this transaction. </li>
+                <li> The lock/burn step status of your operation is “canceled” (if transaction was rejected by timeout) or “error”.</li>
+                </ul>
+
+                Email <span>bridge@harmony.one</span> your wallet address, lock/burn transaction hash/URL, operation ID. If you don't have operation ID, include any transaction hash associated with the operation or mention operation day and time with a timezone.
+                In subject always mention token amount, token type type and transfer direction (ETH->HMY/HMY->BSC, etc). Describe your problem.
+                We need all the data in text format. Please allow 24-48 hours to resolve.
+            </p>
+        ),
+    },
+
+    {
+        label: 'How to find operation details',
+        text: () => (
+            <p>
+                If you perform your operation on bridge.harmony.one, you can find the details on your operation page (e.g: https://bridge.harmony.one/hrc20/operations/7fa514f29-219f9210-1f209e61-8911e539)
+                Every bridge operation is associated with a unique operation ID (e.g. 7fa514f29-219f9210-1f209e61-8911e539)
+                which is available in your operation page URL.
+                On the page, you can find links to transactions of the operation steps and the status of each step.
+                <br>
+                You can also find your operation in the
+                <a href="https://bridge.harmony.one/explorer">
+                    bridge operations explorer
+                </a>.
+                You can check the “Only my transactions” checkbox to see your operations. The wallet you used for your operation must be connected to make it work.
+
+                You can see wallets used, operation status, token type, amount, and time of operation.
+
+                You can rely on the date and time, amount, and token type of the operation to find it. If you have a transaction hash you can also check by it (if it’s from the Harmony explorer, there are two hash options: Hash/ Ethereum hash).
+                </br>
+            </p>
+        ),
+    },
+
+    {
+        label: 'By mistake sent tokens to exchange wallet (e.g. Binance)',
+        text: () => (
+            <p>
+                Unfortunately your tokens are permanently lost and not recoverable.
+            </p>
+        ),
+    },
+
+    {
+        label: 'I sent tokens to a wallet that doesn’t support the network I used',
+        text: () => (
+            <p>
+                If you can’t open your wallet in the network where your tokens was sent, we can’t assist. You can try to reach a support of the service that gave you this account.
+            </p>
+        ),
+    },
+
+    {
+        label: 'By mistake sent tokens to a token address',
+        text: () => (
+            <p>
+                Unfortunately your tokens are permanently lost and not recoverable.
+            </p>
+        ),
+    },
+
+  // {
+  //   label: 'Can I send the Ethereum bridged tokens to Binance?',
+  //   text: () => (
+  //     <p>
+  //       No, Ethereum bridged tokens can only be sent back to Ethereum. Same
+  //       applies for Binance bridged tokens.
+  //     </p>
+  //   ),
+  // },
+    //->faq
 
   {
-    label: 'ERC20 or BEP20 or HRC20 , which one to select?',
+    label: 'ERC20 or BEP20 or HRC20, which one to select?',
     text: () => (
       <p>
         The token type you select is based on where the token was originally
@@ -455,7 +227,7 @@ const faqConfig = [
     text: () => (
       <p>
         When you bridge your Harmony minted NFT to Ethereum, a new contract must
-        be deployed on Etheruem which is a one time cost and really expensive.
+        be deployed on Ethereum which is a one time cost and really expensive.
         It is advisable that your Harmony NFT project bare this cost. After the
         contract is deployed, the subsequent bridging costs are for multisig
         based minting of the NFT on ethereum. This incurs 600,000 gas and may
@@ -472,6 +244,26 @@ const faqConfig = [
         This means you don't have enough ONE tokens for paying Ethereum gas when
         doing Harmony to Ethereum transfer. Note that, bridge validators pay the
         ethereum gas fee and you pay the bridge validators using ONE tokens.
+      </p>
+    ),
+  },
+
+  {
+    label: 'I can’t bridge because of an error',
+    text: () => (
+      <p>
+        There can be many possible causes. Sometimes the reason is clear from the error message (for example, low balance).
+
+          <ul>
+              Often there is a problem with the wallet connection. Try these steps to solve it:
+          <li> Please make sure your browser and the wallet extension are updated to the latest version </li>
+          <li> Make sure that your browser doesn’t block pop-up windows.</li>
+          <li> Try to clear the cache and relogin.</li>
+          <li> Check <a href="https://docs.harmony.one/home/network/wallets/browser-extensions-wallets/metamask-wallet">here</a> if your metamask is set up correctly.</li>
+          <li> Try using another browser or/and wallet extension.</li>
+          <li> If you use a mobile version, try it on the desktop.</li>
+          </ul>
+          If you’ve checked your settings but you still have errors, please share your problem in the #support or #bridge Discord channel.
       </p>
     ),
   },
