@@ -7,8 +7,8 @@ export const MetamaskWarning = () => (
     <Title>Wrong network selected</Title>
     <div>
       <p>
-        Looks like you don't chose Harmony network in Metamask extension. Please
-        chose Harmony network for continue. (
+        You are currently not on the Harmony network in Metamask. Please choose Harmony mainnet to continue.
+        (
         <a
           href="https://docs.harmony.one/home/developers/wallets/metamask"
           target="_blank"
