@@ -7,6 +7,7 @@ import {
   hmyMethodsBEP20, hmyMethodsERC1155,
   hmyMethodsERC20,
   hmyMethodsERC721, hmyMethodsHRC1155,
+  hmyMethodsERC721Hmy
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
@@ -492,20 +493,34 @@ export class UserStoreMetamask extends StoreConstructor {
       throw new Error('This address already using for Native tokens');
     }
 
-    const details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
+    const hrc20Address = await hmyMethodsERC721.hmyMethods.getMappingFor(
       erc20Address,
     );
+
+    let details;
+
+    if(this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
+        erc20Address,
+      );
+    } else {
+      try {
+        details = await hmyMethodsERC721Hmy.tokenDetails(
+          hrc20Address,
+        );
+      } catch (e) {
+        console.error(e);
+        throw new Error('Token not found');
+      }
+    }
+
     this.erc20Address = erc20Address;
     this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc20Address);
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
-    const address = await hmyMethodsERC721.hmyMethods.getMappingFor(
-      erc20Address,
-    );
-
-    if (!!Number(address)) {
-      this.stores.user.hrc20Address = address;
+    if (!!Number(hrc20Address)) {
+      this.stores.user.hrc20Address = hrc20Address;
       this.syncLocalStorage();
     } else {
       this.stores.user.hrc20Address = '';
