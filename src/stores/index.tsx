@@ -6,6 +6,7 @@ import { Exchange } from './Exchange';
 import { Operations } from './Operations';
 import { AdminOperations } from './AdminOperations';
 import { Tokens } from './Tokens';
+import { IdentityTokens } from './IdentityTokens';
 import { createStoresContext } from './create-context';
 import { Erc20SelectStore } from './Erc20SelectStore';
 import { AdminOperationsFull } from './AdminOperationsFull';
@@ -21,6 +22,7 @@ export interface IStores {
   adminOperations?: AdminOperations;
   adminOperationsFull?: AdminOperationsFull;
   tokens?: Tokens;
+  itokens?: IdentityTokens;
   uiConfig?: UIConfig;
   erc20Select?: Erc20SelectStore;
 }
@@ -33,6 +35,7 @@ stores.operations = new Operations(stores);
 stores.adminOperations = new AdminOperations(stores);
 stores.adminOperationsFull = new AdminOperationsFull(stores);
 stores.tokens = new Tokens(stores);
+stores.itokens = new IdentityTokens(stores);
 stores.actionModals = new ActionModalsStore();
 stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);

@@ -1,5 +1,5 @@
 import {
-  ACTION_TYPE,
+  ACTION_TYPE, IIdentityTokenInfo,
   IOperation,
   ITokenInfo,
   NETWORK_TYPE,
@@ -11,6 +11,7 @@ import * as _ from 'lodash';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
+import { IdentityTokens } from '../pages/IdentityTokens';
 
 let serversJson = require('../../appengine-servers.json');
 
@@ -238,6 +239,17 @@ export const getTokensInfo = async (
 ): Promise<{ content: ITokenInfo[] }> => {
   const res = await agent.get<{ body: ITokenInfo[] }>(
     process.env.ASSETS_INFO_SERVICE + '/tokens/',
+    params,
+  );
+
+  return res.body;
+};
+
+export const getIdentityTokensInfo = async (
+  params: any,
+): Promise<{ content: IIdentityTokenInfo[] }> => {
+  const res = await agent.get<{ body: IIdentityTokenInfo[] }>(
+    process.env.ASSETS_INFO_SERVICE + '/itokens/',
     params,
   );
 

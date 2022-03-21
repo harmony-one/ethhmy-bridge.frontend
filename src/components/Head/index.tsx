@@ -10,6 +10,7 @@ import * as styles from './styles.styl';
 import cn from 'classnames';
 import { TOKEN } from '../../stores/interfaces';
 import { useMediaQuery } from 'react-responsive';
+import { IdentityTokens } from '../../pages/IdentityTokens';
 
 // import { formatWithTwoDecimals } from '../../utils';
 
@@ -32,6 +33,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
     const isExplorer = history.location.pathname === '/explorer';
     const isTokens = history.location.pathname === '/tokens';
+    const isIdentityTokens = history.location.pathname === '/itokens';
     const isGetTokens = history.location.pathname === '/get-tokens';
     const isFaq = history.location.pathname === '/faq';
     const isHelp = history.location.pathname === '/help';
@@ -123,7 +125,8 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                   !isHelp &&
                   !isExplorer &&
                   !isGetTokens &&
-                  !isTokens
+                  !isTokens &&
+                  !isIdentityTokens
                   ? styles.selected
                   : '',
               )}
@@ -139,6 +142,15 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               }}
             >
               <Text>Assets</Text>
+            </Box>
+
+            <Box
+              className={cn(styles.itemToken, isIdentityTokens ? styles.selected : '')}
+              onClick={() => {
+                routing.push(`/itokens`);
+              }}
+            >
+              <Text>iToken</Text>
             </Box>
 
             {!isMobile && (
