@@ -11,6 +11,8 @@ export enum PaginationType {
 }
 
 interface IPaginationPanelProps {
+  showPages?: boolean;
+  showSizer?: boolean;
   activeColor?: string;
   theme?: any;
   type?: PaginationType;
@@ -25,12 +27,12 @@ interface IPaginationConfig {
   totalElements?: number;
 }
 
-const PaginationWrap = styled.div<any>`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 32px 0;
-`;
+const options = [
+  { text: '10 items', value: 10 },
+  { text: '30 items', value: 30 },
+  { text: '50 items', value: 50 },
+  { text: '100 items', value: 100 },
+];
 
 @observer
 export class CustomPagination extends React.Component<IPaginationPanelProps> {
@@ -80,28 +82,26 @@ export class CustomPagination extends React.Component<IPaginationPanelProps> {
   }
 
   render() {
-    const { config } = this.props;
+    const { config, showPages = true, showSizer = true } = this.props;
     const { pageSize } = config;
 
     return (
-      <PaginationWrap>
-        {this.renderPager()}
-        <Box width="266px">
-          <Select
-            name="pageSize"
-            type="filter"
-            value={pageSize}
-            size="full"
-            options={[
-              { text: 'Show 10 items', value: 10 },
-              { text: 'Show 30 items', value: 30 },
-              { text: 'Show 50 items', value: 50 },
-              { text: 'Show 100 items', value: 100 },
-            ]}
-            onChange={this.onPageSizeChanged}
-          />
-        </Box>
-      </PaginationWrap>
+      <Box direction="row" justify="center" align="center">
+        {showPages && this.renderPager()}
+
+        {showSizer && (
+          <Box width="164px">
+            <Select
+              name="pageSize"
+              type="filter"
+              value={pageSize}
+              size="full"
+              options={options}
+              onChange={this.onPageSizeChanged}
+            />
+          </Box>
+        )}
+      </Box>
     );
   }
 }

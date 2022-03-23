@@ -4,6 +4,7 @@ import { Icon, TextInput } from 'components/Base';
 import { observer } from 'mobx-react-lite';
 import styled from 'styled-components';
 import { baseTheme } from '../../themes';
+import * as s from './Search.styl';
 
 export const SearchInput = observer(
   (params: {
@@ -13,12 +14,7 @@ export const SearchInput = observer(
   }) => {
     return (
       <StyledInput
-        style={{
-          background: 'white',
-          flex: 1,
-          padding: '0 0 0 16px',
-          height: 48,
-        }}
+        className={s.root}
         onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
           if (event.key === 'Enter') params.onChange(params.value);
         }}
@@ -26,7 +22,7 @@ export const SearchInput = observer(
         renderRight={
           params.value && <CleanIcon onClick={() => params.onChange('')} />
         }
-        placeholder={params.placeholder || 'Search by asset details'}
+        placeholder={params.placeholder || ''}
         value={params.value}
         onChange={value => params.onChange(value)}
         {...({} as any)} // dirty hack for typechecking onKeyDown
@@ -48,7 +44,7 @@ function SearchIcon() {
   return (
     <Box>
       <Icon
-        glyph="Search"
+        glyph="SearchN"
         size="20px"
         color="#A4A7AB"
         style={{ marginRight: 5 }}

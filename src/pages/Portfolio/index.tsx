@@ -139,16 +139,20 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     title: 'Origin Address',
     key: 'erc20Address',
     dataIndex: 'erc20Address',
-    width: 280,
+    width: 380,
     render: (value, data) => {
+      const balance = getAssetBalance(data, 'origin') || '0';
+      const hBalance = utils.fromWei(balance);
+      // @ts-ignore
+      const usdBalance = hBalance * data.usdPrice;
       return (
-        <div>
-          {getAssetAddress(data, 'origin')}
-          {formatWithSixDecimals(
-            utils.fromWei(getAssetBalance(data, 'origin') || '0'),
-          )}{' '}
-          {data.symbol}
-        </div>
+        <Box>
+          <Box>{getAssetAddress(data, 'origin')}</Box>
+          <Box>
+            {formatWithSixDecimals(hBalance)} {data.symbol} ( $
+            {formatWithTwoDecimals(usdBalance)} )
+          </Box>
+        </Box>
       );
     },
   },
@@ -156,16 +160,20 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     title: 'Mapping Address',
     key: 'hrc20Address',
     dataIndex: 'hrc20Address',
-    width: 280,
+    width: 380,
     render: (value, data) => {
+      const balance = getAssetBalance(data, 'mapping') || '0';
+      const hBalance = utils.fromWei(balance);
+      // @ts-ignore
+      const usdBalance = hBalance * data.usdPrice;
       return (
-        <div>
-          {getAssetAddress(data, 'mapping')}
-          {formatWithSixDecimals(
-            utils.fromWei(getAssetBalance(data, 'mapping') || '0'),
-          )}{' '}
-          {data.symbol}
-        </div>
+        <Box>
+          <Box>{getAssetAddress(data, 'mapping')}</Box>
+          <Box>
+            {formatWithSixDecimals(hBalance)} {data.symbol} ( $
+            {formatWithTwoDecimals(usdBalance)} )
+          </Box>
+        </Box>
       );
     },
   },
@@ -196,10 +204,10 @@ export const Portfolio = observer((props: any) => {
     await tokens.init();
     await tokens.fetch();
 
-    // const ethAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
-    // const oneAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
-    const ethAddress = userMetamask.ethAddress;
-    const oneAddress = user.address;
+    const ethAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
+    const oneAddress = '0x3998b67218d591758c1704b1c4fa1a87abeeb443';
+    // const ethAddress = userMetamask.ethAddress;
+    // const oneAddress = user.address;
 
     await portfolio.loadOperationList(ethAddress, oneAddress);
   };

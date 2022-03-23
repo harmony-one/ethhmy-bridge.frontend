@@ -38,7 +38,7 @@ export * from './CheckBoxEmpty';
 export * from './Trash';
 export * from './RadioButton';
 export * from './RadioButtonEmpty';
-export * from './Search';
+export * from './SearchN';
 export * from './Edit';
 export * from './Excel';
 export * from './Logout';

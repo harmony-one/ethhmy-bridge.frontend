@@ -16,6 +16,7 @@ import { useStores } from '../../stores';
 import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import { ManageButton } from './ManageButton';
+import { Text } from '../../components/Base';
 import { useEffect } from 'react';
 
 const EthAddress = observer<any>(
@@ -133,7 +134,8 @@ export const getColumns = (
       dataIndex: 'status',
       width: 140,
       render: value => (
-        <Box className={cn(styles.status, styles[value])}>{value}</Box>
+        <Box>{value}</Box>
+        // <Box className={cn(styles.status, styles[value])}>{value}</Box>
       ),
     },
     {
@@ -156,7 +158,7 @@ export const getColumns = (
       dataIndex: 'amount',
       width: 120,
       render: (value, data) =>
-        (data.token === TOKEN.ERC721 || data.token === TOKEN.HRC721)
+        data.token === TOKEN.ERC721 || data.token === TOKEN.HRC721
           ? value.length
           : formatWithSixDecimals(value),
     },
@@ -165,7 +167,13 @@ export const getColumns = (
       key: 'timestamp',
       dataIndex: 'timestamp',
       width: 160,
-      render: value => (value ? dateTimeAgoFormat(value * 1000) : '--'),
+      render: value => {
+        return (
+          <Text color="NGray">
+            {value ? dateTimeAgoFormat(value * 1000) : '--'}
+          </Text>
+        );
+      },
     },
     {
       title: 'Txn fee',

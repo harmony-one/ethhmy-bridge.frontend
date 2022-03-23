@@ -18,11 +18,13 @@ import { AdminExplorer } from './pages/Explorer/AdminExplorer';
 import { AdminExplorerFullHistory } from './pages/Explorer/AdminExplorerFullHistory';
 import { HelpPage } from './interfaces/NeedHelp';
 import { SupportPage } from './pages/Support';
+import { SandboxPage } from './pages/SandboxPage/SandboxPage';
 
 export const App: React.FC = () => (
   <Providers>
     <React.Suspense fallback={<div />}>
       <Switch>
+        <Route exact path="/sandbox" component={SandboxPage} />
         {process.env.GET_TOKENS_SERVICE === 'true' ? (
           <Route exact path="/get-tokens" component={MintTokens} />
         ) : null}
