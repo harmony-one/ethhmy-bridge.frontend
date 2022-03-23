@@ -100,7 +100,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
           <Box
             direction="row"
             align="center"
-            gap={isMobile ? '10px' : '15px'}
+            gap={isMobile ? '0px' : '15px'}
             margin={{ bottom: isMobile ? '10px' : '0px' }}
           >
             {getTokenServiceEnable ? (

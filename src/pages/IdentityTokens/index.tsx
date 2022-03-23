@@ -82,7 +82,9 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] =>
     width: 50,
     render: (value, data) => (
       <Box direction="row" justify="center" pad={{ left: 'medium' }}>
-        <img src={value} className={styles.itokenAvatar}/>
+        <a href={data.website} target="_blank">
+          <img src={value} className={styles.itokenAvatar}/>
+        </a>
       </Box>
     )
   },
@@ -94,6 +96,9 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] =>
     render: (value, data) => (
       <Box direction="row" justify="start">
         <strong>{value}</strong>
+        <a href={data.twitter} target="_blank">
+          <img src="/twitter.svg" className={styles.itokenTwitter}/>
+        </a>
       </Box>
     )
   },
@@ -176,7 +181,7 @@ export const IdentityTokens = observer((props: any) => {
           direction={isMobile ? 'column' : 'row'}
           justify="between"
           align={isMobile ? 'start' : 'center'}
-          margin={{ top: 'medium' }}
+          margin={{ top: isMobile ? 'large': 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
           <Title>Identity Tokens</Title>
@@ -203,6 +208,7 @@ export const IdentityTokens = observer((props: any) => {
             align="start"
             margin={{ top: '20px', bottom: '10px' }}
           >
+            <SearchInput value={search} onChange={setSearch} />
           </Box>
         )}
 

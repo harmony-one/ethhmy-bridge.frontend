@@ -249,7 +249,7 @@ export const Tokens = observer((props: any) => {
           direction={isMobile ? 'column' : 'row'}
           justify="between"
           align={isMobile ? 'start' : 'center'}
-          margin={{ top: 'medium' }}
+          margin={{ top: isMobile ? 'large': 'medium' }}
           pad={{ horizontal: 'medium' }}
         >
           <Title>Bridged Assets</Title>

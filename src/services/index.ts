@@ -7,11 +7,9 @@ import {
   OpenSeaValideResponse,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
-import * as _ from 'lodash';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
-import { IdentityTokens } from '../pages/IdentityTokens';
 
 let serversJson = require('../../appengine-servers.json');
 
