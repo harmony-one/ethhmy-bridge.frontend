@@ -8,6 +8,16 @@ export interface ITheme {
 }
 
 export interface IPalette {
+  NBlack: string;
+  NBlack2: string;
+  NGray: string;
+  NGray2: string;
+  NGray3: string;
+  NGray4: string;
+  NBlue: string;
+  NBlueLink: string;
+  NWhite: string;
+
   Basic1000: string;
   Basic900: string;
   Basic800: string;
@@ -45,6 +55,16 @@ export interface IBaseContainer {
 }
 
 const palette: IPalette = {
+  NGray: '#777777',
+  NGray2: '#292929',
+  NGray3: '#C4C4C4',
+  NGray4: '#AAAAAA',
+  NBlack: '#1b1b1c',
+  NBlack2: '#111111',
+  NBlueLink: '#356AE5',
+  NBlue: '#1F5AE2',
+  NWhite: '#FFFFFF',
+
   Basic1000: '#323846',
   Basic900: '#4E4E64',
   Basic800: '#30303d',
@@ -91,11 +111,11 @@ export const baseTheme: any = {
   appBorderRadius: 4,
 
   // Typography
-  fontBase: 'Nunito',
+  fontBase: 'GothamRounded',
   fontCode: 'monospace',
 
   // Text colors
-  textColor: palette.BlackTxt,
+  textColor: palette.NWhite,
   titleColor: palette.Basic800,
   textInverseColor: palette.Basic700,
 

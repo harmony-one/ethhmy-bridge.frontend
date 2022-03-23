@@ -187,20 +187,26 @@ function getBgColor(props: any) {
     return theme.palette[activeColor] || theme.palette.Purple500 || activeColor;
   }
 
-  return 'white';
+  return 'transparent';
 }
 
 const StyledPageCell = styled.div<any>`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 32px;
-  width: 32px;
-  border-radius: 4px;
+
+  height: 46px;
+  width: 46px;
+  border-radius: 15px;
   border: ${props =>
-    `1px solid ${props.type === 'dots' ? 'transparent' : '#e7ecf7'}`};
+    `4px solid ${
+      props.type === 'active' ? props.theme.palette.NWhite : 'transparent'
+    }`};
   background-color: ${getBgColor};
-  color: ${props => (props.type === 'active' ? 'white' : 'black')};
+  color: ${props =>
+    props.type === 'active'
+      ? props.theme.palette.NBlack
+      : props.theme.palette.NWhite};
   cursor: ${props => (props.type === 'default' ? 'pointer' : 'auto')};
   margin-right: 8px;
   font-size: 14px;

@@ -1,3 +1,5 @@
+@require '../../variables.styl'
+
 Basic200 = #e7ecf7;
 Basic400 = #D7D7D7;
 
@@ -14,29 +16,51 @@ Basic400 = #D7D7D7;
 :global(.rc-table) {
   th, td {
     border: none;
-    border-bottom: 1px solid Basic200;
+    border-bottom: 1px solid $NGray2;
+  }
+
+  th:first-child, td:first-child {
+    padding-left 48px;
+  }
+
+  th:last-child, td:last-child {
+    padding-right 48px;
   }
 
   td {
     padding: 9px 8px;
-    font-size: 15px;
+    font-size: 14px;
     height 70px
   }
 
+
   thead {
     th {
-      background-color: white;
-      border-top: 1px solid Basic200;
-      border-bottom: 1px solid Basic200;
+      background-color: $NBlack;
+      color: $NGray;
+      border-top: none;
+      border-bottom: none;
       text-align: left;
+      padding: 32px 0;
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        color: $NWhite;
+        background-color: $NBlack;
+      }
     }
   }
 }
 
 :global(.rc-table-content) {
-  border: 1px solid Basic200;
+  border: none;
   border-top: none;
   border-bottom: none;
+  border-radius: 25px;
+  overflow: hidden;
 }
 
 :global(.rc-table-body, .rc-table-header) {

@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Box } from 'grommet';
-import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { Table } from 'components/Table';
 import { getColumns, StatisticBlockLight } from './Common';
 import { ExpandedRow } from './ExpandedRow';
-import { Checkbox } from '../../components/Base/components/Inputs/types';
 import { validators } from '../../services';
 import { Title } from '../../components/Base/components/Title';
-import { PaginationType } from '../../components/Table/CustomPagination';
+import { Text } from '../../components/Base';
+import {
+  CustomPagination,
+  PaginationType,
+} from '../../components/Table/CustomPagination';
+import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon';
+import { ExpandIcon } from '../../components/Table/ExpandIcon/ExpandIcon';
+import { CheckboxButton } from '../../components/Base/components/Inputs/types/CheckboxButton';
 
 export const Explorer = observer((props: any) => {
   const { operations, user, tokens, userMetamask } = useStores();
@@ -58,51 +63,70 @@ export const Explorer = observer((props: any) => {
   const isAuthorized = userMetamask.ethAddress || user.address;
 
   return (
-    <BaseContainer>
-      <PageContainer>
+    <LayoutCommon>
+      <Box direction="column" margin={{ top: 'xlarge' }}>
         <Box
           direction="row"
-          wrap={true}
-          fill={true}
-          justify="center"
-          align="start"
-          margin={{ top: 'xlarge' }}
+          pad={{ bottom: '48px' }}
+          justify="between"
+          align="end"
         >
-          <Box
-            direction="row"
-            fill={true}
-            justify="between"
-            align="center"
-            pad={{ horizontal: 'large' }}
-            margin={{ bottom: '14px' }}
-          >
-            {!!validator ? (
-              <Box direction="row" align="center" justify="start" gap="20px">
-                <Box direction="row" align="center">
-                  <Title size="medium">
-                    Validator:
-                    <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
-                      {operations.validatorUrl}
-                    </span>
-                  </Title>
-                </Box>
-                <StatisticBlockLight />
+          {!!validator && (
+            <Box direction="row" align="center" justify="start" gap="20px">
+              <Box direction="row" align="center">
+                <Title size="medium">
+                  Validator:
+                  <span style={{ color: '#47b8eb', margin: '0 0 0 10px' }}>
+                    {operations.validatorUrl}
+                  </span>
+                </Title>
               </Box>
-            ) : (
-              <Box />
-            )}
-            {isAuthorized ? (
-              <Box>
-                <Checkbox
-                  label="Only my transactions"
+              <StatisticBlockLight />
+            </Box>
+          )}
+          <Box>
+            <Title size="small" color="NWhite">
+              Latest Transactions
+            </Title>
+          </Box>
+          <Box direction="row" gap="xsmall" align="center">
+            {isAuthorized && (
+              <Box direction="column">
+                <Text
+                  color="NGray4"
+                  style={{ fontSize: '10px', marginBottom: '8px' }}
+                >
+                  SHOW ONLY
+                </Text>
+                <CheckboxButton
+                  label="My transactions"
                   value={hasFilters}
                   onChange={setMyOperationsHandler}
                 />
               </Box>
-            ) : (
-              <Box />
             )}
+            <Box direction="column">
+              <Text
+                color="NGray4"
+                style={{ fontSize: '10px', marginBottom: '8px' }}
+              >
+                DISPLAYING PER PAGE
+              </Text>
+              <CustomPagination
+                showPages={false}
+                type={
+                  hasFilters ? PaginationType.PAGING : PaginationType.DEFAULT
+                }
+                config={operations.dataFlow.paginationData}
+                onChange={config => {
+                  onChangeDataFlow({ paginationData: config });
+                }}
+                activeColor="NGray3"
+              />
+            </Box>
           </Box>
+        </Box>
+        <Box>
           <Table
             paginationType={
               hasFilters ? PaginationType.PAGING : PaginationType.DEFAULT
@@ -120,11 +144,12 @@ export const Explorer = observer((props: any) => {
                 onExpandedRowsChange: setExpandedRowKeys,
                 expandedRowRender: (data: any) => <ExpandedRow data={data} />,
                 expandRowByClick: true,
+                expandIcon: ExpandIcon,
               },
             }}
           />
         </Box>
-      </PageContainer>
-    </BaseContainer>
+      </Box>
+    </LayoutCommon>
   );
 });

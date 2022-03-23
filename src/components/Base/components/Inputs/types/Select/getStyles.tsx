@@ -4,7 +4,10 @@ import { styleFn } from 'react-select/src/styles';
 import { getSize } from '../../common';
 import { getInputBorder } from '../TextInput';
 
-type GetStyles = (type?: SelectType, customStyles?: SelectCustomStyles) => StylesConfig;
+type GetStyles = (
+  type?: SelectType,
+  customStyles?: SelectCustomStyles,
+) => StylesConfig;
 
 export const getStyles: GetStyles = (type, customStyles) => {
   let result: StylesConfig = {};
@@ -17,12 +20,13 @@ export const getStyles: GetStyles = (type, customStyles) => {
     result = injectCustomStyles(result, customStyles);
   }
 
+  console.log('### result', result);
   return result;
 };
 
 const injectCustomStyles = (
   source: StylesConfig,
-  customStyles: SelectCustomStyles
+  customStyles: SelectCustomStyles,
 ): StylesConfig => {
   const result = { ...source };
   const customizedParts = Object.keys(customStyles) as [keyof StylesConfig];
@@ -30,7 +34,8 @@ const injectCustomStyles = (
   for (const part of customizedParts) {
     result[part] = (baseStyles, selectState) => {
       const providedStyleFn = source[part];
-      const providedStyles = (providedStyleFn && providedStyleFn(baseStyles, selectState)) || {};
+      const providedStyles =
+        (providedStyleFn && providedStyleFn(baseStyles, selectState)) || {};
 
       const injectedCustomStyles =
         typeof customStyles[part] === 'function'
@@ -51,9 +56,9 @@ const defaultPreset: StylesConfig = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused
-      ? state.theme.palette.Basic100
+      ? state.theme.palette.NGray
       : state.isSelected
-      ? state.theme.palette.Basic200
+      ? state.theme.palette.NGray2
       : 'transparent',
     color: state.theme.textColor,
     padding: '16px',
@@ -64,40 +69,42 @@ const defaultPreset: StylesConfig = {
     ...provided,
     width: getSize(props.selectProps.size, props.theme),
     fontFamily: props.theme.fontBase,
-    fontSize: '15px',
     border: 'none',
     borderTop: getInputBorder(props, 'Top'),
     borderRight: getInputBorder(props, 'Right'),
     borderBottom: getInputBorder(props, 'Bottom'),
     borderLeft: getInputBorder(props, 'Left'),
-    backgroundColor: props.theme.styled.input.bgColor,
-    color: props.theme.styled.input.textColor,
     // padding: '3px',
-    borderRadius: props.theme.styled.input.borderRadius || 0,
     minHeight: props.theme.styled.input.minLength || 38,
-    borderColor: `${props.theme.palette.Basic200} !important`,
     boxShadow: 'none',
+    fontSize: '12px',
+    backgroundColor: props.theme.palette.NBlack2,
+    color: props.theme.palette.NWhite,
+    paddingLeft: '14px',
+    borderRadius: '15px',
+    borderColor: `${props.theme.palette.NWhite} !important`,
   }),
-  indicatorSeparator: (provided, props) => {
-    const { customDDSeparator } = props.theme.styled.input;
-    if (customDDSeparator) {
-      return {
-        ...provided,
-        ...customDDSeparator,
-      };
-    }
-
-    return provided;
-  },
+  menu: (provided, props) => ({
+    ...provided,
+    borderRadius: '15px',
+    border: props.theme.styled.input.border,
+    overflow: 'hidden',
+    padding: 0,
+    borderColor: `${props.theme.palette.NWhite} !important`,
+    backgroundColor: props.theme.palette.NBlack2,
+  }),
+  indicatorSeparator: () => ({
+    display: 'none',
+  }),
 };
 
 const filterPreset: StylesConfig = {
   option: (provided, state) => ({
     ...provided,
     backgroundColor: state.isFocused
-      ? state.theme.palette.Basic100
+      ? state.theme.palette.NGray
       : state.isSelected
-      ? state.theme.palette.Basic200
+      ? state.theme.palette.NGray2
       : 'transparent',
     color: state.theme.textColor,
     padding: '8px',
@@ -108,15 +115,25 @@ const filterPreset: StylesConfig = {
     ...provided,
     width: getSize(props.selectProps.size, props.theme),
     fontFamily: props.theme.fontBase,
-    fontSize: '15px',
+    fontSize: '12px',
     border: props.theme.styled.input.border,
-    backgroundColor: 'white',
-    color: props.theme.styled.input.textColor,
+    backgroundColor: props.theme.palette.NBlack2,
+    color: props.theme.palette.NWhite,
     padding: '0',
-    borderRadius: '4px',
-    borderColor: `${props.theme.palette.Basic200} !important`,
+    paddingLeft: '14px',
+    borderRadius: '15px',
+    borderColor: `${props.theme.palette.NWhite} !important`,
     boxShadow: 'none',
     minHeight: '32px',
+  }),
+  menu: (provided, props) => ({
+    ...provided,
+    borderRadius: '15px',
+    border: props.theme.styled.input.border,
+    overflow: 'hidden',
+    padding: 0,
+    borderColor: `${props.theme.palette.NWhite} !important`,
+    backgroundColor: props.theme.palette.NBlack2,
   }),
   indicatorSeparator: () => ({
     display: 'none',
@@ -132,4 +149,6 @@ const presets: Record<SelectType, StylesConfig> = {
 };
 
 export type SelectType = 'default' | 'filter';
-export type SelectCustomStyles = StylesConfig | Partial<Record<keyof StylesConfig, CSSProperties>>;
+export type SelectCustomStyles =
+  | StylesConfig
+  | Partial<Record<keyof StylesConfig, CSSProperties>>;
