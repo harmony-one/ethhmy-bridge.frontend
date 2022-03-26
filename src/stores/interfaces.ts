@@ -1,5 +1,3 @@
-import { IdentityTokens } from '../pages/IdentityTokens';
-
 export enum NETWORK_TYPE {
   ETHEREUM = 'ETHEREUM',
   BINANCE = 'BINANCE',
@@ -184,6 +182,8 @@ export interface IIdentityTokenInfo {
   contractAddress: string;
   mappingAddress: string;
   openSea: string;
+  website: string;
+  twitter: string;
 }
 
 export interface OpenSeaValideResponse {
