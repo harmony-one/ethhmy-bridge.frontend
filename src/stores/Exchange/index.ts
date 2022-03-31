@@ -12,7 +12,7 @@ import {
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
-import { getDepositAmount, getOpenSeaSingleAsset } from 'services';
+import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
@@ -211,26 +211,32 @@ export class Exchange extends StoreConstructor {
               ).checksum;
             } else if (this.token === TOKEN.HRC721) {
               alert('please click `Change token` button first!');
-              return
+              return;
             }
 
-            if (this.token === TOKEN.HRC1155 && this.stores.user.hrc1155Address) {
+            if (
+              this.token === TOKEN.HRC1155 &&
+              this.stores.user.hrc1155Address
+            ) {
               this.transaction.hrc1155Address = getAddress(
                 this.stores.user.hrc1155Address,
               ).checksum;
             } else if (this.token === TOKEN.HRC1155) {
               alert('please click `Change token` button first!');
-              return
+              return;
             }
 
-            if (this.token === TOKEN.ERC1155 && this.stores.userMetamask.erc1155Address) {
+            if (
+              this.token === TOKEN.ERC1155 &&
+              this.stores.userMetamask.erc1155Address
+            ) {
               this.transaction.erc1155Address = getAddress(
                 this.stores.userMetamask.erc1155Address,
               ).checksum;
-              this.transaction.erc1155TokenId = this.stores.erc20Select.hrc1155TokenId
+              this.transaction.erc1155TokenId = this.stores.erc20Select.hrc1155TokenId;
             } else if (this.token === TOKEN.ERC1155) {
               alert('please click `Change token` button first!');
-              return
+              return;
             }
 
             // get NFT metadata
@@ -247,13 +253,17 @@ export class Exchange extends StoreConstructor {
                   break;
               }
 
-              const OpenSeaRes = await services.getOpenSeaSingleAsset(nftAddress, nftTokenId);
+              const OpenSeaRes = await services.getOpenSeaSingleAsset(
+                nftAddress,
+                nftTokenId,
+              );
 
               if (OpenSeaRes) {
                 if (OpenSeaRes.name) {
                   this.transaction.nftName = OpenSeaRes.name;
                 } else {
-                  this.transaction.nftName = OpenSeaRes.collection.name + " #" + nftTokenId;
+                  this.transaction.nftName =
+                    OpenSeaRes.collection.name + ' #' + nftTokenId;
                 }
                 this.transaction.nftImageUrl = OpenSeaRes.image_preview_url;
               }
@@ -271,8 +281,9 @@ export class Exchange extends StoreConstructor {
             this.transaction.approveAmount = '0';
 
             if (
-              (this.token === TOKEN.ERC721 || this.token === TOKEN.HRC721) ||
-              (this.token === TOKEN.HRC1155 || this.token === TOKEN.ERC1155)||
+              this.token === TOKEN.ERC721 ||
+              this.token === TOKEN.HRC721 ||
+              this.token === TOKEN.HRC1155 || this.token === TOKEN.ERC1155 ||
               (this.token === TOKEN.ONE &&
                 this.mode === EXCHANGE_MODE.ONE_TO_ETH) ||
               (this.token === TOKEN.ETH &&
@@ -305,20 +316,37 @@ export class Exchange extends StoreConstructor {
                 break;
               case EXCHANGE_MODE.ONE_TO_ETH:
                 this.isFeeLoading = true;
-                let otherOptions : Record<string, string> = {}
-                if (this.token === TOKEN.HRC721 && this.stores.user.hrc721Address) {
-                  const hasMapper = Number(await exNetwork.ethMethodsHRC721.getMappingFor(this.stores.user.hrc721Address))
+                let otherOptions: Record<string, string> = {};
+                if (
+                  this.token === TOKEN.HRC721 &&
+                  this.stores.user.hrc721Address
+                ) {
+                  const hasMapper = Number(
+                    await exNetwork.ethMethodsHRC721.getMappingFor(
+                      this.stores.user.hrc721Address,
+                    ),
+                  );
                   otherOptions = {
-                    gas: hasMapper ? '0': '2500000',
-                  }
+                    gas: hasMapper ? '0' : '2500000',
+                  };
                 }
-                if (this.token === TOKEN.HRC1155 && this.stores.user.hrc1155Address) {
-                  const hasMapper = Number(await exNetwork.ethMethodsHRC1155.getMappingFor(this.stores.user.hrc1155Address))
+                if (
+                  this.token === TOKEN.HRC1155 &&
+                  this.stores.user.hrc1155Address
+                ) {
+                  const hasMapper = Number(
+                    await exNetwork.ethMethodsHRC1155.getMappingFor(
+                      this.stores.user.hrc1155Address,
+                    ),
+                  );
                   otherOptions = {
-                    gas: hasMapper ? '0': '3000000',
-                  }
+                    gas: hasMapper ? '0' : '3000000',
+                  };
                 }
-                this.depositAmount = await getDepositAmount(this.network, otherOptions);
+                this.depositAmount = await getDepositAmount(
+                  this.network,
+                  otherOptions,
+                );
                 this.isFeeLoading = false;
                 break;
             }
@@ -1049,6 +1077,8 @@ export class Exchange extends StoreConstructor {
         return this.fullConfig.binanceClient.explorerURL;
       case NETWORK_TYPE.ETHEREUM:
         return this.fullConfig.ethClient.explorerURL;
+      case NETWORK_TYPE.HARMONY:
+        return this.fullConfig.hmyClient.explorerURL;
     }
   }
 }

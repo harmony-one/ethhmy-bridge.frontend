@@ -186,4 +186,6 @@ export const getExNetworkMethods = (): INetworkMethods => {
     case NETWORK_TYPE.BINANCE:
       return binanceNetwork;
   }
+
+  throw new Error(`network ${stores.exchange.network}`);
 };

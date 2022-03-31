@@ -17,6 +17,7 @@ interface IIconProps {
   tooltip?: ITooltipProps;
   pad?: TEdgeSize;
   margin?: TEdgeSize;
+  color?: string;
   [name: string]: any;
   stopPropagation?: boolean;
   nativeClick?: boolean;
@@ -74,19 +75,25 @@ const Wrapper = styled.div<IIconWrapperProps>`
   cursor: ${props => (props.onClick instanceof Function ? 'pointer' : 'auto')};
 
   svg {
-    color: ${props => (props.color ? getThemeColor(props.color, props.theme) : 'inherit')};
+    color: ${props =>
+      props.color ? getThemeColor(props.color, props.theme) : 'inherit'};
 
     :hover {
-      ${props => props.hoverColor && `color: ${getThemeColor(props.hoverColor, props.theme)}`}
+      ${props =>
+        props.hoverColor &&
+        `color: ${getThemeColor(props.hoverColor, props.theme)}`}
     }
 
     :active {
-      ${props => props.activeColor && `color: ${getThemeColor(props.activeColor, props.theme)}`}
+      ${props =>
+        props.activeColor &&
+        `color: ${getThemeColor(props.activeColor, props.theme)}`}
     }
   }
 
-  ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
-  ${props => props.margin && getMarginCSS(props.margin, props.theme)}
+  color: ${props => props.color || ''}
+    ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
+    ${props => props.margin && getMarginCSS(props.margin, props.theme)};
 `;
 
 function EmptyComponent(glyph: string) {
@@ -143,7 +150,10 @@ class IconClass extends React.Component<IIconProps> {
             pad={pad}
             onClick={this.onClick}
           >
-            <Component {...convertToSVGProps(restProps)} className={className} />
+            <Component
+              {...convertToSVGProps(restProps)}
+              className={className}
+            />
           </Wrapper>
         </Tooltip>
       );
