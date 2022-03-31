@@ -112,6 +112,7 @@ const StyledButton = styled.button<IStyledButtonProps & any>`
 
   display: flex;
   justify-content: center;
+  align-items: center;
   outline: none;
   box-sizing: border-box;
   cursor: ${props => (props.disabled ? 'auto' : 'pointer')};

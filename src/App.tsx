@@ -19,6 +19,7 @@ import { AdminExplorerFullHistory } from './pages/Explorer/AdminExplorerFullHist
 import { HelpPage } from './interfaces/NeedHelp';
 import { SupportPage } from './pages/Support';
 import { SandboxPage } from './pages/SandboxPage/SandboxPage';
+import { ModalReactRouter } from './modals/ModalReactRouter';
 
 export const App: React.FC = () => (
   <Providers>
@@ -56,6 +57,7 @@ export const App: React.FC = () => (
       </Switch>
     </React.Suspense>
     <ActionModals />
+    <ModalReactRouter />
     <InfoModal />
     <GlobalStyle theme={...baseTheme as any} />
   </Providers>

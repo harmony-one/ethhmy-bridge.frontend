@@ -1,6 +1,7 @@
 export enum NETWORK_TYPE {
   ETHEREUM = 'ETHEREUM',
   BINANCE = 'BINANCE',
+  HARMONY = 'HARMONY',
 }
 
 export enum EXCHANGE_MODE {
@@ -177,16 +178,16 @@ export interface ITokenInfo {
 
 export interface OpenSeaValideResponse {
   collection: {
-    safelist_request_status: string,
-    slug: string,
-  },
-  address: string,
+    safelist_request_status: string;
+    slug: string;
+  };
+  address: string;
 }
 
 export interface OpenSeaSingleAssetResponse {
-  name: string,
-  image_preview_url: string,
+  name: string;
+  image_preview_url: string;
   collection: {
-    name: string,
-  },
+    name: string;
+  };
 }
