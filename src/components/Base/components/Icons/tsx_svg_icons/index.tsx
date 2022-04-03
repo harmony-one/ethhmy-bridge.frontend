@@ -57,3 +57,4 @@ export * from './Harmony';
 export * from './Binance';
 export * from './Switch';
 export * from './Settings';
+export * from './CloseCircle';

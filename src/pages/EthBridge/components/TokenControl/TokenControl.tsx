@@ -10,7 +10,7 @@ import { TokenChooseModal } from '../TokenChooseModal/TokenChooseModal';
 interface Props {}
 
 export const TokenControl: React.FC<Props> = () => {
-  const { routing } = useStores();
+  const { routing, exchange, erc20Select } = useStores();
 
   const handleChangeToken = useCallback(() => {
     routing.goToModal(ModalIds.BRIDGE_TOKEN_CHOOSE, {
@@ -20,6 +20,13 @@ export const TokenControl: React.FC<Props> = () => {
     });
   }, [routing]);
 
+  const token = erc20Select.tokensList.find(
+    token => erc20Select.tokenAddress === token.address,
+  );
+
+  console.log('### token', token);
+  console.log('### exchange.token', exchange.token);
+
   return (
     <BridgeControl
       title="Choose Token"
@@ -28,7 +35,7 @@ export const TokenControl: React.FC<Props> = () => {
         <Button onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
             <Text size="large" color="NWhite">
-              BNB
+              {token && token.symbol}
             </Text>
             <Icon size="10px" glyph="ArrowDownFilled" />
           </Box>
@@ -42,7 +49,7 @@ export const TokenControl: React.FC<Props> = () => {
       }
       bottomContent={
         <Text size="xxsmall" color="NGray">
-          Binance Coin
+          {token && token.label}
         </Text>
       }
     />
