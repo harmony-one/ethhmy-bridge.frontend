@@ -18,6 +18,7 @@ import { NetworkSourceControl } from './components/NetworkSourceControl/NetworkS
 import { NetworkDestination } from './components/NetworkDestination/NetworkDestination';
 import { NetworkRow } from './components/NetworkRow/NetworkRow';
 import { TokenRow } from './components/TokenRow/TokenRow';
+import { Destination } from './components/Destination/Destination';
 
 const LargeButton = observer(
   (props: {
@@ -215,7 +216,7 @@ export const EthBridge = observer((props: any) => {
           <NetworkRow />
           <TokenRow />
           <Box align="center" pad="large" style={{ height: '174px' }}>
-            Destination address
+            <Destination />
           </Box>
           <Box direction="row" height="66px">
             <Button
@@ -241,26 +242,26 @@ export const EthBridge = observer((props: any) => {
           justify="center"
           className={styles.base}
         >
-          {/*<Box*/}
-          {/*  direction="row"*/}
-          {/*  justify="between"*/}
-          {/*  width="560px"*/}
-          {/*  margin={{ vertical: 'large' }}*/}
-          {/*>*/}
-          {/*  <LargeButton*/}
-          {/*    title="ETH -> ONE"*/}
-          {/*    description="(Metamask)"*/}
-          {/*    onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}*/}
-          {/*    isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}*/}
-          {/*  />*/}
-          {/*  <LargeButton*/}
-          {/*    title="ONE -> ETH"*/}
-          {/*    reverse={true}*/}
-          {/*    description={user.isMetamask ? '(Metamask)' : '(ONE Wallet)'}*/}
-          {/*    onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}*/}
-          {/*    isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}*/}
-          {/*  />*/}
-          {/*</Box>*/}
+          <Box
+            direction="row"
+            justify="between"
+            width="560px"
+            margin={{ vertical: 'large' }}
+          >
+            <LargeButton
+              title="ETH -> ONE"
+              description="(Metamask)"
+              onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
+              isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+            />
+            <LargeButton
+              title="ONE -> ETH"
+              reverse={true}
+              description={user.isMetamask ? '(Metamask)' : '(ONE Wallet)'}
+              onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
+              isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
+            />
+          </Box>
 
           {/*<Box*/}
           {/*  margin={{ bottom: 'medium' }}*/}
@@ -268,7 +269,7 @@ export const EthBridge = observer((props: any) => {
           {/*  <ERC20Select />*/}
           {/*</Box>*/}
 
-          {/*<Exchange />*/}
+          <Exchange />
 
           {/*<Box*/}
           {/*  className={styles.walletBalancesContainer}*/}
@@ -279,13 +280,13 @@ export const EthBridge = observer((props: any) => {
           {/*</Box>*/}
         </Box>
 
-        {/*<Box direction="column" margin={{ top: 'large' }}>*/}
-        {/*  <Box direction="row" justify="start" gap="20px">*/}
-        {/*    <NetworkButton type={NETWORK_TYPE.BINANCE} />*/}
-        {/*    <NetworkButton type={NETWORK_TYPE.ETHEREUM} />*/}
-        {/*  </Box>*/}
-        {/*  <WalletBalances />*/}
-        {/*</Box>*/}
+        <Box direction="column" margin={{ top: 'large' }}>
+          <Box direction="row" justify="start" gap="20px">
+            <NetworkButton type={NETWORK_TYPE.BINANCE} />
+            <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+          </Box>
+          <WalletBalances />
+        </Box>
       </Box>
     </LayoutCommon>
   );

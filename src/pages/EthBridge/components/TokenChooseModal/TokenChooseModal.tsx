@@ -1,26 +1,32 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Box } from 'grommet/components/Box';
 import * as s from './TokenChooseModal.styl';
 import { Icon, Text } from '../../../../components/Base';
 import { Button } from 'grommet/components/Button';
+import { TOKEN } from '../../../../stores/interfaces';
+import { useStores } from '../../../../stores';
 
 interface TokenHorizontalProps {
   symbol: string;
   icon: string;
   label: string;
+  onClick: () => void;
 }
 
 const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
   symbol,
   label,
   icon,
+  onClick,
 }) => {
   return (
     <Box
       direction="row"
       align="center"
       gap="18px"
+      onClick={onClick}
       pad={{ horizontal: '28px', vertical: '16px' }}
+      style={{ minHeight: '58px' }}
     >
       <Box>
         <img src={icon} width="16px" height="16px" />
@@ -66,6 +72,8 @@ interface Props {
 }
 
 export const TokenChooseModal: React.FC<Props> = ({ onClose }) => {
+  const { erc20Select } = useStores();
+
   return (
     <Box direction="column" align="center" width="408px" gap="12px">
       <Box alignSelf="end">
@@ -73,22 +81,20 @@ export const TokenChooseModal: React.FC<Props> = ({ onClose }) => {
           <Icon glyph="Close" color="white" />
         </Button>
       </Box>
-      <Box fill="horizontal" className={s.layer}>
-        <TokenHorizontal
-          symbol="USDC"
-          label="USD Coin"
-          icon="https://etherscan.io/token/images/centre-usdc_28.png"
-        />
-        <TokenHorizontal
-          symbol="LINK"
-          label="Chainlink"
-          icon="https://etherscan.io/token/images/chainlink_28_2.png"
-        />
-        <TokenHorizontal
-          symbol="USDT"
-          label="Tether"
-          icon="https://etherscan.io/token/images/tether_32.png"
-        />
+      <Box fill="horizontal" className={s.layer} overflow="scroll">
+        {erc20Select.tokensList.map(token => {
+          return (
+            <TokenHorizontal
+              symbol={token.symbol}
+              label={token.label}
+              icon={token.image}
+              onClick={() => {
+                erc20Select.setToken(token.address);
+                onClose();
+              }}
+            />
+          );
+        })}
       </Box>
       <Box
         direction="column"

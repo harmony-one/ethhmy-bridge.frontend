@@ -123,7 +123,6 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
 
   const mappedOptions = mapOptions(props.options);
 
-  console.log('### props.glyph', props.glyph);
   return (
     <ReactSelect
       isSearchable={true}

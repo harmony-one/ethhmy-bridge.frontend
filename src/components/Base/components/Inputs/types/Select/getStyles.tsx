@@ -20,7 +20,6 @@ export const getStyles: GetStyles = (type, customStyles) => {
     result = injectCustomStyles(result, customStyles);
   }
 
-  console.log('### result', result);
   return result;
 };
 

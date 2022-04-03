@@ -9,7 +9,7 @@ export class Erc20SelectStore extends StoreConstructor {
   @observable hrc1155TokenId = '0';
   @observable error = '';
   @observable isLoading = false;
-  @observable erc20VerifiedInfo : OpenSeaValideResponse | null = null;
+  @observable erc20VerifiedInfo: OpenSeaValideResponse | null = null;
 
   constructor(stores) {
     super(stores);
@@ -130,6 +130,7 @@ export class Erc20SelectStore extends StoreConstructor {
         .map(t => ({
           address: t.hrc20Address,
           label: `${t.name} (${t.symbol})`,
+          symbol: t.symbol,
           image: NETWORK_ICON[t.network],
         }));
     }
@@ -151,6 +152,7 @@ export class Erc20SelectStore extends StoreConstructor {
         address: t.erc20Address,
         href: '',
         label: `${t.name} (${t.symbol})`,
+        symbol: t.symbol,
         image: NETWORK_ICON[t.network],
       }));
 
