@@ -23,6 +23,8 @@ const ModalOverlay = styled.div<IWrapProps>`
   cursor: pointer;
 `;
 
+ModalOverlay.displayName = 'ModalOverlay';
+
 const ModalWrap = styled.div`
   position: relative;
   z-index: 3;
@@ -31,7 +33,8 @@ const ModalWrap = styled.div`
   align-items: center;
   flex: 1 0 auto;
 
-  @media (max-width: ${(props): string => props.theme.global.breakpoints.small.value}px) {
+  @media (max-width: ${(props): string =>
+      props.theme.global.breakpoints.small.value}px) {
     position: absolute;
     padding: 0;
     left: 0;
@@ -45,29 +48,33 @@ const ModalWrap = styled.div`
   }
 `;
 
+ModalWrap.displayName = 'ModalWrap';
+
 const Modal = styled.div`
   position: relative;
   z-index: 4;
-  background-color: #fff;
+  background-color: ${(props: any) => props.theme.palette.NBlack};
   box-sizing: border-box;
   border-radius: 4px;
   cursor: auto;
+  border: ${(props: any) => `1px solid ${props.theme.palette.NBlack}`};
 
-  @media (max-width: ${(props): string => props.theme.global.breakpoints.small.value}px) {
+  @media (max-width: ${(props): string =>
+      props.theme.global.breakpoints.small.value}px) {
     flex: 1;
   }
 `;
 
-export const ModalView: React.FC<
-  {
-    width: string;
-    onClose: () => void;
-    style: CSSProperties;
-    children: React.ReactNode;
-    isOverlayClose?: boolean;
-    config?: any;
-  } & IWrapProps
-> = ({
+Modal.displayName = 'Modal';
+
+export const ModalView: React.FC<{
+  width: string;
+  onClose: () => void;
+  style: CSSProperties;
+  children: React.ReactNode;
+  isOverlayClose?: boolean;
+  config?: any;
+} & IWrapProps> = ({
   width = '700px',
   position = 'center',
   onClose,
@@ -102,7 +109,7 @@ export const ModalView: React.FC<
         </Modal>
       </ModalWrap>
     </ModalOverlay>,
-    document.body
+    document.body,
   );
 };
 ModalView.displayName = 'ModalView';

@@ -24,9 +24,6 @@ export const TokenControl: React.FC<Props> = () => {
     token => erc20Select.tokenAddress === token.address,
   );
 
-  console.log('### token', token);
-  console.log('### exchange.token', exchange.token);
-
   return (
     <BridgeControl
       title="Choose Token"

@@ -12,11 +12,11 @@ import {
   TOKEN,
 } from '../interfaces';
 import * as operationService from 'services';
-import { getDepositAmount } from 'services';
+import { getDepositAmount, threshold, validators } from 'services';
 
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
-import { mulDecimals, sleep, uuid } from '../../utils';
+import { divDecimals, mulDecimals, sleep, uuid } from '../../utils';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
@@ -29,6 +29,15 @@ import { sendHrc721Token } from './hrc721';
 import { sendHrc1155Token } from './hrc1155';
 import { sendErc1155Token } from './erc1155';
 import * as services from '../../services';
+import { Box } from 'grommet';
+import { Text, Title } from '../../components/Base';
+import { AuthWarning } from '../../components/AuthWarning';
+import { MetamaskWarning } from '../../components/MetamaskWarning';
+import * as React from 'react';
+import { ValidatorsCountWarning } from '../../components/ValidatorsCountWarning';
+import { ConfirmTokenBridge } from '../../components/ConfirmTokenBridge';
+import { EthBridgeStore } from '../../pages/EthBridge/EthBridgeStore';
+import { ITokenInfo } from '../../pages/Exchange';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -283,7 +292,8 @@ export class Exchange extends StoreConstructor {
             if (
               this.token === TOKEN.ERC721 ||
               this.token === TOKEN.HRC721 ||
-              this.token === TOKEN.HRC1155 || this.token === TOKEN.ERC1155 ||
+              this.token === TOKEN.HRC1155 ||
+              this.token === TOKEN.ERC1155 ||
               (this.token === TOKEN.ONE &&
                 this.mode === EXCHANGE_MODE.ONE_TO_ETH) ||
               (this.token === TOKEN.ETH &&
@@ -1079,6 +1089,268 @@ export class Exchange extends StoreConstructor {
         return this.fullConfig.ethClient.explorerURL;
       case NETWORK_TYPE.HARMONY:
         return this.fullConfig.hmyClient.explorerURL;
+    }
+  }
+
+  @action.bound
+  onClickHandler = async (
+    needValidate: boolean,
+    callback: () => void,
+    ethBridgeStore: EthBridgeStore,
+  ) => {
+    const { actionModals, user, userMetamask, exchange } = this.stores;
+    exchange.error = '';
+
+    if (validators.length < threshold) {
+      return actionModals.open(ValidatorsCountWarning, {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      });
+    }
+
+    // if (
+    //   exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+    //   exchange.network === NETWORK_TYPE.BINANCE
+    // ) {
+    //   return actionModals.open(
+    //     () => (
+    //       <Box pad="large">
+    //         <Text>
+    //           <b>Harmony Bridge is temporarily suspended.</b>
+    //           <br />
+    //           <br />
+    //           We are currently facing RPC issue on the Harmony side which we are
+    //           actively working to resolve.
+    //           <br />
+    //           Meanwhile, we have disabled bridging temporarily.
+    //           <br />
+    //           <br />
+    //           Sorry for the inconvenience. We will update soon.
+    //         </Text>
+    //       </Box>
+    //     ),
+    //     {
+    //       title: '',
+    //       applyText: 'Got it',
+    //       closeText: '',
+    //       noValidation: true,
+    //       width: '500px',
+    //       showOther: true,
+    //       onApply: () => {
+    //         return Promise.resolve();
+    //       },
+    //     },
+    //   );
+    // }
+
+    if (!user.isAuthorized) {
+      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        if (!user.isOneWallet) {
+          return actionModals.open(() => AuthWarning, {
+            title: '',
+            applyText: 'Got it',
+            closeText: '',
+            noValidation: true,
+            width: '500px',
+            showOther: true,
+            onApply: () => {
+              return Promise.resolve();
+            },
+          });
+        } else {
+          await user.signIn();
+        }
+      }
+    }
+
+    if (
+      !userMetamask.isAuthorized &&
+      exchange.mode === EXCHANGE_MODE.ETH_TO_ONE
+    ) {
+      if (!userMetamask.isAuthorized) {
+        await userMetamask.signIn(true);
+      }
+    }
+
+    if (
+      exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+      user.isMetamask &&
+      !user.isNetworkActual
+    ) {
+      return actionModals.open(() => MetamaskWarning, {
+        title: '',
+        applyText: 'Got it',
+        closeText: '',
+        noValidation: true,
+        width: '500px',
+        showOther: true,
+        onApply: () => {
+          return Promise.resolve();
+        },
+      });
+    }
+
+    if ([TOKEN.ERC721].includes(exchange.token) && !userMetamask.erc20Address) {
+      exchange.error = 'No token selected ';
+      throw 'No token selected ';
+    }
+
+    if (needValidate) {
+      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+        const methods = getExNetworkMethods();
+
+        if (!methods.web3.utils.isAddress(exchange.transaction.ethAddress)) {
+          ethBridgeStore.addressValidationError = 'Invalid wallet Hex address';
+          return;
+        }
+      }
+
+      if (
+        this.stores.tokens.allData.some(
+          t =>
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.ethAddress.toLowerCase() ||
+            t.erc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase() ||
+            t.hrc20Address.toLowerCase() ===
+              exchange.transaction.oneAddress.toLowerCase(),
+        )
+      ) {
+        ethBridgeStore.addressValidationError =
+          'You enter bridge contract address. Transfer to this address will result in loss of funds! Please, use only your wallet address';
+        return;
+      }
+
+      console.log('### here');
+
+      // @ts-ignore
+      console.log('### ethBridgeStore.formRef', ethBridgeStore.formRefStepBASE);
+
+      let form = null;
+
+      debugger;
+      if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+        form = ethBridgeStore.formRefStepBASE;
+      }
+
+      if (exchange.step.id === EXCHANGE_STEPS.APPROVE) {
+        form = ethBridgeStore.formRefStepAPPROVE;
+      }
+
+      console.log('### form', form);
+
+      form
+        .validateFields()
+        .then(async () => {
+          console.log('### after validate');
+          try {
+            if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+              await new Promise((res, rej) => {
+                actionModals.open(ConfirmTokenBridge, {
+                  title: '',
+                  applyText: 'Yes I confirm',
+                  closeText: 'Cancel',
+                  noValidation: true,
+                  width: '500px',
+                  showOther: true,
+                  onApply: () => {
+                    res();
+                    return Promise.resolve();
+                  },
+                  onClose: () => {
+                    rej();
+                    return Promise.resolve();
+                  },
+                });
+              });
+            }
+          } catch (e) {
+            return;
+          }
+
+          callback();
+        })
+        .catch(error => {
+          console.log('### error', error);
+        });
+    } else {
+      callback();
+    }
+  };
+
+  @computed
+  get tokenInfo(): ITokenInfo {
+    const { user, exchange, userMetamask } = this.stores;
+
+    switch (exchange.token) {
+      case TOKEN.BUSD:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
+        };
+      case TOKEN.LINK:
+        return {
+          label: 'LINK',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyLINKBalance
+              : userMetamask.ethLINKBalance,
+        };
+
+      case TOKEN.HRC721:
+      case TOKEN.ERC1155:
+      case TOKEN.HRC1155:
+      case TOKEN.ERC721:
+      case TOKEN.ERC20:
+      case TOKEN.HRC20:
+        return {
+          label: userMetamask.erc20TokenDetails
+            ? userMetamask.erc20TokenDetails.symbol
+            : '',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.erc20Balance,
+        };
+
+      case TOKEN.ETH:
+        return {
+          label: NETWORK_BASE_TOKEN[exchange.network],
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.ethBalance,
+        };
+
+      case TOKEN.ONE:
+        return {
+          label: 'ONE',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? divDecimals(user.balance, 18)
+              : userMetamask.erc20Balance,
+        };
+
+      default:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
+        };
     }
   }
 }

@@ -1,5 +1,12 @@
 export const tokensMainnet = [
   {
+    label: 'Developer TOKEN',
+    symbol: 'YU1',
+    href:
+      'https://etherscan.io/token/0x56730d1cf9dd9f73e71b141f8c2e4fabd1305927',
+    image: 'https://etherscan.io/token/images/cro_32.png',
+  },
+  {
     label: 'Tether USD (USDT)',
     symbol: 'USDT',
     href:
