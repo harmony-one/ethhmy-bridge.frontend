@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { Text, Icon } from '../../../../components/Base';
 import { BridgeControl } from '../BridgeControl/BridgeControl';
 import { Button } from 'grommet/components/Button';
@@ -6,10 +6,11 @@ import { Box } from 'grommet';
 import { useStores } from '../../../../stores';
 import { ModalIds, ModalRegister } from '../../../../modals';
 import { TokenChooseModal } from '../TokenChooseModal/TokenChooseModal';
+import { observer } from 'mobx-react';
 
 interface Props {}
 
-export const TokenControl: React.FC<Props> = () => {
+export const TokenControl: React.FC<Props> = observer(() => {
   const { routing, exchange, erc20Select } = useStores();
 
   const handleChangeToken = useCallback(() => {
@@ -20,9 +21,23 @@ export const TokenControl: React.FC<Props> = () => {
     });
   }, [routing]);
 
-  const token = erc20Select.tokensList.find(
-    token => erc20Select.tokenAddress === token.address,
-  );
+  const token = useMemo(() => {
+    return erc20Select.tokensList.find(
+      token => erc20Select.tokenAddress === token.address,
+    );
+  }, [erc20Select.tokenAddress, erc20Select.tokensList]);
+
+  useEffect(() => {
+    const token = erc20Select.tokensList[0];
+    if (!erc20Select.tokenAddress) {
+      console.log('### set token', token);
+      setTimeout(() => {
+        erc20Select.setToken(token.address);
+      }, 500);
+    }
+  }, [erc20Select.tokenAddress]);
+
+  console.log('### erc20Select.error', erc20Select.error);
 
   return (
     <BridgeControl
@@ -51,6 +66,6 @@ export const TokenControl: React.FC<Props> = () => {
       }
     />
   );
-};
+});
 
 TokenControl.displayName = 'TokenControl';

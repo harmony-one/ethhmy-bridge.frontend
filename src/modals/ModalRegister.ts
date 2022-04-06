@@ -16,7 +16,6 @@ export const ModalRegister: React.FC<Props> = React.memo(
         params: params,
         component: child,
       };
-      console.log('### add modal', modalId);
       context.modalStore.addModal(modalId, modal);
     }, [child, context.modalStore, modalId, params]);
 

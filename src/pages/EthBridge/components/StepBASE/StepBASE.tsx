@@ -14,6 +14,12 @@ interface Props {}
 
 export const StepBASE: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
+
+  const handleClickReset = useCallback(() => {
+    // const conf = exchange.step.buttons[1];
+    console.log('### reset bridge data');
+  }, []);
+
   const handleClickContinue = useCallback(() => {
     const conf = exchange.step.buttons[0];
     exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
@@ -31,6 +37,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
           fontSize="14px"
           className={s.buttonContainer}
           buttonClassName={cn(s.bridgeButton, s.reset)}
+          onClick={handleClickReset}
         >
           Reset Bridge
         </Button>
