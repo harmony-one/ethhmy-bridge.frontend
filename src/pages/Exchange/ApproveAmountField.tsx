@@ -3,15 +3,25 @@ import { Box } from 'grommet';
 import { NumberInput } from 'components/Form/Fields';
 import { isRequired } from 'components/Form/validations';
 import { observer } from 'mobx-react-lite';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStores } from 'stores';
 import { Spinner } from '../../ui/Spinner';
 import { Text } from '../../components/Base/components/Text';
 import { Checkbox } from '../../components/Base/components/Inputs/types';
-import { maxAmount, minAmount } from '../../utils';
+import { minAmount } from '../../utils';
+import { Form } from '../../components/Form';
+import { ethBridgeStore } from '../EthBridge/EthBridgeStore';
 
 export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
   const { exchange } = useStores();
+
+  const [formRef, setFormRef] = useState();
+
+  useEffect(() => {
+    if (formRef) {
+      ethBridgeStore.formRefStepAPPROVE = formRef;
+    }
+  }, [formRef]);
 
   const [customAmount, setCustomAmount] = useState(false);
 
@@ -20,7 +30,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
   }
 
   return (
-    <>
+    <Form ref={ref => setFormRef(ref)} data={exchange.transaction}>
       {exchange.allowanceError ? (
         <Box>
           <Text color="red">{exchange.allowanceError}</Text>
@@ -72,6 +82,6 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
           amount to save on approval later.
         </Text>
       </Box>
-    </>
+    </Form>
   );
 });

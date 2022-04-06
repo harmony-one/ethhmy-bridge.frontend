@@ -11,6 +11,7 @@ import { Text } from 'components/Base';
 
 export interface ISelectOption {
   text: string | number;
+  symbol?: string;
   value: string | number;
   image?: string | number;
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text } from '../../../../components/Base';
 import { BridgeControl } from '../BridgeControl/BridgeControl';
 import { Form, isRequired, NumberInput } from '../../../../components/Form';
@@ -6,13 +6,21 @@ import { moreThanZero } from '../../../../utils';
 import { useStores } from '../../../../stores';
 import * as s from './TokenAmount.styl';
 import cn from 'classnames';
+import { ethBridgeStore } from '../../EthBridgeStore';
+import { observer } from 'mobx-react';
 
 interface Props {}
 
-export const TokenAmount: React.FC<Props> = () => {
+export const TokenAmount: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
 
   const [formRef, setFormRef] = useState();
+
+  useEffect(() => {
+    if (formRef) {
+      ethBridgeStore.formRefStepBASE = formRef;
+    }
+  }, [formRef]);
 
   return (
     <BridgeControl
@@ -63,6 +71,6 @@ export const TokenAmount: React.FC<Props> = () => {
       }
     />
   );
-};
+});
 
 TokenAmount.displayName = 'TokenAmount';

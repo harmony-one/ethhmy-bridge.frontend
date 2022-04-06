@@ -123,6 +123,7 @@ export const ERC20Select = observer<{ type: TOKEN; options?: boolean }>(
                   label: '',
                   image: '',
                   text: '',
+                  symbol: '',
                   value: '',
                 })}
               value={erc20Select.tokenAddress}
