@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Box } from 'grommet';
 import { TokenControl } from '../TokenControl/TokenControl';
 import { Icon } from '../../../../components/Base';
@@ -12,9 +12,11 @@ interface Props {}
 export const TokenRow: React.FC<Props> = observer(() => {
   const { erc20Select } = useStores();
 
-  const token = erc20Select.tokensList.find(
-    token => erc20Select.tokenAddress === token.address,
-  );
+  const selectedToken = useMemo(() => {
+    return erc20Select.tokensList.find(
+      token => erc20Select.tokenAddress === token.address,
+    );
+  }, [erc20Select.tokenAddress, erc20Select.tokensList]);
 
   return (
     <Box direction="column" pad={{ top: '40px' }}>
@@ -25,7 +27,9 @@ export const TokenRow: React.FC<Props> = observer(() => {
         <Box basis="0" flex="grow">
           <TokenControl />
         </Box>
-        <Box>{token && <img src={token.image} width="40" />}</Box>
+        <Box>
+          {selectedToken && <img src={selectedToken.image} width="40" />}
+        </Box>
         <Box basis="0" flex="grow">
           <TokenAmount />
         </Box>

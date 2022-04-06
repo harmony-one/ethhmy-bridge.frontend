@@ -37,7 +37,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
             {...({} as any)}
           >
             <NumberInput
-              className={cn(s.input, 'test01')}
+              className={cn(s.input)}
               name="amount"
               type="decimal"
               precision="0"

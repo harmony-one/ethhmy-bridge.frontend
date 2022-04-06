@@ -1237,7 +1237,6 @@ export class Exchange extends StoreConstructor {
 
       let form = null;
 
-      debugger;
       if (exchange.step.id === EXCHANGE_STEPS.BASE) {
         form = ethBridgeStore.formRefStepBASE;
       }
@@ -1246,12 +1245,9 @@ export class Exchange extends StoreConstructor {
         form = ethBridgeStore.formRefStepAPPROVE;
       }
 
-      console.log('### form', form);
-
       form
         .validateFields()
         .then(async () => {
-          console.log('### after validate');
           try {
             if (exchange.step.id === EXCHANGE_STEPS.BASE) {
               await new Promise((res, rej) => {
