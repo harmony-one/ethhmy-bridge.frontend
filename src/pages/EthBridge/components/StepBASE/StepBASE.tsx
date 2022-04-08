@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as s from './StepBASE.styl';
 import { NetworkRow } from '../NetworkRow/NetworkRow';
 import { TokenRow } from '../TokenRow/TokenRow';

@@ -10,13 +10,16 @@ import { useStores } from '../../../../stores';
 interface Props {}
 
 export const TokenRow: React.FC<Props> = observer(() => {
-  const { erc20Select } = useStores();
+  const { erc20Select, exchange } = useStores();
 
   const selectedToken = useMemo(() => {
     return erc20Select.tokensList.find(
       token => erc20Select.tokenAddress === token.address,
     );
   }, [erc20Select.tokenAddress, erc20Select.tokensList]);
+
+  const selectedToken2 = exchange.tokenInfo;
+  console.log('### selectedToken', selectedToken2);
 
   return (
     <Box direction="column" pad={{ top: '40px' }}>
@@ -28,7 +31,7 @@ export const TokenRow: React.FC<Props> = observer(() => {
           <TokenControl />
         </Box>
         <Box>
-          {selectedToken && <img src={selectedToken.image} width="40" />}
+          {selectedToken2 && <img src={selectedToken2.image} width="40" />}
         </Box>
         <Box basis="0" flex="grow">
           <TokenAmount />

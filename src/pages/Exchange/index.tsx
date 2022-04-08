@@ -32,6 +32,8 @@ import { threshold, validators } from '../../services';
 export interface ITokenInfo {
   label: string;
   maxAmount: string;
+  symbol: string;
+  image: string;
 }
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing', 'tokens')
@@ -63,13 +65,19 @@ export class Exchange extends React.Component<
           this.addressValidationError = '';
         }
 
-        if (exchange.token === TOKEN.ERC721 || exchange.token === TOKEN.HRC721) {
+        if (
+          exchange.token === TOKEN.ERC721 ||
+          exchange.token === TOKEN.HRC721
+        ) {
           exchange.transaction.amount = ['0'];
         } else {
           exchange.transaction.amount = '0';
         }
 
-        if (exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155) {
+        if (
+          exchange.token === TOKEN.ERC1155 ||
+          exchange.token === TOKEN.HRC1155
+        ) {
           exchange.transaction.hrc1155TokenId = '0';
         }
       }
@@ -294,6 +302,8 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
+          symbol: 'TEST',
+          image: '',
         };
       case TOKEN.LINK:
         return {
@@ -302,6 +312,8 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
+          symbol: 'TEST',
+          image: '',
         };
 
       case TOKEN.HRC721:
@@ -311,11 +323,15 @@ export class Exchange extends React.Component<
       case TOKEN.ERC20:
       case TOKEN.HRC20:
         return {
-          label: userMetamask.erc20TokenDetails ? userMetamask.erc20TokenDetails.symbol : '',
+          label: userMetamask.erc20TokenDetails
+            ? userMetamask.erc20TokenDetails.symbol
+            : '',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.erc20Balance,
+          symbol: 'TEST',
+          image: '',
         };
 
       case TOKEN.ETH:
@@ -325,6 +341,8 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.ethBalance,
+          symbol: 'TEST',
+          image: '',
         };
 
       case TOKEN.ONE:
@@ -334,6 +352,8 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? divDecimals(user.balance, 18)
               : userMetamask.erc20Balance,
+          symbol: 'TEST',
+          image: '',
         };
 
       default:
@@ -343,6 +363,8 @@ export class Exchange extends React.Component<
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
+          symbol: 'TEST',
+          image: '',
         };
     }
   }
@@ -590,20 +612,20 @@ export class Exchange extends React.Component<
               <Box
                 style={{ width: 140 }}
                 className={cn(
-                        styles.itemToken,
-                        exchange.token === TOKEN.HRC1155 ? styles.selected : '',
+                  styles.itemToken,
+                  exchange.token === TOKEN.HRC1155 ? styles.selected : '',
                 )}
                 onClick={() => {
-                    user.resetTokens();
+                  user.resetTokens();
 
-                    exchange.setToken(TOKEN.HRC1155);
-                    routing.push(`/${exchange.token}`);
+                  exchange.setToken(TOKEN.HRC1155);
+                  routing.push(`/${exchange.token}`);
                 }}
               >
                 <img className={styles.imgToken} src="/one.svg" />
                 <Text>HRC1155</Text>
               </Box>
-             )}
+            )}
 
             {exchange.config.tokens.includes(TOKEN.ETH) && (
               <Box
@@ -717,12 +739,14 @@ export class Exchange extends React.Component<
                 fill={true}
                 margin={{ top: 'xlarge', bottom: 'large' }}
               >
-                {(exchange.token === TOKEN.ERC721 || exchange.token === TOKEN.HRC721) ? (
+                {exchange.token === TOKEN.ERC721 ||
+                exchange.token === TOKEN.HRC721 ? (
                   <TokensField
                     label={this.tokenInfo.label}
                     maxTokens={this.tokenInfo.maxAmount}
                   />
-                ) : (exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155) ? (
+                ) : exchange.token === TOKEN.ERC1155 ||
+                  exchange.token === TOKEN.HRC1155 ? (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
                     name="amount"
@@ -749,7 +773,7 @@ export class Exchange extends React.Component<
                       },
                     ]}
                   />
-                ): (
+                ) : (
                   <NumberInput
                     label={`${this.tokenInfo.label} Amount`}
                     name="amount"
@@ -777,17 +801,20 @@ export class Exchange extends React.Component<
                     ]}
                   />
                 )}
-                {exchange.token !== TOKEN.ERC721 && exchange.token !== TOKEN.HRC721 && exchange.token !== TOKEN.ERC1155 && exchange.token !== TOKEN.HRC1155 ? (
+                {exchange.token !== TOKEN.ERC721 &&
+                exchange.token !== TOKEN.HRC721 &&
+                exchange.token !== TOKEN.ERC1155 &&
+                exchange.token !== TOKEN.HRC1155 ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
                     <b>*Max Available</b> ={' '}
                     {formatWithSixDecimals(this.tokenInfo.maxAmount)}{' '}
                     {this.tokenInfo.label}
                   </Text>
                 ) : null}
-                {(exchange.token === TOKEN.HRC1155 || exchange.token === TOKEN.ERC1155) ? (
+                {exchange.token === TOKEN.HRC1155 ||
+                exchange.token === TOKEN.ERC1155 ? (
                   <Text size="small" style={{ textAlign: 'right' }}>
-                    <b>*Max Available</b> ={' '}
-                    {this.tokenInfo.maxAmount || '0'}{' '}
+                    <b>*Max Available</b> = {this.tokenInfo.maxAmount || '0'}{' '}
                     {this.tokenInfo.label}
                   </Text>
                 ) : null}

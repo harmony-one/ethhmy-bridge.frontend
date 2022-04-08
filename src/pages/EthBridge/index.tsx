@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
@@ -21,6 +21,7 @@ import { TokenRow } from './components/TokenRow/TokenRow';
 import { Destination } from './components/Destination/Destination';
 import { ethBridgeStore } from './EthBridgeStore';
 import { StepManager } from './components/StepManager/StepManager';
+import { Form } from '../../components/Form';
 
 const LargeButton = observer(
   (props: {
@@ -154,6 +155,8 @@ export const EthBridge = observer((props: any) => {
     tokens.fetch();
   }, []);
 
+  const [formRef, setForm] = useState();
+
   if (isMobile) {
     return (
       <BaseContainer>
@@ -214,13 +217,19 @@ export const EthBridge = observer((props: any) => {
         justify="center"
         align="center"
       >
+        {/*<Form*/}
+        {/*  ref={ref => setFormRef(ref)}*/}
+        {/*  data={exchange.transaction}*/}
+        {/*>*/}
         <StepManager />
+        {/*</Form>*/}
 
-        <Box>
-          <Text color="NWhite">{ethBridgeStore.addressValidationError}</Text>
-          <Text color="NWhite">STEP: {exchange.step.id}</Text>
-          <Text color="NWhite">{exchange.network}</Text>
-        </Box>
+        {false && (
+          <Box>
+            <Text color="NWhite">STEP: {exchange.step.id}</Text>
+            <Text color="NWhite">{exchange.network}</Text>
+          </Box>
+        )}
 
         {false && (
           <>

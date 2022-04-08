@@ -13,6 +13,11 @@ interface Props {}
 export const StepAPPROVE: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
 
+  const handleClickBack = useCallback(() => {
+    const conf = exchange.step.buttons[0];
+    exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
+  }, [exchange]);
+
   const handleClickContinue = useCallback(() => {
     const conf = exchange.step.buttons[1];
     exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
@@ -29,8 +34,9 @@ export const StepAPPROVE: React.FC<Props> = observer(() => {
           fontSize="14px"
           className={s.buttonContainer}
           buttonClassName={cn(s.bridgeButton, s.reset)}
+          onClick={handleClickBack}
         >
-          Reset Bridge
+          Back
         </Button>
         <Button
           fontSize="14px"

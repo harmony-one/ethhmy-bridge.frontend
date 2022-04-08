@@ -1285,7 +1285,7 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get tokenInfo(): ITokenInfo {
-    const { user, exchange, userMetamask } = this.stores;
+    const { user, exchange, userMetamask, erc20Select } = this.stores;
 
     switch (exchange.token) {
       case TOKEN.BUSD:
@@ -1295,6 +1295,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
+          symbol: 'BUSD',
+          image: '',
         };
       case TOKEN.LINK:
         return {
@@ -1303,6 +1305,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
+          symbol: 'LINK',
+          image: '',
         };
 
       case TOKEN.HRC721:
@@ -1311,6 +1315,10 @@ export class Exchange extends StoreConstructor {
       case TOKEN.ERC721:
       case TOKEN.ERC20:
       case TOKEN.HRC20:
+        const token = erc20Select.tokensList.find(
+          item => item.address === erc20Select.tokenAddress,
+        );
+
         return {
           label: userMetamask.erc20TokenDetails
             ? userMetamask.erc20TokenDetails.symbol
@@ -1319,6 +1327,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.erc20Balance,
+          symbol: token && token.symbol,
+          image: token && token.image,
         };
 
       case TOKEN.ETH:
@@ -1328,6 +1338,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.ethBalance,
+          symbol: NETWORK_BASE_TOKEN[exchange.network],
+          image: '',
         };
 
       case TOKEN.ONE:
@@ -1337,6 +1349,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? divDecimals(user.balance, 18)
               : userMetamask.erc20Balance,
+          symbol: 'ONE',
+          image: '',
         };
 
       default:
@@ -1346,6 +1360,8 @@ export class Exchange extends StoreConstructor {
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
+          symbol: 'BUSD',
+          image: '',
         };
     }
   }

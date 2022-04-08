@@ -10,12 +10,14 @@ import { truncateAddressString } from '../../../../utils';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { Form, Input, isRequired } from 'components/Form';
 import cn from 'classnames';
+import { EXCHANGE_MODE } from '../../../../stores/interfaces';
 
 interface MetamaskButtonProps {
+  label: string;
   onClick: () => void;
 }
 
-const MetamaskButton: React.FC<MetamaskButtonProps> = ({ onClick }) => {
+const MetamaskButton: React.FC<MetamaskButtonProps> = ({ label, onClick }) => {
   return (
     <Button className={s.metamaskButton} onClick={onClick}>
       <Box direction="row" gap="8px" align="center">
@@ -23,7 +25,7 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({ onClick }) => {
           <img src="/metamask.svg" height="16" />
         </Box>
         <Text color="NWhite" size="xxsmall" lh="24px">
-          MetaMask
+          {label}
         </Text>
         <Icon glyph="CloseCircle" />
       </Box>
@@ -34,11 +36,15 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({ onClick }) => {
 interface Props {}
 
 export const Destination: React.FC<Props> = observer(() => {
-  const { userMetamask, exchange } = useStores();
+  const { userMetamask, user, exchange } = useStores();
 
-  const handleClickLogout = useCallback(() => {
+  const handleClickLogoutEth = useCallback(() => {
     userMetamask.signOut();
   }, [userMetamask]);
+
+  const handleClickLogoutHarmony = useCallback(() => {
+    user.signOut();
+  }, [user]);
 
   const [formRef, setFormRef] = useState();
 
@@ -49,6 +55,9 @@ export const Destination: React.FC<Props> = observer(() => {
   }, [formRef]);
 
   let addressValidationError = '';
+
+  const inputName =
+    exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? 'ethAddress' : 'oneAddress';
 
   return (
     <Form ref={ref => setFormRef(ref)} data={exchange.transaction}>
@@ -66,28 +75,62 @@ export const Destination: React.FC<Props> = observer(() => {
           label=""
           bgColor="transparent"
           border="none"
-          name="oneAddress"
+          name={inputName}
           style={{ width: '100%' }}
           placeholder="Receiver address"
           rules={[isRequired]}
-          onChange={() => (addressValidationError = '')}
+          onChange={() => (ethBridgeStore.addressValidationError = '')}
         />
 
-        {userMetamask.isAuthorized && (
-          <MetamaskButton onClick={handleClickLogout} />
+        {ethBridgeStore.addressValidationError && (
+          <Text color="red">{ethBridgeStore.addressValidationError}</Text>
         )}
 
-        {!userMetamask.isAuthorized && (
-          <WalletButton
-            onClick={() => {
-              userMetamask.signIn();
-            }}
-            error={userMetamask.error}
-          >
-            <img src="/metamask.svg" style={{ marginRight: 15, height: 22 }} />
-            Metamask
-          </WalletButton>
-        )}
+        <Box direction="row" gap="16px">
+          {userMetamask.isAuthorized && (
+            <MetamaskButton
+              label="Eth network"
+              onClick={handleClickLogoutEth}
+            />
+          )}
+
+          {!userMetamask.isAuthorized && (
+            <WalletButton
+              onClick={() => {
+                userMetamask.signIn();
+              }}
+              error={userMetamask.error}
+            >
+              <img
+                src="/metamask.svg"
+                style={{ marginRight: 15, height: 22 }}
+              />
+              Eth: Metamask
+            </WalletButton>
+          )}
+
+          {user.isAuthorized && (
+            <MetamaskButton
+              label="One network"
+              onClick={handleClickLogoutHarmony}
+            />
+          )}
+
+          {!user.isAuthorized && (
+            <WalletButton
+              onClick={() => {
+                user.signInMetamask();
+              }}
+              error={user.error}
+            >
+              <img
+                src="/metamask.svg"
+                style={{ marginRight: 15, height: 22 }}
+              />
+              One: Metamask
+            </WalletButton>
+          )}
+        </Box>
       </Box>
     </Form>
   );

@@ -1,12 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Box } from 'grommet/components/Box';
 import * as s from './TokenChooseModal.styl';
 import { Icon, Text } from '../../../../components/Base';
 import { Button } from 'grommet/components/Button';
 import { TOKEN } from '../../../../stores/interfaces';
 import { useStores } from '../../../../stores';
+import { observer } from 'mobx-react';
+import { TextInput } from 'grommet';
 
 interface TokenHorizontalProps {
+  className?: string;
   symbol: string;
   icon: string;
   label: string;
@@ -14,6 +17,7 @@ interface TokenHorizontalProps {
 }
 
 const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
+  className,
   symbol,
   label,
   icon,
@@ -22,6 +26,7 @@ const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
   return (
     <Box
       direction="row"
+      className={className}
       align="center"
       gap="18px"
       onClick={onClick}
@@ -71,30 +76,72 @@ interface Props {
   onClose?: () => void;
 }
 
-export const TokenChooseModal: React.FC<Props> = ({ onClose }) => {
+export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
   const { erc20Select } = useStores();
 
+  const [search, setSearch] = useState();
+
+  const handleSearchChange = useCallback(event => {
+    setSearch(event.target.value);
+  }, []);
+
+  console.log('### search', search);
+
   return (
-    <Box direction="column" align="center" width="408px" gap="12px">
+    <Box
+      direction="column"
+      align="center"
+      width="408px"
+      gap="12px"
+      fill="vertical"
+      margin={{ top: 'large' }}
+    >
       <Box alignSelf="end">
         <Button onClick={onClose}>
           <Icon glyph="Close" color="white" />
         </Button>
       </Box>
-      <Box fill="horizontal" className={s.layer} overflow="scroll">
-        {erc20Select.tokensList.map(token => {
-          return (
-            <TokenHorizontal
-              symbol={token.symbol}
-              label={token.label}
-              icon={token.image}
-              onClick={() => {
-                erc20Select.setToken(token.address);
-                onClose();
-              }}
-            />
-          );
-        })}
+      <Box direction="column" fill="horizontal" className={s.layer}>
+        <Box
+          direction="row"
+          align="center"
+          gap="18px"
+          className={s.searchContainer}
+          pad={{ horizontal: '28px', vertical: '16px' }}
+          style={{ minHeight: '65px' }}
+          justify="center"
+        >
+          <Icon glyph="SearchN" />
+          <TextInput
+            style={{ padding: 0, fontSize: '12px', color: '#fff' }}
+            placeholder="Search Token Name"
+            onChange={handleSearchChange}
+          />
+        </Box>
+        <Box direction="column" overflow="scroll">
+          {erc20Select.tokensList
+            .filter(item => {
+              if (search) {
+                return item.symbol.toLowerCase().includes(search.toLowerCase());
+              }
+
+              return true;
+            })
+            .map(token => {
+              return (
+                <TokenHorizontal
+                  className={s.borderBottom}
+                  symbol={token.symbol}
+                  label={token.label}
+                  icon={token.image}
+                  onClick={() => {
+                    erc20Select.setToken(token.address);
+                    onClose();
+                  }}
+                />
+              );
+            })}
+        </Box>
       </Box>
       <Box
         direction="column"
@@ -115,6 +162,6 @@ export const TokenChooseModal: React.FC<Props> = ({ onClose }) => {
       <Box>help</Box>
     </Box>
   );
-};
+});
 
 TokenChooseModal.displayName = 'TokenChooseModal';
