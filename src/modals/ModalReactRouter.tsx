@@ -19,13 +19,10 @@ export const ModalReactRouter: React.FC<Props> = observer(() => {
   const urlProps = queryParams.modal as Record<string, unknown>;
   const modalId = urlProps && (urlProps.id as ModalIds);
 
-  console.log('### urlProps', urlProps);
-
   const modal = modalContext.modalStore.getModal(modalId);
 
   const handleCloseModal = useCallback(
     (replace = true) => {
-      console.log('### handle close click');
       // navigate replace (remove qp)
       // navigate (remove qp)
       // navigate in handle

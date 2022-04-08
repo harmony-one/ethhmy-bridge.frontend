@@ -21,20 +21,15 @@ export const TokenControl: React.FC<Props> = observer(() => {
     });
   }, [routing]);
 
-  const token = useMemo(() => {
-    return erc20Select.tokensList.find(
-      token => erc20Select.tokenAddress === token.address,
-    );
-  }, [erc20Select.tokenAddress, erc20Select.tokensList]);
+  const selectedToken2 = exchange.tokenInfo;
 
   useEffect(() => {
-    const token = erc20Select.tokensList[0];
-    if (!erc20Select.tokenAddress) {
-      console.log('### set token', token);
-      setTimeout(() => {
-        erc20Select.setToken(token.address);
-      }, 500);
-    }
+    // const token = erc20Select.tokensList[0];
+    // if (!erc20Select.tokenAddress) {
+    //   setTimeout(() => {
+    //     erc20Select.setToken(token.address);
+    //   }, 500);
+    // }
   }, [erc20Select.tokenAddress]);
 
   console.log('### erc20Select.error', erc20Select.error);
@@ -47,13 +42,13 @@ export const TokenControl: React.FC<Props> = observer(() => {
         <Button onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
             <Text size="large" color="NWhite">
-              {token && token.symbol}
+              {selectedToken2 && selectedToken2.symbol}
             </Text>
             <Icon size="10px" glyph="ArrowDownFilled" />
           </Box>
           <ModalRegister
             modalId={ModalIds.BRIDGE_TOKEN_CHOOSE}
-            params={{ layerProps: {} }}
+            params={{ layerProps: { full: 'vertical' } }}
           >
             <TokenChooseModal />
           </ModalRegister>
@@ -61,7 +56,7 @@ export const TokenControl: React.FC<Props> = observer(() => {
       }
       bottomContent={
         <Text size="xxsmall" color="NGray">
-          {token && token.label}
+          {selectedToken2 && selectedToken2.label}
         </Text>
       }
     />

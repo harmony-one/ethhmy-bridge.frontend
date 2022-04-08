@@ -59,7 +59,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
           className={s.buttonContainer}
           buttonClassName={cn(s.bridgeButton, s.reset)}
         >
-          Reset Bridge
+          Back
         </Button>
         <Button
           fontSize="14px"
@@ -67,7 +67,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
           buttonClassName={s.bridgeButton}
           onClick={handleClickContinue}
         >
-          Continue
+          Confirm
         </Button>
       </Box>
     </Box>

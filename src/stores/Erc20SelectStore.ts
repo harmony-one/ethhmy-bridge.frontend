@@ -67,6 +67,28 @@ export class Erc20SelectStore extends StoreConstructor {
         this.tokenAddress &&
         setTimeout(() => this.setToken(this.tokenAddress), 500),
     );
+
+    reaction(
+      () => {
+        const list = [
+          TOKEN.ERC20,
+          TOKEN.HRC20,
+          TOKEN.ERC721,
+          TOKEN.HRC721,
+          TOKEN.HRC1155,
+          TOKEN.ERC1155,
+        ];
+
+        return list.includes(this.stores.exchange.token);
+      },
+      result => {
+        if (result) {
+          setTimeout(() => {
+            this.tokenAddress = this.stores.erc20Select.tokensList[0].address;
+          }, 500);
+        }
+      },
+    );
   }
 
   @action.bound
