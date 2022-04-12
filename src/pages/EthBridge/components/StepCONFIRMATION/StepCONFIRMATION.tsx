@@ -15,6 +15,11 @@ interface Props {}
 export const StepCONFIRMATION: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
 
+  const handleClickBack = useCallback(() => {
+    const conf = exchange.step.buttons[0];
+    exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
+  }, [exchange]);
+
   const handleClickContinue = useCallback(() => {
     const conf = exchange.step.buttons[1];
     exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
@@ -22,7 +27,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
-      <Box pad="60px">
+      <Box>
         <Networks />
       </Box>
 
@@ -63,6 +68,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
           fontSize="14px"
           className={s.buttonContainer}
           buttonClassName={cn(s.bridgeButton, s.reset)}
+          onClick={handleClickBack}
         >
           Back
         </Button>
