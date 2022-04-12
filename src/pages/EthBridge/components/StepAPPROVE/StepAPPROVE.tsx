@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ApproveAmountField } from '../../../Exchange/ApproveAmountField';
+import { ApproveAmountField } from '../../../Exchange/ApproveAmountField/ApproveAmountField';
 import { observer } from 'mobx-react';
 import { useStores } from '../../../../stores';
 import { Box } from 'grommet';
@@ -7,6 +7,7 @@ import * as s from '../StepBASE/StepBASE.styl';
 import { Button } from '../../../../components/Base';
 import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
+import { Networks } from '../Networks/Networks';
 
 interface Props {}
 
@@ -25,6 +26,10 @@ export const StepAPPROVE: React.FC<Props> = observer(() => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
+      <Box pad="60px">
+        <Networks />
+      </Box>
+
       <Box pad="60px">
         <ApproveAmountField tokenInfo={exchange.tokenInfo} />
       </Box>

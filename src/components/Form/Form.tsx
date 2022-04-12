@@ -34,18 +34,28 @@ export class Form extends MobxForm<IFormProps> {
     }
 
     if (this.props.onValidSubmit) {
-      this.validateFields().then(this.props.onValidSubmit).catch();
+      this.validateFields()
+        .then(this.props.onValidSubmit)
+        .catch();
     }
   };
 
-  public WrappedComponent: IWrappedComponent<IFormProps> = (props: IFormProps) => {
-    const { renderElement, className, layout = 'vertical', children } = props;
+  public WrappedComponent: IWrappedComponent<IFormProps> = (
+    props: IFormProps,
+  ) => {
+    const {
+      renderElement,
+      className,
+      style,
+      layout = 'vertical',
+      children,
+    } = props;
     const renderTagName = renderElement || 'form';
 
     const formProps = {
       className: cn(defaultClassName, className, layout),
       onSubmit: renderTagName === 'form' ? this.handlerOnSubmit : null,
-      style: { width: '100%' },
+      style: { width: '100%', ...style },
     };
 
     return React.createElement(renderTagName, formProps, children);

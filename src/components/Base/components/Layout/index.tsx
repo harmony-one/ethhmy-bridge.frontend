@@ -1,7 +1,13 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-type TFLex = 'flex-start' | 'center' | 'stretch' | 'flex-end' | 'space-between' | 'space-around';
+type TFLex =
+  | 'flex-start'
+  | 'center'
+  | 'stretch'
+  | 'flex-end'
+  | 'space-between'
+  | 'space-around';
 
 interface ILayout {
   direction?: 'row' | 'column';
@@ -32,6 +38,8 @@ const StyledLayout = styled.div<any>`
   margin: ${props => (props.margin ? props.margin : '')};
 `;
 
+StyledLayout.displayName = 'StyledLayout';
+
 export class Layout extends React.PureComponent<ILayout> {
   render() {
     return <StyledLayout {...this.props} />;
@@ -39,6 +47,7 @@ export class Layout extends React.PureComponent<ILayout> {
 }
 
 export class Row extends React.PureComponent<ILayout> {
+  public displayName = 'Row';
   render() {
     return <Layout {...this.props} direction="row" />;
   }

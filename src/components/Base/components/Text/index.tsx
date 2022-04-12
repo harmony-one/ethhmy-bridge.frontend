@@ -41,6 +41,7 @@ interface ITitleProps {
   text?: string;
   color?: string;
   bold?: boolean;
+  align?: 'center';
   fontFamily?: string;
   lh?: string;
   style?: React.CSSProperties;
@@ -59,6 +60,8 @@ const TextWrap = styled.div<ITitleProps>`
     props.color ||
     props.theme.textColor ||
     'black'};
+
+  text-align: ${props => props.align || ''};
 
   ${props => props.pad && getPaddingCSS(props.pad, props.theme)}
   ${props => props.margin && getMarginCSS(props.margin, props.theme)}

@@ -49,7 +49,9 @@ const StepRow = observer(
         style={{ borderBottom: '1px solid #dedede' }}
         margin={{ bottom: 'medium' }}
       >
-        <Text className={textClassName}>{number + 1 + '. ' + label}</Text>
+        <Text color="NWhite" className={textClassName}>
+          {number + 1 + '. ' + label}
+        </Text>
         <Box direction="row" justify="between">
           <Text className={textClassName}>
             Status: {statuses[action.status]}

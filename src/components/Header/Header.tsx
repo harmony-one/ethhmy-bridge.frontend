@@ -36,15 +36,15 @@ interface Props {}
 export const Header: React.FC<Props> = React.memo(() => {
   return (
     <Box className={s.root} direction="row" justify="between" align="center">
-      <Box>
+      <Box flex={{ grow: 0, shrink: 0 }} basis="150px">
         <HeaderLogo />
       </Box>
-      <Box direction="row" alignSelf="end">
+      <Box direction="row" alignSelf="end" gap="12px">
         <HeaderTab title="Bridge" to="/busd" />
         <HeaderTab title="Assets" to="/tokens" />
         <HeaderTab title="Transactions" to="/explorer" />
       </Box>
-      <Box>
+      <Box flex={{ grow: 0, shrink: 0 }} basis="150px">
         <Account />
       </Box>
     </Box>

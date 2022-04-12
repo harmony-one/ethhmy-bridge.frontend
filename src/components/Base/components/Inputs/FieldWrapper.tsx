@@ -9,6 +9,8 @@ const MainBox = styled(Box)<any>`
   }
 `;
 
+MainBox.displayName = 'MainBox';
+
 export interface IFieldWrapperProps {
   title: string;
   label: string;
@@ -18,6 +20,7 @@ export interface IFieldWrapperProps {
   visible: boolean;
   isRowLabel: boolean;
   margin?: object;
+  align?: 'center';
 }
 
 export const FieldWrapper = (props: IFieldWrapperProps) => {
@@ -30,6 +33,7 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
     visible = true,
     isRowLabel,
     margin,
+    align = 'start',
   } = props;
 
   const text = title || label;
@@ -49,7 +53,7 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
                   style={{
                     fontSize: '18px',
                     color: '#212D5E',
-                    fontWeight: "bold",
+                    fontWeight: 'bold',
                   }}
                 >
                   {text}
@@ -70,7 +74,7 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
           )}
           {help && (
             <Box margin={{ top: 'xsmall' }}>
-              <Text size="14px" color="#FF0000">
+              <Text textAlign={align} size="14px" color="#FF0000">
                 {help}
               </Text>
             </Box>
@@ -80,3 +84,5 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
     </>
   );
 };
+
+FieldWrapper.displayName = 'FieldWrapper';

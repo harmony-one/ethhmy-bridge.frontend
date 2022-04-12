@@ -18,6 +18,8 @@ const Input = styled.input`
   }
 `;
 
+Input.displayName = 'Input';
+
 type TPlacement = 'Top' | 'Right' | 'Bottom' | 'Left';
 type TBRadiusPlacement = 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';
 
@@ -54,7 +56,10 @@ export function getInputBorderRadius(
 }
 
 interface IInputWrapProps {
-  className: string;
+  className?: string;
+  wrapperProps?: {
+    className?: string;
+  };
   bgColor: string;
 
   border: string;
@@ -72,6 +77,7 @@ interface IInputWrapProps {
   margin: string;
   size: TSize;
   disabled: boolean;
+  align?: string;
 }
 
 const InputWrap = styled.div<IInputWrapProps>`
@@ -109,6 +115,8 @@ const InputWrap = styled.div<IInputWrapProps>`
     font-family: ${props => props.theme.fontBase};
   }
 `;
+
+InputWrap.displayName = 'InputWrap';
 
 export interface ITextInputProps extends ICommonInputProps {
   value?: string | number;
@@ -169,6 +177,8 @@ export const TextInputComponent = React.forwardRef<
   );
 });
 
+TextInputComponent.displayName = 'TextInputComponent';
+
 export const TextInput = withTheme(TextInputComponent);
 TextInput.displayName = 'TextInput';
 
@@ -190,11 +200,13 @@ const divideProps = (
     borderBottomRightRadius,
     borderBottomLeftRadius,
     margin,
-    className,
+    // className,
+    wrapperProps,
+    align,
     ...inputProps
   } = props;
 
-  const wrapperProps = {
+  const _wrapperProps = {
     size,
     bgColor,
     border,
@@ -207,11 +219,14 @@ const divideProps = (
     borderTopRightRadius,
     borderBottomRightRadius,
     borderBottomLeftRadius,
-    className,
+    // className,
+
     margin,
+    align,
     disabled: props.disabled,
     theme: props.theme,
+    ...wrapperProps,
   };
 
-  return { inputProps, wrapperProps };
+  return { inputProps, wrapperProps: _wrapperProps };
 };

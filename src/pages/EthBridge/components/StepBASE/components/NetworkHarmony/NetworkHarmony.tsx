@@ -1,9 +1,9 @@
 import React from 'react';
-import { BridgeControl } from '../BridgeControl/BridgeControl';
-import { NetworkIcon } from '../NetworkIcon/NetworkIcon';
-import { NETWORK_TYPE } from '../../../../stores/interfaces';
-import { Text } from '../../../../components/Base';
-import { networkNameMap } from '../../constants';
+import { BridgeControl } from '../../../BridgeControl/BridgeControl';
+import { NetworkIcon } from '../../../NetworkIcon/NetworkIcon';
+import { NETWORK_TYPE } from '../../../../../../stores/interfaces';
+import { Text } from '../../../../../../components/Base';
+import { networkNameMap } from '../../../../constants';
 
 interface Props {
   title: string;

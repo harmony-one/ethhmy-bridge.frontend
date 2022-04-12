@@ -92,7 +92,9 @@ export const Status: React.FC<Props> = observer(() => {
         style={{ width: '100%' }}
       >
         {description ? (
-          <Text style={{ textAlign: 'center' }}>{description}</Text>
+          <Text color="NWhite" style={{ textAlign: 'center' }}>
+            {description}
+          </Text>
         ) : null}
         <Box margin={{ top: 'medium' }} style={{ width: '100%' }}>
           <Steps />
