@@ -1230,22 +1230,7 @@ export class Exchange extends StoreConstructor {
         return;
       }
 
-      console.log('### here');
-
-      // @ts-ignore
-      console.log('### ethBridgeStore.formRef', ethBridgeStore.formRefStepBASE);
-
-      let form = null;
-
-      if (exchange.step.id === EXCHANGE_STEPS.BASE) {
-        form = ethBridgeStore.formRefStepBASE;
-      }
-
-      if (exchange.step.id === EXCHANGE_STEPS.APPROVE) {
-        form = ethBridgeStore.formRefStepAPPROVE;
-      }
-
-      form
+      ethBridgeStore.form
         .validateFields()
         .then(async () => {
           try {

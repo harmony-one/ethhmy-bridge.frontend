@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react';
 import * as s from './StepBASE.styl';
-import { NetworkRow } from '../NetworkRow/NetworkRow';
-import { TokenRow } from '../TokenRow/TokenRow';
+import { NetworkRow } from './components/NetworkRow/NetworkRow';
+import { TokenRow } from './components/TokenRow/TokenRow';
 import { Box } from 'grommet';
-import { Destination } from '../Destination/Destination';
+import { Destination } from './components/Destination/Destination';
 import { Button } from '../../../../components/Base';
 import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';

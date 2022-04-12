@@ -23,7 +23,7 @@ import cn from 'classnames';
 import { ERC20Select } from './ERC20Select';
 import { TokensField } from './AmountField';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
-import { ApproveAmountField } from './ApproveAmountField';
+import { ApproveAmountField } from './ApproveAmountField/ApproveAmountField';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../stores/names';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 import { AddTokenPanel } from './AddTokenPanel';

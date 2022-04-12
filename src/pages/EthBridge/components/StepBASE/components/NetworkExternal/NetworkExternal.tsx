@@ -1,11 +1,14 @@
 import React from 'react';
-import { Text, Icon } from '../../../../components/Base';
-import { BridgeControl } from '../BridgeControl/BridgeControl';
-import { networkNameMap } from '../../constants';
-import { NetworkIcon } from '../NetworkIcon/NetworkIcon';
+import { Text, Icon } from '../../../../../../components/Base';
+import { BridgeControl } from '../../../BridgeControl/BridgeControl';
+import { networkNameMap } from '../../../../constants';
+import { NetworkIcon } from '../../../NetworkIcon/NetworkIcon';
 import { Menu, Box } from 'grommet';
-import { useStores } from '../../../../stores';
-import { EXCHANGE_MODE, NETWORK_TYPE } from '../../../../stores/interfaces';
+import { useStores } from '../../../../../../stores';
+import {
+  EXCHANGE_MODE,
+  NETWORK_TYPE,
+} from '../../../../../../stores/interfaces';
 import { observer } from 'mobx-react';
 
 interface NetworkMenuItemProps {

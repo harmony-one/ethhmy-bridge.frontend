@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
-import { Icon } from '../../../../components/Base';
+import { Icon } from '../../../../../../components/Base';
 import { Button } from 'grommet/components/Button';
-import { useStores } from '../../../../stores';
-import { EXCHANGE_MODE } from '../../../../stores/interfaces';
+import { useStores } from '../../../../../../stores';
+import { EXCHANGE_MODE } from '../../../../../../stores/interfaces';
 import { observer } from 'mobx-react';
 
 interface Props {}

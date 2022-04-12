@@ -21,7 +21,7 @@ const AssetRow = props => {
       align="start"
     >
       <Box>
-        <Text size="small" bold={true}>
+        <Text color="NWhite" size="small" bold={true}>
           <SliceTooltip value={props.label} maxLength={24} />
           {props.showIds ? 'Token IDs' : ''}
         </Text>
@@ -173,12 +173,9 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
     const getImage = () => {
       if (exchange.transaction.nftImageUrl !== '') {
         return (
-          <Box margin={{bottom: "20px"}} align="center">
-            <Box width="small" direction="row" margin={{bottom: "5px"}}>
-              <Image
-                fit="cover"
-                src={exchange.transaction.nftImageUrl}
-              />
+          <Box margin={{ bottom: '20px' }} align="center">
+            <Box width="small" direction="row" margin={{ bottom: '5px' }}>
+              <Image fit="cover" src={exchange.transaction.nftImageUrl} />
             </Box>
             <Box direction="row">
               <Text size="small" bold={true}>
@@ -188,19 +185,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           </Box>
         );
       }
-      return ""
+      return '';
     };
 
     return (
       <Box direction="column">
         <AssetRow
           label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
-          value={truncateAddressString(exchange.transaction.ethAddress, isMobile ? 7 : 12)}
+          value={truncateAddressString(
+            exchange.transaction.ethAddress,
+            isMobile ? 7 : 12,
+          )}
           address={true}
         />
         <AssetRow
           label="ONE address"
-          value={truncateAddressString(exchange.transaction.oneAddress, isMobile ? 7 : 12)}
+          value={truncateAddressString(
+            exchange.transaction.oneAddress,
+            isMobile ? 7 : 12,
+          )}
           address={true}
         />
         {getAmount()}
@@ -278,27 +281,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                {
-                  exchange.token === TOKEN.HRC721 ? (
-                    <AssetRow label="Lock Token" value="">
-                      <Price
-                        value={0.0067219}
-                        isEth={false}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  ): (
-                    <AssetRow label="Burn" value="">
-                      <Price
-                        value={0.0067219}
-                        isEth={false}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  )
-                }
+                {exchange.token === TOKEN.HRC721 ? (
+                  <AssetRow label="Lock Token" value="">
+                    <Price
+                      value={0.0067219}
+                      isEth={false}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                ) : (
+                  <AssetRow label="Burn" value="">
+                    <Price
+                      value={0.0067219}
+                      isEth={false}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                )}
                 <AssetRow
                   label={NETWORK_NAME[exchange.network] + ' gas'}
                   value=""
@@ -325,27 +326,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                {
-                  exchange.token === TOKEN.HRC721 ? (
-                    <AssetRow label="Burn token (~50000 gas)" value="">
-                      <Price
-                        value={exchange.networkFee / 2}
-                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  ): (
-                    <AssetRow label="Lock token (~50000 gas)" value="">
-                      <Price
-                        value={exchange.networkFee / 2}
-                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  )
-                }
+                {exchange.token === TOKEN.HRC721 ? (
+                  <AssetRow label="Burn token (~50000 gas)" value="">
+                    <Price
+                      value={exchange.networkFee / 2}
+                      isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                ) : (
+                  <AssetRow label="Lock token (~50000 gas)" value="">
+                    <Price
+                      value={exchange.networkFee / 2}
+                      isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                )}
               </div>
             ) : null}
 
@@ -373,7 +372,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           <Box direction="column" margin={{ top: 'large' }}>
             <AssetRow
               label="Transaction hash"
-              value={truncateAddressString(exchange.txHash, isMobile ? 7: 12)}
+              value={truncateAddressString(exchange.txHash, isMobile ? 7 : 12)}
               address={true}
             />
           </Box>

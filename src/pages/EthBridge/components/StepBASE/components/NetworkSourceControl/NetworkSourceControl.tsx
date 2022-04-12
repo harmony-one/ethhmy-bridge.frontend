@@ -1,6 +1,6 @@
 import React from 'react';
-import { useStores } from '../../../../stores';
-import { EXCHANGE_MODE } from '../../../../stores/interfaces';
+import { useStores } from '../../../../../../stores';
+import { EXCHANGE_MODE } from '../../../../../../stores/interfaces';
 import { observer } from 'mobx-react';
 import { NetworkExternal } from '../NetworkExternal/NetworkExternal';
 import { NetworkHarmony } from '../NetworkHarmony/NetworkHarmony';

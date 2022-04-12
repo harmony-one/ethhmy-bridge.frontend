@@ -8,6 +8,7 @@ import { useStores } from '../../../../stores';
 import * as s from '../StepBASE/StepBASE.styl';
 import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
+import { Networks } from '../Networks/Networks';
 
 interface Props {}
 
@@ -21,6 +22,10 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
+      <Box pad="60px">
+        <Networks />
+      </Box>
+
       <Box pad="60px">
         <Details showTotal={true} />
         <>

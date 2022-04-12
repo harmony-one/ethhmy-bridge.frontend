@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import { Box } from 'grommet';
-import { Icon, Text } from '../../../../components/Base';
+import { Icon, Text } from '../../../../../../components/Base';
 import { Button } from 'grommet/components/Button';
 import * as s from './TokenSettings.styl';
-import { ModalRegister } from '../../../../modals/ModalRegister';
-import { ModalIds } from '../../../../modals/types';
-import { useStores } from '../../../../stores';
-import { TokenSettingsModal } from '../TokenSettingsModal/TokenSettingsModal';
+import { ModalRegister } from '../../../../../../modals/ModalRegister';
+import { ModalIds } from '../../../../../../modals/types';
+import { useStores } from '../../../../../../stores';
+import { TokenSettingsModal } from '../../../TokenSettingsModal/TokenSettingsModal';
 
 interface Props {}
 

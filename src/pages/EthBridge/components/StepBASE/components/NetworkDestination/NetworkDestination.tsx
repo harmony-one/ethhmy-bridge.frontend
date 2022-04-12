@@ -1,7 +1,7 @@
 import React from 'react';
-import { EXCHANGE_MODE } from '../../../../stores/interfaces';
+import { EXCHANGE_MODE } from '../../../../../../stores/interfaces';
 import { observer } from 'mobx-react';
-import { useStores } from '../../../../stores';
+import { useStores } from '../../../../../../stores';
 import { NetworkHarmony } from '../NetworkHarmony/NetworkHarmony';
 import { NetworkExternal } from '../NetworkExternal/NetworkExternal';
 

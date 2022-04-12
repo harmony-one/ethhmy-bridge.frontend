@@ -103,3 +103,5 @@ export const NumberInput: React.FC<INumberInputProps> = ({
     />
   );
 };
+
+NumberInput.displayName = 'NumberInput';

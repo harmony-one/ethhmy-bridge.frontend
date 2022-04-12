@@ -54,6 +54,8 @@ export class MobxFormItem extends React.Component<IMobxFormItemProps> {
     defaultItemProps: object;
   };
 
+  public displayName = 'MobxFormItem';
+
   public rules: IRuleObj[];
   public isRequired: boolean;
 
@@ -203,7 +205,11 @@ export class MobxFormItem extends React.Component<IMobxFormItemProps> {
 
     return (
       <Wrapper {...wrapperProps} {...this.context.defaultItemProps}>
-        <Component {...componentProps} onChange={onValueChange} data-value={getFieldValue(name)} />
+        <Component
+          {...componentProps}
+          onChange={onValueChange}
+          data-value={getFieldValue(name)}
+        />
       </Wrapper>
     );
   }

@@ -14,11 +14,11 @@ import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
 // import { ERC20Select } from '../Exchange/ERC20Select';
 import { useMediaQuery } from 'react-responsive';
 import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon';
-import { NetworkSourceControl } from './components/NetworkSourceControl/NetworkSourceControl';
-import { NetworkDestination } from './components/NetworkDestination/NetworkDestination';
-import { NetworkRow } from './components/NetworkRow/NetworkRow';
-import { TokenRow } from './components/TokenRow/TokenRow';
-import { Destination } from './components/Destination/Destination';
+import { NetworkSourceControl } from './components/StepBASE/components/NetworkSourceControl/NetworkSourceControl';
+import { NetworkDestination } from './components/StepBASE/components/NetworkDestination/NetworkDestination';
+import { NetworkRow } from './components/StepBASE/components/NetworkRow/NetworkRow';
+import { TokenRow } from './components/StepBASE/components/TokenRow/TokenRow';
+import { Destination } from './components/StepBASE/components/Destination/Destination';
 import { ethBridgeStore } from './EthBridgeStore';
 import { StepManager } from './components/StepManager/StepManager';
 import { Form } from '../../components/Form';
@@ -155,8 +155,6 @@ export const EthBridge = observer((props: any) => {
     tokens.fetch();
   }, []);
 
-  const [formRef, setForm] = useState();
-
   if (isMobile) {
     return (
       <BaseContainer>
@@ -217,12 +215,13 @@ export const EthBridge = observer((props: any) => {
         justify="center"
         align="center"
       >
-        {/*<Form*/}
-        {/*  ref={ref => setFormRef(ref)}*/}
-        {/*  data={exchange.transaction}*/}
-        {/*>*/}
-        <StepManager />
-        {/*</Form>*/}
+        <Form
+          style={{ width: 'auto' }}
+          ref={ref => (ethBridgeStore.form = ref)}
+          data={exchange.transaction}
+        >
+          <StepManager />
+        </Form>
 
         {false && (
           <Box>
