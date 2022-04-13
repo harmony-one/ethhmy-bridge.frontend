@@ -1,25 +1,40 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { WalletButton } from '../../../../WalletButton';
+import React, { useCallback, useMemo } from 'react';
 import { useStores } from '../../../../../../stores';
 import { Box } from 'grommet/components/Box';
 import { Icon, Text } from '../../../../../../components/Base';
 import { Button } from 'grommet/components/Button';
 import * as s from './Destination.styl';
 import { observer } from 'mobx-react';
-import { truncateAddressString } from '../../../../../../utils';
 import { ethBridgeStore } from '../../../../EthBridgeStore';
-import { Form, Input, isRequired } from 'components/Form';
+import { Input, isRequired } from 'components/Form';
 import cn from 'classnames';
-import { EXCHANGE_MODE } from '../../../../../../stores/interfaces';
+import {
+  EXCHANGE_MODE,
+  NETWORK_TYPE,
+} from '../../../../../../stores/interfaces';
+import {
+  NETWORK_BASE_TOKEN,
+  NETWORK_ICON,
+  NETWORK_NAME,
+} from '../../../../../../stores/names';
+import { getChainName } from '../../../../../../stores/Exchange/helpers';
 
 interface MetamaskButtonProps {
+  active: boolean;
   label: string;
   onClick: () => void;
 }
 
-const MetamaskButton: React.FC<MetamaskButtonProps> = ({ label, onClick }) => {
+const MetamaskButton: React.FC<MetamaskButtonProps> = ({
+  active,
+  label,
+  onClick,
+}) => {
   return (
-    <Button className={s.metamaskButton} onClick={onClick}>
+    <Button
+      className={cn(s.metamaskButton, { [s.active]: active })}
+      onClick={onClick}
+    >
       <Box direction="row" gap="8px" align="center">
         <Box>
           <img src="/metamask.svg" height="16" />
@@ -27,7 +42,8 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({ label, onClick }) => {
         <Text color="NWhite" size="xxsmall" lh="24px">
           {label}
         </Text>
-        <Icon glyph="CloseCircle" />
+        {active && <Icon glyph="CloseCircle" />}
+        {!active && <Icon glyph="AddCircle" />}
       </Box>
     </Button>
   );
@@ -38,16 +54,33 @@ interface Props {}
 export const Destination: React.FC<Props> = observer(() => {
   const { userMetamask, user, exchange } = useStores();
 
-  const handleClickLogoutEth = useCallback(() => {
-    userMetamask.signOut();
-  }, [userMetamask]);
+  const handleClickMetamask = useCallback(() => {
+    if (userMetamask.isAuthorized) {
+      return userMetamask.signOut();
+    }
 
-  const handleClickLogoutHarmony = useCallback(() => {
-    user.signOut();
-  }, [user]);
+    return userMetamask.signIn();
+  }, [user, userMetamask.isAuthorized]);
 
   const inputName =
     exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? 'ethAddress' : 'oneAddress';
+
+  const externalNetworkName = NETWORK_NAME[exchange.network];
+
+  const metamaskChainName = useMemo(() => {
+    return getChainName(userMetamask.metamaskChainId);
+  }, [userMetamask.metamaskChainId]);
+
+  console.log('### metamaskChainName', metamaskChainName);
+
+  const externalSubNetworkName =
+    exchange.network === NETWORK_TYPE.ETHEREUM
+      ? process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'kovan'
+      : process.env.NETWORK === 'mainnet'
+      ? 'mainnet'
+      : 'testnet';
 
   return (
     <Box direction="column" align="center" gap="8px" fill="horizontal">
@@ -78,41 +111,25 @@ export const Destination: React.FC<Props> = observer(() => {
         </Text>
       )}
 
-      <Box direction="row" gap="16px">
-        {userMetamask.isAuthorized && (
-          <MetamaskButton label="Eth network" onClick={handleClickLogoutEth} />
+      <Box direction="column" gap="16px" justify="center" align="center">
+        <MetamaskButton
+          active={userMetamask.isAuthorized}
+          label={metamaskChainName || 'Metamask'}
+          onClick={handleClickMetamask}
+        />
+        {userMetamask.isAuthorized && !userMetamask.isNetworkActual && (
+          <Box width="50%">
+            <Text size="xsmall">
+              You have authorised with Metamask, but the selected network does
+              not match{' '}
+              <span style={{ color: 'rgb(0, 173, 232)' }}>
+                {externalNetworkName}: {externalSubNetworkName}
+              </span>
+              . Please change network to {externalSubNetworkName} for transfer{' '}
+              {externalNetworkName} -> Harmony with Metamask.
+            </Text>
+          </Box>
         )}
-
-        {!userMetamask.isAuthorized && (
-          <WalletButton
-            onClick={() => {
-              userMetamask.signIn();
-            }}
-            error={userMetamask.error}
-          >
-            <img src="/metamask.svg" style={{ marginRight: 15, height: 22 }} />
-            Eth: Metamask
-          </WalletButton>
-        )}
-
-        {/*{user.isAuthorized && (*/}
-        {/*  <MetamaskButton*/}
-        {/*    label="One network"*/}
-        {/*    onClick={handleClickLogoutHarmony}*/}
-        {/*  />*/}
-        {/*)}*/}
-
-        {/*{!user.isAuthorized && (*/}
-        {/*  <WalletButton*/}
-        {/*    onClick={() => {*/}
-        {/*      user.signInMetamask();*/}
-        {/*    }}*/}
-        {/*    error={user.error}*/}
-        {/*  >*/}
-        {/*    <img src="/metamask.svg" style={{ marginRight: 15, height: 22 }} />*/}
-        {/*    One: Metamask*/}
-        {/*  </WalletButton>*/}
-        {/*)}*/}
       </Box>
     </Box>
   );

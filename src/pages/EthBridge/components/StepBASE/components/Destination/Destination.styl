@@ -1,9 +1,14 @@
 @require '../../../../../../variables.styl'
 
 .metamaskButton.metamaskButton {
-  background-color: #B56625
+  background-color: #999999;
   border-radius: 7px;
   padding: 4px 16px;
+  transition: background-color 300ms linear;
+
+  &.active {
+    background-color: #B56625;
+  }
 }
 
 .input.input {

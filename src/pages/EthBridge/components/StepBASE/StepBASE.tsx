@@ -29,7 +29,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
     <Box className={s.root} margin={{ top: '60px' }}>
       <NetworkRow />
       <TokenRow />
-      <Box align="center" pad="large" style={{ height: '174px' }}>
+      <Box align="center" pad="large">
         <Destination />
       </Box>
       <Box direction="row" height="66px">
