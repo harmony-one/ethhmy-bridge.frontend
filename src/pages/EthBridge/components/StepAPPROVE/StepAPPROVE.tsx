@@ -26,9 +26,7 @@ export const StepAPPROVE: React.FC<Props> = observer(() => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
-      <Box pad="60px">
-        <Networks />
-      </Box>
+      <Networks />
 
       <Box pad="60px">
         <ApproveAmountField tokenInfo={exchange.tokenInfo} />
