@@ -8,15 +8,17 @@ import { observer } from 'mobx-react';
 interface Props {}
 
 export const NetworkDirection: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, userMetamask } = useStores();
 
   const handleChangeMode = useCallback(() => {
     if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
       exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE);
+      userMetamask.switchNetwork(EXCHANGE_MODE.ETH_TO_ONE, exchange.network);
     } else {
       exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH);
+      userMetamask.switchNetwork(EXCHANGE_MODE.ONE_TO_ETH, exchange.network);
     }
-  }, [exchange, exchange.mode]);
+  }, [exchange, userMetamask]);
 
   return (
     <Button onClick={handleChangeMode} style={{ width: '40px' }}>

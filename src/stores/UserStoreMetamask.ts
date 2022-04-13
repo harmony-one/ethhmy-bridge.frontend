@@ -4,17 +4,19 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
   getExNetworkMethods,
-  hmyMethodsBEP20, hmyMethodsERC1155,
+  hmyMethodsBEP20,
+  hmyMethodsERC1155,
   hmyMethodsERC20,
-  hmyMethodsERC721, hmyMethodsHRC1155,
+  hmyMethodsERC721,
   hmyMethodsERC721Hmy
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
-import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
+import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
+import { getChainConfig, getChainId, numberToHex } from './Exchange/helpers';
 
 const defaults = {};
 
@@ -225,6 +227,32 @@ export class UserStoreMetamask extends StoreConstructor {
         });
     } catch (e) {
       return this.setError(e.message);
+    }
+  }
+
+  @action
+  public async switchNetwork(mode: EXCHANGE_MODE, network: NETWORK_TYPE) {
+    try {
+      await this.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: numberToHex(getChainId(mode, network)) }],
+      });
+
+      console.log('### success');
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        try {
+          const config = getChainConfig(mode, network);
+          await this.provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [config],
+          });
+        } catch (addError) {
+          console.log('### addError', addError);
+        }
+      } else {
+        console.log('### ex', switchError);
+      }
     }
   }
 
@@ -515,7 +543,9 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     this.erc20Address = erc20Address;
-    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc20Address);
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(
+      erc20Address,
+    );
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
@@ -588,11 +618,15 @@ export class UserStoreMetamask extends StoreConstructor {
       erc1155Address,
     );
     this.erc1155Address = erc1155Address;
-    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc1155Address);
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(
+      erc1155Address,
+    );
     const tokenId = this.stores.erc20Select.hrc1155TokenId || '0';
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
-    this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
+    this.stores.userMetamask.erc20Balance = Number(
+      await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId),
+    ).toString();
 
     const address = await hmyMethodsERC1155.hmyMethods.getMappingFor(
       erc1155Address,
@@ -605,7 +639,9 @@ export class UserStoreMetamask extends StoreConstructor {
         : hmyMethodsBase.hmyMethods;
 
       try {
-        this.stores.user.hrc20Balance = Number(await hmyMethods.balanceOf(address, tokenId)).toString();
+        this.stores.user.hrc20Balance = Number(
+          await hmyMethods.balanceOf(address, tokenId),
+        ).toString();
       } catch (e) {
         // nop
       }
