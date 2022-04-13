@@ -138,33 +138,14 @@ const HarmonyConfig: MetaMaskNetworkConfig = {
 
 const EthereumConfig: MetaMaskNetworkConfig = {
   chainId: numberToHex(parseInt(process.env.METAMASK_ETH_CHAIN_ID, 10)),
-  chainName: process.env.METAMASK_BSC_CHAIN_NAME,
+  chainName: process.env.METAMASK_ETH_CHAIN_NAME,
   nativeCurrency: {
     name: 'ETH',
     symbol: 'ETH',
     decimals: 18,
   },
-  rpcUrls: [process.env.METAMASK_HMY_RPC_URL],
-  blockExplorerUrls: [process.env.HMY_EXPLORER_URL],
-};
-
-export const getChainId = (
-  mode: EXCHANGE_MODE,
-  network: NETWORK_TYPE,
-): number => {
-  if (mode === EXCHANGE_MODE.ONE_TO_ETH) {
-    return parseInt(process.env.METAMASK_HMY_CHAIN_ID, 10);
-  }
-
-  if (network === NETWORK_TYPE.ETHEREUM) {
-    return parseInt(process.env.METAMASK_ETH_CHAIN_ID, 10);
-  }
-
-  if (network === NETWORK_TYPE.BINANCE) {
-    return parseInt(process.env.METAMASK_BSC_CHAIN_ID, 10);
-  }
-
-  throw Error('Network type is wrong');
+  rpcUrls: [process.env.METAMASK_ETH_RPC_URL],
+  blockExplorerUrls: [process.env.ETH_EXPLORER_URL],
 };
 
 export const getChainConfig = (mode: EXCHANGE_MODE, network: NETWORK_TYPE) => {
