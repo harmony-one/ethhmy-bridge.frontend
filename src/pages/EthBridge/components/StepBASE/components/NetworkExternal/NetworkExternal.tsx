@@ -44,7 +44,7 @@ const NetworkMenuItem: React.FC<NetworkMenuItemProps> = ({
 };
 
 const NetworkMenu = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, userMetamask } = useStores();
 
   const label = networkNameMap[exchange.network];
 
@@ -72,6 +72,7 @@ const NetworkMenu = observer(() => {
           ),
           onClick: () => {
             exchange.setNetwork(NETWORK_TYPE.BINANCE);
+            userMetamask.switchNetwork(exchange.mode, NETWORK_TYPE.BINANCE);
           },
         },
         {
@@ -84,6 +85,7 @@ const NetworkMenu = observer(() => {
           ),
           onClick: () => {
             exchange.setNetwork(NETWORK_TYPE.ETHEREUM);
+            userMetamask.switchNetwork(exchange.mode, NETWORK_TYPE.ETHEREUM);
           },
         },
       ]}

@@ -95,24 +95,24 @@ export const Destination: React.FC<Props> = observer(() => {
           </WalletButton>
         )}
 
-        {user.isAuthorized && (
-          <MetamaskButton
-            label="One network"
-            onClick={handleClickLogoutHarmony}
-          />
-        )}
+        {/*{user.isAuthorized && (*/}
+        {/*  <MetamaskButton*/}
+        {/*    label="One network"*/}
+        {/*    onClick={handleClickLogoutHarmony}*/}
+        {/*  />*/}
+        {/*)}*/}
 
-        {!user.isAuthorized && (
-          <WalletButton
-            onClick={() => {
-              user.signInMetamask();
-            }}
-            error={user.error}
-          >
-            <img src="/metamask.svg" style={{ marginRight: 15, height: 22 }} />
-            One: Metamask
-          </WalletButton>
-        )}
+        {/*{!user.isAuthorized && (*/}
+        {/*  <WalletButton*/}
+        {/*    onClick={() => {*/}
+        {/*      user.signInMetamask();*/}
+        {/*    }}*/}
+        {/*    error={user.error}*/}
+        {/*  >*/}
+        {/*    <img src="/metamask.svg" style={{ marginRight: 15, height: 22 }} />*/}
+        {/*    One: Metamask*/}
+        {/*  </WalletButton>*/}
+        {/*)}*/}
       </Box>
     </Box>
   );

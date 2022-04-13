@@ -1,4 +1,4 @@
-import { NETWORK_TYPE, TOKEN } from '../interfaces';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from '../interfaces';
 import * as contract from '../../blockchain-bridge';
 import { getExNetworkMethods } from '../../blockchain-bridge';
 
@@ -94,4 +94,91 @@ export const getContractMethods = (
   }
 
   return { ethMethods, hmyMethods };
+};
+
+interface MetaMaskNetworkConfig {
+  chainId: string;
+  chainName: string;
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  rpcUrls: string[];
+  blockExplorerUrls: string[];
+}
+
+export const numberToHex = (value: number): string => {
+  return '0x' + value.toString(16);
+};
+
+const BinanceConfig: MetaMaskNetworkConfig = {
+  chainId: numberToHex(parseInt(process.env.METAMASK_BSC_CHAIN_ID, 10)),
+  chainName: process.env.METAMASK_BSC_CHAIN_NAME,
+  nativeCurrency: {
+    name: 'BNB',
+    symbol: 'BNB',
+    decimals: 18,
+  },
+  rpcUrls: [process.env.METAMASK_BSC_RPC_URL],
+  blockExplorerUrls: [process.env.METAMASK_BSC_EXPLORER],
+};
+
+const HarmonyConfig: MetaMaskNetworkConfig = {
+  chainId: numberToHex(parseInt(process.env.METAMASK_HMY_CHAIN_ID, 10)),
+  chainName: process.env.METAMASK_BSC_CHAIN_NAME,
+  nativeCurrency: {
+    name: 'ONE',
+    symbol: 'ONE',
+    decimals: 18,
+  },
+  rpcUrls: [process.env.METAMASK_HMY_RPC_URL],
+  blockExplorerUrls: [process.env.HMY_EXPLORER_URL],
+};
+
+const EthereumConfig: MetaMaskNetworkConfig = {
+  chainId: numberToHex(parseInt(process.env.METAMASK_ETH_CHAIN_ID, 10)),
+  chainName: process.env.METAMASK_BSC_CHAIN_NAME,
+  nativeCurrency: {
+    name: 'ETH',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  rpcUrls: [process.env.METAMASK_HMY_RPC_URL],
+  blockExplorerUrls: [process.env.HMY_EXPLORER_URL],
+};
+
+export const getChainId = (
+  mode: EXCHANGE_MODE,
+  network: NETWORK_TYPE,
+): number => {
+  if (mode === EXCHANGE_MODE.ONE_TO_ETH) {
+    return parseInt(process.env.METAMASK_HMY_CHAIN_ID, 10);
+  }
+
+  if (network === NETWORK_TYPE.ETHEREUM) {
+    return parseInt(process.env.METAMASK_ETH_CHAIN_ID, 10);
+  }
+
+  if (network === NETWORK_TYPE.BINANCE) {
+    return parseInt(process.env.METAMASK_BSC_CHAIN_ID, 10);
+  }
+
+  throw Error('Network type is wrong');
+};
+
+export const getChainConfig = (mode: EXCHANGE_MODE, network: NETWORK_TYPE) => {
+  if (mode === EXCHANGE_MODE.ONE_TO_ETH) {
+    return HarmonyConfig;
+  }
+
+  if (network === NETWORK_TYPE.ETHEREUM) {
+    return EthereumConfig;
+  }
+
+  if (network === NETWORK_TYPE.BINANCE) {
+    return BinanceConfig;
+  }
+
+  throw new Error('Unhandled network type');
 };
