@@ -12,12 +12,9 @@ import {
   EXCHANGE_MODE,
   NETWORK_TYPE,
 } from '../../../../../../stores/interfaces';
-import {
-  NETWORK_BASE_TOKEN,
-  NETWORK_ICON,
-  NETWORK_NAME,
-} from '../../../../../../stores/names';
+import { NETWORK_NAME } from '../../../../../../stores/names';
 import { getChainName } from '../../../../../../stores/Exchange/helpers';
+import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 
 interface MetamaskButtonProps {
   active: boolean;
@@ -60,7 +57,11 @@ export const Destination: React.FC<Props> = observer(() => {
     }
 
     return userMetamask.signIn();
-  }, [user, userMetamask.isAuthorized]);
+  }, [userMetamask]);
+
+  const handleClickUseMyAddress = useCallback(() => {
+    exchange.setDestinationAddressByMode(userMetamask.ethAddress);
+  }, [exchange, userMetamask.ethAddress]);
 
   const inputName =
     exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? 'ethAddress' : 'oneAddress';
@@ -70,8 +71,6 @@ export const Destination: React.FC<Props> = observer(() => {
   const metamaskChainName = useMemo(() => {
     return getChainName(userMetamask.metamaskChainId);
   }, [userMetamask.metamaskChainId]);
-
-  console.log('### metamaskChainName', metamaskChainName);
 
   const externalSubNetworkName =
     exchange.network === NETWORK_TYPE.ETHEREUM
@@ -83,26 +82,31 @@ export const Destination: React.FC<Props> = observer(() => {
       : 'testnet';
 
   return (
-    <Box direction="column" align="center" gap="8px" fill="horizontal">
-      <Text color="NGray" size="xsmall">
-        Destination address
-      </Text>
-
-      {/*{userMetamask.isAuthorized && (*/}
-      {/*  <Text>{truncateAddressString(userMetamask.ethAddress)}</Text>*/}
-      {/*)}*/}
-
-      <Input
-        align="center"
-        className={cn(s.input)}
-        label=""
-        bgColor="transparent"
-        border="none"
-        name={inputName}
-        style={{ width: '100%' }}
-        placeholder="Receiver address"
-        rules={[isRequired]}
-        onChange={() => (ethBridgeStore.addressValidationError = '')}
+    <Box direction="column" align="center" gap="16px" fill="horizontal">
+      <BridgeControl
+        title="Destination address"
+        gap="8px"
+        centerContent={
+          <Input
+            align="center"
+            className={cn(s.input)}
+            label=""
+            bgColor="transparent"
+            border="none"
+            name={inputName}
+            style={{ width: '100%', padding: '0' }}
+            placeholder="Receiver address"
+            rules={[isRequired]}
+            onChange={() => (ethBridgeStore.addressValidationError = '')}
+          />
+        }
+        bottomContent={
+          <Button color="NBlue" onClick={handleClickUseMyAddress}>
+            <Text size="xxsmall" color="NBlue">
+              use my address
+            </Text>
+          </Button>
+        }
       />
 
       {ethBridgeStore.addressValidationError && (

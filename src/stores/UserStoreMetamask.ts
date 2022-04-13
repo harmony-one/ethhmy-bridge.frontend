@@ -15,7 +15,7 @@ import Web3 from 'web3';
 import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
-import { getChainConfig } from './Exchange/helpers';
+import { getChainConfig, numberToHex } from './Exchange/helpers';
 
 const defaults = {};
 
@@ -95,7 +95,9 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @computed public get isNetworkActual() {
-    console.log('metamaskChainId', this.metamaskChainId);
+    const config = this.stores.exchange.getChainConfig();
+
+    return numberToHex(Number(this.metamaskChainId)) === config.chainId;
 
     switch (process.env.NETWORK) {
       case 'testnet':

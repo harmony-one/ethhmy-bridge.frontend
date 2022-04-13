@@ -16,13 +16,21 @@ export const BridgeControl: React.FC<Props> = ({
   gap = '16px',
 }) => {
   return (
-    <Box direction="column" gap={gap} justify="center" align="center">
+    <Box
+      direction="column"
+      gap={gap}
+      justify="center"
+      fill="horizontal"
+      align="center"
+    >
       <Box>
         <Text size="xsmall" color="NGray">
           {title}
         </Text>
       </Box>
-      <Box>{centerContent}</Box>
+      <Box fill="horizontal" align="center">
+        {centerContent}
+      </Box>
       <Box>{bottomContent}</Box>
     </Box>
   );
