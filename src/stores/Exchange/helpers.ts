@@ -148,6 +148,19 @@ const EthereumConfig: MetaMaskNetworkConfig = {
   blockExplorerUrls: [process.env.ETH_EXPLORER_URL],
 };
 
+export const chainNameMap = {
+  '1': 'Ethereum: mainnet',
+  '56': 'Binance: mainnet',
+  '1666600000': 'Harmony: mainnet',
+  '42': 'Ethereum: kovan',
+  '97': 'Binance: testnet',
+  '1666700000': 'Harmony: testnet',
+};
+
+export const getChainName = (chainId: number): string => {
+  return chainNameMap[chainId];
+};
+
 export const getChainConfig = (mode: EXCHANGE_MODE, network: NETWORK_TYPE) => {
   if (mode === EXCHANGE_MODE.ONE_TO_ETH) {
     return HarmonyConfig;
