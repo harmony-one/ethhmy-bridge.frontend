@@ -22,7 +22,7 @@ import { sendErc721Token } from './erc721';
 import { getAddress } from '@harmony-js/crypto';
 import { send1ETHToken } from './1ETH';
 import { send1ONEToken } from './1ONE';
-import { getContractMethods } from './helpers';
+import { getChainConfig, getContractMethods } from './helpers';
 import { defaultEthClient } from './defaultConfig';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../names';
 import { sendHrc721Token } from './hrc721';
@@ -423,6 +423,17 @@ export class Exchange extends StoreConstructor {
       ],
     },
   ];
+
+  @action.bound
+  setDestinationAddressByMode(address: string) {
+    if (this.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+      this.transaction.oneAddress = address;
+    }
+
+    if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      this.transaction.ethAddress = address;
+    }
+  }
 
   @action.bound
   setAddressByMode() {
@@ -1349,5 +1360,9 @@ export class Exchange extends StoreConstructor {
           image: '',
         };
     }
+  }
+
+  getChainConfig() {
+    return getChainConfig(this.mode, this.network);
   }
 }
