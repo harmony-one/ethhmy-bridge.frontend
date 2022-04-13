@@ -15,7 +15,7 @@ import Web3 from 'web3';
 import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
-import { getChainConfig, getChainId, numberToHex } from './Exchange/helpers';
+import { getChainConfig } from './Exchange/helpers';
 
 const defaults = {};
 
@@ -231,17 +231,17 @@ export class UserStoreMetamask extends StoreConstructor {
 
   @action
   public async switchNetwork(mode: EXCHANGE_MODE, network: NETWORK_TYPE) {
+    const config = getChainConfig(mode, network);
     try {
       await this.provider.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: numberToHex(getChainId(mode, network)) }],
+        params: [{ chainId: config.chainId }],
       });
 
       console.log('### success');
     } catch (switchError) {
       if (switchError.code === 4902) {
         try {
-          const config = getChainConfig(mode, network);
           await this.provider.request({
             method: 'wallet_addEthereumChain',
             params: [config],
