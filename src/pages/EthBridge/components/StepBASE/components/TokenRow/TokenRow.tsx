@@ -12,7 +12,7 @@ export const TokenRow: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
 
   return (
-    <Box direction="column" pad={{ top: '40px' }}>
+    <Box direction="column">
       <Box justify="center" align="center" pad={{ bottom: '16px' }}>
         <TokenSettings />
       </Box>
