@@ -8,6 +8,7 @@ import { Button } from '../../../../components/Base';
 import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { Networks } from '../Networks/Networks';
+import { Divider } from '../../../../components/Divider/Divider';
 
 interface Props {}
 
@@ -28,6 +29,7 @@ export const StepAPPROVE: React.FC<Props> = observer(() => {
     <Box className={s.root} margin={{ top: '60px' }}>
       <Networks />
 
+      <Divider />
       <Box pad="60px">
         <ApproveAmountField tokenInfo={exchange.tokenInfo} />
       </Box>
