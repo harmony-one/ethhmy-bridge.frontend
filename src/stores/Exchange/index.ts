@@ -1318,7 +1318,7 @@ export class Exchange extends StoreConstructor {
         return {
           label: userMetamask.erc20TokenDetails
             ? userMetamask.erc20TokenDetails.symbol
-            : '',
+            : (token && token.label) || '',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance

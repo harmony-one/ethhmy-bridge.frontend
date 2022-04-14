@@ -42,9 +42,11 @@ export const TokenControl: React.FC<Props> = observer(() => {
         </Button>
       }
       bottomContent={
-        <Text size="xxsmall" color="NGray">
-          {exchange.tokenInfo && exchange.tokenInfo.label}
-        </Text>
+        exchange.tokenInfo && (
+          <Text size="xxsmall" color="NGray">
+            {exchange.tokenInfo.label}
+          </Text>
+        )
       }
     />
   );

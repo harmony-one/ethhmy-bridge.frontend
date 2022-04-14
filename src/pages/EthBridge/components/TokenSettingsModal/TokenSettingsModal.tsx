@@ -84,9 +84,6 @@ export const TokenSettingsModal: React.FC<Props> = observer(({ onClose }) => {
           Displaying Tokens
         </Text>
       </Box>
-      {/*<Option checked />*/}
-      {/*<Option />*/}
-      {/*<Option />*/}
 
       {exchange.step.id === EXCHANGE_STEPS.BASE && exchange.fullConfig && (
         <Box
