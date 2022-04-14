@@ -9,6 +9,7 @@ import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
+import { Divider } from '../../../../components/Divider/Divider';
 
 interface Props {}
 
@@ -28,8 +29,12 @@ export const StepBASE: React.FC<Props> = observer(() => {
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
       <NetworkRow />
-      <TokenRow />
-      <Box align="center" pad="large">
+      <Divider />
+      <Box pad={{ vertical: '40px' }}>
+        <TokenRow />
+      </Box>
+      <Divider />
+      <Box align="center" pad={{ vertical: '40px' }}>
         <Destination />
       </Box>
       <Box direction="row" height="66px">

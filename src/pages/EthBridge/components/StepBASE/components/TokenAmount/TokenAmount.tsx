@@ -59,7 +59,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
         />
       }
       bottomContent={
-        <Text size="xxsmall" color="NGray">
+        <Text size="xxsmall" color="NBlue">
           {maxAmount} Max Available
         </Text>
       }
