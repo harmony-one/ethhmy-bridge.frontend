@@ -9,6 +9,7 @@ import * as s from '../StepBASE/StepBASE.styl';
 import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { Networks } from '../Networks/Networks';
+import { Divider } from '../../../../components/Divider/Divider';
 
 interface Props {}
 
@@ -27,9 +28,9 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
-      <Box>
-        <Networks />
-      </Box>
+      <Networks />
+
+      <Divider />
 
       <Box pad="60px">
         <Details showTotal={true} />

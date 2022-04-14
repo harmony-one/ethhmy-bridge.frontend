@@ -8,6 +8,7 @@ import cn from 'classnames';
 import { Button } from '../../../../components/Base';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { useStores } from '../../../../stores';
+import { Divider } from '../../../../components/Divider/Divider';
 
 interface Props {}
 
@@ -21,9 +22,8 @@ export const StepRESULT: React.FC<Props> = () => {
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
-      <Box>
-        <Networks />
-      </Box>
+      <Networks />
+      <Divider />
       <Box pad="60px">
         <Details>
           <Status />
