@@ -11,7 +11,7 @@ import { TokenSettingsModal } from '../../../TokenSettingsModal/TokenSettingsMod
 interface Props {}
 
 export const TokenSettings: React.FC<Props> = () => {
-  const { routing } = useStores();
+  const { routing, exchange } = useStores();
 
   const handleSubmit = useCallback(() => {
     routing.goToModal(ModalIds.BRIDGE_TOKEN_SETTINGS, {
@@ -28,7 +28,7 @@ export const TokenSettings: React.FC<Props> = () => {
           Token Type
         </Text>
         <Text lh="20px" size="xxsmall" color="NWhite">
-          BOTH
+          {exchange.token && exchange.token.toUpperCase()}
         </Text>
         <Icon className={s.icon} size="10px" glyph="Settings" />
       </Box>
