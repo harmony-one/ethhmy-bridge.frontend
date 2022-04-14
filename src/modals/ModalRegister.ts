@@ -1,23 +1,25 @@
 import React, { useContext, useEffect } from 'react';
 import { ModalContext } from './ModalContext';
-import { ModalIds, Modals } from './types';
+import { LayerProps, ModalIds, Modals } from './types';
 
 interface Props {
   modalId: ModalIds;
-  params: Modals['params'];
+  params?: Modals['params'];
+  layerProps?: LayerProps;
 }
 
 export const ModalRegister: React.FC<Props> = React.memo(
-  ({ modalId, params, children }) => {
-    const child = React.Children.only(children);
+  ({ modalId, params, layerProps, children }) => {
+    const component = React.Children.only(children);
     const context = useContext(ModalContext);
     useEffect(() => {
-      const modal = {
-        params: params,
-        component: child,
+      const modalData = {
+        params,
+        layerProps,
+        component,
       };
-      context.modalStore.addModal(modalId, modal);
-    }, [child, context.modalStore, modalId, params]);
+      context.modalStore.addModal(modalId, modalData);
+    }, [component, context.modalStore, layerProps, modalId, params]);
 
     useEffect(() => {
       return () => {

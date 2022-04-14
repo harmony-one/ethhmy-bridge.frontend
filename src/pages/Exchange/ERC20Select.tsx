@@ -56,7 +56,7 @@ const placeholder: Record<
   },
 };
 
-const inputPlaceholder: Record<
+export const inputPlaceholder: Record<
   Exclude<NETWORK_TYPE, NETWORK_TYPE.HARMONY>,
   Record<string, string>
 > = {

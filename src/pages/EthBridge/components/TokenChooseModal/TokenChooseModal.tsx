@@ -7,6 +7,7 @@ import { TOKEN } from '../../../../stores/interfaces';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
 import { TextInput } from 'grommet';
+import { ModalIds } from '../../../../modals';
 
 interface TokenHorizontalProps {
   className?: string;
@@ -77,7 +78,7 @@ interface Props {
 }
 
 export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
-  const { erc20Select } = useStores();
+  const { erc20Select, routing } = useStores();
 
   const [search, setSearch] = useState();
 
@@ -85,7 +86,9 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
     setSearch(event.target.value);
   }, []);
 
-  console.log('### search', search);
+  const handleClickCustom = useCallback(() => {
+    routing.goToModal(ModalIds.BRIDGE_CUSTOM_TOKEN);
+  }, []);
 
   return (
     <Box
@@ -159,7 +162,13 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
           <TokenVertical symbol="BNB" icon="/binance.png" />
         </Box>
       </Box>
-      <Box>help</Box>
+      <Box>
+        <Button className={s.buttonCustomToken} onClick={handleClickCustom}>
+          <Text color="NWhite" size="xsmall">
+            Can't find your token?
+          </Text>
+        </Button>
+      </Box>
     </Box>
   );
 });

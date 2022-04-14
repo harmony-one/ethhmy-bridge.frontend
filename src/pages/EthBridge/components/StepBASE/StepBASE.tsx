@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import * as s from './StepBASE.styl';
 import { NetworkRow } from './components/NetworkRow/NetworkRow';
 import { TokenRow } from './components/TokenRow/TokenRow';
@@ -10,6 +10,8 @@ import { ethBridgeStore } from '../../EthBridgeStore';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
 import { Divider } from '../../../../components/Divider/Divider';
+import { ModalIds, ModalRegister } from '../../../../modals';
+import { CustomTokenModal } from '../CustomTokenModal/CustomTokenModal';
 
 interface Props {}
 
@@ -55,6 +57,12 @@ export const StepBASE: React.FC<Props> = observer(() => {
           Continue
         </Button>
       </Box>
+      <ModalRegister
+        layerProps={{ position: 'top' }}
+        modalId={ModalIds.BRIDGE_CUSTOM_TOKEN}
+      >
+        <CustomTokenModal />
+      </ModalRegister>
     </Box>
   );
 });

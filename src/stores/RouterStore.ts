@@ -34,8 +34,9 @@ export default class CustomRouterStore extends RouterStore {
     this.push(url);
   }
 
-  goToModal(modalId: string, params: unknown) {
-    const query = qs.stringify(params);
+  goToModal(modalId: string, params?: Record<string, unknown>) {
+    const qp = { modal: { id: modalId, ...params } };
+    const query = qs.stringify(qp);
     this.push(`${this.location.pathname}?${query}`);
   }
 

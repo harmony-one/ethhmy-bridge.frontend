@@ -14,11 +14,7 @@ export const TokenControl: React.FC<Props> = observer(() => {
   const { routing, exchange } = useStores();
 
   const handleChangeToken = useCallback(() => {
-    routing.goToModal(ModalIds.BRIDGE_TOKEN_CHOOSE, {
-      modal: {
-        id: ModalIds.BRIDGE_TOKEN_CHOOSE,
-      },
-    });
+    routing.goToModal(ModalIds.BRIDGE_TOKEN_CHOOSE);
   }, [routing]);
 
   return (
@@ -29,13 +25,14 @@ export const TokenControl: React.FC<Props> = observer(() => {
         <Button onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
             <Text size="large" color="NWhite">
-              {exchange.tokenInfo && exchange.tokenInfo.symbol}
+              {exchange.tokenInfo &&
+                (exchange.tokenInfo.symbol || exchange.tokenInfo.label)}
             </Text>
             <Icon size="10px" glyph="ArrowDownFilled" />
           </Box>
           <ModalRegister
             modalId={ModalIds.BRIDGE_TOKEN_CHOOSE}
-            params={{ layerProps: { full: 'vertical' } }}
+            layerProps={{ full: 'vertical' }}
           >
             <TokenChooseModal />
           </ModalRegister>

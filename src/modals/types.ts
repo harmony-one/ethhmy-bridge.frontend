@@ -3,15 +3,13 @@ import React from 'react';
 export enum ModalIds {
   BRIDGE_TOKEN_SETTINGS = 'BRIDGE_TOKEN_SETTINGS',
   BRIDGE_TOKEN_CHOOSE = 'BRIDGE_TOKEN_CHOOSE',
-  MODAL_3 = 'modal_3',
+  BRIDGE_CUSTOM_TOKEN = 'BRIDGE_CUSTOM_TOKEN',
 }
 
-type LayerProps = {
-  layerProps?: {
-    full?: boolean | 'vertical' | 'horizontal';
-    position?: 'center';
-  };
-};
+export interface LayerProps {
+  full?: boolean | 'vertical' | 'horizontal';
+  position?: 'center' | 'top';
+}
 
 export type InferModalProps<T> = T extends { [key: string]: infer U }
   ? U
@@ -21,15 +19,18 @@ export type Modals = InferModalProps<ModalMap>;
 
 export type ModalMap = {
   [ModalIds.BRIDGE_TOKEN_SETTINGS]: {
-    params: LayerProps & { data: string };
+    params: { data: string };
+    layerProps?: LayerProps;
     component: React.ReactNode;
   };
   [ModalIds.BRIDGE_TOKEN_CHOOSE]: {
-    params: LayerProps;
+    params: { data: string };
+    layerProps?: LayerProps;
     component: React.ReactNode;
   };
-  [ModalIds.MODAL_3]: {
-    params: LayerProps;
+  [ModalIds.BRIDGE_CUSTOM_TOKEN]: {
+    params: { data: string };
+    layerProps?: LayerProps;
     component: React.ReactNode;
   };
 };

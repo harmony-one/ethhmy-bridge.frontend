@@ -14,11 +14,7 @@ export const TokenSettings: React.FC<Props> = () => {
   const { routing, exchange } = useStores();
 
   const handleSubmit = useCallback(() => {
-    routing.goToModal(ModalIds.BRIDGE_TOKEN_SETTINGS, {
-      modal: {
-        id: ModalIds.BRIDGE_TOKEN_SETTINGS,
-      },
-    });
+    routing.goToModal(ModalIds.BRIDGE_TOKEN_SETTINGS);
   }, [routing]);
 
   return (
@@ -32,12 +28,7 @@ export const TokenSettings: React.FC<Props> = () => {
         </Text>
         <Icon className={s.icon} size="10px" glyph="Settings" />
       </Box>
-      <ModalRegister
-        modalId={ModalIds.BRIDGE_TOKEN_SETTINGS}
-        params={{
-          layerProps: {},
-        }}
-      >
+      <ModalRegister modalId={ModalIds.BRIDGE_TOKEN_SETTINGS}>
         <TokenSettingsModal />
       </ModalRegister>
     </Button>

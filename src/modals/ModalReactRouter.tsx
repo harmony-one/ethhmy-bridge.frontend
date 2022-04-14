@@ -35,7 +35,7 @@ export const ModalReactRouter: React.FC<Props> = observer(() => {
     return null;
   }
 
-  const { full = false, position = 'center' } = modal.params.layerProps;
+  const { full = false, position = 'center' } = modal.layerProps || {};
 
   const modalComponent = React.cloneElement(
     modal.component as React.ReactElement<{
