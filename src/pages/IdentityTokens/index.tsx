@@ -11,7 +11,7 @@ import {
 } from 'stores/interfaces';
 import { truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Text, Title } from 'components/Base';
+import { Button, Text, Title } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
@@ -200,6 +200,10 @@ export const IdentityTokens = observer((props: any) => {
             gap="40px"
           >
             <SearchInput value={search} onChange={setSearch} />
+            <Button onClick={() => {
+                window.open('https://forms.gle/1amoYEwKhQNAuadg9', '_blank');
+              }}
+            >iToken Application Form</Button>
           </Box>
         ) : (
           <Box
@@ -274,6 +278,15 @@ export const IdentityTokens = observer((props: any) => {
               onRowClicked={() => {}}
             />
           )}
+        </Box>
+        <Box
+          direction="row"
+          wrap={true}
+          fill={true}
+          justify="center"
+          align="center"
+          style={{ marginTop: 10 }}
+        >
         </Box>
       </PageContainer>
     </BaseContainer>
