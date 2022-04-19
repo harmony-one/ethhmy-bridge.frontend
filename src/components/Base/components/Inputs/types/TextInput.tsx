@@ -9,9 +9,10 @@ const Input = styled.input`
   color: ${props => props.theme.palette.NWhite};
   border: none;
   padding: 0;
-  font-size: 14px;
+  font-size: 18px;
   box-sizing: border-box;
   width: 100%;
+  font-family: GothamRounded;
 
   &:focus {
     outline: none;
@@ -99,9 +100,9 @@ const InputWrap = styled.div<IInputWrapProps>`
     getInputBorderRadius(props, 'BottomLeft')};
   border-bottom-right-radius: ${props =>
     getInputBorderRadius(props, 'BottomRight')};
-  padding: 14px;
+  padding: 8px 0;
   margin: ${props => (props.margin ? props.margin : '')};
-  font-size: 16px;
+  font-size: 18px;
   box-sizing: border-box;
   width: ${props => getSize(props.size, props.theme)};
 

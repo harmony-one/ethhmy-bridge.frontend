@@ -5,7 +5,7 @@ import { Text } from '../../../../components/Base';
 interface Props {
   title: string;
   centerContent: React.ReactNode;
-  bottomContent: React.ReactNode;
+  bottomContent?: React.ReactNode;
   gap?: string;
 }
 
@@ -31,7 +31,7 @@ export const BridgeControl: React.FC<Props> = ({
       <Box fill="horizontal" align="center">
         {centerContent}
       </Box>
-      <Box>{bottomContent}</Box>
+      {bottomContent && <Box>{bottomContent}</Box>}
     </Box>
   );
 };

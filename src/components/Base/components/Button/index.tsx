@@ -99,7 +99,7 @@ const StyledLoader = styled(BlockChainLoader)`
 const StyledButton = styled.button<IStyledButtonProps & any>`
   position: relative;
   padding: ${props => props.theme.styled.button.padding || ''};
-  border-radius: 4px;
+  border-radius: 7px;
   font-family: ${props => props.theme.fontBase};
   font-size: ${props => props.fontSize || '18px'};
   letter-spacing: 0.5px;

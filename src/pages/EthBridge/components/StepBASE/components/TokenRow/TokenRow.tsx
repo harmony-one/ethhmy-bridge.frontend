@@ -5,22 +5,29 @@ import { TokenAmount } from '../TokenAmount/TokenAmount';
 import { TokenSettings } from '../TokenSettings/TokenSettings';
 import { observer } from 'mobx-react';
 import { useStores } from '../../../../../../stores';
+import { BridgeControl } from '../../../BridgeControl/BridgeControl';
+import { TOKEN } from '../../../../../../stores/interfaces';
+import { truncateAddressString } from '../../../../../../utils';
 
 interface Props {}
 
 export const TokenRow: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, erc20Select } = useStores();
+
+  const displayTokenAddress = [TOKEN.ERC20, TOKEN.HRC20].includes(
+    exchange.token,
+  );
 
   return (
     <Box direction="column">
       <Box justify="center" align="center" pad={{ bottom: '16px' }}>
         <TokenSettings />
       </Box>
-      <Box direction="row" justify="center" align="center">
+      <Box direction="row" justify="center">
         <Box basis="0" flex="grow">
           <TokenControl />
         </Box>
-        <Box>
+        <Box alignSelf="center">
           {exchange.tokenInfo && (
             <img src={exchange.tokenInfo.image} width="40" />
           )}
@@ -29,6 +36,26 @@ export const TokenRow: React.FC<Props> = observer(() => {
           <TokenAmount />
         </Box>
       </Box>
+      {displayTokenAddress && (
+        <Box justify="center" align="center" pad={{ top: 'xsmall' }}>
+          <BridgeControl
+            gap="8px"
+            title="Token Address"
+            centerContent={
+              <a
+                href={
+                  exchange.token === TOKEN.HRC20
+                    ? `${process.env.HMY_EXPLORER_URL}/address/${exchange.tokenInfo.address}`
+                    : `${exchange.config.explorerURL}/token/${exchange.tokenInfo.address}`
+                }
+                target="_blank"
+              >
+                {truncateAddressString(erc20Select.tokenAddress, 8)}
+              </a>
+            }
+          />
+        </Box>
+      )}
     </Box>
   );
 });

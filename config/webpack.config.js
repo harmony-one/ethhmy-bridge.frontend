@@ -56,7 +56,10 @@ const configDev = {
   // devtool: 'source-map',
   devtool: 'cheap-module-eval-source-map',
   cssUse: [],
-  plugins: [new webpack.HotModuleReplacementPlugin()],
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new CopyWebpackPlugin([{ from: 'public', to: '' }]),
+  ],
   maxAssetSize: 40 * 1048576,
 };
 

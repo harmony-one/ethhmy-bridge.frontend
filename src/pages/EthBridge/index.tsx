@@ -155,7 +155,7 @@ export const EthBridge = observer((props: any) => {
     tokens.fetch();
   }, []);
 
-  if (isMobile) {
+  if (isMobile && false) {
     return (
       <BaseContainer>
         <PageContainer>
@@ -217,7 +217,7 @@ export const EthBridge = observer((props: any) => {
       >
         <Form
           style={{ width: 'auto' }}
-          ref={ref => (ethBridgeStore.form = ref)}
+          ref={ref => (ethBridgeStore.formRef = ref)}
           data={exchange.transaction}
         >
           <StepManager />

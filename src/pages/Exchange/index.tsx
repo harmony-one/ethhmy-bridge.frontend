@@ -34,6 +34,7 @@ export interface ITokenInfo {
   maxAmount: string;
   symbol: string;
   image: string;
+  address: string;
 }
 
 @inject('user', 'exchange', 'actionModals', 'userMetamask', 'routing', 'tokens')
@@ -304,6 +305,7 @@ export class Exchange extends React.Component<
               : userMetamask.ethBUSDBalance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
       case TOKEN.LINK:
         return {
@@ -314,6 +316,7 @@ export class Exchange extends React.Component<
               : userMetamask.ethLINKBalance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
 
       case TOKEN.HRC721:
@@ -332,6 +335,7 @@ export class Exchange extends React.Component<
               : userMetamask.erc20Balance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
 
       case TOKEN.ETH:
@@ -343,6 +347,7 @@ export class Exchange extends React.Component<
               : userMetamask.ethBalance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
 
       case TOKEN.ONE:
@@ -354,6 +359,7 @@ export class Exchange extends React.Component<
               : userMetamask.erc20Balance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
 
       default:
@@ -365,6 +371,7 @@ export class Exchange extends React.Component<
               : userMetamask.ethBUSDBalance,
           symbol: 'TEST',
           image: '',
+          address: '',
         };
     }
   }

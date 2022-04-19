@@ -262,9 +262,9 @@ export const baseTheme: any = {
     },
 
     input: {
-      bgColor: 'white',
+      bgColor: 'transparent',
       textColor: '#212D5E',
-      border: `1px solid ${palette.Basic200}`,
+      border: 'none', // `1px solid ${palette.Basic200}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,
       minHeight: '45px',
@@ -281,7 +281,7 @@ export const baseTheme: any = {
     colors: {
       colorPrimary: palette.Purple500,
       colorSecondary: 'white',
-      buttonBgColor: '#1c2a5e',
+      buttonBgColor: '#1F5AE2',
       // buttonBgColor: '#03ade8',
       buttonHoverBgColor: '#03ade8',
       buttonColor: 'white',

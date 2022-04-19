@@ -1,7 +1,7 @@
 import { observable } from 'mobx';
 
 export class EthBridgeStore {
-  @observable form = null;
+  @observable formRef = null;
   @observable addressValidationError = null;
 }
 
