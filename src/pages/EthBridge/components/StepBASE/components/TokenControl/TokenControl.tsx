@@ -7,35 +7,44 @@ import { useStores } from '../../../../../../stores';
 import { ModalIds, ModalRegister } from '../../../../../../modals';
 import { TokenChooseModal } from '../../../TokenChooseModal/TokenChooseModal';
 import { observer } from 'mobx-react';
+import { TOKEN } from '../../../../../../stores/interfaces';
 
 interface Props {}
+
+const selectAllow = [TOKEN.ERC20, TOKEN.HRC20];
+
+const customTokens = [TOKEN.ERC721, TOKEN.HRC721, TOKEN.HRC1155, TOKEN.ERC1155];
 
 export const TokenControl: React.FC<Props> = observer(() => {
   const { routing, exchange } = useStores();
 
+  const isH = [...selectAllow, ...customTokens].includes(exchange.token);
   const handleChangeToken = useCallback(() => {
-    routing.goToModal(ModalIds.BRIDGE_TOKEN_CHOOSE);
-  }, [routing]);
+    if (selectAllow.includes(exchange.token)) {
+      routing.goToModal(ModalIds.BRIDGE_TOKEN_CHOOSE);
+      return;
+    } else if (customTokens.includes(exchange.token)) {
+      routing.goToModal(ModalIds.BRIDGE_CUSTOM_TOKEN);
+      return;
+    }
+
+    console.error('### unhandled token type', exchange.token);
+    return;
+  }, [routing, exchange, exchange.token]);
 
   return (
     <BridgeControl
       title="Choose Token"
       gap="8px"
       centerContent={
-        <Button onClick={handleChangeToken}>
+        <Button disabled={!isH} onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
             <Text size="large" color="NWhite">
               {exchange.tokenInfo &&
                 (exchange.tokenInfo.symbol || exchange.tokenInfo.label)}
             </Text>
-            <Icon size="10px" glyph="ArrowDownFilled" />
+            {isH && <Icon size="10px" glyph="ArrowDownFilled" />}
           </Box>
-          <ModalRegister
-            modalId={ModalIds.BRIDGE_TOKEN_CHOOSE}
-            layerProps={{ full: 'vertical' }}
-          >
-            <TokenChooseModal />
-          </ModalRegister>
         </Button>
       }
       bottomContent={

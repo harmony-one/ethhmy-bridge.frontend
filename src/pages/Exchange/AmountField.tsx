@@ -14,21 +14,18 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
 
     return (
       <>
-        <Text bold={true} size="large">
-            {
-              exchange.token === TOKEN.HRC721 ? (
-                <><SliceTooltip value={params.label} maxLength={18} /> Token ID</>
-              ) : (
-                <><SliceTooltip value={params.label} maxLength={18} /> Token IDs</>
-              )
-            }
+        <Text color="NGray4">
+          {exchange.token === TOKEN.HRC721 ? (
+            <>
+              <SliceTooltip value={params.label} maxLength={18} /> Token ID
+            </>
+          ) : (
+            <>
+              <SliceTooltip value={params.label} maxLength={18} /> Token IDs
+            </>
+          )}
         </Text>
-        <Box
-          direction="column"
-          align="end"
-          fill={true}
-          margin={{ top: 'small' }}
-        >
+        <Box direction="column" align="end" fill={true}>
           {Array.isArray(exchange.transaction.amount)
             ? exchange.transaction.amount.map((t, idx) => (
                 <Box
@@ -69,24 +66,21 @@ export const TokensField = observer<{ label: string; maxTokens: string }>(
                 </Box>
               ))
             : null}
-            {
-              exchange.token !== TOKEN.HRC721 && (
-                <Button
-                  bgColor="#00ADE8"
-                  style={{ width: 180, top: 10 }}
-                  onClick={() => {
-                    if (
-                      Array.isArray(exchange.transaction.amount) &&
-                      exchange.transaction.amount.length < Number(params.maxTokens)
-                    ) {
-                      exchange.transaction.amount.push('0');
-                    }
-                  }}
-                >
-                  Add Token Id
-                </Button>
-              )
-            }
+          {exchange.token !== TOKEN.HRC721 && (
+            <Button
+              style={{ width: 180, top: 10 }}
+              onClick={() => {
+                if (
+                  Array.isArray(exchange.transaction.amount) &&
+                  exchange.transaction.amount.length < Number(params.maxTokens)
+                ) {
+                  exchange.transaction.amount.push('0');
+                }
+              }}
+            >
+              Add Token Id
+            </Button>
+          )}
         </Box>
       </>
     );

@@ -51,9 +51,8 @@ export const FieldWrapper = (props: IFieldWrapperProps) => {
                 <Text
                   margin={{ bottom: '8px' }}
                   style={{
-                    fontSize: '18px',
-                    color: '#212D5E',
-                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    color: '#AAAAAA',
                   }}
                 >
                   {text}

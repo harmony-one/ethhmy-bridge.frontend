@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import * as s from './StepBASE.styl';
 import { NetworkRow } from './components/NetworkRow/NetworkRow';
 import { TokenRow } from './components/TokenRow/TokenRow';
@@ -12,6 +12,9 @@ import { observer } from 'mobx-react';
 import { Divider } from '../../../../components/Divider/Divider';
 import { ModalIds, ModalRegister } from '../../../../modals';
 import { CustomTokenModal } from '../CustomTokenModal/CustomTokenModal';
+import { TokenChooseModal } from '../TokenChooseModal/TokenChooseModal';
+import { autorun } from 'mobx';
+import { TOKEN } from '../../../../stores/interfaces';
 
 interface Props {}
 
@@ -27,6 +30,34 @@ export const StepBASE: React.FC<Props> = observer(() => {
     const conf = exchange.step.buttons[0];
     exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
   }, [exchange]);
+
+  useEffect(() => {
+    autorun(() => {
+      if (exchange.token && exchange.mode && exchange.network) {
+        if (ethBridgeStore.formRef) {
+          ethBridgeStore.formRef.resetTouched();
+          ethBridgeStore.formRef.resetErrors();
+          ethBridgeStore.addressValidationError = '';
+        }
+
+        if (
+          exchange.token === TOKEN.ERC721 ||
+          exchange.token === TOKEN.HRC721
+        ) {
+          exchange.transaction.amount = ['0'];
+        } else {
+          exchange.transaction.amount = '0';
+        }
+
+        if (
+          exchange.token === TOKEN.ERC1155 ||
+          exchange.token === TOKEN.HRC1155
+        ) {
+          exchange.transaction.hrc1155TokenId = '0';
+        }
+      }
+    });
+  }, []);
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>
@@ -62,6 +93,12 @@ export const StepBASE: React.FC<Props> = observer(() => {
         modalId={ModalIds.BRIDGE_CUSTOM_TOKEN}
       >
         <CustomTokenModal />
+      </ModalRegister>
+      <ModalRegister
+        modalId={ModalIds.BRIDGE_TOKEN_CHOOSE}
+        layerProps={{ full: 'vertical' }}
+      >
+        <TokenChooseModal />
       </ModalRegister>
     </Box>
   );

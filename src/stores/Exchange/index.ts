@@ -1241,7 +1241,7 @@ export class Exchange extends StoreConstructor {
         return;
       }
 
-      ethBridgeStore.form
+      ethBridgeStore.formRef
         .validateFields()
         .then(async () => {
           try {
@@ -1292,7 +1292,8 @@ export class Exchange extends StoreConstructor {
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
           symbol: 'BUSD',
-          image: '',
+          image: '/busd.svg',
+          address: '',
         };
       case TOKEN.LINK:
         return {
@@ -1302,7 +1303,8 @@ export class Exchange extends StoreConstructor {
               ? user.hmyLINKBalance
               : userMetamask.ethLINKBalance,
           symbol: 'LINK',
-          image: '',
+          image: '/link.png',
+          address: '',
         };
 
       case TOKEN.HRC721:
@@ -1325,6 +1327,7 @@ export class Exchange extends StoreConstructor {
               : userMetamask.erc20Balance,
           symbol: token && token.symbol,
           image: token && token.image,
+          address: token && token.address,
         };
 
       case TOKEN.ETH:
@@ -1335,7 +1338,8 @@ export class Exchange extends StoreConstructor {
               ? user.hrc20Balance
               : userMetamask.ethBalance,
           symbol: NETWORK_BASE_TOKEN[exchange.network],
-          image: '',
+          image: '/eth.svg',
+          address: '',
         };
 
       case TOKEN.ONE:
@@ -1346,7 +1350,8 @@ export class Exchange extends StoreConstructor {
               ? divDecimals(user.balance, 18)
               : userMetamask.erc20Balance,
           symbol: 'ONE',
-          image: '',
+          image: '/one.svg',
+          address: '',
         };
 
       default:
@@ -1357,7 +1362,8 @@ export class Exchange extends StoreConstructor {
               ? user.hmyBUSDBalance
               : userMetamask.ethBUSDBalance,
           symbol: 'BUSD',
-          image: '',
+          image: '/busd.svg',
+          address: '',
         };
     }
   }
