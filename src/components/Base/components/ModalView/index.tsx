@@ -53,11 +53,8 @@ ModalWrap.displayName = 'ModalWrap';
 const Modal = styled.div`
   position: relative;
   z-index: 4;
-  background-color: ${(props: any) => props.theme.palette.NBlack};
   box-sizing: border-box;
-  border-radius: 4px;
   cursor: auto;
-  border: ${(props: any) => `1px solid ${props.theme.palette.NBlack}`};
 
   @media (max-width: ${(props): string =>
       props.theme.global.breakpoints.small.value}px) {
@@ -66,6 +63,21 @@ const Modal = styled.div`
 `;
 
 Modal.displayName = 'Modal';
+
+export const ModalContent = styled.div`
+  background-color: ${(props: any) => props.theme.palette.NBlack3};
+  box-sizing: border-box;
+  border-radius: 10px;
+  cursor: auto;
+  border: ${(props: any) => `1px solid ${props.theme.palette.NGray4}`};
+
+  @media (max-width: ${(props): string =>
+      props.theme.global.breakpoints.small.value}px) {
+    flex: 1;
+  }
+`;
+
+ModalContent.displayName = 'ModalContent';
 
 export const ModalView: React.FC<{
   width: string;

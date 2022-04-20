@@ -6,7 +6,8 @@ import { Footer } from '../Footer';
 import { ActionModalConfig } from 'stores/ActionModalsStore';
 import { useMemo, useRef } from 'react';
 import { observable } from 'mobx';
-import { ModalView, Button } from 'components/Base';
+import { ModalView, ModalContent } from 'components/Base';
+import { ModalButton } from 'components/ModalButton/ModalButton';
 
 export type TActionModalProps<T = any> = {
   config: ActionModalConfig;
@@ -70,6 +71,21 @@ export const ActionModal = observer<{
       });
   };
 
+  const handleClickApply = () => {
+    if (bodyRef && bodyRef.current && onValidate.callback) {
+      onValidate
+        .callback()
+        .then(onApply)
+        .catch((err: any) => {
+          config.actionStatus = 'error';
+          actionModals.rejectError(config.id, err);
+          throw err;
+        });
+    } else {
+      onApply(actionData.data);
+    }
+  };
+
   const onValidate: { callback?: () => Promise<any> } = useMemo(() => ({}), []);
 
   return (
@@ -80,58 +96,44 @@ export const ActionModal = observer<{
       style={{ visibility: visible ? 'visible' : 'hidden' }}
       config={config}
     >
-      {false ? (
-        <Header
-          title={options.title}
-          onClose={onClose}
-          pending={isActionLoading}
-        />
-      ) : null}
-      {!isClassComponent(Render) ? (
-        Render({ actionData })
-      ) : (
-        <Render
-          config={config}
-          actionData={actionData}
-          onValidate={onValidate}
-          ref={bodyRef}
-        />
-      )}
+      <ModalContent>
+        {false ? (
+          <Header
+            title={options.title}
+            onClose={onClose}
+            pending={isActionLoading}
+          />
+        ) : null}
+        {!isClassComponent(Render) ? (
+          Render({ actionData })
+        ) : (
+          <Render
+            config={config}
+            actionData={actionData}
+            onValidate={onValidate}
+            ref={bodyRef}
+          />
+        )}
+      </ModalContent>
       <Footer>
         {options.closeText && (
-          <Button
-            size="auto"
-            transparent
+          <ModalButton
+            color="Blue"
             onClick={onClose}
-            color="Basic700"
             disabled={isActionLoading}
           >
             {options.closeText}
-          </Button>
+          </ModalButton>
         )}
-        {options.applyText ? (
-          <Button
-            margin="0 0 0 24px"
-            size="auto"
-            onClick={() => {
-              if (bodyRef && bodyRef.current && onValidate.callback) {
-                onValidate
-                  .callback()
-                  .then(onApply)
-                  .catch((err: any) => {
-                    config.actionStatus = 'error';
-                    actionModals.rejectError(config.id, err);
-                    throw err;
-                  });
-              } else {
-                onApply(actionData.data);
-              }
-            }}
+        {options.applyText && (
+          <ModalButton
+            accent
             disabled={isActionLoading || !actionData.isValid}
+            onClick={handleClickApply}
           >
             {options.applyText || 'Ok'}
-          </Button>
-        ) : null}
+          </ModalButton>
+        )}
       </Footer>
     </ModalView>
   );

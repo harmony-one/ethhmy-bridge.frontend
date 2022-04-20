@@ -10,10 +10,12 @@ export interface ITheme {
 export interface IPalette {
   NBlack: string;
   NBlack2: string;
+  NBlack3: string;
   NGray: string;
   NGray2: string;
   NGray3: string;
   NGray4: string;
+  NGray5: string;
   NBlue: string;
   NBlueLink: string;
   NWhite: string;
@@ -59,8 +61,10 @@ const palette: IPalette = {
   NGray2: '#292929',
   NGray3: '#C4C4C4',
   NGray4: '#AAAAAA',
+  NGray5: '#555555',
   NBlack: '#1b1b1c',
   NBlack2: '#111111',
+  NBlack3: '#000000',
   NBlueLink: '#356AE5',
   NBlue: '#1F5AE2',
   NWhite: '#FFFFFF',

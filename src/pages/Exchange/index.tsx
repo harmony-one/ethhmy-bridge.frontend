@@ -238,8 +238,8 @@ export class Exchange extends React.Component<
               actionModals.open(
                 () => (
                   <Box pad="large">
-                    <Text>
-                      <Title>Important</Title>
+                    <Title>Important</Title>
+                    <Text size="xsmall">
                       <br />
                       <li>Bridge does not swap tokens, it only wraps it.</li>
                       <br />
