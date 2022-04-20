@@ -7,8 +7,8 @@ interface Props {}
 export const ConfirmTokenBridge: React.FC<Props> = () => {
   return (
     <Box pad="large">
-      <Text>
-        <Title color="NWhite">Important</Title>
+      <Title color="NWhite">Important</Title>
+      <Text size="xsmall">
         <br />
         <li>Bridge does not swap tokens, it only wraps it.</li>
         <br />
