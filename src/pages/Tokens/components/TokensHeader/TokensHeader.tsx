@@ -18,10 +18,7 @@ export const TokensHeader: React.FC<Props> = ({ lastUpdate, totalLocked }) => {
         >{`Updated ${lastUpdate} seconds ago`}</Text>
       </Box>
       <Box pad={{ bottom: '7px' }}>
-        <Text
-          color="NBlue"
-          style={{ fontSize: '48px', width: '250px', overflow: 'hidden' }}
-        >
+        <Text color="NBlue" style={{ fontSize: '48px' }}>
           ${formatZeroDecimals(totalLocked)}
         </Text>
       </Box>
