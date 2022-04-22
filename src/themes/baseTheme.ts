@@ -267,7 +267,7 @@ export const baseTheme: any = {
 
     input: {
       bgColor: 'transparent',
-      textColor: '#212D5E',
+      textColor: palette.NWhite,
       border: 'none', // `1px solid ${palette.Basic200}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,
@@ -289,6 +289,10 @@ export const baseTheme: any = {
       // buttonBgColor: '#03ade8',
       buttonHoverBgColor: '#03ade8',
       buttonColor: 'white',
+    },
+
+    checkbox: {
+      fillColor: palette.NBlue,
     },
   },
 };

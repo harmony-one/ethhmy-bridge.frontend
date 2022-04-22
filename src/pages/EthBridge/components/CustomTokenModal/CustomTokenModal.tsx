@@ -35,6 +35,14 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
   //   erc20Select.tokenAddress,
   // ]);
 
+  const isNFT =
+    exchange.token === TOKEN.ERC721 || exchange.token === TOKEN.HRC721;
+
+  const isNFTMulti =
+    exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155;
+
+  const isOtherTokens = !isNFT && !isNFTMulti;
+
   return (
     <Form data={exchange.transaction}>
       <Box
@@ -218,14 +226,14 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
             fill={true}
             margin={{ top: 'xlarge', bottom: 'large' }}
           >
-            {exchange.token === TOKEN.ERC721 ||
-            exchange.token === TOKEN.HRC721 ? (
+            {isNFT && (
               <TokensField
                 label={exchange.tokenInfo.label}
                 maxTokens={exchange.tokenInfo.maxAmount}
               />
-            ) : exchange.token === TOKEN.ERC1155 ||
-              exchange.token === TOKEN.HRC1155 ? (
+            )}
+
+            {isNFTMulti && (
               <NumberInput
                 label={`${exchange.tokenInfo.label} Amount`}
                 name="amount"
@@ -252,7 +260,16 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
                   },
                 ]}
               />
-            ) : (
+            )}
+
+            {isNFTMulti && (
+              <Text size="small" style={{ textAlign: 'right' }}>
+                <b>*Max Available</b> = {exchange.tokenInfo.maxAmount || '0'}{' '}
+                {exchange.tokenInfo.label}
+              </Text>
+            )}
+
+            {isOtherTokens && (
               <NumberInput
                 label={`${exchange.tokenInfo.label} Amount`}
                 name="amount"
@@ -280,23 +297,14 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
                 ]}
               />
             )}
-            {exchange.token !== TOKEN.ERC721 &&
-            exchange.token !== TOKEN.HRC721 &&
-            exchange.token !== TOKEN.ERC1155 &&
-            exchange.token !== TOKEN.HRC1155 ? (
+
+            {isOtherTokens && (
               <Text size="small" style={{ textAlign: 'right' }}>
                 <b>*Max Available</b> ={' '}
                 {formatWithSixDecimals(exchange.tokenInfo.maxAmount)}{' '}
                 {exchange.tokenInfo.label}
               </Text>
-            ) : null}
-            {exchange.token === TOKEN.HRC1155 ||
-            exchange.token === TOKEN.ERC1155 ? (
-              <Text size="small" style={{ textAlign: 'right' }}>
-                <b>*Max Available</b> = {exchange.tokenInfo.maxAmount || '0'}{' '}
-                {exchange.tokenInfo.label}
-              </Text>
-            ) : null}
+            )}
           </Box>
         </Box>
 

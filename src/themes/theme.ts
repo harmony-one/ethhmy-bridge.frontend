@@ -82,6 +82,11 @@ export const Theme: any = {
       ${(props: any) => 'font-size: 16px; padding: 8px;'}
     `,
   },
+  tip: {
+    content: {
+      background: '#000000',
+    },
+  },
   heading: {
     font: {
       family: 'system-ui, sans-serif',
