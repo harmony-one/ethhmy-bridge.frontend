@@ -14,6 +14,11 @@ import { inputPlaceholder } from '../../../Exchange/ERC20Select';
 import cn from 'classnames';
 import { TokensField } from '../../../Exchange/AmountField';
 import { formatWithSixDecimals, moreThanZero } from '../../../../utils';
+import {
+  isMultiNFT,
+  isNFT,
+  isOthersToken,
+} from '../../../../stores/Exchange/helpers';
 
 interface Props {
   onClose?: () => void;
@@ -21,7 +26,6 @@ interface Props {
 
 export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
   const { erc20Select, exchange, actionModals } = useStores();
-  const type = exchange.token;
   const handleClickClose = useCallback(() => {}, []);
   const [erc20, setErc20] = useState('');
   const [hrc1155TokenId, setHrc1155TokenIdOri] = useState('');
@@ -35,13 +39,9 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
   //   erc20Select.tokenAddress,
   // ]);
 
-  const isNFT =
-    exchange.token === TOKEN.ERC721 || exchange.token === TOKEN.HRC721;
-
-  const isNFTMulti =
-    exchange.token === TOKEN.ERC1155 || exchange.token === TOKEN.HRC1155;
-
-  const isOtherTokens = !isNFT && !isNFTMulti;
+  const _isNFT = isNFT(exchange.token);
+  const _isMultiNFT = isMultiNFT(exchange.token);
+  const _isOtherTokens = isOthersToken(exchange.token);
 
   return (
     <Form data={exchange.transaction}>
@@ -65,7 +65,7 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
         >
           <Box margin={{ top: 'xsmall', bottom: 'medium' }}>
             <Text color="NGray4">
-              {inputPlaceholder[exchange.network][type]}
+              {inputPlaceholder[exchange.network][exchange.token]}
             </Text>
             <TextInput
               disabled={erc20Select.isLoading}
@@ -76,9 +76,11 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
               onChange={setErc20}
             />
           </Box>
-          {(type === TOKEN.ERC1155 || type === TOKEN.HRC1155) && (
+          {_isMultiNFT && (
             <>
-              <Text color="NGray4">{type.toUpperCase()} token ID</Text>
+              <Text color="NGray4">
+                {exchange.token.toUpperCase()} token ID
+              </Text>
               <Box margin={{ bottom: 'medium' }}>
                 <div style={{ width: '100%' }}>
                   <NumberInput
@@ -226,14 +228,14 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
             fill={true}
             margin={{ top: 'xlarge', bottom: 'large' }}
           >
-            {isNFT && (
+            {_isNFT && (
               <TokensField
                 label={exchange.tokenInfo.label}
                 maxTokens={exchange.tokenInfo.maxAmount}
               />
             )}
 
-            {isNFTMulti && (
+            {false && _isMultiNFT && (
               <NumberInput
                 label={`${exchange.tokenInfo.label} Amount`}
                 name="amount"
@@ -262,14 +264,14 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
               />
             )}
 
-            {isNFTMulti && (
+            {false && _isMultiNFT && (
               <Text size="small" style={{ textAlign: 'right' }}>
                 <b>*Max Available</b> = {exchange.tokenInfo.maxAmount || '0'}{' '}
                 {exchange.tokenInfo.label}
               </Text>
             )}
 
-            {isOtherTokens && (
+            {false && _isOtherTokens && (
               <NumberInput
                 label={`${exchange.tokenInfo.label} Amount`}
                 name="amount"
@@ -298,7 +300,7 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
               />
             )}
 
-            {isOtherTokens && (
+            {false && _isOtherTokens && (
               <Text size="small" style={{ textAlign: 'right' }}>
                 <b>*Max Available</b> ={' '}
                 {formatWithSixDecimals(exchange.tokenInfo.maxAmount)}{' '}

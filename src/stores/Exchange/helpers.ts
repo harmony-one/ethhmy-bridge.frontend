@@ -176,3 +176,15 @@ export const getChainConfig = (mode: EXCHANGE_MODE, network: NETWORK_TYPE) => {
 
   throw new Error('Unhandled network type');
 };
+
+export const isNFT = (token: TOKEN) => {
+  return token === TOKEN.ERC721 || token === TOKEN.HRC721;
+};
+
+export const isMultiNFT = (token: TOKEN) => {
+  return token === TOKEN.ERC1155 || token === TOKEN.HRC1155;
+};
+
+export const isOthersToken = (token: TOKEN) => {
+  return !isNFT(token) && !isMultiNFT(token);
+};
