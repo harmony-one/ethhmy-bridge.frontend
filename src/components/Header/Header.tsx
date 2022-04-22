@@ -2,6 +2,8 @@ import React from 'react';
 import { Box } from 'grommet';
 import * as s from './Header.styl';
 import { HeaderTab } from './components/HeaderTab/HeaderTab';
+import { observer } from 'mobx-react';
+import { useStores } from '../../stores';
 
 const HeaderLogo = () => {
   return (
@@ -27,9 +29,16 @@ const HeaderLogo = () => {
   );
 };
 
-const Account = () => {
-  return <Box className={s.account}>0x4391sa...</Box>;
-};
+const Account = observer(() => {
+  const { userMetamask } = useStores();
+
+  if (!userMetamask.isAuthorized) {
+    return null;
+  }
+  return (
+    <div className={s.account}>{userMetamask.ethAddress.slice(0, 8)}...</div>
+  );
+});
 
 interface Props {}
 
@@ -44,7 +53,7 @@ export const Header: React.FC<Props> = React.memo(() => {
         <HeaderTab title="Assets" to="/tokens" />
         <HeaderTab title="Transactions" to="/explorer" />
       </Box>
-      <Box flex={{ grow: 0, shrink: 0 }} basis="150px">
+      <Box flex={{ grow: 0, shrink: 0 }} align="end" basis="150px">
         <Account />
       </Box>
     </Box>
