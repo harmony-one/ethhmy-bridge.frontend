@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { Box } from 'grommet';
+import { useContext, useEffect, useState } from 'react';
+import { Box, Grid, ResponsiveContext } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
@@ -251,6 +251,10 @@ export const Tokens = observer((props: any) => {
     return iSearchOk && isNetworkOk && isTokenOk;
   });
 
+  const size = useContext(ResponsiveContext);
+
+  console.log('### size', size);
+
   return (
     <LayoutCommon>
       {/*<Box*/}
@@ -288,23 +292,34 @@ export const Tokens = observer((props: any) => {
         direction="row"
         justify="between"
         align="end"
+        wrap
       >
-        <TokensHeader
-          lastUpdate={lastUpdateAgo}
-          totalLocked={tokens.totalLockedUSD}
-        />
-
-        <Box direction="column">
-          <Text
-            color="NGray4"
-            style={{ fontSize: '10px', marginBottom: '8px' }}
-          >
-            SEARCH TOKEN
-          </Text>
-          <SearchInput value={search} onChange={setSearch} />
+        <Box>
+          <TokensHeader
+            lastUpdate={lastUpdateAgo}
+            totalLocked={tokens.totalLockedUSD}
+          />
         </Box>
-        <FilterNetworkType network={network} setNetwork={setNetwork} />
-        <FilterTokenType tokenType={tokenType} setToken={setToken} />
+
+        <Box
+          margin={{ top: 'medium' }}
+          fill="horizontal"
+          direction="row"
+          justify="between"
+          align="end"
+        >
+          <Box direction="column">
+            <Text
+              color="NGray4"
+              style={{ fontSize: '10px', marginBottom: '8px' }}
+            >
+              SEARCH TOKEN
+            </Text>
+            <SearchInput value={search} onChange={setSearch} />
+          </Box>
+          <FilterNetworkType network={network} setNetwork={setNetwork} />
+          <FilterTokenType tokenType={tokenType} setToken={setToken} />
+        </Box>
       </Box>
 
       <Box
