@@ -56,7 +56,7 @@ const AssetRow = props => {
           <Icon
             glyph="PrintFormCopy"
             size="20px"
-            color="#1c2a5e"
+            color="NBlue"
             style={{ marginLeft: 10, width: 20 }}
           />
         )}

@@ -3,7 +3,7 @@ import { Box } from 'grommet';
 import { Text } from '../../../../components/Base';
 
 interface Props {
-  title: string;
+  title: string | React.ReactNode;
   centerContent: React.ReactNode;
   bottomContent?: React.ReactNode;
   gap?: string;
@@ -15,6 +15,8 @@ export const BridgeControl: React.FC<Props> = ({
   bottomContent,
   gap = '16px',
 }) => {
+  const isStringTitle = typeof title === 'string';
+
   return (
     <Box
       direction="column"
@@ -24,9 +26,12 @@ export const BridgeControl: React.FC<Props> = ({
       align="center"
     >
       <Box>
-        <Text size="xsmall" color="NGray">
-          {title}
-        </Text>
+        {isStringTitle && (
+          <Text size="xsmall" color="NGray">
+            {title}
+          </Text>
+        )}
+        {!isStringTitle && title}
       </Box>
       <Box fill="horizontal" align="center">
         {centerContent}

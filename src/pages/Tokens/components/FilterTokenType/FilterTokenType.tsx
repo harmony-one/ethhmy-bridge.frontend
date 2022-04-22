@@ -21,6 +21,11 @@ const options = [
 const styles = {
   control: {
     height: '50px',
+    border: '1px solid #FFFFFF',
+    borderTop: '1px solid #FFFFFF',
+    borderRight: '1px solid #FFFFFF',
+    borderBottom: '1px solid #FFFFFF',
+    borderLeft: '1px solid #FFFFFF',
   },
 };
 

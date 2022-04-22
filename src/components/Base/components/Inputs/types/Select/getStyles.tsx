@@ -128,7 +128,7 @@ const filterPreset: StylesConfig = {
   menu: (provided, props) => ({
     ...provided,
     borderRadius: '15px',
-    border: props.theme.styled.input.border,
+    border: `1px solid ${props.theme.palette.NWhite}`,
     overflow: 'hidden',
     padding: 0,
     borderColor: `${props.theme.palette.NWhite} !important`,

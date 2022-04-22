@@ -2,19 +2,18 @@ import * as React from 'react';
 import { Box } from 'grommet';
 import { Icon, TextInput } from 'components/Base';
 import { observer } from 'mobx-react-lite';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { baseTheme } from '../../themes';
-import * as s from './Search.styl';
 
 export const SearchInput = observer(
   (params: {
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    className?: string;
   }) => {
     return (
       <StyledInput
-        className={s.root}
         onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
           if (event.key === 'Enter') params.onChange(params.value);
         }}
@@ -31,9 +30,17 @@ export const SearchInput = observer(
   },
 );
 
-const StyledInput = styled(TextInput)`
-  padding: 0px;
-  color: ${baseTheme.palette.BlackTxt};
+const Custom = ({ className, ...restProps }) => {
+  return <TextInput wrapperProps={{ className }} {...restProps} />;
+};
+
+const StyledInput = styled(Custom)`
+  background: ${props => props.theme.palette.NBlack2};
+  padding: 0 0 0 16px;
+  border-radius: 15px;
+  color: ${props => props.theme.palette.NWhite};
+  border: 1px solid ${props => props.theme.palette.NWhite};
+  height: 50px;
   font-size: 16px;
   ::placeholder {
     color: ${baseTheme.palette.Basic400};

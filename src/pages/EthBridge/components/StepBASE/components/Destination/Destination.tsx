@@ -15,6 +15,8 @@ import {
 import { NETWORK_NAME } from '../../../../../../stores/names';
 import { getChainName } from '../../../../../../stores/Exchange/helpers';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
+import { CircleQuestion } from 'grommet-icons';
+import { Tip } from 'grommet/components/Tip';
 
 interface MetamaskButtonProps {
   active: boolean;
@@ -84,7 +86,24 @@ export const Destination: React.FC<Props> = observer(() => {
   return (
     <Box direction="column" align="center" gap="16px" fill="horizontal">
       <BridgeControl
-        title="Destination address"
+        title={
+          <Box direction="row" gap="4px">
+            <Text size="xsmall" color="NGray">
+              Destination address
+            </Text>
+            <Tip
+              content={
+                <Box>
+                  <Text size="xsmall" color="NWhite">
+                    Only use your wallet address, never use contract address
+                  </Text>
+                </Box>
+              }
+            >
+              <CircleQuestion size="12px" />
+            </Tip>
+          </Box>
+        }
         gap="8px"
         centerContent={
           <Input
