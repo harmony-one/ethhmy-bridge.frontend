@@ -115,7 +115,7 @@ const filterPreset: StylesConfig = {
     width: getSize(props.selectProps.size, props.theme),
     fontFamily: props.theme.fontBase,
     fontSize: '12px',
-    border: props.theme.styled.input.border,
+    border: `1px solid ${props.theme.palette.NWhite}`,
     backgroundColor: props.theme.palette.NBlack2,
     color: props.theme.palette.NWhite,
     padding: '0',
@@ -123,7 +123,7 @@ const filterPreset: StylesConfig = {
     borderRadius: '15px',
     borderColor: `${props.theme.palette.NWhite} !important`,
     boxShadow: 'none',
-    minHeight: '32px',
+    minHeight: '44px',
   }),
   menu: (provided, props) => ({
     ...provided,

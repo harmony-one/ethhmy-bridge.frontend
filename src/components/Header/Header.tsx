@@ -51,7 +51,10 @@ export const Header: React.FC<Props> = React.memo(() => {
       <Box direction="row" alignSelf="end" gap="12px">
         <HeaderTab title="Bridge" to="/busd" />
         <HeaderTab title="Assets" to="/tokens" />
+        <HeaderTab title="iToken" to="/itokens" />
         <HeaderTab title="Transactions" to="/explorer" />
+        <HeaderTab title="Need Help" to="/help" />
+        <HeaderTab title="FAQ" to="/faq" />
       </Box>
       <Box flex={{ grow: 0, shrink: 0 }} align="end" basis="150px">
         <Account />
