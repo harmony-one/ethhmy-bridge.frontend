@@ -120,7 +120,7 @@ export const baseTheme: any = {
 
   // Text colors
   textColor: palette.NWhite,
-  titleColor: palette.Basic800,
+  titleColor: palette.NWhite,
   textInverseColor: palette.Basic700,
 
   // Toolbar default and active colors
