@@ -5,10 +5,7 @@ import { BaseContainer, PageContainer } from 'components';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
-import {
-  IIdentityTokenInfo,
-  NETWORK_TYPE,
-} from 'stores/interfaces';
+import { IIdentityTokenInfo, NETWORK_TYPE } from 'stores/interfaces';
 import { truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
 import { Button, Text, Title } from 'components/Base';
@@ -16,6 +13,7 @@ import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
 import { useMediaQuery } from 'react-responsive';
+import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon';
 
 const EthAddress = observer(
   ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
@@ -60,9 +58,14 @@ const oneAddress = value => (
 
 const getAssetAddress = (data, type) => {
   switch (type) {
-    case "origin":
-      return <EthAddress value={data.contractAddress} network={NETWORK_TYPE.ETHEREUM} />
-    default :
+    case 'origin':
+      return (
+        <EthAddress
+          value={data.contractAddress}
+          network={NETWORK_TYPE.ETHEREUM}
+        />
+      );
+    default:
       const address =
         String(data.mappingAddress).toLowerCase() ===
         String(process.env.ONE_HRC20).toLowerCase()
@@ -71,9 +74,11 @@ const getAssetAddress = (data, type) => {
 
       return oneAddress(address);
   }
-}
+};
 
-const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] => [
+const getColumns = ({
+  hmyLINKBalanceManager,
+}): IColumn<IIdentityTokenInfo>[] => [
   {
     title: '',
     key: 'avatar',
@@ -83,10 +88,10 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] =>
     render: (value, data) => (
       <Box direction="row" justify="center" pad={{ left: 'medium' }}>
         <a href={data.website} target="_blank">
-          <img src={value} className={styles.itokenAvatar}/>
+          <img src={value} className={styles.itokenAvatar} />
         </a>
       </Box>
-    )
+    ),
   },
   {
     title: 'Name',
@@ -97,28 +102,24 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] =>
       <Box direction="row" justify="start">
         <strong>{value}</strong>
         <a href={data.twitter} target="_blank">
-          <img src="/twitter.svg" className={styles.itokenTwitter}/>
+          <img src="/twitter.svg" className={styles.itokenTwitter} />
         </a>
       </Box>
-    )
+    ),
   },
   {
     title: 'Origin Address',
     key: 'contractAddress',
     dataIndex: 'contractAddress',
     width: 350,
-    render: (value, data) => (
-      getAssetAddress(data, "origin")
-    ),
+    render: (value, data) => getAssetAddress(data, 'origin'),
   },
   {
     title: 'Mapping Address',
     key: 'mappingAddress',
     dataIndex: 'mappingAddress',
     width: 350,
-    render: (value, data) => (
-      getAssetAddress(data, "mapping")
-    ),
+    render: (value, data) => getAssetAddress(data, 'mapping'),
   },
   {
     title: 'Get It',
@@ -127,10 +128,12 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<IIdentityTokenInfo>[] =>
     width: 150,
     render: (value, data) => (
       <Box direction="row" justify="start">
-        <a href={value} target="_blank"><img src="/opensea.svg" width="30px"/></a>
+        <a href={value} target="_blank">
+          <img src="/opensea.svg" width="30px" />
+        </a>
       </Box>
     ),
-  }
+  },
 ];
 
 export const IdentityTokens = observer((props: any) => {
@@ -175,120 +178,122 @@ export const IdentityTokens = observer((props: any) => {
   });
 
   return (
-    <BaseContainer>
-      <PageContainer>
+    <LayoutCommon>
+      <Box
+        direction={isMobile ? 'column' : 'row'}
+        justify="between"
+        align={isMobile ? 'start' : 'center'}
+        margin={{ top: isMobile ? 'large' : 'medium' }}
+        fill="horizontal"
+        pad={{ horizontal: 'medium' }}
+      >
+        <Title>Identity Tokens</Title>
+
+        <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+      </Box>
+
+      {!isMobile ? (
         <Box
+          pad={{ horizontal: '9px' }}
+          margin={{ top: 'medium', bottom: 'medium' }}
+          // style={{ maxWidth: 500 }}
           direction={isMobile ? 'column' : 'row'}
           justify="between"
-          align={isMobile ? 'start' : 'center'}
-          margin={{ top: isMobile ? 'large': 'medium' }}
-          pad={{ horizontal: 'medium' }}
+          align={isMobile ? 'start' : 'end'}
+          fill="horizontal"
+          gap="40px"
         >
-          <Title>Identity Tokens</Title>
-
-          <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>
+          <SearchInput value={search} onChange={setSearch} />
+          <Button
+            onClick={() => {
+              window.open('https://forms.gle/1amoYEwKhQNAuadg9', '_blank');
+            }}
+          >
+            iToken Application Form
+          </Button>
         </Box>
-
-        {!isMobile ? (
-          <Box
-            pad={{ horizontal: '9px' }}
-            margin={{ top: 'medium', bottom: 'medium' }}
-            // style={{ maxWidth: 500 }}
-            direction={isMobile ? 'column' : 'row'}
-            justify="between"
-            align={isMobile ? 'start' : 'end'}
-            gap="40px"
-          >
-            <SearchInput value={search} onChange={setSearch} />
-            <Button onClick={() => {
-                window.open('https://forms.gle/1amoYEwKhQNAuadg9', '_blank');
-              }}
-            >iToken Application Form</Button>
-          </Box>
-        ) : (
-          <Box
-            direction="row"
-            gap="10px"
-            align="start"
-            margin={{ top: '20px', bottom: '10px' }}
-          >
-            <SearchInput value={search} onChange={setSearch} />
-          </Box>
-        )}
-
+      ) : (
         <Box
           direction="row"
-          wrap={true}
-          fill={true}
-          justify="center"
+          gap="10px"
           align="start"
+          margin={{ top: '20px', bottom: '10px' }}
         >
-          {isMobile ? (
-            <Table
-              data={filteredData}
-              columns={columns}
-              isPending={itokens.isPending}
-              hidePagination={true}
-              dataLayerConfig={itokens.dataFlow}
-              onChangeDataFlow={onChangeDataFlow}
-              onRowClicked={() => {}}
-              customItem={{
-                bodyStyle: {},
-                dir: 'column',
-                render: props => {
-                  const data = props.params as IIdentityTokenInfo;
+          <SearchInput value={search} onChange={setSearch} />
+        </Box>
+      )}
 
-                  return (
-                    <Box
-                      style={{
-                        width: 'calc(100vw - 20px)',
-                        overflow: 'hidden',
-                        borderRadius: '5px',
-                        background: 'white',
-                      }}
-                      direction="column"
-                      pad="medium"
-                      margin={{ top: '15px' }}
-                      gap="5px"
-                    >
-                      <Text bold={true}>
-                        {data.name}
-                      </Text>
-                      <Text>
-                        Origin Address:{' '}
-                        <EthAddress
-                          value={data.contractAddress}
-                          network={NETWORK_TYPE.ETHEREUM}
-                        />
-                      </Text>
-                      <Text>Mapping Address: {oneAddress(data.mappingAddress)}</Text>
-                    </Box>
-                  ) as any;
-                },
-              }}
-            />
-          ) : (
-            <Table
-              data={filteredData}
-              columns={columns}
-              isPending={itokens.isPending}
-              hidePagination={true}
-              dataLayerConfig={itokens.dataFlow}
-              onChangeDataFlow={onChangeDataFlow}
-              onRowClicked={() => {}}
-            />
-          )}
-        </Box>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="center"
-          align="center"
-          style={{ marginTop: 10 }}
-        >
-        </Box>
-      </PageContainer>
-    </BaseContainer>
+      <Box
+        direction="row"
+        wrap={true}
+        fill={true}
+        justify="center"
+        align="start"
+      >
+        {isMobile ? (
+          <Table
+            data={filteredData}
+            columns={columns}
+            isPending={itokens.isPending}
+            hidePagination={true}
+            dataLayerConfig={itokens.dataFlow}
+            onChangeDataFlow={onChangeDataFlow}
+            onRowClicked={() => {}}
+            customItem={{
+              bodyStyle: {},
+              dir: 'column',
+              render: props => {
+                const data = props.params as IIdentityTokenInfo;
+
+                return (
+                  <Box
+                    style={{
+                      width: 'calc(100vw - 20px)',
+                      overflow: 'hidden',
+                      borderRadius: '5px',
+                      background: 'white',
+                    }}
+                    direction="column"
+                    pad="medium"
+                    margin={{ top: '15px' }}
+                    gap="5px"
+                  >
+                    <Text bold={true}>{data.name}</Text>
+                    <Text>
+                      Origin Address:{' '}
+                      <EthAddress
+                        value={data.contractAddress}
+                        network={NETWORK_TYPE.ETHEREUM}
+                      />
+                    </Text>
+                    <Text>
+                      Mapping Address: {oneAddress(data.mappingAddress)}
+                    </Text>
+                  </Box>
+                ) as any;
+              },
+            }}
+          />
+        ) : (
+          <Table
+            data={filteredData}
+            columns={columns}
+            isPending={itokens.isPending}
+            hidePagination={true}
+            dataLayerConfig={itokens.dataFlow}
+            onChangeDataFlow={onChangeDataFlow}
+            onRowClicked={() => {}}
+          />
+        )}
+      </Box>
+      <Box
+        direction="row"
+        wrap={true}
+        fill={true}
+        justify="center"
+        align="center"
+        style={{ marginTop: 10 }}
+      ></Box>
+    </LayoutCommon>
   );
 });
