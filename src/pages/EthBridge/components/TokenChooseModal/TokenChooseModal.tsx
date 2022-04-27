@@ -3,75 +3,12 @@ import { Box } from 'grommet/components/Box';
 import * as s from './TokenChooseModal.styl';
 import { Icon, Text } from '../../../../components/Base';
 import { Button } from 'grommet/components/Button';
-import { TOKEN } from '../../../../stores/interfaces';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
 import { TextInput } from 'grommet';
 import { ModalIds } from '../../../../modals';
-
-interface TokenHorizontalProps {
-  className?: string;
-  symbol: string;
-  icon: string;
-  label: string;
-  onClick: () => void;
-}
-
-const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
-  className,
-  symbol,
-  label,
-  icon,
-  onClick,
-}) => {
-  return (
-    <Box
-      direction="row"
-      className={className}
-      align="center"
-      gap="18px"
-      onClick={onClick}
-      pad={{ horizontal: '28px', vertical: '16px' }}
-      style={{ minHeight: '58px' }}
-    >
-      <Box>
-        <img src={icon} width="16px" height="16px" />
-      </Box>
-      <Box>
-        <Text color="NWhite" size="xsmall">
-          {symbol}
-        </Text>
-        <Text color="NGray4" size="xxsmall">
-          {label}
-        </Text>
-      </Box>
-      <Box margin={{ left: 'auto' }}>
-        <Text color="NWhite" size="xsmall" lh="19px">
-          0
-        </Text>
-      </Box>
-    </Box>
-  );
-};
-
-interface TokenVerticalProps {
-  icon: string;
-  symbol: string;
-}
-const TokenVertical: React.FC<TokenVerticalProps> = ({ icon, symbol }) => {
-  return (
-    <Box direction="column" align="center" gap="4px">
-      <Box>
-        <img width="20px" height="20px" src={icon} />
-      </Box>
-      <Box>
-        <Text color="NWhite" size="xxxsmall" lh="19px">
-          {symbol}
-        </Text>
-      </Box>
-    </Box>
-  );
-};
+import { TokenVertical } from './components/TokenVertical';
+import { TokenHorizontal } from './components/TokenHorizontal';
 
 interface Props {
   onClose?: () => void;
@@ -94,8 +31,8 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
     <Box
       direction="column"
       align="center"
-      width="408px"
       gap="12px"
+      pad="12px"
       fill="vertical"
       margin={{ top: 'large' }}
     >

@@ -140,6 +140,12 @@ export const baseTheme: any = {
 
   // grommet styling
 
+  layer: {
+    overlay: {
+      background: 'rgba(0, 0, 0, 0.9)',
+    },
+  },
+
   global: {
     breakpoints: {
       xsmall: {

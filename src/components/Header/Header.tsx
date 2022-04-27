@@ -1,9 +1,11 @@
 import React from 'react';
-import { Box } from 'grommet';
+import { Box, Grid } from 'grommet';
 import * as s from './Header.styl';
 import { HeaderTab } from './components/HeaderTab/HeaderTab';
 import { observer } from 'mobx-react';
+import { useMediaQuery } from 'react-responsive';
 import { useStores } from '../../stores';
+import styled from 'styled-components';
 
 const HeaderLogo = () => {
   return (
@@ -40,15 +42,41 @@ const Account = observer(() => {
   );
 });
 
+const StyledGrid = styled(Grid)`
+  grid-template-columns: 50% 50%;
+  grid-template-areas: 'logo account' 'menu menu';
+  row-gap: 12px;
+
+  @media (min-width: 1024px) {
+    height: 74px;
+    grid-template-columns: 210px auto 210px;
+    grid-template-areas: 'logo menu account';
+  }
+`;
+
 interface Props {}
 
 export const Header: React.FC<Props> = React.memo(() => {
   return (
-    <Box className={s.root} direction="row" justify="between" align="center">
-      <Box flex={{ grow: 0, shrink: 0 }} basis="150px">
+    <StyledGrid align="center">
+      {/*<Box*/}
+      {/*  className={s.root}*/}
+      {/*  gridArea="logo"*/}
+      {/*  direction="row"*/}
+      {/*  justify="between"*/}
+      {/*  align="center"*/}
+      {/*>*/}
+      <Box flex={{ grow: 0, shrink: 0 }} gridArea="logo" basis="150px">
         <HeaderLogo />
       </Box>
-      <Box direction="row" alignSelf="end" gap="12px">
+      <Box
+        gridArea="menu"
+        justify="center"
+        direction="row"
+        alignSelf="end"
+        gap="12px"
+        wrap
+      >
         <HeaderTab title="Bridge" to="/busd" />
         <HeaderTab title="Assets" to="/tokens" />
         <HeaderTab title="iToken" to="/itokens" />
@@ -56,10 +84,16 @@ export const Header: React.FC<Props> = React.memo(() => {
         <HeaderTab title="Need Help" to="/help" />
         <HeaderTab title="FAQ" to="/faq" />
       </Box>
-      <Box flex={{ grow: 0, shrink: 0 }} align="end" basis="150px">
+      <Box
+        gridArea="account"
+        flex={{ grow: 0, shrink: 0 }}
+        align="end"
+        basis="150px"
+      >
         <Account />
       </Box>
-    </Box>
+      {/*</Box>*/}
+    </StyledGrid>
   );
 });
 

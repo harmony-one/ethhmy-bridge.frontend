@@ -214,9 +214,10 @@ export const EthBridge = observer((props: any) => {
         fill={true}
         justify="center"
         align="center"
+        style={{ maxWidth: '580px' }}
       >
         <Form
-          style={{ width: 'auto' }}
+          style={{ width: 'inherit' }}
           ref={ref => (ethBridgeStore.formRef = ref)}
           data={exchange.transaction}
         >

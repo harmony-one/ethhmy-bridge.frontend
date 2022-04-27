@@ -21,6 +21,7 @@ import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon
 import { FilterTokenType } from './components/FilterTokenType/FilterTokenType';
 import { FilterNetworkType } from './components/FilterNetworkType/FilterNetworkType';
 import { TokensHeader } from './components/TokensHeader/TokensHeader';
+import styled from 'styled-components';
 
 const TRUNCATE_ADDRESS = 6;
 
@@ -88,6 +89,26 @@ const getAssetAddress = (data, type) => {
     return oneAddress(address);
   }
 };
+
+const StyledGrid = styled(Grid)`
+  //grid-template-columns: auto auto auto auto;
+  grid-template-areas: 'total total total total' 'filters filters filters filters' 'search search select select';
+
+  row-gap: 12px;
+  column-gap: 12px;
+
+  @media (min-width: 850px) {
+    //grid-template-columns: auto auto auto auto;
+    grid-template-areas: 'total total total total' 'search search filters select';
+    justify-content: space-between;
+  }
+
+  @media (min-width: 1150px) {
+    //grid-template-columns: auto auto auto auto;
+    grid-template-areas: 'total search filters select';
+    justify-content: space-between;
+  }
+`;
 
 const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
   {
@@ -285,42 +306,30 @@ export const Tokens = observer((props: any) => {
       {/*  <Text>{`Last update: ${lastUpdateAgo}sec ago`}</Text>*/}
       {/*</Box>*/}
 
-      <Box
-        margin={{ top: 'medium', bottom: '44px' }}
-        // style={{ maxWidth: 500 }}
-        fill="horizontal"
-        direction="row"
-        justify="between"
-        align="end"
-        wrap
-      >
-        <Box>
+      <StyledGrid pad={{ vertical: '24px' }} fill="horizontal">
+        <Box gridArea="total">
           <TokensHeader
             lastUpdate={lastUpdateAgo}
             totalLocked={tokens.totalLockedUSD}
           />
         </Box>
 
-        <Box
-          margin={{ top: 'medium' }}
-          fill="horizontal"
-          direction="row"
-          justify="between"
-          align="end"
-        >
-          <Box direction="column">
-            <Text
-              color="NGray4"
-              style={{ fontSize: '10px', marginBottom: '8px' }}
-            >
-              SEARCH TOKEN
-            </Text>
-            <SearchInput value={search} onChange={setSearch} />
-          </Box>
+        <Box direction="column" gridArea="search" justify="end">
+          <Text
+            color="NGray4"
+            style={{ fontSize: '10px', marginBottom: '8px' }}
+          >
+            SEARCH TOKEN
+          </Text>
+          <SearchInput value={search} onChange={setSearch} />
+        </Box>
+        <Box gridArea="filters" justify="end">
           <FilterNetworkType network={network} setNetwork={setNetwork} />
+        </Box>
+        <Box gridArea="select" justify="end">
           <FilterTokenType tokenType={tokenType} setToken={setToken} />
         </Box>
-      </Box>
+      </StyledGrid>
 
       <Box
         direction="row"
@@ -358,7 +367,7 @@ export const Tokens = observer((props: any) => {
                       width: 'calc(100vw - 20px)',
                       overflow: 'hidden',
                       borderRadius: '5px',
-                      background: 'white',
+                      background: '#1B1B1C',
                     }}
                     direction="column"
                     pad="medium"

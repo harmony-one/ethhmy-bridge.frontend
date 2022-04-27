@@ -66,7 +66,7 @@ export const Explorer = observer((props: any) => {
     <LayoutCommon>
       <Box direction="column" margin={{ top: 'xlarge' }}>
         <Box
-          direction="row"
+          direction="row-responsive"
           pad={{ bottom: '48px' }}
           justify="between"
           align="end"

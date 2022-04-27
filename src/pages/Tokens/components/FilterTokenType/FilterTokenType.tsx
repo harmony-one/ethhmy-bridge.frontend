@@ -32,7 +32,7 @@ const styles = {
 export const FilterTokenType: React.FC<Props> = React.memo(
   ({ tokenType, setToken }) => {
     return (
-      <Box direction="column" width="163px">
+      <Box direction="column" style={{ minWidth: '163px' }}>
         <Text color="NGray4" style={{ fontSize: '10px', marginBottom: '8px' }}>
           TOKEN TYPE:
         </Text>

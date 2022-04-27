@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Icon, Text } from '../../../../components/Base';
 import { Box } from 'grommet/components/Box';
 import { Button } from 'grommet/components/Button';
@@ -14,6 +14,7 @@ import {
 } from '../../../../stores/names';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
+import { ResponsiveContext } from 'grommet';
 
 interface OptionProps {
   checked?: boolean;
@@ -75,7 +76,6 @@ export const TokenSettingsModal: React.FC<Props> = observer(({ onClose }) => {
       className={s.layer}
       direction="column"
       align="center"
-      width="408px"
       pad="28px"
       gap="20px"
     >

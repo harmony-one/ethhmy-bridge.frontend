@@ -51,6 +51,7 @@ export const ModalReactRouter: React.FC<Props> = observer(() => {
       className={s.layer}
       full={full}
       position={position}
+      responsive={false}
     >
       {modalComponent}
     </Layer>
