@@ -83,22 +83,25 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
             })}
         </Box>
       </Box>
-      <Box
-        direction="column"
-        gap="8px"
-        pad={{ horizontal: '28px', vertical: '20px' }}
-        fill="horizontal"
-        className={s.layer}
-      >
-        <Text color="NGray4" size="xxsmall" lh="24px">
-          Popular Bridged Tokens
-        </Text>
-        <Box direction="row" gap="40px">
-          <TokenVertical symbol="ONE" icon="/one.svg" />
-          <TokenVertical symbol="ETH" icon="/eth.svg" />
-          <TokenVertical symbol="BNB" icon="/binance.png" />
+      {/* waiting for filters */}
+      {false && (
+        <Box
+          direction="column"
+          gap="8px"
+          pad={{ horizontal: '28px', vertical: '20px' }}
+          fill="horizontal"
+          className={s.layer}
+        >
+          <Text color="NGray4" size="xxsmall" lh="24px">
+            Popular Bridged Tokens
+          </Text>
+          <Box direction="row" gap="40px">
+            <TokenVertical symbol="ONE" icon="/one.svg" />
+            <TokenVertical symbol="ETH" icon="/eth.svg" />
+            <TokenVertical symbol="BNB" icon="/binance.png" />
+          </Box>
         </Box>
-      </Box>
+      )}
       <Box>
         <Button className={s.buttonCustomToken} onClick={handleClickCustom}>
           <Text color="NWhite" size="xsmall">
