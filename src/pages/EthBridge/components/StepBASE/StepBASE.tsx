@@ -22,9 +22,8 @@ export const StepBASE: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
 
   const handleClickReset = useCallback(() => {
-    // const conf = exchange.step.buttons[1];
-    console.log('### reset bridge data');
-  }, []);
+    exchange.clear();
+  }, [exchange]);
 
   const handleClickContinue = useCallback(() => {
     const conf = exchange.step.buttons[0];

@@ -70,26 +70,42 @@ export class Erc20SelectStore extends StoreConstructor {
 
     reaction(
       () => {
-        const list = [
-          TOKEN.ERC20,
-          TOKEN.HRC20,
-          // TOKEN.ERC721,
-          // TOKEN.HRC721,
-          // TOKEN.HRC1155,
-          // TOKEN.ERC1155,
-        ];
+        const list = [TOKEN.ERC20, TOKEN.HRC20];
 
-        return list.includes(this.stores.exchange.token);
+        const isERC20Mode = list.includes(this.stores.exchange.token);
+
+        if (!isERC20Mode) {
+          return 'skip';
+        }
+
+        if (!this.tokenAddress) {
+          return 'setDefault';
+        }
+
+        const isTokenExist =
+          this.tokenAddress &&
+          this.tokensList.some(token => token.address === this.tokenAddress);
+
+        if (this.tokenAddress && !isTokenExist) {
+          return 'resetDefault';
+        }
+
+        return 'skip';
       },
       result => {
-        console.log('### set token');
-        if (result) {
-          setTimeout(() => {
-            this.tokenAddress = this.stores.erc20Select.tokensList[0].address;
-          }, 500);
+        console.log('### reset to first token');
+        if (['setDefault', 'resetDefault'].includes(result)) {
+          this.resetERC20Token();
         }
       },
     );
+  }
+
+  @action.bound
+  resetERC20Token() {
+    setTimeout(() => {
+      this.tokenAddress = this.stores.erc20Select.tokensList[0].address;
+    }, 500);
   }
 
   @action.bound

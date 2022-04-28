@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Text } from '../../../../../../components/Base';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 import { isRequired, NumberInput } from '../../../../../../components/Form';
 import { formatWithSixDecimals, moreThanZero } from '../../../../../../utils';
 import { useStores } from '../../../../../../stores';
 import * as s from './TokenAmount.styl';
-import cn from 'classnames';
 import { observer } from 'mobx-react';
 import { TOKEN } from '../../../../../../stores/interfaces';
+import { isOthersToken } from '../../../../../../stores/Exchange/helpers';
 
 interface Props {}
 
@@ -36,7 +36,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
           margin="none"
           name="amount"
           type="decimal"
-          precision="0"
+          precision={isOthersToken(exchange.token) ? '6' : '0'}
           bgColor="transparent"
           border="none"
           delimiter="."
