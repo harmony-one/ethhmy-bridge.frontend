@@ -49,9 +49,7 @@ const StepRow = observer(
         style={{ borderBottom: '1px solid #dedede' }}
         margin={{ bottom: 'medium' }}
       >
-        <Text color="NWhite" className={textClassName}>
-          {number + 1 + '. ' + label}
-        </Text>
+        <Text className={textClassName}>{number + 1 + '. ' + label}</Text>
         <Box direction="row" justify="between">
           <Text className={textClassName}>
             Status: {statuses[action.status]}
@@ -116,6 +114,8 @@ const StepRow = observer(
     );
   },
 );
+
+StepRow.displayName = 'StepRow';
 
 const isEth = type =>
   [
@@ -193,3 +193,5 @@ export const Steps = observer(() => {
     </Box>
   );
 });
+
+Steps.displayName = 'Steps';

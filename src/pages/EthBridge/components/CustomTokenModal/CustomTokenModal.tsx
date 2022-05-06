@@ -26,7 +26,6 @@ interface Props {
 
 export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
   const { erc20Select, exchange, actionModals } = useStores();
-  const handleClickClose = useCallback(() => {}, []);
   const [erc20, setErc20] = useState('');
   const [hrc1155TokenId, setHrc1155TokenIdOri] = useState('');
 
@@ -35,9 +34,9 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
     setHrc1155TokenIdOri(hrc1155TokenId);
   };
 
-  // useEffect(() => setErc20(erc20Select.tokenAddress), [
-  //   erc20Select.tokenAddress,
-  // ]);
+  useEffect(() => setErc20(erc20Select.tokenAddress), [
+    erc20Select.tokenAddress,
+  ]);
 
   const _isNFT = isNFT(exchange.token);
   const _isMultiNFT = isMultiNFT(exchange.token);

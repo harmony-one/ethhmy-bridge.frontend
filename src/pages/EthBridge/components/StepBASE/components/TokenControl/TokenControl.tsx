@@ -37,7 +37,9 @@ export const TokenControl: React.FC<Props> = observer(() => {
 
   const tokenName = useMemo(() => {
     const title =
-      isNFT(exchange.token) || isMultiNFT(exchange.token) ? 'Choose NFT' : '';
+      isNFT(exchange.token) || isMultiNFT(exchange.token)
+        ? 'Choose NFT'
+        : 'Select token';
 
     if (exchange.tokenInfo) {
       return exchange.tokenInfo.symbol || exchange.tokenInfo.label || title;

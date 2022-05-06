@@ -61,11 +61,14 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
         <Box direction="column" overflow="scroll">
           {erc20Select.tokensList
             .filter(item => {
-              if (search) {
-                return item.symbol.toLowerCase().includes(search.toLowerCase());
+              if (!search) {
+                return true;
               }
 
-              return true;
+              return (
+                item.address === search ||
+                item.symbol.toLowerCase().includes(search.toLowerCase())
+              );
             })
             .map(token => {
               return (

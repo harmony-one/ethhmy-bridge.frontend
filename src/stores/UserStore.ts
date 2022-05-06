@@ -6,8 +6,10 @@ import {
   getExNetworkMethods,
   getHmyBalance,
   hmyMethodsBUSD,
-  hmyMethodsERC20, hmyMethodsHRC1155,
-  hmyMethodsHRC20, hmyMethodsHRC721,
+  hmyMethodsERC20,
+  hmyMethodsHRC1155,
+  hmyMethodsHRC20,
+  hmyMethodsHRC721,
   hmyMethodsLINK,
 } from '../blockchain-bridge';
 import { StoreConstructor } from './core/StoreConstructor';
@@ -480,6 +482,7 @@ export class UserStoreEx extends StoreConstructor {
           erc20Address: '',
         };
       } else {
+        debugger;
         this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.hmyMethods.tokenDetails(
           hrc20Address,
         );
@@ -632,7 +635,9 @@ export class UserStoreEx extends StoreConstructor {
       ? hmyMethodsBase.hmyMethodsWeb3
       : hmyMethodsBase.hmyMethods;
 
-    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc721Address)).toString()
+    this.hrc20Balance = Number(
+      await hmyMethods.balanceOf(hrc721Address),
+    ).toString();
 
     console.log('address: ', address);
 
@@ -643,7 +648,6 @@ export class UserStoreEx extends StoreConstructor {
       this.stores.userMetamask.erc721Address = '';
     }
   };
-
 
   @action.bound public setHRC1155Mapping = async (
     hrc1155Address: string,
@@ -726,7 +730,7 @@ export class UserStoreEx extends StoreConstructor {
         );
       }
     } catch (e) {
-      console.log(e)
+      console.log(e);
       throw new Error(
         `Wrong token address. Use only a valid HRC1155 token address`,
       );
@@ -736,7 +740,7 @@ export class UserStoreEx extends StoreConstructor {
     let address;
 
     const exNetwork = getExNetworkMethods();
-    const tokenId = this.stores.erc20Select.hrc1155TokenId || '0'
+    const tokenId = this.stores.erc20Select.hrc1155TokenId || '0';
 
     if (exNetwork) {
       try {
@@ -745,7 +749,9 @@ export class UserStoreEx extends StoreConstructor {
           this.stores.exchange.token === TOKEN.ONE,
         );
 
-        this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsHRC1155.balanceOf(address, tokenId)).toString()
+        this.stores.userMetamask.erc20Balance = Number(
+          await exNetwork.ethMethodsHRC1155.balanceOf(address, tokenId),
+        ).toString();
       } catch (e) {
         console.error(e);
       }
@@ -757,7 +763,9 @@ export class UserStoreEx extends StoreConstructor {
       ? hmyMethodsBase.hmyMethodsWeb3
       : hmyMethodsBase.hmyMethods;
 
-    this.hrc20Balance = Number(await hmyMethods.balanceOf(hrc1155Address, tokenId)).toString()
+    this.hrc20Balance = Number(
+      await hmyMethods.balanceOf(hrc1155Address, tokenId),
+    ).toString();
 
     console.log('address: ', address);
 

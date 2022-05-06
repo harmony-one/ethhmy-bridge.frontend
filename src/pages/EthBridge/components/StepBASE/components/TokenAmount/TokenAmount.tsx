@@ -48,10 +48,13 @@ export const TokenAmount: React.FC<Props> = observer(() => {
             (_, value, callback) => {
               const errors = [];
 
-              // if (value && Number(value) > Number(this.tokenInfo.maxAmount)) {
-              //   const defaultMsg = `Exceeded the maximum amount`;
-              //   errors.push(defaultMsg);
-              // }
+              if (
+                value &&
+                Number(value) > Number(exchange.tokenInfo.maxAmount)
+              ) {
+                const defaultMsg = `Exceeded the maximum amount`;
+                errors.push(defaultMsg);
+              }
 
               callback(errors);
             },

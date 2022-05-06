@@ -35,7 +35,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
           style={{ width: '100%' }}
         >
           <Text size="large" bold>
-            Approve amount
+            Approve amount {exchange.tokenInfo.symbol}
           </Text>
 
           <Checkbox
@@ -53,7 +53,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
         >
           <div style={{ width: '100%' }}>
             <NumberInput
-              wrapperClassName={s.input}
+              wrapperClassName={s.inputWrapper}
               className={s.inputOverride}
               // wrapperClassName={'wrapperClassN'}
               disabled={!customAmount}

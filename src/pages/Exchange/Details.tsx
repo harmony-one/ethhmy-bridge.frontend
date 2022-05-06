@@ -382,6 +382,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
   },
 );
 
+Details.displayName = 'Details';
+
 export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
     const { userMetamask, exchange, user } = useStores();
@@ -422,3 +424,5 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
     );
   },
 );
+
+TokenDetails.displayName = 'TokenDetails';

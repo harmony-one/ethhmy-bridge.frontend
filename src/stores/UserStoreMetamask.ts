@@ -8,7 +8,7 @@ import {
   hmyMethodsERC1155,
   hmyMethodsERC20,
   hmyMethodsERC721,
-  hmyMethodsERC721Hmy
+  hmyMethodsERC721Hmy,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
@@ -382,6 +382,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !address) {
       // throw new Error('Address not mapping');
+      debugger;
       throw new Error(
         `Wrong token address. Use only a valid ${
           NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -395,6 +396,7 @@ export class UserStoreMetamask extends StoreConstructor {
       );
     } catch (e) {
       if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+        debugger;
         throw new Error(
           `Wrong token address. Use only a valid ${
             NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -414,6 +416,7 @@ export class UserStoreMetamask extends StoreConstructor {
           };
         } catch (e) {
           if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+            debugger;
             throw new Error(
               `Wrong token address. Use only a valid ${
                 NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -450,6 +453,7 @@ export class UserStoreMetamask extends StoreConstructor {
           };
         } catch (e) {
           if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+            debugger;
             throw new Error(
               `Wrong token address. Use only a valid ${
                 NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -529,15 +533,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
     let details;
 
-    if(this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
         erc20Address,
       );
     } else {
       try {
-        details = await hmyMethodsERC721Hmy.tokenDetails(
-          hrc20Address,
-        );
+        details = await hmyMethodsERC721Hmy.tokenDetails(hrc20Address);
       } catch (e) {
         console.error(e);
         throw new Error('Token not found');
