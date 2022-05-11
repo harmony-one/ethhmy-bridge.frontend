@@ -1,21 +1,16 @@
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
-import { Box, Grid, ResponsiveContext } from 'grommet';
+import { useEffect, useState } from 'react';
+import { Box, Grid } from 'grommet';
 import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 import { IColumn, Table } from 'components/Table';
 import { ITokenInfo, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
-import {
-  formatWithTwoDecimals,
-  formatZeroDecimals,
-  truncateAddressString,
-} from 'utils';
+import { formatWithTwoDecimals, truncateAddressString } from 'utils';
 import * as styles from './styles.styl';
-import { Select, Text, Title } from 'components/Base';
+import { Text } from 'components/Base';
 import { SearchInput } from 'components/Search';
 import { getBech32Address, getChecksumAddress } from '../../blockchain-bridge';
 import { NETWORK_ICON } from '../../stores/names';
-import { NetworkButton } from './components/NetworkButton/NetworkButton';
 import { useMediaQuery } from 'react-responsive';
 import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon';
 import { FilterTokenType } from './components/FilterTokenType/FilterTokenType';
@@ -271,10 +266,6 @@ export const Tokens = observer((props: any) => {
 
     return iSearchOk && isNetworkOk && isTokenOk;
   });
-
-  const size = useContext(ResponsiveContext);
-
-  console.log('### size', size);
 
   return (
     <LayoutCommon>

@@ -482,7 +482,6 @@ export class UserStoreEx extends StoreConstructor {
           erc20Address: '',
         };
       } else {
-        debugger;
         this.stores.userMetamask.erc20TokenDetails = await hmyMethodsHRC20.hmyMethods.tokenDetails(
           hrc20Address,
         );

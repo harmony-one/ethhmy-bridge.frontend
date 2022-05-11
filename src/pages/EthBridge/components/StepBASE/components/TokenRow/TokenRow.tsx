@@ -50,8 +50,8 @@ export const TokenRow: React.FC<Props> = observer(() => {
               <a
                 href={
                   exchange.token === TOKEN.HRC20
-                    ? `${process.env.HMY_EXPLORER_URL}/address/${exchange.tokenInfo.address}`
-                    : `${exchange.config.explorerURL}/token/${exchange.tokenInfo.address}`
+                    ? `${process.env.HMY_EXPLORER_URL}/address/${erc20Select.tokenAddress}`
+                    : `${exchange.config.explorerURL}/token/${erc20Select.tokenAddress}`
                 }
                 target="_blank"
               >

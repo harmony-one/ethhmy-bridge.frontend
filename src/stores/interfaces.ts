@@ -10,6 +10,7 @@ export enum EXCHANGE_MODE {
 }
 
 export enum TOKEN {
+  ALL = 'all',
   BUSD = 'busd',
   LINK = 'link',
   ERC20 = 'erc20',

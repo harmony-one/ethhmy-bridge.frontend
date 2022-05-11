@@ -382,7 +382,6 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !address) {
       // throw new Error('Address not mapping');
-      debugger;
       throw new Error(
         `Wrong token address. Use only a valid ${
           NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -396,7 +395,6 @@ export class UserStoreMetamask extends StoreConstructor {
       );
     } catch (e) {
       if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
-        debugger;
         throw new Error(
           `Wrong token address. Use only a valid ${
             NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -416,7 +414,6 @@ export class UserStoreMetamask extends StoreConstructor {
           };
         } catch (e) {
           if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-            debugger;
             throw new Error(
               `Wrong token address. Use only a valid ${
                 NETWORK_ERC20_TOKEN[this.stores.exchange.network]
@@ -453,7 +450,6 @@ export class UserStoreMetamask extends StoreConstructor {
           };
         } catch (e) {
           if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-            debugger;
             throw new Error(
               `Wrong token address. Use only a valid ${
                 NETWORK_ERC20_TOKEN[this.stores.exchange.network]

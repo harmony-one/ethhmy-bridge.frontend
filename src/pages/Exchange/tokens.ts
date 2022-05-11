@@ -709,6 +709,10 @@ export const tokensMainnet = [
   },
 ].map(t => ({ ...t, address: t.href.split('token/')[1] }));
 
+export const tokensMainnetImageMap = tokensMainnet.reduce((acc, item) => {
+  return { ...acc, [item.address.toLowerCase()]: item.image };
+}, {} as Record<string, string>);
+
 // let arr = new Array(...document.getElementsByClassName('media')).map(media => {
 //   const a = media.getElementsByTagName('a')[0];
 //   const img = media.getElementsByTagName('img')[0];

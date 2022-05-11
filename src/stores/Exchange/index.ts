@@ -29,11 +29,8 @@ import { sendHrc721Token } from './hrc721';
 import { sendHrc1155Token } from './hrc1155';
 import { sendErc1155Token } from './erc1155';
 import * as services from '../../services';
-import { Box } from 'grommet';
-import { Text, Title } from '../../components/Base';
 import { AuthWarning } from '../../components/AuthWarning';
 import { MetamaskWarning } from '../../components/MetamaskWarning';
-import * as React from 'react';
 import { ValidatorsCountWarning } from '../../components/ValidatorsCountWarning';
 import { ConfirmTokenBridge } from '../../components/ConfirmTokenBridge';
 import { EthBridgeStore } from '../../pages/EthBridge/EthBridgeStore';
@@ -491,6 +488,7 @@ export class Exchange extends StoreConstructor {
     this.stores.user.hmyLINKBalance = '0';
     // this.setAddressByMode();
 
+    console.log('### this.token', this.token);
     if (!this.config.tokens.includes(this.token)) {
       this.setToken(this.config.tokens[0]);
     } else {
@@ -503,6 +501,8 @@ export class Exchange extends StoreConstructor {
   @action.bound
   setToken(token: TOKEN) {
     // this.clear();
+    console.log('### setToken', token);
+
     this.token = token;
     // this.setAddressByMode();
 
@@ -1284,6 +1284,14 @@ export class Exchange extends StoreConstructor {
     const { user, exchange, userMetamask, erc20Select } = this.stores;
 
     switch (exchange.token) {
+      case TOKEN.ALL:
+        return {
+          label: '',
+          maxAmount: '0',
+          symbol: '',
+          image: '/busd.svg',
+          address: '',
+        };
       case TOKEN.BUSD:
         return {
           label: 'BUSD',

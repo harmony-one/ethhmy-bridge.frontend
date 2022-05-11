@@ -93,6 +93,18 @@ export const TokenSettingsModal: React.FC<Props> = observer(({ onClose }) => {
           gap="12px"
           overflow="scroll"
         >
+          <Option
+            label=""
+            description="All Tokens"
+            help=""
+            checked={exchange.token === TOKEN.ALL}
+            icon={<img className={s.imgToken} src="/busd.svg" />}
+            onClick={() => {
+              exchange.clear();
+              exchange.setToken(TOKEN.ALL);
+              routing.push(`/${exchange.token}`);
+            }}
+          />
           {exchange.config.tokens.includes(TOKEN.BUSD) && (
             <Option
               label="Binance"

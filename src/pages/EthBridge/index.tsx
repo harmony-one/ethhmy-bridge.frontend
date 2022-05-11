@@ -116,6 +116,7 @@ export const EthBridge = observer((props: any) => {
     if (props.match.params.token) {
       if (
         [
+          TOKEN.ALL,
           TOKEN.LINK,
           TOKEN.BUSD,
           TOKEN.ERC20,

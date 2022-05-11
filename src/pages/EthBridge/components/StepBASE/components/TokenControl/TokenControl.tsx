@@ -12,7 +12,7 @@ import { isMultiNFT, isNFT } from '../../../../../../stores/Exchange/helpers';
 
 interface Props {}
 
-const selectAllow = [TOKEN.ERC20, TOKEN.HRC20];
+const selectAllow = [TOKEN.ERC20, TOKEN.HRC20, TOKEN.ALL];
 
 const customTokens = [TOKEN.ERC721, TOKEN.HRC721, TOKEN.HRC1155, TOKEN.ERC1155];
 
@@ -35,11 +35,15 @@ export const TokenControl: React.FC<Props> = observer(() => {
     return;
   }, [routing, exchange, exchange.token]);
 
-  const tokenName = useMemo(() => {
+  const title = useMemo(() => {
     const title =
       isNFT(exchange.token) || isMultiNFT(exchange.token)
         ? 'Choose NFT'
         : 'Select token';
+
+    if (exchange.token === TOKEN.ALL) {
+      return title;
+    }
 
     if (exchange.tokenInfo) {
       return exchange.tokenInfo.symbol || exchange.tokenInfo.label || title;
@@ -56,7 +60,7 @@ export const TokenControl: React.FC<Props> = observer(() => {
         <Button disabled={!isSelectable} onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
             <Text size="large" color="NWhite">
-              {tokenName}
+              {title}
             </Text>
             {isSelectable && <Icon size="10px" glyph="ArrowDownFilled" />}
           </Box>

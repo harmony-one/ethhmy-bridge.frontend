@@ -19,7 +19,7 @@ export const TokenSettings: React.FC<Props> = () => {
     routing.goToModal(ModalIds.BRIDGE_TOKEN_SETTINGS);
   }, [routing]);
 
-  const getTokenName = () => {
+  const getTokenTypeName = () => {
     if (!exchange || !exchange.token) {
       return '';
     }
@@ -42,7 +42,7 @@ export const TokenSettings: React.FC<Props> = () => {
           Token Type
         </Text>
         <Text lh="20px" size="xxsmall" color="NWhite">
-          {getTokenName()}
+          {getTokenTypeName()}
         </Text>
         <Icon className={s.icon} size="10px" glyph="Settings" />
       </Box>
