@@ -1,4 +1,3 @@
-import { mulDecimals } from '../../utils';
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { getAddress } from '@harmony-js/crypto';
@@ -30,10 +29,7 @@ export class HmyMethodsHRC721Web3 {
     // }
   }
 
-  approveHmyManger = async (
-    hrc721Address,
-    sendTxCallback?,
-  ) => {
+  approveHmyManger = async (hrc721Address, sendTxCallback?) => {
     const tokenJson = require('../out/MyERC721');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
@@ -68,12 +64,7 @@ export class HmyMethodsHRC721Web3 {
   /////////////////////////////////////////
   /////////////////////////////////////////
 
-  lockTokens = async (
-    erc721Address,
-    userAddr,
-    tokenIds,
-    sendTxCallback?,
-  ) => {
+  lockTokens = async (erc721Address, userAddr, tokenIds, sendTxCallback?) => {
     // @ts-ignore
     const accounts = await ethereum.enable();
     const hmyAddrHex = getAddress(userAddr).checksum;
@@ -109,7 +100,7 @@ export class HmyMethodsHRC721Web3 {
     };
   };
 
-  balanceOf =  async (erc721Address: string) => {
+  balanceOf = async (erc721Address: string) => {
     const tokenJson = require('../out/MyERC721');
     // @ts-ignore
     const accounts = await ethereum.enable();
@@ -119,6 +110,18 @@ export class HmyMethodsHRC721Web3 {
     );
 
     return await erc721Contract.methods.balanceOf(accounts[0]).call();
+  };
+
+  checkHmyBalance = async (erc721Address: string, addr: string) => {
+    const tokenJson = require('../out/MyERC721');
+    const hmyTokenContract = new this.web3.eth.Contract(
+      tokenJson.abi,
+      erc721Address,
+    );
+
+    const addrHex = getAddress(addr).checksum;
+
+    return await hmyTokenContract.methods.balanceOf(addrHex).call();
   };
 
   allowance = async (addr: string, erc721Address: string) => {

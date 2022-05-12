@@ -61,7 +61,15 @@ const oneAddress = value => (
   </Box>
 );
 
-const getAssetAddress = (data, type) => {
+const getAssetAddress = (data: ITokenInfo, type) => {
+  /*
+  token type        | type    | address       | component
+  ---               | ---     | ---           |
+  token.erc         | origin  | erc20Address  | EthAddress
+  token.hrc         | origin  | hrc20Address  | HrcAddress
+  token.erc         | mapping | hrc20Address  | HrcAddress
+  token.hrc         | mapping | erc20Address  | EthAddress
+   */
   let assetPrefix;
   switch (type) {
     case 'origin':

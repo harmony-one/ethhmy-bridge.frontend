@@ -7,6 +7,7 @@ interface TokenHorizontalProps {
   symbol: string;
   icon: string;
   label: string;
+  balance: number | string;
   onClick: () => void;
 }
 
@@ -14,6 +15,7 @@ export const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
   className,
   symbol,
   label,
+  balance = 0,
   icon,
   onClick,
 }) => {
@@ -40,7 +42,7 @@ export const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
       </Box>
       <Box margin={{ left: 'auto' }}>
         <Text color="NWhite" size="xsmall" lh="19px">
-          0
+          {balance}
         </Text>
       </Box>
     </Box>

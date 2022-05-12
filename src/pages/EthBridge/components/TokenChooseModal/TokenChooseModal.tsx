@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box } from 'grommet/components/Box';
 import * as s from './TokenChooseModal.styl';
-import { Icon, Loader, Text } from '../../../../components/Base';
+import { Icon, Text } from '../../../../components/Base';
 import { Button } from 'grommet/components/Button';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
@@ -9,15 +9,13 @@ import { TextInput } from 'grommet';
 import { ModalIds } from '../../../../modals';
 import { TokenVertical } from './components/TokenVertical';
 import { TokenHorizontal } from './components/TokenHorizontal';
-import { tokensMainnet, tokensMainnetImageMap } from '../../../Exchange/tokens';
-import {
-  NETWORK_BASE_TOKEN,
-  NETWORK_ICON,
-  NETWORK_NAME,
-} from '../../../../stores/names';
+import { tokensMainnetImageMap } from '../../../Exchange/tokens';
+import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../../../stores/names';
 import { NETWORK_TYPE, TOKEN } from '../../../../stores/interfaces';
 import styled from 'styled-components';
 import { LoadableContent } from '../../../../components/LoadableContent';
+import { buildTokenId } from '../../../../utils/token';
+import { formatWithTwoDecimals } from '../../../../utils';
 
 interface Props {
   onClose?: () => void;
@@ -37,13 +35,19 @@ const ScrollContainer = styled(Box)`
 `;
 
 export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
-  const { erc20Select, tokens, exchange, routing } = useStores();
+  const { erc20Select, tokens, exchange, routing, userMetamask } = useStores();
 
   const [search, setSearch] = useState();
 
   const handleSearchChange = useCallback(event => {
     setSearch(event.target.value);
   }, []);
+
+  useEffect(() => {
+    if (tokens.allData.length) {
+      userMetamask.loadTokenListBalance(tokens.allData);
+    }
+  }, [tokens.allData, userMetamask]);
 
   const handleClickCustom = useCallback(() => {
     routing.goToModal(ModalIds.BRIDGE_CUSTOM_TOKEN);
@@ -60,6 +64,53 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
       NETWORK_ICON[network]
     );
   };
+
+  const tokenlist = useMemo(() => {
+    return tokens.allData
+      .filter(token => {
+        if (token.network !== exchange.network) {
+          return false;
+        }
+
+        if (
+          token.erc20Address.toLowerCase() ===
+            '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
+          token.hrc20Address.toLowerCase() ===
+            '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
+        ) {
+          return false;
+        }
+
+        if (!search) {
+          return true;
+        }
+
+        if (exchange.token !== TOKEN.ALL && exchange.token !== token.type) {
+          return false;
+        }
+
+        return (
+          token.erc20Address === search ||
+          token.hrc20Address === search ||
+          token.symbol.toLowerCase().includes(search.toLowerCase()) ||
+          token.name.toLowerCase().includes(search.toLowerCase())
+        );
+      })
+      .sort((a, b) => {
+        const tokenIdA = buildTokenId(a);
+        const balanceA = userMetamask.balances[tokenIdA] || 0;
+        const tokenIdB = buildTokenId(b);
+        const balanceB = userMetamask.balances[tokenIdB] || 0;
+
+        return Number(balanceB) - Number(balanceA);
+      });
+  }, [
+    exchange.network,
+    exchange.token,
+    search,
+    tokens.allData,
+    userMetamask.balances,
+  ]);
 
   return (
     <Box
@@ -98,65 +149,30 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
           direction="column"
           overflow={{ vertical: 'scroll', horizontal: 'hidden' }}
         >
-          {tokens.allData
-            .filter(token => {
-              if (token.network !== exchange.network) {
-                return false;
-              }
+          {tokenlist.map(token => {
+            const tokenId = buildTokenId(token);
+            const balance = userMetamask.balances[tokenId] || 0;
+            return (
+              <TokenHorizontal
+                key={tokenId}
+                className={s.borderBottom}
+                symbol={token.symbol}
+                label={`${token.name} - ${token.type}`}
+                balance={formatWithTwoDecimals(balance)}
+                icon={getImage(
+                  token.erc20Address,
+                  token.hrc20Address,
+                  token.network,
+                )}
+                onClick={async () => {
+                  exchange.setToken(token.type);
 
-              if (
-                token.erc20Address.toLowerCase() ===
-                  '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee' ||
-                token.hrc20Address.toLowerCase() ===
-                  '0x00eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-              ) {
-                return false;
-              }
-
-              if (!search) {
-                return true;
-              }
-
-              if (
-                exchange.token !== TOKEN.ALL &&
-                token.type !== exchange.token
-              ) {
-                return false;
-              }
-
-              return (
-                token.erc20Address === search ||
-                token.hrc20Address === search ||
-                token.symbol.toLowerCase().includes(search.toLowerCase()) ||
-                token.name.toLowerCase().includes(search.toLowerCase())
-              );
-            })
-            .map(token => {
-              return (
-                <TokenHorizontal
-                  className={s.borderBottom}
-                  symbol={token.symbol}
-                  label={`${token.name} - ${token.type}`}
-                  icon={getImage(
-                    token.erc20Address,
-                    token.hrc20Address,
-                    token.network,
-                  )}
-                  onClick={async () => {
-                    exchange.setToken(token.type);
-
-                    console.log('### start set', token);
-
-                    await erc20Select.setToken(token.erc20Address);
-                    onClose();
-
-                    console.log('### end set');
-
-                    // token.type
-                  }}
-                />
-              );
-            })}
+                  await erc20Select.setToken(token.erc20Address);
+                  onClose();
+                }}
+              />
+            );
+          })}
         </ScrollContainer>
         {/*</Box>*/}
 

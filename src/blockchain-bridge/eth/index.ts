@@ -179,8 +179,12 @@ export const initNetworks = (fullCinfig: TFullConfig) => {
   binanceNetwork = initNetwork(fullCinfig.binanceClient);
 };
 
-export const getExNetworkMethods = (): INetworkMethods => {
-  switch (stores.exchange.network) {
+export const getExNetworkMethods = (
+  network?: NETWORK_TYPE,
+): INetworkMethods => {
+  const net = network || stores.exchange.network;
+
+  switch (net) {
     case NETWORK_TYPE.ETHEREUM:
       return ethNetwork;
     case NETWORK_TYPE.BINANCE:

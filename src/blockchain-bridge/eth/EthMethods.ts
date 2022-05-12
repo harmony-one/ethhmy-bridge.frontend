@@ -27,7 +27,9 @@ export class EthMethods {
 
   approveEthManger = async (amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -46,7 +48,9 @@ export class EthMethods {
 
   lockToken = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
@@ -71,13 +75,15 @@ export class EthMethods {
     return transaction.events.Locked;
   };
 
-  checkEthBalance = async addr => {
+  checkEthBalance = async (addr: string) => {
     return await this.ethTokenContract.methods.balanceOf(addr).call();
   };
 
   lockEth = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

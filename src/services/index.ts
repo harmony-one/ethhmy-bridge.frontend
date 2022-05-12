@@ -1,11 +1,13 @@
 import {
-  ACTION_TYPE, IIdentityTokenInfo,
+  ACTION_TYPE,
+  IIdentityTokenInfo,
   IOperation,
   ITokenInfo,
   NETWORK_TYPE,
   OpenSeaSingleAssetResponse,
   OpenSeaValideResponse,
   TFullConfig,
+  TOKEN,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { getCorrectArr } from './helpers';
@@ -375,3 +377,17 @@ export const getUIConfig = async (): Promise<{
 window.getServers = () => {
   return servers;
 };
+
+export interface UsedToken {
+  token: TOKEN;
+  originAddress: string;
+  network: NETWORK_TYPE;
+}
+
+export async function loadUsedTokenList(
+  walletAddress: string,
+): Promise<UsedToken[]> {
+  const res = await agent.get(`${validators[0]}/users/${walletAddress}/tokens`);
+
+  return res.body;
+}
