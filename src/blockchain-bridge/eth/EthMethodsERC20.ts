@@ -48,8 +48,9 @@ export class EthMethodsERC20 {
     );
 
     const USDT_ADDR = '0xdac17f958d2ee523a2206206994597c13d831ec7'.toUpperCase();
+    const AAG_ADDR = '0x5ba19d656b65f1684cfea4af428c23b9f3628f97'.toUpperCase();
 
-    if (erc20Address.toUpperCase() === USDT_ADDR) {
+    if ([AAG_ADDR, USDT_ADDR].includes(erc20Address.toUpperCase())) {
       const allowed = await this.allowance(accounts[0], erc20Address);
 
       if (

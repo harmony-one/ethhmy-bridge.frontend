@@ -276,7 +276,14 @@ export class HmyMethodsERC20 {
       console.error(e);
     }
 
-    const decimals = await erc20Contract.methods.decimals().call(this.options);
+
+    let decimals;
+
+    try {
+      decimals = await erc20Contract.methods.decimals().call(this.options);
+    } catch (e) {
+      console.error(e);
+    }
 
     return { name, symbol, decimals: String(Number('0x' + decimals)), hrc20Address };
   };

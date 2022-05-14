@@ -175,6 +175,17 @@ export interface ITokenInfo {
   network: NETWORK_TYPE;
 }
 
+export interface IIdentityTokenInfo {
+  avatar: string;
+  key: string;
+  name: string;
+  contractAddress: string;
+  mappingAddress: string;
+  openSea: string;
+  website: string;
+  twitter: string;
+}
+
 export interface OpenSeaValideResponse {
   collection: {
     safelist_request_status: string,

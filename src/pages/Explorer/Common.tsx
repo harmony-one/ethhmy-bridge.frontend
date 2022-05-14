@@ -92,7 +92,7 @@ export const getColumns = (
         data.type === EXCHANGE_MODE.ETH_TO_ONE ? (
           oneAddress(data.oneAddress)
         ) : (
-          <EthAddress address={value} operation={data} />
+          <EthAddress address={data.ethAddress} operation={data} />
         ),
     },
 

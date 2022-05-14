@@ -8,6 +8,7 @@ import { EthBridge } from './pages/EthBridge';
 import { Explorer } from './pages/Explorer';
 import { MintTokens } from './pages/MintTokens';
 import { Tokens } from './pages/Tokens';
+import { IdentityTokens } from './pages/IdentityTokens';
 import { InfoModal } from './components/InfoModal';
 import { FAQPage } from './pages/FAQ';
 import { InfoPage } from './pages/Info';
@@ -26,6 +27,7 @@ export const App: React.FC = () => (
           <Route exact path="/get-tokens" component={MintTokens} />
         ) : null}
         <Route exact path="/tokens" component={Tokens} />
+        <Route exact path="/itokens" component={IdentityTokens} />
         <Route exact path="/tx-example" component={TransactionExample} />
         <Route exact path="/hrc20-example" component={Hrc20ContractExample} />
         <Route exact path="/faq" component={FAQPage} />
