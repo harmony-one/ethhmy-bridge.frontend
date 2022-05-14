@@ -1,7 +1,11 @@
 import { ACTION_TYPE, EXCHANGE_MODE, IAction, NETWORK_TYPE, STATUS } from '../interfaces';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { getExNetworkMethods, hmyMethodsHRC1155 } from '../../blockchain-bridge';
+import {
+  getExNetworkMethods,
+  hmyMethodsHRC1155,
+  hmyMethodsS0HRC1155,
+} from '../../blockchain-bridge';
 import { sleep } from '../../utils';
 
 export const sendHrc1155Token = async (params: {
@@ -18,7 +22,12 @@ export const sendHrc1155Token = async (params: {
     stores,
     mode,
   } = params;
-  const hmyMethodsBase = hmyMethodsHRC1155;
+  const networkMap = {
+    [NETWORK_TYPE.ETHEREUM]: hmyMethodsHRC1155,
+    [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS0HRC1155,
+  };
+
+  const hmyMethodsBase = networkMap[stores.exchange.network];
 
   const hmyMethods = stores.user.isMetamask
     ? hmyMethodsBase.hmyMethodsWeb3

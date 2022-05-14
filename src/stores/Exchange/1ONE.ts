@@ -8,7 +8,7 @@ import {
 import { sleep } from 'utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { hmyMethodsBEP20, hmyMethodsERC20, hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsBEP20, hmyMethodsHRC20 } from '../../blockchain-bridge/hmy';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const send1ONEToken = async (params: {

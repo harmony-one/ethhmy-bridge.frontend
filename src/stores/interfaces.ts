@@ -1,6 +1,7 @@
 export enum NETWORK_TYPE {
   ETHEREUM = 'ETHEREUM',
   BINANCE = 'BINANCE',
+  HARMONYSHARD1 = 'HARMONYSHARD1',
 }
 
 export enum EXCHANGE_MODE {
@@ -49,6 +50,7 @@ export type TConfig = {
 
 export type TFullConfig = {
   ethClient: TConfig;
+  harmonyShard1Client: TConfig;
   binanceClient: TConfig;
   hmyClient: TConfig;
 };

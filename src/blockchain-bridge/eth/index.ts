@@ -172,11 +172,12 @@ const init = (config: TConfig): INetworkMethods => {
   };
 };
 
-let ethNetwork: INetworkMethods, binanceNetwork: INetworkMethods;
+let ethNetwork: INetworkMethods, binanceNetwork: INetworkMethods, harmonyShard1Network: INetworkMethods;
 
 export const initNetworks = (fullCinfig: TFullConfig) => {
   ethNetwork = init(fullCinfig.ethClient);
   binanceNetwork = init(fullCinfig.binanceClient);
+  harmonyShard1Network = init(fullCinfig.harmonyShard1Client);
 };
 
 export const getExNetworkMethods = (): INetworkMethods => {
@@ -185,5 +186,7 @@ export const getExNetworkMethods = (): INetworkMethods => {
       return ethNetwork;
     case NETWORK_TYPE.BINANCE:
       return binanceNetwork;
+    case NETWORK_TYPE.HARMONYSHARD1:
+      return harmonyShard1Network;
   }
 };

@@ -6,13 +6,14 @@ import {
   getExNetworkMethods,
   hmyMethodsBEP20, hmyMethodsERC1155,
   hmyMethodsERC20,
-  hmyMethodsERC721, hmyMethodsHRC1155,
-  hmyMethodsERC721Hmy
+  hmyMethodsERC721,
+  hmyMethodsS1HRC1155,
+  hmyMethodsS1HRC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
-import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
+import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
 
@@ -103,6 +104,8 @@ export class UserStoreMetamask extends StoreConstructor {
             return Number(this.metamaskChainId) === 42;
           case NETWORK_TYPE.BINANCE:
             return Number(this.metamaskChainId) === 97;
+          case NETWORK_TYPE.HARMONYSHARD1:
+            return Number(this.metamaskChainId) === 1666700001;
         }
 
       case 'mainnet':
@@ -111,6 +114,8 @@ export class UserStoreMetamask extends StoreConstructor {
             return Number(this.metamaskChainId) === 1;
           case NETWORK_TYPE.BINANCE:
             return Number(this.metamaskChainId) === 56;
+          case NETWORK_TYPE.HARMONYSHARD1:
+            return Number(this.metamaskChainId) === 1666600001;
         }
     }
 
@@ -499,13 +504,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
     let details;
 
-    if(this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
         erc20Address,
       );
     } else {
       try {
-        details = await hmyMethodsERC721Hmy.tokenDetails(
+        details = await hmyMethodsERC721.hmyMethods.tokenDetails(
           hrc20Address,
         );
       } catch (e) {
@@ -521,9 +526,22 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (!!Number(hrc20Address)) {
       this.stores.user.hrc20Address = hrc20Address;
-      this.syncLocalStorage();
-    } else {
-      this.stores.user.hrc20Address = '';
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC721,
+        [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC721,
+      }
+
+      const hmyMethodsBase = networkMap[this.stores.exchange.network]
+      const hmyMethods = this.stores.user.isMetamask
+        ? hmyMethodsBase.hmyMethodsWeb3
+        : hmyMethodsBase.hmyMethods;
+
+      if (!!Number(hrc20Address)) {
+        this.stores.user.hrc20Address = hrc20Address;
+        this.syncLocalStorage();
+      } else {
+        this.stores.user.hrc20Address = '';
+      }
     }
   };
 
@@ -594,12 +612,21 @@ export class UserStoreMetamask extends StoreConstructor {
     this.erc20TokenDetails = { ...details, decimals: '0' };
     this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
 
-    const address = await hmyMethodsERC1155.hmyMethods.getMappingFor(
+    const networkMap = {
+      [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC1155,
+      [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC1155,
+    }
+
+    const hmyMethodsBase = networkMap[this.stores.exchange.network]
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    const address = await hmyMethods.getMappingFor(
       erc1155Address,
     );
 
     if (!!Number(address)) {
-      const hmyMethodsBase = hmyMethodsERC1155;
       const hmyMethods = this.stores.user.isMetamask
         ? hmyMethodsBase.hmyMethodsWeb3
         : hmyMethodsBase.hmyMethods;
