@@ -1,6 +1,6 @@
 import { NETWORK_TYPE, TOKEN } from '../interfaces';
 import * as contract from '../../blockchain-bridge';
-import { getExNetworkMethods } from '../../blockchain-bridge';
+import { getExNetworkMethods, hmyMethodsS0HRC20, hmyMethodsS1HRC20 } from '../../blockchain-bridge';
 
 export const getContractMethods = (
   token: TOKEN,
@@ -26,19 +26,20 @@ export const getContractMethods = (
         : contract.hmyMethodsLINK.hmyMethods;
       break;
 
-    case TOKEN.ERC20:
+    case TOKEN.ERC20:{
       ethMethods = exNetwork.ethMethodsERC20;
 
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsERC20.hmyMethodsWeb3
-          : contract.hmyMethodsERC20.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBEP20.hmyMethodsWeb3
-          : contract.hmyMethodsBEP20.hmyMethods;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsERC20,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBEP20,
+        [NETWORK_TYPE.HARMONYSHARD1]: contract.hmyMethodsS1HRC20,
       }
+
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
       break;
+    }
     case TOKEN.HRC721:{
       ethMethods = exNetwork.ethMethodsHRC721;
       const networkMap = {
@@ -85,19 +86,20 @@ export const getContractMethods = (
         : networkMap[network].hmyMethods
       break;
     }
-    case TOKEN.HRC20:
+    case TOKEN.HRC20:{
       ethMethods = exNetwork.ethMethodsHRC20;
-      if (network === NETWORK_TYPE.ETHEREUM) {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsHRC20.hmyMethodsWeb3
-          : contract.hmyMethodsHRC20.hmyMethods;
-      } else {
-        hmyMethods = isMetamask
-          ? contract.hmyMethodsBHRC20.hmyMethodsWeb3
-          : contract.hmyMethodsBHRC20.hmyMethods;
+      const networkMap = {
+        [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsHRC20,
+        [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBHRC20,
+        [NETWORK_TYPE.HARMONYSHARD1]: contract.hmyMethodsS0HRC20,
       }
-      break;
 
+      hmyMethods = isMetamask
+        ? networkMap[network].hmyMethodsWeb3
+        : networkMap[network].hmyMethods
+
+      break;
+    }
     case TOKEN.ETH:
       ethMethods = exNetwork.ethMethodsBUSD;
       hmyMethods = isMetamask

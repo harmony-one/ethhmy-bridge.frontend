@@ -1,24 +1,19 @@
-FROM node:14.5.0-alpine
+FROM node:14
 EXPOSE 3000
 
 RUN mkdir /app
 WORKDIR /app
-
-RUN apk update && apk add bash
-RUN apk add git
 
 ENV PATH /app/node_modules/.bin:$PATH
 ENV NODE_ENV mainnet
 
 COPY package.json package-lock.json /app/
 
-RUN npm i
+RUN npm install
 
 COPY . /app/
 
 RUN npm run build
 RUN npm install -g serve
-
-RUN apk add --no-cache tar
 
 RUN tar cfz ethhmy-bridge-fe.tgz build

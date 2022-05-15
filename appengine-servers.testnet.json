@@ -1,5 +1,5 @@
 [
-  "https://testnet.bridge.hmny.io:8081",
-  "https://testnet.bridge.hmny.io:8082",
-  "https://testnet.bridge.hmny.io:8083"
+  "http://127.0.0.1:8081",
+  "http://127.0.0.1:8082",
+  "http://127.0.0.1:8083"
 ]

@@ -131,8 +131,10 @@ const hrc20Builder = (hmyManageContractAddress) =>
   ercBuilder(hmyManagerJsonHrc20.abi, HmyMethodsHRC20, HmyMethodsHRC20Web3, hmyManageContractAddress, undefined);
 
 export const hmyMethodsERC20 = erc20Builder(process.env.HMY_ERC20_MANAGER_CONTRACT, process.env.TOKEN_MANAGER_CONTRACT);
+export const hmyMethodsS1HRC20 = erc20Builder(process.env.HMY_S1HRC20_MANAGER_CONTRACT, process.env.TOKEN_MANAGER_CONTRACT_FOR_S1);
 export const hmyMethodsBEP20 = erc20Builder(process.env.HMY_BRIDGE_MANAGER, process.env.TOKEN_MANAGER_CONTRACT_FOR_BSC);
 export const hmyMethodsHRC20 = hrc20Builder(process.env.HMY_HRC20_MANAGER_CONTRACT);
+export const hmyMethodsS0HRC20 = hrc20Builder(process.env.HMY_S0HRC20_MANAGER_CONTRACT);
 export const hmyMethodsBHRC20 = hrc20Builder(process.env.HMY_BRIDGE_MANAGER);
 
 // ================= 721 =================

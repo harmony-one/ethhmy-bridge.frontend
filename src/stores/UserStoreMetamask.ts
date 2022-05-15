@@ -7,7 +7,7 @@ import {
   hmyMethodsBEP20, hmyMethodsERC1155,
   hmyMethodsERC20,
   hmyMethodsERC721,
-  hmyMethodsS1HRC1155,
+  hmyMethodsS1HRC1155, hmyMethodsS1HRC20,
   hmyMethodsS1HRC721,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
@@ -349,11 +349,14 @@ export class UserStoreMetamask extends StoreConstructor {
 
     let address;
 
-    if (this.stores.exchange.network === NETWORK_TYPE.ETHEREUM) {
-      address = await hmyMethodsERC20.hmyMethods.getMappingFor(erc20Address);
-    } else {
-      address = await hmyMethodsBEP20.hmyMethods.getMappingFor(erc20Address);
+    const networkMap = {
+      [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC20,
+      [NETWORK_TYPE.BINANCE]: hmyMethodsBEP20,
+      [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC20,
     }
+
+    const hmyMethodsBase = networkMap[this.stores.exchange.network]
+    address = await hmyMethodsBase.hmyMethods.getMappingFor(erc20Address);
 
     if (this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH && !address) {
       // throw new Error('Address not mapping');

@@ -15,7 +15,13 @@ import * as operationService from 'services';
 import { getDepositAmount } from 'services';
 
 import * as contract from '../../blockchain-bridge';
-import { getExNetworkMethods, initNetworks } from '../../blockchain-bridge';
+import {
+  getExNetworkMethods,
+  hmyMethodsBHRC20,
+  hmyMethodsHRC20,
+  hmyMethodsS0HRC20, hmyMethodsS1HRC20,
+  initNetworks,
+} from '../../blockchain-bridge';
 import { mulDecimals, sleep, uuid } from '../../utils';
 import { sendHrc20Token } from './hrc20';
 import { sendErc721Token } from './erc721';
@@ -510,6 +516,7 @@ export class Exchange extends StoreConstructor {
     this.transaction.ethAddress = this.operation.ethAddress;
     this.transaction.oneAddress = this.operation.oneAddress;
     this.transaction.erc20Address = this.operation.erc20Address;
+    this.transaction.hrc20Address = this.operation.hrc20Address;
     this.transaction.hrc721Address = this.operation.hrc721Address;
     this.transaction.hrc1155Address = this.operation.hrc1155Address;
     this.transaction.hrc1155TokenId = this.operation.hrc1155TokenId;
@@ -654,15 +661,15 @@ export class Exchange extends StoreConstructor {
         case TOKEN.ERC20:
           ethMethods = exNetwork.ethMethodsERC20;
 
-          if (this.network === NETWORK_TYPE.ETHEREUM) {
-            hmyMethods = this.stores.user.isMetamask
-              ? contract.hmyMethodsERC20.hmyMethodsWeb3
-              : contract.hmyMethodsERC20.hmyMethods;
-          } else {
-            hmyMethods = this.stores.user.isMetamask
-              ? contract.hmyMethodsBEP20.hmyMethodsWeb3
-              : contract.hmyMethodsBEP20.hmyMethods;
-          }
+          const networkMap = {
+            [NETWORK_TYPE.ETHEREUM]: contract.hmyMethodsERC20,
+            [NETWORK_TYPE.BINANCE]: contract.hmyMethodsBEP20,
+            [NETWORK_TYPE.HARMONYSHARD1]: contract.hmyMethodsS1HRC20,
+          };
+
+          hmyMethods = this.stores.user.isMetamask
+            ? networkMap[this.network].hmyMethodsWeb3
+            : networkMap[this.network].hmyMethods;
           break;
 
         case TOKEN.ONE:

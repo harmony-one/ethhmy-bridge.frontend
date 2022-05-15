@@ -465,9 +465,7 @@ export class Exchange extends React.Component<
       <Box direction="column" className={styles.exchangeContainer}>
         {exchange.step.id === EXCHANGE_STEPS.BASE && exchange.fullConfig ? (
           <Box>
-            {exchange.network != NETWORK_TYPE.HARMONYSHARD1 && (
-              <Text size="large" bold>Token</Text>
-            )}
+            <Text size="large" bold>Token</Text>
             <Box direction="row" wrap={true} align="center" justify="start">
               {exchange.config.tokens.includes(TOKEN.BUSD) && (
                 <Box
@@ -571,7 +569,7 @@ export class Exchange extends React.Component<
                 </Box>
               )}
 
-              {exchange.network === NETWORK_TYPE.BINANCE &&
+              {exchange.network !== NETWORK_TYPE.ETHEREUM &&
               exchange.config.tokens.includes(TOKEN.HRC20) && (
                 <Box
                   className={cn(
@@ -591,7 +589,9 @@ export class Exchange extends React.Component<
               )}
             </Box>
 
-            <Text size="large" bold>NFT</Text>
+            {exchange.network != NETWORK_TYPE.BINANCE && (
+              <Text size="large" bold>NFT</Text>
+            )}
             <Box direction="row" wrap={true} align="center" justify="start">
               {exchange.config.tokens.includes(TOKEN.ERC721) && (
                 <Box

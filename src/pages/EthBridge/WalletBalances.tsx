@@ -92,7 +92,7 @@ export const WalletBalances = observer(() => {
     case NETWORK_TYPE.HARMONYSHARD1:
       externalSubNetworkName = process.env.NETWORK === 'mainnet'
         ? 'mainnet'
-        : 'mumbai';
+        : 'testnet';
       break;
   }
 

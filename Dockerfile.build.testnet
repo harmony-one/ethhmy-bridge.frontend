@@ -1,8 +1,5 @@
-FROM node:14.5.0-alpine
+FROM node:14
 EXPOSE 3000
-
-RUN apk update && apk add bash
-RUN apk add git
 
 RUN mkdir /app
 WORKDIR /app
@@ -18,7 +15,5 @@ COPY . /app/
 
 RUN npm run build
 RUN npm install -g serve
-
-RUN apk add --no-cache tar
 
 RUN tar cfz ethhmy-bridge-fe.tgz build
