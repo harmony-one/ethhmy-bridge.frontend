@@ -1195,7 +1195,7 @@ export class Exchange extends StoreConstructor {
       user.isMetamask &&
       !user.isNetworkActual
     ) {
-      return actionModals.open(() => MetamaskWarning, {
+      return actionModals.open(MetamaskWarning, {
         title: '',
         applyText: 'Got it',
         closeText: '',
