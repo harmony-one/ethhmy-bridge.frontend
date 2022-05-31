@@ -137,19 +137,19 @@ export const Destination: React.FC<Props> = observer(() => {
       <Box direction="column" gap="16px" justify="center" align="center">
         <MetamaskButton
           active={userMetamask.isAuthorized}
-          label={metamaskChainName || 'Metamask'}
+          label={metamaskChainName || 'MetaMask'}
           onClick={handleClickMetamask}
         />
         {userMetamask.isAuthorized && !userMetamask.isNetworkActual && (
           <Box width="50%">
             <Text size="xsmall">
-              You have authorised with Metamask, but the selected network does
+              You have authorised with MetaMask, but the selected network does
               not match{' '}
               <span style={{ color: 'rgb(0, 173, 232)' }}>
                 {externalNetworkName}: {externalSubNetworkName}
               </span>
               . Please change network to {externalSubNetworkName} for transfer{' '}
-              {externalNetworkName} -> Harmony with Metamask.
+              {externalNetworkName} -> Harmony with MetaMask.
             </Text>
           </Box>
         )}

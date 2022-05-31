@@ -50,7 +50,7 @@ export const AddTokenIcon = (data: {
       );
     }}
   >
-    <a data-tip={`Add ${data.symbol} to Harmony Metamask`}>
+    <a data-tip={`Add ${data.symbol} to Harmony MetaMask`}>
       <Icon size="12px" glyph="Plus" />
     </a>
     <ReactTooltip place="top" type="dark" effect="solid" />
@@ -139,7 +139,7 @@ export const AddTokenString = observer(
           </Box>
           <Text color="white" size="small">
             Add bridged <span className={styles.link}>{data.symbol}</span> to{' '}
-            <span className={styles.link}>Metamask</span>
+            <span className={styles.link}>MetaMask</span>
           </Text>
         </Button>
       </Box>
@@ -198,7 +198,7 @@ export const AddTokenModal = observer(
     return (
       <Box pad="large">
         <Text size="large">
-          To add a bridged token to Metamask, you need to switch Metamask
+          To add a bridged token to MetaMask, you need to switch MetaMask
           network to Harmony {process.env.NETWORK} and try again.
         </Text>
       </Box>

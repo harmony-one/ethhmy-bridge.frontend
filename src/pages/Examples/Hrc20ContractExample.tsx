@@ -28,7 +28,7 @@ export const Hrc20ContractExample = () => {
     }
 
     if (!provider) {
-      console.error('Metamask not found');
+      console.error('MetaMask not found');
       return;
     }
 
@@ -116,7 +116,7 @@ export const Hrc20ContractExample = () => {
       }}
     >
       <span>Your account: {account}</span>
-      <button onClick={signInMetamask}>Sign In Metamask</button>
+      <button onClick={signInMetamask}>Sign In MetaMask</button>
       <button onClick={sendHRC20Tokens}>Send HRC20</button>
     </div>
   );

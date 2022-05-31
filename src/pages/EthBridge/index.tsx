@@ -184,7 +184,7 @@ export const EthBridge = observer((props: any) => {
                 >
                   <LargeButton
                     title="ETH -> ONE"
-                    description="(Metamask)"
+                    description="(MetaMask)"
                     onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
                     isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                   />
@@ -192,7 +192,7 @@ export const EthBridge = observer((props: any) => {
                     title="ONE -> ETH"
                     reverse={true}
                     description={
-                      user.isMetamask ? '(Metamask)' : '(ONE Wallet)'
+                      user.isMetamask ? '(MetaMask)' : '(ONE Wallet)'
                     }
                     onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                     isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
@@ -248,14 +248,14 @@ export const EthBridge = observer((props: any) => {
               >
                 <LargeButton
                   title="ETH -> ONE"
-                  description="(Metamask)"
+                  description="(MetaMask)"
                   onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
                   isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                 />
                 <LargeButton
                   title="ONE -> ETH"
                   reverse={true}
-                  description={user.isMetamask ? '(Metamask)' : '(ONE Wallet)'}
+                  description={user.isMetamask ? '(MetaMask)' : '(ONE Wallet)'}
                   onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                   isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
                 />

@@ -185,7 +185,7 @@ export class UserStoreMetamask extends StoreConstructor {
       }
 
       if (!provider) {
-        return this.setError('Metamask not found');
+        return this.setError('MetaMask not found');
       }
 
       this.provider = provider;

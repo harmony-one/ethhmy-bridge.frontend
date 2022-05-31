@@ -139,7 +139,7 @@ export const WalletBalances = observer(() => {
                       style={{ marginTop: -2, marginRight: 5, height: 20 }}
                     />
                     {!isMobile ? (
-                      <Text margin={{ right: '10px' }}>Metamask</Text>
+                      <Text margin={{ right: '10px' }}>MetaMask</Text>
                     ) : null}
                   </>
                 )}
@@ -158,13 +158,13 @@ export const WalletBalances = observer(() => {
             !userMetamask.isNetworkActual ? (
               <Box>
                 <Text>
-                  You have authorised with Metamask, but the selected network
+                  You have authorised with MetaMask, but the selected network
                   does not match{' '}
                   <span style={{ color: 'rgb(0, 173, 232)' }}>
                     {externalNetworkName}: {externalSubNetworkName}
                   </span>
                   . Please change network to {externalSubNetworkName} for
-                  transfer {externalNetworkName} -> Harmony with Metamask.
+                  transfer {externalNetworkName} -> Harmony with MetaMask.
                 </Text>
               </Box>
             ) : (
@@ -229,7 +229,7 @@ export const WalletBalances = observer(() => {
                 src="/metamask.svg"
                 style={{ marginRight: 15, height: 22 }}
               />
-              Metamask
+              MetaMask
             </WalletButton>
           )}
         </Box>
@@ -278,7 +278,7 @@ export const WalletBalances = observer(() => {
                     />
                     {!isMobile ? (
                       <Text margin={{ right: '10px' }}>
-                        {user.isMetamask ? 'Metamask' : 'ONE Wallet'}
+                        {user.isMetamask ? 'MetaMask' : 'ONE Wallet'}
                       </Text>
                     ) : null}
                   </>
@@ -298,7 +298,7 @@ export const WalletBalances = observer(() => {
             user.isMetamask && !user.isNetworkActual ? (
               <Box>
                 <Text>
-                  You have authorised with Metamask, but the selected network
+                  You have authorised with MetaMask, but the selected network
                   does not match{' '}
                   <span style={{ color: 'rgb(0, 173, 232)' }}>
                     Harmony:{' '}
@@ -313,7 +313,7 @@ export const WalletBalances = observer(() => {
                     add
                   </a>{' '}
                   and select an actual network for transfer ONE -> ETH with
-                  Metamask.
+                  MetaMask.
                 </Text>
               </Box>
             ) : (
@@ -330,9 +330,7 @@ export const WalletBalances = observer(() => {
                 />
 
                 {user.hrc20Address &&
-                [TOKEN.ERC20, TOKEN.HRC20].includes(
-                  exchange.token,
-                ) ? (
+                [TOKEN.ERC20, TOKEN.HRC20].includes(exchange.token) ? (
                   <AssetRow
                     asset={`Harmony ${
                       userMetamask.erc20TokenDetails
@@ -340,9 +338,12 @@ export const WalletBalances = observer(() => {
                         : ''
                     }`}
                     value={formatWithSixDecimals(user.hrc20Balance)}
-                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
-                      exchange.token,
-                    )}
+                    selected={[
+                      TOKEN.ERC20,
+                      TOKEN.HRC20,
+                      TOKEN.ERC721,
+                      TOKEN.HRC721,
+                    ].includes(exchange.token)}
                     link={`${
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
@@ -359,9 +360,7 @@ export const WalletBalances = observer(() => {
                 ) : null}
 
                 {user.hrc20Address &&
-                [TOKEN.ERC721].includes(
-                  exchange.token,
-                ) ? (
+                [TOKEN.ERC721].includes(exchange.token) ? (
                   <AssetRow
                     asset={`Harmony ${
                       userMetamask.erc20TokenDetails
@@ -369,9 +368,12 @@ export const WalletBalances = observer(() => {
                         : ''
                     }`}
                     value={formatWithSixDecimals(user.hrc20Balance)}
-                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
-                      exchange.token,
-                    )}
+                    selected={[
+                      TOKEN.ERC20,
+                      TOKEN.HRC20,
+                      TOKEN.ERC721,
+                      TOKEN.HRC721,
+                    ].includes(exchange.token)}
                     link={`${
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
@@ -388,9 +390,7 @@ export const WalletBalances = observer(() => {
                 ) : null}
 
                 {user.hrc721Address &&
-                [TOKEN.ERC721, TOKEN.HRC721].includes(
-                  exchange.token,
-                ) ? (
+                [TOKEN.ERC721, TOKEN.HRC721].includes(exchange.token) ? (
                   <AssetRow
                     asset={`Harmony ${
                       userMetamask.erc20TokenDetails
@@ -398,9 +398,12 @@ export const WalletBalances = observer(() => {
                         : ''
                     }`}
                     value={Number(user.hrc20Balance)}
-                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
-                      exchange.token,
-                    )}
+                    selected={[
+                      TOKEN.ERC20,
+                      TOKEN.HRC20,
+                      TOKEN.ERC721,
+                      TOKEN.HRC721,
+                    ].includes(exchange.token)}
                     link={`${
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
@@ -417,9 +420,7 @@ export const WalletBalances = observer(() => {
                 ) : null}
 
                 {user.hrc1155Address &&
-                [TOKEN.ERC1155, TOKEN.HRC1155].includes(
-                  exchange.token,
-                ) ? (
+                [TOKEN.ERC1155, TOKEN.HRC1155].includes(exchange.token) ? (
                   <AssetRow
                     asset={`Harmony ${
                       userMetamask.erc20TokenDetails
@@ -427,9 +428,12 @@ export const WalletBalances = observer(() => {
                         : ''
                     }`}
                     value={Number(user.hrc20Balance)}
-                    selected={[TOKEN.ERC20, TOKEN.HRC20, TOKEN.ERC721, TOKEN.HRC721].includes(
-                      exchange.token,
-                    )}
+                    selected={[
+                      TOKEN.ERC20,
+                      TOKEN.HRC20,
+                      TOKEN.ERC721,
+                      TOKEN.HRC721,
+                    ].includes(exchange.token)}
                     link={`${
                       process.env.HMY_EXPLORER_URL
                     }/address/${getBech32Address(
@@ -533,7 +537,7 @@ export const WalletBalances = observer(() => {
                   src="/metamask.svg"
                   style={{ marginRight: 15, height: 22 }}
                 />
-                Metamask
+                MetaMask
               </WalletButton>
             </Box>
           )}

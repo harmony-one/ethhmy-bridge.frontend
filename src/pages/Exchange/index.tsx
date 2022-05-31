@@ -882,7 +882,7 @@ export class Exchange extends React.Component<
                         this.addressValidationError = '';
                       }}
                     >
-                      Use Metamask address
+                      Use MetaMask address
                     </Box>
                   ) : null}
                 </Box>
@@ -942,7 +942,7 @@ export class Exchange extends React.Component<
                         this.addressValidationError = '';
                       }}
                     >
-                      Use Metamask address
+                      Use MetaMask address
                     </Box>
                   ) : null}
                 </Box>
