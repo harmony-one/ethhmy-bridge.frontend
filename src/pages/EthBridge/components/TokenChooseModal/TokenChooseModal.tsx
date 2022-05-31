@@ -11,7 +11,7 @@ import { TokenVertical } from './components/TokenVertical';
 import { TokenHorizontal } from './components/TokenHorizontal';
 import { tokensMainnetImageMap } from '../../../Exchange/tokens';
 import { NETWORK_BASE_TOKEN, NETWORK_ICON } from '../../../../stores/names';
-import { NETWORK_TYPE, TOKEN } from '../../../../stores/interfaces';
+import { ITokenInfo, NETWORK_TYPE, TOKEN } from '../../../../stores/interfaces';
 import styled from 'styled-components';
 import { LoadableContent } from '../../../../components/LoadableContent';
 import { buildTokenId } from '../../../../utils/token';
@@ -65,8 +65,20 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
     );
   };
 
+  const filterExtraToken = (token: ITokenInfo) => {
+    if (
+      token.symbol.toLowerCase() === TOKEN.BUSD ||
+      token.symbol.toLowerCase() === TOKEN.LINK
+    ) {
+      return false;
+    }
+
+    return true;
+  };
+
   const tokenlist = useMemo(() => {
     return tokens.allData
+      .filter(filterExtraToken)
       .filter(token => {
         if (token.network !== exchange.network) {
           return false;
@@ -97,6 +109,7 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
         );
       })
       .sort((a, b) => {
+        // sort by balance
         const tokenIdA = buildTokenId(a);
         const balanceA = userMetamask.balances[tokenIdA] || 0;
         const tokenIdB = buildTokenId(b);
