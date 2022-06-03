@@ -20,6 +20,7 @@ import { NETWORK_ICON } from '../../stores/names';
 import { NetworkButton } from './Components';
 // import { AddTokenIcon } from '../../ui/AddToken';
 import { useMediaQuery } from 'react-responsive';
+import { render } from 'react-dom';
 
 const EthAddress = observer(
   ({ value, network }: { value: string; network: NETWORK_TYPE }) => {
@@ -48,6 +49,14 @@ const EthAddress = observer(
     );
   },
 );
+
+const getAssetType = (value, data) => {
+  if (data.network === "HARMONYSHARD1") {
+    return value.replace("erc", "ghrc").toUpperCase();
+  } else {
+    return value.toUpperCase();
+  }
+}
 
 const oneAddress = value => (
   <Box direction="row" justify="start" align="center" style={{ marginTop: 4 }}>
@@ -113,7 +122,7 @@ const getColumns = ({ hmyLINKBalanceManager }): IColumn<ITokenInfo>[] => [
     width: 100,
     render: (value, data) => (
       <Box direction="row" justify="start">
-        {value.toUpperCase()}
+        {getAssetType(value, data)}
       </Box>
     ),
   },
@@ -300,6 +309,11 @@ export const Tokens = observer((props: any) => {
                 selectedType={network}
                 onClick={() => setNetwork(NETWORK_TYPE.ETHEREUM)}
               />
+              <NetworkButton
+                type={NETWORK_TYPE.HARMONYSHARD1}
+                selectedType={network}
+                onClick={() => setNetwork(NETWORK_TYPE.HARMONYSHARD1)}
+              />
               <Box direction="column" style={{ width: 300 }} gap="5px">
                 <Text>Token:</Text>
                 <Select
@@ -309,6 +323,7 @@ export const Tokens = observer((props: any) => {
                     { text: 'ALL', value: 'ALL' },
                     { text: 'ERC20', value: TOKEN.ERC20 },
                     { text: 'HRC20', value: TOKEN.HRC20 },
+                    { text: 'GHRC20', value: TOKEN.ERC20 },
                     { text: 'ERC721', value: TOKEN.ERC721 },
                     { text: 'ERC1155', value: TOKEN.ERC1155 },
                     { text: 'HRC721', value: TOKEN.HRC721 },

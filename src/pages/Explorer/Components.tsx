@@ -130,6 +130,17 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
     }
   }
 
+  if (network === NETWORK_TYPE.HARMONYSHARD1) {
+    switch (value){
+      case TOKEN.ERC20:
+        return <Box>GHRC20</Box>;
+      case TOKEN.ERC721:
+        return <Box>GHRC721</Box>;
+      case TOKEN.ERC1155:
+        return <Box>GHRC1155</Box>;
+    }
+  }
+
   if (value === TOKEN.ETH) {
     return <Box>{NETWORK_BASE_TOKEN[network]}</Box>;
   }

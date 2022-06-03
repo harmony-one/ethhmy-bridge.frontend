@@ -36,8 +36,8 @@ const LargeButton = observer(
         networkName = 'ETH'
         break
       case  NETWORK_TYPE.HARMONYSHARD1:
-        networkImg = '/one.svg'
-        networkName = 'Shard 1'
+        networkImg = '/one-game.svg'
+        networkName = 'Game Shard'
         break
       case  NETWORK_TYPE.BINANCE:
         networkImg =  '/binance.png'
@@ -68,7 +68,7 @@ const LargeButton = observer(
               {networkName}
             </Text>
           </Box>
-          <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
+          <Box direction="row" margin={{ horizontal: 'small' }} align="center">
             <img src="/right.svg" />
           </Box>
           <Box direction="row" align="center">

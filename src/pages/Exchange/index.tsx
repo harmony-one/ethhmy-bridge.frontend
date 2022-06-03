@@ -416,7 +416,7 @@ export class Exchange extends React.Component<
         ercPrefix = "BEP"
         break
       case NETWORK_TYPE.HARMONYSHARD1:
-        ercPrefix = "ERC"
+        ercPrefix = "GHRC"
         break
       case NETWORK_TYPE.ETHEREUM:
         ercPrefix = "ERC"

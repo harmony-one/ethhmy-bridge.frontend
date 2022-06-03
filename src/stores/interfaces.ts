@@ -109,6 +109,17 @@ export enum ACTION_TYPE {
   'unlockHRC1155TokenRollback' = 'unlockHRC1155TokenRollback',
   'mintHRC1155TokenRollback' = 'mintHRC1155TokenRollback',
 
+  // ERC721
+  'getERC721Address' = 'getERC721Address',
+  'approveERC721HmyManger' = 'approveERC721HmyManger',
+  'approveERC721EthManger' = 'approveERC721EthManger',
+  'lockERC721Token' = 'lockERC721Token',
+  'unlockERC721Token' = 'unlockERC721Token',
+  'burnERC721Token' = 'burnERC721Token',
+  'mintERC721Token' = 'mintERC721Token',
+  'unlockERC721TokenRollback' = 'unlockERC721TokenRollback',
+  'mintERC721TokenRollback' = 'mintERC721TokenRollback',
+
   // ERC1155
   'getERC1155Address' = 'getERC1155Address',
   'approveERC1155HmyManger' = 'approveERC1155HmyManger',
