@@ -381,7 +381,6 @@ export const faqConfig = [
         This is your case if all this conditions are met:
         <ul>
           <li>
-            {' '}
             Your operation status is “error”. Use{' '}
             <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/how-to-find-operation-details">
               this page
@@ -390,15 +389,55 @@ export const faqConfig = [
           </li>
           <li>
             {' '}
-            You have lock/burn Harmony bridge transaction in your first chain
-            explorer on the same amount and time as the operation. However,
-            there is no successful bridge operation with this transaction.{' '}
+            You have a successful lock/burn Horizon bridge transaction in your
+            first chain explorer on the same amount and time as the operation.
+            However, there is no successful bridge operation with this
+            transaction.
           </li>
         </ul>
         {/*<br />*/}
         {/*<img src="forms/example_1.png" width="100%" />*/}
+        {/*TODO:how to check,new design*/}
       </p>
     ),
+    details: () => (
+      <p>
+        <ul>
+          <li>
+            Please use this form only if you have a bridge error, and your
+            bridged amount is gone. If only deposited one are missing, please
+            fill in the corresponding form.
+          </li>
+          <li>
+            Make sure you have a successful bridge transaction with your bridged
+            amount. If your lock/burn transaction ended up an error, it's not
+            the cause of funds loss.
+          </li>
+          <li>
+            Please mention what service did you use for your operation, if you
+            didn't use Horizon interface on bridge.harmony.one directly. Check
+            all the provided information before submitting. We need all the data
+            in text format. If you don't have operation ID, include any
+            transaction hash associated with the operation or at least mention
+            operation day and time with a timezone.
+          </li>
+          <li>
+            After submitting, check your email for an automated response. Please
+            reply with a screenshot of your operation (it's page / bridge
+            explorer) and any other details you want to add.
+          </li>
+          <li>
+            If you didn't receive the confirmation email, you most likely won't
+            get our reply. In this case, please check Spam folder and your mail
+            settings. If this doesn't help, please send another form with
+            different email. Please mention that it’s a double.
+          </li>
+        </ul>
+        {/*<img src="forms/example_1.png" width="100%" />*/}
+      </p>
+    ),
+    iframeUrl:
+      'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=0ea68569-a126-4cce-8b6f-7ec9a6ee4759',
   },
   {
     label: 'Operation canceled, bridged amount gone',
@@ -420,18 +459,51 @@ export const faqConfig = [
             if you don't know how to check it.
           </li>
           <li>
-            {' '}
-            You have lock/burn Harmony bridge transaction in your first chain
-            explorer on the same amount and time as the operation. However,
-            there is no other successful bridge operation with this transaction.{' '}
+            You have a successful lock/burn Horizon bridge transaction in your
+            first chain explorer on the same amount and time as the operation.
+            However, there is no other successful bridge operation with this
+            transaction.
           </li>
         </ul>
         {/*<br />*/}
         {/*<img src="forms/example_1.png" width="100%" />*/}
       </p>
     ),
-
-    // If your operation is in progress or ended with success, or if your operation has nothing to do with Horizon Bridge, you won't get any help from this request.
+    details: () => (
+      <p>
+        <ul>
+          <li>
+            Please use this form only if you your operation is canceled, and
+            your bridged amount is gone. If only deposited one are missing,
+            please fill in the corresponding form.
+          </li>
+          <li>
+            Make sure you have a successful transaction with your bridged
+            amount.
+          </li>
+          <li>
+            Please mention what service did you use for your operation, if you
+            didn't use Horizon interface on bridge.harmony.one directly. Check
+            all the provided information before submitting. We need all the data
+            in text format. If you don't have operation ID, include any
+            transaction hash associated with the operation or at least mention
+            operation day and time with a timezone.
+          </li>
+          <li>
+            After submitting, check your email for an automated response. Please
+            reply with a screenshot of your operation (it's page / bridge
+            explorer) and any other details you want to add.
+          </li>
+          <li>
+            If you didn't receive the confirmation email, you most likely won't
+            get our reply. In this case, please check Spam folder and your mail
+            settings. If this doesn't help, please send another form with
+            different email. Please mention that it’s a double.
+          </li>
+        </ul>
+        {/*<img src="forms/example_1.png" width="100%" />*/}
+      </p>
+    ),
     iframeUrl:
       'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=5d01138b-30fb-4a94-b641-26065b53b5ae',
   },
