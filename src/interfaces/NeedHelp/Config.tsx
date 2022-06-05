@@ -242,6 +242,85 @@ export const faqConfig = [
       'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=fb4de9c6-8f00-4e3b-b2e1-6df5763ff03b',
   },
   {
+    label: 'I’m confused with a bridged token type',
+    text: () => (
+      <p>
+        If you received something you didn’t suppose to get, first, look if your
+        token has any liquidity. You might not expect to receive a mapped token.
+        Look{' '}
+        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/what-token-will-i-get-after-bridge">
+          here
+        </a>{' '}
+        if you got a token you supposed to get after the bridge. You can get use
+        of your mapped token: look for swapping options in swap or exchange
+        services or ask about available DEX in the Harmony community groups. If
+        there are no options that suit your interests, you can bridge your
+        tokens back. If you don’t know how to bridge back, see{' '}
+        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/i-dont-know-how-to-bridge-my-token">
+          this page
+        </a>
+        .
+        <br />
+        <br />
+        If you have an incorrectly bridged token with an extra wrap,{' '}
+        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/how-to-bridge-back-an-incorrectly-bridged-token">
+          here
+        </a>{' '}
+        you can find instructions with example cases. If your case is not in the
+        list, you can ask advanced users in community groups for help or send a
+        support request.
+      </p>
+    ),
+    details: () => (
+      <p>
+        <ul>
+          <li>
+            {' '}
+            Please complete the form below only if you have multiple prefix
+            token like bsc1bsc***. Otherwise, your request will be ignored.
+            Please make sure that there's no example instruction for your case{' '}
+            <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/how-to-bridge-back-an-incorrectly-bridged-token">
+              here
+            </a>
+            . If you have the same token with fewer wraps than the example,
+            start with the step corresponding to your token symbol. For example,
+            if you have 1bscONE, start the instruction for bsc1bsc1bscONE from
+            the 1bscONE → bscONE step.
+          </li>
+          <li>
+            The reply time can be longer than usual because support team top
+            priority is fixing errors. You can also ask for help in the
+            community groups, there is a chance you get help faster.
+          </li>
+          <li>
+            Please mention what service did you use for your operation, if you
+            didn't use Horizon interface on bridge.harmony.one directly. Check
+            all the provided information before submitting. We need all the data
+            in text format. If you don't have operation ID, include any
+            transaction hash associated with the operation or at least mention
+            operation day and time with a timezone.
+          </li>
+          <li>
+            After submitting, check your email for an automated response. You
+            can reply with screenshots and any other details you want to add.
+          </li>
+          <li>
+            Please don’t move your funds after the request. If you do, update it
+            by replying to the confirmation email.
+          </li>
+          <li>
+            If you didn't receive the confirmation email, you most likely won't
+            get our reply. In this case, please check Spam folder and your mail
+            settings. If this doesn't help, please send another form with
+            different email. Please mention that it’s a double.
+          </li>
+        </ul>
+      </p>
+    ),
+    iframeUrl:
+      'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=1430901b-62e2-4eea-a44e-7a60c960eb57',
+  },
+  {
     label:
       'Deposited ONEs weren’t withdrawn for failed HMY→BSC / HMY→ETH operation',
     text: () => (
@@ -357,85 +436,6 @@ export const faqConfig = [
       'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=5d01138b-30fb-4a94-b641-26065b53b5ae',
   },
   {
-    label: 'I’m confused with a bridged token type',
-    text: () => (
-      <p>
-        If you received something you didn’t suppose to get, first, look if your
-        token has any liquidity. You might not expect to receive a mapped token.
-        Look{' '}
-        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/what-token-will-i-get-after-bridge">
-          here
-        </a>{' '}
-        if you got a token you supposed to get after the bridge. You can get use
-        of your mapped token: look for swapping options in swap or exchange
-        services or ask about available DEX in the Harmony community groups. If
-        there are no options that suit your interests, you can bridge your
-        tokens back. If you don’t know how to bridge back, see{' '}
-        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/i-dont-know-how-to-bridge-my-token">
-          this page
-        </a>
-        .
-        <br />
-        <br />
-        If you have an incorrectly bridged token with an extra wrap,{' '}
-        <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/how-to-bridge-back-an-incorrectly-bridged-token">
-          here
-        </a>{' '}
-        you can find instructions with example cases. If your case is not in the
-        list, you can ask advanced users in community groups for help or send a
-        support request.
-      </p>
-    ),
-    details: () => (
-      <p>
-        <ul>
-          <li>
-            {' '}
-            Please complete the form below only if you have multiple prefix
-            token like bsc1bsc***. Otherwise, your request will be ignored.
-            Please make sure that there's no example instruction for your case{' '}
-            <a href="https://docs.harmony.one/home/general/bridges/horizon-bridge/bridge-faqs/how-to-bridge-back-an-incorrectly-bridged-token">
-              here
-            </a>
-            . If you have the same token with fewer wraps than the example,
-            start with the step corresponding to your token symbol. For example,
-            if you have 1bscONE, start the instruction for bsc1bsc1bscONE from
-            the 1bscONE → bscONE step.
-          </li>
-          <li>
-            The reply time can be longer than usual because support team top
-            priority is fixing errors. You can also ask for help in the
-            community groups, there is a chance you get help faster.
-          </li>
-          <li>
-            Please mention what service did you use for your operation, if you
-            didn't use Horizon interface on bridge.harmony.one directly. Check
-            all the provided information before submitting. We need all the data
-            in text format. If you don't have operation ID, include any
-            transaction hash associated with the operation or at least mention
-            operation day and time with a timezone.
-          </li>
-          <li>
-            After submitting, check your email for an automated response. You
-            can reply with screenshots and any other details you want to add.
-          </li>
-          <li>
-            Please don’t move your funds after the request. If you do, update it
-            by replying to the confirmation email.
-          </li>
-          <li>
-            If you didn't receive the confirmation email, you most likely won't
-            get our reply. In this case, please check Spam folder and your mail
-            settings. If this doesn't help, please send another form with
-            different email. Please mention that it’s a double.
-          </li>
-        </ul>
-      </p>
-    ),
-    iframeUrl:
-      'https://forms.helpdesk.com?licenseID=1447433401&contactFormID=1430901b-62e2-4eea-a44e-7a60c960eb57',
-  },
-  {
     label: "Tokens lost, but I don't know my operation status",
     text: () => (
       <p>
@@ -544,7 +544,8 @@ export const faqConfig = [
     ),
   },
   {
-    label: 'By mistake sent tokens to an exchange wallet (e.g. Binance exchange)',
+    label:
+      'By mistake sent tokens to an exchange wallet (e.g. Binance exchange)',
     text: () => (
       <p>
         Unfortunately, your tokens are permanently lost and not recoverable.
