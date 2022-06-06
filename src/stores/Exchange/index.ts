@@ -86,7 +86,7 @@ export class Exchange extends StoreConstructor {
   defaultTransaction: ITransaction = {
     oneAddress: '',
     ethAddress: '',
-    amount: '0',
+    amount: '',
     approveAmount: '0',
     erc20Address: '',
     hrc20Address: '',
@@ -1053,7 +1053,10 @@ export class Exchange extends StoreConstructor {
   };
 
   clear() {
-    this.transaction = this.defaultTransaction;
+    this.transaction = {
+      ...this.defaultTransaction,
+      amount: this.transaction.amount,
+    };
     this.operation = null;
     this.error = '';
     this.txHash = '';
@@ -1161,25 +1164,26 @@ export class Exchange extends StoreConstructor {
     //   );
     // }
 
-    if (!user.isAuthorized) {
-      if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        if (!user.isOneWallet) {
-          return actionModals.open(() => AuthWarning, {
-            title: '',
-            applyText: 'Got it',
-            closeText: '',
-            noValidation: true,
-            width: '500px',
-            showOther: true,
-            onApply: () => {
-              return Promise.resolve();
-            },
-          });
-        } else {
-          await user.signIn();
-        }
-      }
-    }
+    // if (!user.isAuthorized) {
+    //   debugger;
+    //   if (exchange.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+    //     if (!user.isOneWallet) {
+    //       return actionModals.open(AuthWarning, {
+    //         title: '',
+    //         applyText: 'Got it',
+    //         closeText: '',
+    //         noValidation: true,
+    //         width: '500px',
+    //         showOther: true,
+    //         onApply: () => {
+    //           return Promise.resolve();
+    //         },
+    //       });
+    //     } else {
+    //       await user.signIn();
+    //     }
+    //   }
+    // }
 
     if (
       !userMetamask.isAuthorized &&

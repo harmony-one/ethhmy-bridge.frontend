@@ -17,7 +17,7 @@ import { formatWithSixDecimals, moreThanZero } from '../../../../utils';
 import {
   isMultiNFT,
   isNFT,
-  isOthersToken,
+  isNotNFT,
 } from '../../../../stores/Exchange/helpers';
 
 interface Props {
@@ -40,7 +40,7 @@ export const CustomTokenModal: React.FC<Props> = observer(({ onClose }) => {
 
   const _isNFT = isNFT(exchange.token);
   const _isMultiNFT = isMultiNFT(exchange.token);
-  const _isOtherTokens = isOthersToken(exchange.token);
+  const _isOtherTokens = isNotNFT(exchange.token);
 
   return (
     <Form data={exchange.transaction}>

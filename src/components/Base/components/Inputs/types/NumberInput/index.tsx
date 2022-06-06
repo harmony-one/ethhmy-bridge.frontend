@@ -1,5 +1,11 @@
 import React, { useEffect } from 'react';
-import { limitLength, limitNumber, normalizeNumber, pipe } from '../../helpers';
+import {
+  absNumber,
+  limitLength,
+  limitNumber,
+  normalizeNumber,
+  pipe,
+} from '../../helpers';
 import { ITextInputProps, TextInput } from '../TextInput';
 
 type TValueTypes = 'integer' | 'decimal' | 'currency' | 'integerString';
@@ -50,6 +56,7 @@ const types: Record<
       pipe(
         value => String(value).replace(props.delimiter || ',', '.'),
         normalizeNumber,
+        absNumber,
         limitLength,
         value => limitNumber(value, props.min, props.max),
       ),

@@ -45,7 +45,8 @@ export const StepBASE: React.FC<Props> = observer(() => {
         ) {
           exchange.transaction.amount = ['0'];
         } else {
-          exchange.transaction.amount = '0';
+          // debugger;
+          // exchange.transaction.amount = '';
         }
 
         if (

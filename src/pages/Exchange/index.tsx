@@ -72,7 +72,7 @@ export class Exchange extends React.Component<
         ) {
           exchange.transaction.amount = ['0'];
         } else {
-          exchange.transaction.amount = '0';
+          // exchange.transaction.amount = '0';
         }
 
         if (

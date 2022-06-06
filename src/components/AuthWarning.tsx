@@ -1,11 +1,11 @@
 import React from 'react';
 import { Box } from 'grommet';
-import { Title } from './Base/components/Title';
+import { Title, Text } from './Base';
 
 export const AuthWarning = () => (
-  <Box pad={{ horizontal: 'large', top: 'large' }}>
+  <Box pad="large">
     <Title>Use ONE Wallet Browser Extension</Title>
-    <div>
+    <Text color="NWhite">
       <p>
         Looks like you don't have the Harmony One Wallet extension installed
         yet. Head over to the
@@ -18,6 +18,6 @@ export const AuthWarning = () => (
         </a>
         to quickly install the extension.
       </p>
-    </div>
+    </Text>
   </Box>
 );

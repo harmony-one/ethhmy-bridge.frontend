@@ -185,6 +185,6 @@ export const isMultiNFT = (token: TOKEN) => {
   return token === TOKEN.ERC1155 || token === TOKEN.HRC1155;
 };
 
-export const isOthersToken = (token: TOKEN) => {
+export const isNotNFT = (token: TOKEN) => {
   return !isNFT(token) && !isMultiNFT(token);
 };

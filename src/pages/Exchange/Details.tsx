@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../../stores/names';
 import { useMediaQuery } from 'react-responsive';
+import styled from 'styled-components';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -65,6 +66,14 @@ const AssetRow = props => {
   );
 };
 
+const LiquidityWarning = styled(Box)`
+  background-color: #e65454;
+  padding: 12px;
+  color: #ebf3f9;
+  border-radius: 7px;
+  text-align: center;
+`;
+
 // const DataItem = (props: {
 //   text: any;
 //   label: string;
@@ -107,7 +116,7 @@ const AssetRow = props => {
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
-    const { exchange, userMetamask } = useStores();
+    const { exchange, tokens, userMetamask } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
@@ -188,6 +197,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
       return '';
     };
 
+    const hasLiquidity = tokens.hasLiquidity(exchange.transaction.erc20Address);
+
     return (
       <Box direction="column">
         <AssetRow
@@ -233,6 +244,14 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         {/*/>*/}
 
         {children ? <Box direction="column">{children}</Box> : null}
+
+        {!hasLiquidity ? (
+          <Box pad="small">
+            <LiquidityWarning>
+              Caution: This token doesn't have liquidity
+            </LiquidityWarning>
+          </Box>
+        ) : null}
 
         {showTotal ? (
           <Box

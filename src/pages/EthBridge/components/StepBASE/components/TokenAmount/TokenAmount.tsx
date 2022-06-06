@@ -7,7 +7,7 @@ import { useStores } from '../../../../../../stores';
 import * as s from './TokenAmount.styl';
 import { observer } from 'mobx-react';
 import { TOKEN } from '../../../../../../stores/interfaces';
-import { isOthersToken } from '../../../../../../stores/Exchange/helpers';
+import { isNotNFT } from '../../../../../../stores/Exchange/helpers';
 
 interface Props {}
 
@@ -36,7 +36,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
           margin="none"
           name="amount"
           type="decimal"
-          precision={isOthersToken(exchange.token) ? '6' : '0'}
+          precision={isNotNFT(exchange.token) ? '6' : '0'}
           bgColor="transparent"
           border="none"
           delimiter="."

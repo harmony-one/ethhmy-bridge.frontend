@@ -13,8 +13,18 @@ export function normalizeNumber(value: string | number) {
       (strValue.match(/\./g) || []).length === 1 ||
       value === ''
       ? value
-      : Number(value)
+      : Number(value),
   );
+}
+
+export function absNumber(value: string | number) {
+  const result = Math.abs(Number(value));
+
+  if (value === '' || isNaN(result) || typeof result !== 'number') {
+    return value;
+  }
+
+  return String(result);
 }
 
 export function limitNumber(value: string | number, min: number, max: number) {
