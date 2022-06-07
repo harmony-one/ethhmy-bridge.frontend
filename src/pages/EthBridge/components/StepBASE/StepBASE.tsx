@@ -67,18 +67,18 @@ export const StepBASE: React.FC<Props> = observer(() => {
         <TokenRow />
       </Box>
       <Divider />
-      <Box align="center" pad={{ vertical: '40px' }}>
+      <Box align="center" pad={{ vertical: '40px', horizontal: '40px' }}>
         <Destination />
       </Box>
       <Box direction="row" height="66px">
-        <Button
-          fontSize="14px"
-          className={s.buttonContainer}
-          buttonClassName={cn(s.bridgeButton, s.reset)}
-          onClick={handleClickReset}
-        >
-          Reset Bridge
-        </Button>
+        {/*<Button*/}
+        {/*  fontSize="14px"*/}
+        {/*  className={s.buttonContainer}*/}
+        {/*  buttonClassName={cn(s.bridgeButton, s.reset)}*/}
+        {/*  onClick={handleClickReset}*/}
+        {/*>*/}
+        {/*  Reset Bridge*/}
+        {/*</Button>*/}
         <Button
           fontSize="14px"
           className={s.buttonContainer}

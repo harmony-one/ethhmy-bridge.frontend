@@ -142,6 +142,14 @@ export class UserStoreMetamask extends StoreConstructor {
       return this.setError('Please connect to MetaMask');
     } else {
       this.ethAddress = accounts[0];
+
+      const inputName =
+        this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+          ? 'ethAddress'
+          : 'oneAddress';
+
+      this.stores.exchange.transaction[inputName] = this.ethAddress;
+
       this.syncLocalStorage();
     }
   }

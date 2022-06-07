@@ -70,6 +70,7 @@ export const Price = observer(
           color="NWhite"
           bold
           style={{ fontSize: 14 }}
+          nowrap
         >{`${formatWithSixDecimals(props.value)} ${
           props.isEth ? NETWORK_BASE_TOKEN[props.network] : 'ONE'
         }`}</Text>

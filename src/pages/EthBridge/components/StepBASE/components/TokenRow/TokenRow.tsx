@@ -15,9 +15,9 @@ interface Props {}
 export const TokenRow: React.FC<Props> = observer(() => {
   const { exchange, erc20Select } = useStores();
 
-  const displayTokenAddress = [TOKEN.ERC20, TOKEN.HRC20].includes(
-    exchange.token,
-  );
+  const displayTokenAddress =
+    [TOKEN.ERC20, TOKEN.HRC20].includes(exchange.token) &&
+    erc20Select.tokenAddress;
 
   return (
     <Box direction="column">
@@ -36,7 +36,7 @@ export const TokenRow: React.FC<Props> = observer(() => {
           </Box>
         )}
         {!isNFT(exchange.token) && (
-          <Box basis="0" flex="grow">
+          <Box basis="0" flex="grow" align="center">
             <TokenAmount />
           </Box>
         )}

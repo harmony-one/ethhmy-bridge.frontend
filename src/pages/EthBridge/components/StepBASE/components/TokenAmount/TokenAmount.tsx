@@ -8,8 +8,13 @@ import * as s from './TokenAmount.styl';
 import { observer } from 'mobx-react';
 import { TOKEN } from '../../../../../../stores/interfaces';
 import { isNotNFT } from '../../../../../../stores/Exchange/helpers';
+import styled from 'styled-components';
 
 interface Props {}
+
+const BridgeControlStyled = styled(BridgeControl)`
+  max-width: 180px;
+`;
 
 export const TokenAmount: React.FC<Props> = observer(() => {
   const { exchange } = useStores();
@@ -26,7 +31,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
   }
 
   return (
-    <BridgeControl
+    <BridgeControlStyled
       title="Amount"
       gap="8px"
       centerContent={

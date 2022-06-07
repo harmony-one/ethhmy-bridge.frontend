@@ -20,15 +20,10 @@ import { Tip } from 'grommet/components/Tip';
 
 interface MetamaskButtonProps {
   active: boolean;
-  label: string;
   onClick: () => void;
 }
 
-const MetamaskButton: React.FC<MetamaskButtonProps> = ({
-  active,
-  label,
-  onClick,
-}) => {
+const MetamaskButton: React.FC<MetamaskButtonProps> = ({ active, onClick }) => {
   return (
     <Button
       className={cn(s.metamaskButton, { [s.active]: active })}
@@ -36,13 +31,13 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({
     >
       <Box direction="row" gap="8px" align="center">
         <Box>
-          <img src="/metamask.svg" height="16" />
+          <img src="/metamask-fox-wordmark-horizontal.svg" height="42" />
         </Box>
-        <Text color="NWhite" size="xxsmall" lh="24px">
-          {label}
-        </Text>
-        {active && <Icon glyph="CloseCircle" />}
-        {!active && <Icon glyph="AddCircle" />}
+        {/*<Text color="NWhite" size="xxsmall" lh="24px">*/}
+        {/*  {label}*/}
+        {/*</Text>*/}
+        {/*{active && <Icon glyph="CloseCircle" />}*/}
+        {/*{!active && <Icon glyph="AddCircle" />}*/}
       </Box>
     </Button>
   );
@@ -51,7 +46,7 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({
 interface Props {}
 
 export const Destination: React.FC<Props> = observer(() => {
-  const { userMetamask, user, exchange } = useStores();
+  const { userMetamask, exchange } = useStores();
 
   const handleClickMetamask = useCallback(() => {
     if (userMetamask.isAuthorized) {
@@ -108,10 +103,9 @@ export const Destination: React.FC<Props> = observer(() => {
         centerContent={
           <Input
             align="center"
-            className={cn(s.input)}
+            className={cn(s.inputWrapper)}
             label=""
             bgColor="transparent"
-            border="none"
             name={inputName}
             style={{ width: '100%', padding: '0' }}
             placeholder="Receiver address"
@@ -137,7 +131,6 @@ export const Destination: React.FC<Props> = observer(() => {
       <Box direction="column" gap="16px" justify="center" align="center">
         <MetamaskButton
           active={userMetamask.isAuthorized}
-          label={metamaskChainName || 'MetaMask'}
           onClick={handleClickMetamask}
         />
         {userMetamask.isAuthorized && !userMetamask.isNetworkActual && (

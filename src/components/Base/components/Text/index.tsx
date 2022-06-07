@@ -49,6 +49,7 @@ interface ITitleProps {
   margin?: TEdgeSize;
   className?: string;
   uppercase?: boolean;
+  nowrap?: boolean;
 }
 
 const TextWrap = styled.div<ITitleProps>`
@@ -68,6 +69,7 @@ const TextWrap = styled.div<ITitleProps>`
   
   text-transform: ${props => (props.uppercase ? 'uppercase' : '')};
   line-height: ${props => props.lh || ''}
+  white-space: ${props => (props.nowrap ? 'nowrap' : '')}
 `;
 
 export class Text extends React.Component<ITitleProps> {

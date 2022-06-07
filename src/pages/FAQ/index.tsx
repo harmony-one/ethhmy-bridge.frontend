@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from 'grommet';
 import { Title, Text } from 'components/Base';
 import * as styles from './faq-styles.styl';
@@ -14,6 +14,10 @@ export const FAQPage = () => {
   const addExpanded = idx => setExpandedIdxs(expandedIdxs.concat([idx]));
   const removeExpanded = idx =>
     setExpandedIdxs(expandedIdxs.filter(item => item !== idx));
+
+  useEffect(() => {
+    setExpandedIdxs(faqConfig.map((item, idx) => idx));
+  }, []);
 
   return (
     <LayoutCommon>

@@ -31,6 +31,19 @@ const HeaderLogo = () => {
   );
 };
 
+const HarmonyLogo = () => {
+  return (
+    <Box>
+      <img
+        height="30px"
+        width="200px"
+        alt="harmony logo"
+        src="/harmony-logo-white.svg"
+      />
+    </Box>
+  );
+};
+
 const Account = observer(() => {
   const { userMetamask } = useStores();
 
@@ -67,7 +80,8 @@ export const Header: React.FC<Props> = React.memo(() => {
       {/*  align="center"*/}
       {/*>*/}
       <Box flex={{ grow: 0, shrink: 0 }} gridArea="logo" basis="150px">
-        <HeaderLogo />
+        {/*<HeaderLogo />*/}
+        <HarmonyLogo />
       </Box>
       <Box
         gridArea="menu"

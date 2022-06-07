@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Box } from 'grommet';
+import { FormSearch, MoreVertical, Filter } from 'grommet-icons';
 import { Icon, Text } from '../../../../../../components/Base';
 import { Button } from 'grommet/components/Button';
 import * as s from './TokenSettings.styl';
@@ -37,14 +38,15 @@ export const TokenSettings: React.FC<Props> = () => {
 
   return (
     <Button className={s.root} onClick={handleSubmit}>
-      <Box direction="row" justify="center" align="center" gap="8px">
-        <Text lh="20px" size="xxsmall" color="NGray">
+      <Box direction="row" justify="center" align="center" gap="8px" pad="8px">
+        <Text lh="20px" size="small" color="NGray">
           Token Type
         </Text>
-        <Text lh="20px" size="xxsmall" color="NWhite">
+        <Text lh="20px" size="small" color="NWhite">
           {getTokenTypeName()}
         </Text>
-        <Icon className={s.icon} size="10px" glyph="Settings" />
+        {/*<Icon className={s.icon} size="10px" glyph="Settings" />*/}
+        <Filter size="16px" className={s.icon} />
       </Box>
       <ModalRegister modalId={ModalIds.BRIDGE_TOKEN_SETTINGS}>
         <TokenSettingsModal />
