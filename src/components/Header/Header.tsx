@@ -94,9 +94,12 @@ export const Header: React.FC<Props> = React.memo(() => {
         <HeaderTab title="Bridge" to="/busd" />
         <HeaderTab title="Assets" to="/tokens" />
         <HeaderTab title="iToken" to="/itokens" />
-        <HeaderTab title="Transactions" to="/explorer" />
-        <HeaderTab title="Need Help" to="/help" />
-        <HeaderTab title="FAQ" to="/faq" />
+        <HeaderTab title="All Transactions" to="/explorer" />
+        <HeaderTab
+          title="Help"
+          to="https://docs.harmony.one/home/general/bridges/horizon-bridge"
+          external
+        />
       </Box>
       <Box
         gridArea="account"

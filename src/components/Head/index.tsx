@@ -147,7 +147,10 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             </Box>
 
             <Box
-              className={cn(styles.itemToken, isIdentityTokens ? styles.selected : '')}
+              className={cn(
+                styles.itemToken,
+                isIdentityTokens ? styles.selected : '',
+              )}
               onClick={() => {
                 routing.push(`/itokens`);
               }}
@@ -165,7 +168,7 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
                   routing.push(`/explorer`);
                 }}
               >
-                <Text>Transactions</Text>
+                <Text>All Operations</Text>
               </Box>
             )}
 
@@ -192,16 +195,14 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
 
             <Box
               className={cn(styles.itemToken, isHelp ? styles.selected : '')}
-              onClick={() => routing.push('/help')}
+              onClick={() =>
+                window.open(
+                  'https://docs.harmony.one/home/general/bridges/horizon-bridge',
+                  '_blank',
+                )
+              }
             >
-              <Text>Need Help</Text>
-            </Box>
-
-            <Box
-              className={cn(styles.itemToken, isFaq ? styles.selected : '')}
-              onClick={() => routing.push('/faq')}
-            >
-              <Text>FAQ</Text>
+              <Text>Help 111</Text>
             </Box>
 
             {/*<Box*/}
