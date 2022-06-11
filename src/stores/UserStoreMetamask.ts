@@ -501,7 +501,16 @@ export class UserStoreMetamask extends StoreConstructor {
       throw new Error('This address already using for Native tokens');
     }
 
-    const hrc20Address = await hmyMethodsERC721.hmyMethods.getMappingFor(
+    const networkMap = {
+      [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC721,
+      [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC721,
+    }
+    const hmyMethodsBase = networkMap[this.stores.exchange.network]
+    const hmyMethods = this.stores.user.isMetamask
+      ? hmyMethodsBase.hmyMethodsWeb3
+      : hmyMethodsBase.hmyMethods;
+
+    const hrc20Address = await hmyMethods.getMappingFor(
       erc20Address,
     );
 
@@ -513,7 +522,7 @@ export class UserStoreMetamask extends StoreConstructor {
       );
     } else {
       try {
-        details = await hmyMethodsERC721.hmyMethods.tokenDetails(
+        details = await hmyMethods.tokenDetails(
           hrc20Address,
         );
       } catch (e) {
@@ -529,15 +538,6 @@ export class UserStoreMetamask extends StoreConstructor {
 
     if (!!Number(hrc20Address)) {
       this.stores.user.hrc20Address = hrc20Address;
-      const networkMap = {
-        [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC721,
-        [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC721,
-      }
-
-      const hmyMethodsBase = networkMap[this.stores.exchange.network]
-      const hmyMethods = this.stores.user.isMetamask
-        ? hmyMethodsBase.hmyMethodsWeb3
-        : hmyMethodsBase.hmyMethods;
 
       if (!!Number(hrc20Address)) {
         this.stores.user.hrc20Address = hrc20Address;
