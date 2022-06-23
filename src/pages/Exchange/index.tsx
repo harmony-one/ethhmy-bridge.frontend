@@ -80,7 +80,7 @@ export class Exchange extends React.Component<
     const { actionModals, user, userMetamask, exchange } = this.props;
     exchange.error = '';
 
-    if (validators.length < threshold) {
+    if (true) {
       return actionModals.open(
         () => (
           <Box pad="large">
