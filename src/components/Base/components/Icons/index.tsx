@@ -76,7 +76,9 @@ const Wrapper = styled.div<IIconWrapperProps>`
 
   svg {
     color: ${props =>
-      props.color ? getThemeColor(props.color, props.theme) : 'inherit'};
+      props.color
+        ? getThemeColor(props.color, props.theme)
+        : props.theme.icon.color};
 
     :hover {
       ${props =>

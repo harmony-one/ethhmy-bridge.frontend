@@ -15,6 +15,14 @@ import { CustomTokenModal } from '../CustomTokenModal/CustomTokenModal';
 import { TokenChooseModal } from '../TokenChooseModal/TokenChooseModal';
 import { autorun } from 'mobx';
 import { TOKEN } from '../../../../stores/interfaces';
+import styled from 'styled-components';
+
+const Container = styled(Box)`
+  width: 580px;
+  border-radius: 25px;
+  background-color: ${props => props.theme.bridgeForm.bgColor};
+  overflow: hidden;
+`;
 
 interface Props {}
 
@@ -60,7 +68,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
   }, []);
 
   return (
-    <Box className={s.root} margin={{ top: '60px' }}>
+    <Container margin={{ top: '60px' }}>
       <NetworkRow />
       <Divider />
       <Box pad={{ vertical: '40px' }}>
@@ -100,7 +108,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
       >
         <TokenChooseModal />
       </ModalRegister>
-    </Box>
+    </Container>
   );
 });
 

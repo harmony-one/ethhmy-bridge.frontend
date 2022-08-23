@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import { useStores } from '../../../../../../stores';
 import { Box } from 'grommet/components/Box';
 import { Icon, Text } from '../../../../../../components/Base';
@@ -17,6 +17,7 @@ import { getChainName } from '../../../../../../stores/Exchange/helpers';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 import { CircleQuestion } from 'grommet-icons';
 import { Tip } from 'grommet/components/Tip';
+import { ThemeContext } from '../../../../../../themes/ThemeContext';
 
 interface MetamaskButtonProps {
   active: boolean;
@@ -78,6 +79,8 @@ export const Destination: React.FC<Props> = observer(() => {
       ? 'mainnet'
       : 'testnet';
 
+  const themeContext = useContext(ThemeContext);
+
   return (
     <Box direction="column" align="center" gap="16px" fill="horizontal">
       <BridgeControl
@@ -103,7 +106,11 @@ export const Destination: React.FC<Props> = observer(() => {
         centerContent={
           <Input
             align="center"
-            className={cn(s.inputWrapper)}
+            className={cn({
+              [s.inputWrapperDark]: themeContext.isDark(),
+              [s.inputWrapperLight]: !themeContext.isDark(),
+            })}
+            border="none"
             label=""
             bgColor="transparent"
             name={inputName}

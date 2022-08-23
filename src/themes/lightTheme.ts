@@ -103,51 +103,51 @@ const palette: IPalette = {
   BlackTxt: '#212D5E',
 };
 
-export const baseTheme: any = {
+export const lightTheme: any = {
   layout: {
-    color: palette.NWhite,
-    bgColor: palette.NBlack3,
+    color: palette.NBlack2,
+    bgColor: '#F2F3F7',
   },
 
   headerTab: {
-    color: `#AAAAAA`,
+    color: `#555555`,
   },
 
   headerDivider: {
-    opacity: 1,
+    opacity: 0.2,
   },
 
   bridgeForm: {
-    bgColor: palette.NBlack,
+    bgColor: palette.NWhite,
   },
 
   divider: {
     color: palette.NGray2,
-    opacity: 1,
+    opacity: 0.2,
   },
 
   icon: {
-    color: palette.NWhite,
+    color: palette.NBlack2,
   },
 
   modal: {
     borderColor: palette.NGray2,
-    bgColor: palette.NBlack3,
+    bgColor: palette.NWhite,
   },
 
   selectPresetDefault: {
     option: {
-      backgroundColorFocused: palette.NGray,
-      backgroundColorSelected: palette.NGray2,
+      backgroundColorFocused: palette.NGray4,
+      backgroundColorSelected: palette.NGray3,
     },
     control: {
-      backgroundColor: palette.NBlack2,
-      borderColor: palette.NWhite,
-      color: palette.NWhite,
+      backgroundColor: palette.NWhite,
+      borderColor: palette.NBlack2,
+      color: palette.NBlack2,
     },
     menu: {
-      borderColor: palette.NWhite,
-      backgroundColor: palette.NBlack2,
+      borderColor: palette.NBlack2,
+      backgroundColor: palette.NWhite,
     },
   },
 
@@ -181,8 +181,8 @@ export const baseTheme: any = {
   fontCode: 'monospace',
 
   // Text colors
-  textColor: palette.NWhite,
-  titleColor: palette.NWhite,
+  textColor: palette.NBlack2,
+  titleColor: palette.NBlack2,
   textInverseColor: palette.Basic700,
 
   // Toolbar default and active colors
@@ -204,7 +204,7 @@ export const baseTheme: any = {
 
   layer: {
     overlay: {
-      background: 'rgba(0, 0, 0, 0.9)',
+      background: 'rgba(255, 255, 255, 0.9)',
     },
   },
 
@@ -352,8 +352,8 @@ export const baseTheme: any = {
 
     input: {
       bgColor: 'transparent',
-      textColor: palette.NWhite,
-      border: `1px solid ${palette.NWhite}`,
+      textColor: palette.Black,
+      border: `1px solid ${palette.NBlack}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,
       minHeight: '45px',

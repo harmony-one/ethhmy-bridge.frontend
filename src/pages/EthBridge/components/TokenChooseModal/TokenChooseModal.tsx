@@ -34,6 +34,21 @@ const ScrollContainer = styled(Box)`
   }
 `;
 
+const StyledTextInput = styled(TextInput)`
+  padding: 0;
+  font-size: 12px;
+  color: ${props => props.theme.styled.input.textColor};
+  border: none;
+`;
+
+const ModalContent = styled(Box)`
+  max-height: 480px;
+  border: 1px solid ${props => props.theme.modal.borderColor};
+  background-color: ${props => props.theme.modal.bgColor};
+  border-radius: 10px;
+  min-width: 408px;
+`;
+
 export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
   const { erc20Select, tokens, exchange, routing, userMetamask } = useStores();
 
@@ -137,10 +152,10 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
       <LoadableContent loading={erc20Select.isLoading} />
       <Box alignSelf="end">
         <Button onClick={onClose}>
-          <Icon glyph="Close" color="white" />
+          <Icon glyph="Close" />
         </Button>
       </Box>
-      <Box direction="column" fill="horizontal" className={s.layer}>
+      <ModalContent direction="column" fill="horizontal">
         <Box
           direction="row"
           align="center"
@@ -151,8 +166,7 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
           justify="center"
         >
           <Icon glyph="SearchN" />
-          <TextInput
-            style={{ padding: 0, fontSize: '12px', color: '#fff' }}
+          <StyledTextInput
             placeholder="Search Token Name"
             onChange={handleSearchChange}
           />
@@ -216,15 +230,14 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
         {/*      );*/}
         {/*    })}*/}
         {/*</Box>*/}
-      </Box>
+      </ModalContent>
       {/* waiting for filters */}
 
-      <Box
+      <ModalContent
         direction="column"
         gap="8px"
         pad={{ horizontal: '28px', vertical: '20px' }}
         fill="horizontal"
-        className={s.layer}
       >
         <Text color="NGray4" size="xxsmall" lh="24px">
           Popular Bridged Tokens
@@ -274,7 +287,7 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
             />
           )}
         </Box>
-      </Box>
+      </ModalContent>
       <Box>
         <Button className={s.buttonCustomToken} onClick={handleClickCustom}>
           <Text color="NWhite" size="xsmall">

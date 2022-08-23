@@ -35,27 +35,26 @@ const Custom = ({ className, ...restProps }) => {
 };
 
 const StyledInput = styled(Custom)`
-  background: ${props => props.theme.palette.NBlack2};
+  background: ${props => props.theme.styled.input.bgColor};
   padding: 0 0 0 16px;
   border-radius: 15px;
-  color: ${props => props.theme.palette.NWhite};
-  border: 1px solid ${props => props.theme.palette.NWhite};
+  color: ${props => props.theme.styled.input.textColor};
+  border: 1px solid ${props => props.theme.styled.input.border};
   height: 50px;
   font-size: 16px;
   ::placeholder {
     color: ${baseTheme.palette.Basic400};
+  }
+
+  input {
+    color: ${props => props.theme.styled.input.textColor};
   }
 `;
 
 function SearchIcon() {
   return (
     <Box>
-      <Icon
-        glyph="SearchN"
-        size="20px"
-        color="#A4A7AB"
-        style={{ marginRight: 5 }}
-      />
+      <Icon glyph="SearchN" size="20px" style={{ marginRight: 5 }} />
     </Box>
   );
 }
@@ -66,7 +65,6 @@ function CleanIcon({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       glyph="Close"
       size="20px"
-      color="#D1D3D5"
       style={{ marginRight: 10, marginLeft: 10 }}
     />
   );

@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text, Icon } from '../../../../../../components/Base';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 import { networkNameMap } from '../../../../constants';
 import { NetworkIcon } from '../../../NetworkIcon/NetworkIcon';
 import { Menu, Box } from 'grommet';
 import { useStores } from '../../../../../../stores';
-import {
-  EXCHANGE_MODE,
-  NETWORK_TYPE,
-} from '../../../../../../stores/interfaces';
+import { NETWORK_TYPE } from '../../../../../../stores/interfaces';
 import { observer } from 'mobx-react';
+import { ThemeContext } from '../../../../../../themes/ThemeContext';
 
 interface NetworkMenuItemProps {
   network: string;
@@ -32,7 +30,7 @@ const NetworkMenuItem: React.FC<NetworkMenuItemProps> = ({
     >
       <Box>{icon}</Box>
       <Box>
-        <Text color="NWhite">{network}</Text>
+        <Text>{network}</Text>
       </Box>
       <Box alignSelf="end" margin={{ left: 'auto' }}>
         <Text size="xxsmall" color="NGray">
@@ -46,6 +44,8 @@ const NetworkMenuItem: React.FC<NetworkMenuItemProps> = ({
 const NetworkMenu = observer(() => {
   const { exchange, userMetamask } = useStores();
 
+  const themeContext = useContext(ThemeContext);
+
   const label = networkNameMap[exchange.network];
 
   return (
@@ -54,7 +54,7 @@ const NetworkMenu = observer(() => {
       alignSelf="center"
       dropProps={{
         align: { top: 'bottom' },
-        background: '#000000',
+        background: themeContext.themeType === 'dark' ? '#000000' : '#f2f3f6',
         round: { size: '10px' },
         elevation: 'none',
         margin: { top: '12px' },
@@ -91,7 +91,7 @@ const NetworkMenu = observer(() => {
       ]}
     >
       <Box gap="8px" direction="row">
-        <Text color="NWhite" size="small" uppercase>
+        <Text size="small" uppercase>
           {label}
         </Text>
         <Icon size="10" glyph="ArrowDownFilled" />

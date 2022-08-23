@@ -9,6 +9,6 @@ export const ArrowDownFilled = (props: React.SVGProps<SVGSVGElement>) => (
     fill="currentColor"
     {...props}
   >
-    <path d="M5 8L0.669873 0.499999L9.33013 0.5L5 8Z" fill="white" />
+    <path d="M5 8L0.669873 0.499999L9.33013 0.5L5 8Z" fill="currentColor" />
   </svg>
 );

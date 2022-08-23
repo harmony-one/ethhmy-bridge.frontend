@@ -23,9 +23,7 @@ export const TokensHeader: React.FC<Props> = ({ lastUpdate, totalLocked }) => {
         </Text>
       </Box>
       <Box>
-        <Text color="NWhite" style={{ fontSize: '20px' }}>
-          Total Value Locked
-        </Text>
+        <Text style={{ fontSize: '20px' }}>Total Value Locked</Text>
       </Box>
     </Box>
   );

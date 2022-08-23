@@ -59,9 +59,7 @@ export const TokenControl: React.FC<Props> = observer(() => {
       centerContent={
         <Button disabled={!isSelectable} onClick={handleChangeToken}>
           <Box direction="row" gap="8px">
-            <Text size="large" color="NWhite">
-              {title}
-            </Text>
+            <Text size="large">{title}</Text>
             {isSelectable && <Icon size="10px" glyph="ArrowDownFilled" />}
           </Box>
         </Button>

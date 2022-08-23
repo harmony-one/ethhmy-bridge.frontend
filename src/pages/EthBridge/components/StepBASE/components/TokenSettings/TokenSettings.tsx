@@ -42,7 +42,7 @@ export const TokenSettings: React.FC<Props> = () => {
         <Text lh="20px" size="small" color="NGray">
           Token Type
         </Text>
-        <Text lh="20px" size="small" color="NWhite">
+        <Text lh="20px" size="small">
           {getTokenTypeName()}
         </Text>
         {/*<Icon className={s.icon} size="10px" glyph="Settings" />*/}

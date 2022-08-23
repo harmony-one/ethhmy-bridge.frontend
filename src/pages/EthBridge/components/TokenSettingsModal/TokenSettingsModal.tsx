@@ -6,7 +6,6 @@ import * as s from './TokenSettingsModal.styl';
 import cn from 'classnames';
 import { EXCHANGE_STEPS } from '../../../../stores/Exchange';
 import { NETWORK_TYPE, TOKEN } from '../../../../stores/interfaces';
-import * as styles from '../../../Exchange/styles.styl';
 import {
   NETWORK_BASE_TOKEN,
   NETWORK_ICON,
@@ -14,7 +13,8 @@ import {
 } from '../../../../stores/names';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
-import { ResponsiveContext } from 'grommet';
+import styled from 'styled-components';
+import { ThemeContext } from '../../../../themes/ThemeContext';
 
 interface OptionProps {
   checked?: boolean;
@@ -33,8 +33,11 @@ const Option: React.FC<OptionProps> = ({
   checked = false,
   onClick,
 }) => {
+  const themeContext = useContext(ThemeContext);
+
   const buttonClasses = cn(s.optionButton, {
-    [s.checked]: checked,
+    [s.checkedDark]: checked && themeContext.isDark(),
+    [s.checkedLight]: checked && !themeContext.isDark(),
   });
   return (
     <Button fill="horizontal" className={buttonClasses} onClick={onClick}>
@@ -48,10 +51,10 @@ const Option: React.FC<OptionProps> = ({
           <Text color="Gray" size="xxsmall" lh="18px">
             {label}
           </Text>
-          <Text color="NWhite" size="xsmall" lh="18px">
+          <Text size="xsmall" lh="18px">
             {description}
           </Text>
-          <Text color="NWhite" size="xxsmall" lh="18px">
+          <Text size="xxsmall" lh="18px">
             {help}
           </Text>
         </Box>
@@ -65,6 +68,13 @@ const Option: React.FC<OptionProps> = ({
   );
 };
 
+const ModalContainer = styled(Box)`
+  border: 1px solid ${props => props.theme.modal.borderColor};
+  background-color: ${props => props.theme.modal.bgColor};
+  border-radius: 10px;
+  min-width: 408px;
+`;
+
 interface Props {
   onClose?: () => void;
 }
@@ -72,13 +82,7 @@ interface Props {
 export const TokenSettingsModal: React.FC<Props> = observer(({ onClose }) => {
   const { exchange, routing, user } = useStores();
   return (
-    <Box
-      className={s.layer}
-      direction="column"
-      align="center"
-      pad="28px"
-      gap="20px"
-    >
+    <ModalContainer direction="column" align="center" pad="28px" gap="20px">
       <Box>
         <Text color="NGray4" size="medium">
           Displaying Tokens
@@ -287,7 +291,7 @@ export const TokenSettingsModal: React.FC<Props> = observer(({ onClose }) => {
       )}
 
       <Button onClick={onClose} fill="horizontal" label="Close" />
-    </Box>
+    </ModalContainer>
   );
 });
 

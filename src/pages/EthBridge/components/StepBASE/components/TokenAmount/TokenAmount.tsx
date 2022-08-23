@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Text } from '../../../../../../components/Base';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 import { isRequired, NumberInput } from '../../../../../../components/Form';
@@ -9,6 +9,8 @@ import { observer } from 'mobx-react';
 import { TOKEN } from '../../../../../../stores/interfaces';
 import { isNotNFT } from '../../../../../../stores/Exchange/helpers';
 import styled from 'styled-components';
+import cn from 'classnames';
+import { ThemeContext } from '../../../../../../themes/ThemeContext';
 
 interface Props {}
 
@@ -30,6 +32,8 @@ export const TokenAmount: React.FC<Props> = observer(() => {
     maxAmount = exchange.tokenInfo.maxAmount;
   }
 
+  const themeContext = useContext(ThemeContext);
+
   return (
     <BridgeControlStyled
       title="Amount"
@@ -37,7 +41,12 @@ export const TokenAmount: React.FC<Props> = observer(() => {
       centerContent={
         <NumberInput
           align="center"
-          wrapperProps={{ className: s.wrapperClassName }}
+          wrapperProps={{
+            className: cn(s.wrapperClassName, {
+              [s.wrapperDark]: themeContext.isDark(),
+              [s.wrapperLight]: !themeContext.isDark(),
+            }),
+          }}
           margin="none"
           name="amount"
           type="decimal"

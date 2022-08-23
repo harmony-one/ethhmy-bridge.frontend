@@ -1,7 +1,8 @@
 import React from 'react';
 import * as s from './HeaderTab.styl';
 import cn from 'classnames';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import styled from 'styled-components';
 
 interface Props {
   title: string;
@@ -9,21 +10,35 @@ interface Props {
   external?: boolean;
 }
 
-export const HeaderTab: React.FC<Props> = ({ title, to, external }) => {
-  const classes = cn(s.root);
+const StyledLink = styled.a`
+  color: ${props => props.theme.headerTab.color};
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 12px;
+  text-decoration: none;
+`;
 
+const StyledNavLink = styled(NavLink)`
+  color: ${props => props.theme.headerTab.color};
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 12px;
+  text-decoration: none;
+`;
+
+export const HeaderTab: React.FC<Props> = ({ title, to, external }) => {
   if (external) {
     return (
-      <a href={to} className={classes} target="_blank" rel="noreferrer">
+      <StyledLink href={to} target="_blank" rel="noreferrer">
         {title}
-      </a>
+      </StyledLink>
     );
   }
 
   return (
-    <NavLink to={to} activeClassName={s.active} className={classes}>
+    <StyledNavLink to={to} activeClassName={s.active}>
       {title}
-    </NavLink>
+    </StyledNavLink>
   );
 };
 

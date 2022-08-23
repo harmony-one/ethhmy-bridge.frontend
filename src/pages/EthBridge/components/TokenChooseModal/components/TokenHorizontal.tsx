@@ -33,15 +33,13 @@ export const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
         <img src={icon} width="16px" height="16px" />
       </Box>
       <Box>
-        <Text color="NWhite" size="xsmall">
-          {symbol}
-        </Text>
+        <Text size="xsmall">{symbol}</Text>
         <Text color="NGray4" size="xxsmall">
           {label}
         </Text>
       </Box>
       <Box margin={{ left: 'auto' }}>
-        <Text color="NWhite" size="xsmall" lh="19px">
+        <Text size="xsmall" lh="19px">
           {balance}
         </Text>
       </Box>

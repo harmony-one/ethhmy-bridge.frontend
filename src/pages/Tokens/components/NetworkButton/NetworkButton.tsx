@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { observer } from 'mobx-react';
 import * as s from './NetworkButton.styl';
 import { NETWORK_TYPE } from '../../../../stores/interfaces';
 import { Button } from '../../../../components/Base';
 import cn from 'classnames';
 import { NETWORK_ICON, NETWORK_NAME } from '../../../../stores/names';
+import { ThemeContext } from '../../../../themes/ThemeContext';
 
 interface Props {
   type: NETWORK_TYPE | 'ALL';
@@ -14,9 +15,17 @@ interface Props {
 
 export const NetworkButton: React.FC<Props> = observer(
   ({ type, selectedType, onClick }: Props) => {
-    const buttonClassName = cn(s.button, {
-      [s.buttonActive]: selectedType === type,
+    const themeContext = useContext(ThemeContext);
+    const isActiveButton = selectedType === type;
+
+    const buttonClassName = cn({
+      [s.buttonDark]: themeContext.isDark(),
+      [s.buttonLight]: !themeContext.isDark(),
+
+      [s.buttonDarkActive]: themeContext.isDark() && isActiveButton,
+      [s.buttonLightActive]: !themeContext.isDark() && isActiveButton,
     });
+
     return (
       <Button
         className={s.root}

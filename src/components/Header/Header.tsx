@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, Grid } from 'grommet';
 import * as s from './Header.styl';
 import { HeaderTab } from './components/HeaderTab/HeaderTab';
@@ -6,6 +6,8 @@ import { observer } from 'mobx-react';
 import { useMediaQuery } from 'react-responsive';
 import { useStores } from '../../stores';
 import styled from 'styled-components';
+import { ThemeButton } from '../ThemeButton';
+import { ThemeContext } from '../../themes/ThemeContext';
 
 const HeaderLogo = () => {
   return (
@@ -32,14 +34,16 @@ const HeaderLogo = () => {
 };
 
 const HarmonyLogo = () => {
+  const themeContext = useContext(ThemeContext);
+
+  const src =
+    themeContext.themeType === 'dark'
+      ? 'harmony-logo-white.svg'
+      : 'harmony-logo-blue.svg';
+
   return (
     <Box>
-      <img
-        height="30px"
-        width="200px"
-        alt="harmony logo"
-        src="/harmony-logo-white.svg"
-      />
+      <img height="30px" width="200px" alt="harmony logo" src={src} />
     </Box>
   );
 };
@@ -104,9 +108,11 @@ export const Header: React.FC<Props> = React.memo(() => {
       <Box
         gridArea="account"
         flex={{ grow: 0, shrink: 0 }}
-        align="end"
+        align="center"
         basis="150px"
+        direction="row"
       >
+        <ThemeButton />
         <Account />
       </Box>
       {/*</Box>*/}

@@ -18,7 +18,7 @@ export const TokenVertical: React.FC<TokenVerticalProps> = ({
         <img width="20px" height="20px" src={icon} />
       </Box>
       <Box>
-        <Text color="NWhite" size="xxxsmall" lh="19px">
+        <Text size="xxxsmall" lh="19px">
           {symbol}
         </Text>
       </Box>
