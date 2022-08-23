@@ -485,8 +485,17 @@ export class UserStoreEx extends StoreConstructor {
         );
       }
     } catch (e) {
+      let wrongToken = 'ERC20'
+      switch (this.stores.exchange.network) {
+        case NETWORK_TYPE.BINANCE:
+          wrongToken = "BEP20";
+          break;
+        case NETWORK_TYPE.HARMONYSHARD1:
+          wrongToken = "GHRC20";
+          break;
+      }
       throw new Error(
-        `Wrong token address. Use only a valid HRC20 token address, not BEP20 address`,
+        `Wrong token address. Use only a valid HRC20 token address, not ${wrongToken} address`,
       );
     }
 

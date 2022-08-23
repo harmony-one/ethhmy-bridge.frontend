@@ -89,7 +89,7 @@ const StepRow = observer(
                   style={{ height: 18 }}
                   src="/one.svg"
                 />
-                <Text>HRC20 address:</Text>
+                <Text>Mapping Token address:</Text>
               </Box>
               <Box>
                 <a

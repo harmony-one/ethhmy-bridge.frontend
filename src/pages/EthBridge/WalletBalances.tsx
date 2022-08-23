@@ -77,14 +77,24 @@ export const WalletBalances = observer(() => {
   const externalNetworkIcon = NETWORK_ICON[exchange.network];
   const externalNetworkToken = NETWORK_BASE_TOKEN[exchange.network];
 
-  const externalSubNetworkName =
-    exchange.network === NETWORK_TYPE.ETHEREUM
-      ? process.env.NETWORK === 'mainnet'
+  let externalSubNetworkName;
+  switch (exchange.network) {
+    case NETWORK_TYPE.ETHEREUM:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
         ? 'mainnet'
-        : 'kovan'
-      : process.env.NETWORK === 'mainnet'
-      ? 'mainnet'
-      : 'testnet';
+        : 'kovan';
+      break;
+    case NETWORK_TYPE.BINANCE:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'testnet';
+      break;
+    case NETWORK_TYPE.HARMONYSHARD1:
+      externalSubNetworkName = process.env.NETWORK === 'mainnet'
+        ? 'mainnet'
+        : 'testnet';
+      break;
+  }
 
   return (
     <Box
@@ -107,7 +117,7 @@ export const WalletBalances = observer(() => {
                 <img
                   className={styles.imgToken}
                   style={{ height: 20 }}
-                  src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+                  src={externalNetworkIcon}
                 />
                 <Title margin={{ right: 'xsmall' }}>
                   {externalNetworkName}

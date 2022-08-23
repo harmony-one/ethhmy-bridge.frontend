@@ -1,8 +1,8 @@
-import { ACTION_TYPE, EXCHANGE_MODE, IAction, STATUS } from '../interfaces';
+import { ACTION_TYPE, EXCHANGE_MODE, IAction, NETWORK_TYPE, STATUS } from '../interfaces';
 import { sleep } from '../../utils';
 import { ITransaction } from './index';
 import { IStores } from '../index';
-import { hmyMethodsERC1155 } from '../../blockchain-bridge/hmy';
+import { hmyMethodsERC1155, hmyMethodsS1HRC1155 } from '../../blockchain-bridge/hmy';
 import { getExNetworkMethods } from '../../blockchain-bridge/eth';
 
 export const sendErc1155Token = async (params: {
@@ -19,9 +19,16 @@ export const sendErc1155Token = async (params: {
     stores,
     mode,
   } = params;
+  const networkMap = {
+    [NETWORK_TYPE.ETHEREUM]: hmyMethodsERC1155,
+    [NETWORK_TYPE.HARMONYSHARD1]: hmyMethodsS1HRC1155,
+  }
+
+  const hmyMethodsBase = networkMap[stores.exchange.network]
+
   const hmyMethods = stores.user.isMetamask
-    ? hmyMethodsERC1155.hmyMethodsWeb3
-    : hmyMethodsERC1155.hmyMethods;
+    ? hmyMethodsBase.hmyMethodsWeb3
+    : hmyMethodsBase.hmyMethods;
 
   const ethMethods = getExNetworkMethods().ethMethodsERC1155;
 
@@ -45,7 +52,7 @@ export const sendErc1155Token = async (params: {
     if (approveEthManger && approveEthManger.status === STATUS.WAITING) {
       const { erc1155Address } = transaction;
 
-      ethMethods.setApprovalForAllEthManger(erc1155Address, hash =>
+      await ethMethods.setApprovalForAllEthManger(erc1155Address, hash =>
         confirmCallback(hash, approveEthManger.type),
       );
     }

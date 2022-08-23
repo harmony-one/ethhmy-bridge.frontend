@@ -3,25 +3,30 @@ import { NETWORK_TYPE } from './interfaces';
 export const NETWORK_NAME = {
   [NETWORK_TYPE.ETHEREUM]: 'Ethereum',
   [NETWORK_TYPE.BINANCE]: 'Binance',
+  [NETWORK_TYPE.HARMONYSHARD1]: 'Game Shard',
 };
 
 export const NETWORK_ICON = {
   [NETWORK_TYPE.ETHEREUM]: '/eth.svg',
   [NETWORK_TYPE.BINANCE]: '/binance.png',
+  [NETWORK_TYPE.HARMONYSHARD1]: '/one-game.svg',
 };
 
 export const NETWORK_BASE_TOKEN = {
   [NETWORK_TYPE.ETHEREUM]: 'ETH',
   [NETWORK_TYPE.BINANCE]: 'BNB',
+  [NETWORK_TYPE.HARMONYSHARD1]: 'ONE',
 };
 
 export const NETWORK_ERC20_TOKEN = {
   [NETWORK_TYPE.ETHEREUM]: 'ERC20',
   [NETWORK_TYPE.BINANCE]: 'BEP20',
+  [NETWORK_TYPE.HARMONYSHARD1]: 'GHRC20',
 };
 
 
 export const NETWORK_PREFIX = {
   [NETWORK_TYPE.ETHEREUM]: '1',
   [NETWORK_TYPE.BINANCE]: 'bsc',
+  [NETWORK_TYPE.HARMONYSHARD1]: 'g',
 };

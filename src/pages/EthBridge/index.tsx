@@ -27,6 +27,24 @@ const LargeButton = observer(
     const isEthereumNetwork = exchange.network === NETWORK_TYPE.ETHEREUM;
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
+    let networkImg = ''
+    let networkName = ''
+
+    switch (exchange.network){
+      case  NETWORK_TYPE.ETHEREUM:
+        networkImg = '/eth.svg'
+        networkName = 'ETH'
+        break
+      case  NETWORK_TYPE.HARMONYSHARD1:
+        networkImg = '/one-game.svg'
+        networkName = 'Game Shard'
+        break
+      case  NETWORK_TYPE.BINANCE:
+        networkImg =  '/binance.png'
+        networkName = 'Binance'
+        break
+    }
+
     return (
       <Box
         direction="column"
@@ -44,13 +62,13 @@ const LargeButton = observer(
           <Box direction="row" align="center">
             <img
               className={styles.imgToken}
-              src={isEthereumNetwork ? '/eth.svg' : '/binance.png'}
+              src={networkImg}
             />
             <Text size="large" className={styles.title}>
-              {isEthereumNetwork ? 'ETH' : 'Binance'}
+              {networkName}
             </Text>
           </Box>
-          <Box direction="row" margin={{ horizontal: 'medium' }} align="center">
+          <Box direction="row" margin={{ horizontal: 'small' }} align="center">
             <img src="/right.svg" />
           </Box>
           <Box direction="row" align="center">
@@ -153,8 +171,9 @@ export const EthBridge = observer((props: any) => {
           <Box direction="column">
             <Box direction="column" margin={{ top: 'large' }}>
               <Box direction="row" justify="start" gap="20px">
-                <NetworkButton type={NETWORK_TYPE.BINANCE} />
                 <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+                <NetworkButton type={NETWORK_TYPE.BINANCE} />
+                <NetworkButton type={NETWORK_TYPE.HARMONYSHARD1} />
               </Box>
 
               <WalletBalances />
@@ -263,8 +282,9 @@ export const EthBridge = observer((props: any) => {
 
           <Box direction="column" margin={{ top: 'large' }}>
             <Box direction="row" justify="start" gap="20px">
-              <NetworkButton type={NETWORK_TYPE.BINANCE} />
               <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+              <NetworkButton type={NETWORK_TYPE.BINANCE} />
+              <NetworkButton type={NETWORK_TYPE.HARMONYSHARD1} />
             </Box>
             <WalletBalances />
           </Box>

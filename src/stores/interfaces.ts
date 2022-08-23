@@ -1,6 +1,7 @@
 export enum NETWORK_TYPE {
   ETHEREUM = 'ETHEREUM',
   BINANCE = 'BINANCE',
+  HARMONYSHARD1 = 'HARMONYSHARD1',
 }
 
 export enum EXCHANGE_MODE {
@@ -49,6 +50,7 @@ export type TConfig = {
 
 export type TFullConfig = {
   ethClient: TConfig;
+  harmonyShard1Client: TConfig;
   binanceClient: TConfig;
   hmyClient: TConfig;
 };
@@ -106,6 +108,17 @@ export enum ACTION_TYPE {
   'mintHRC1155Token' = 'mintHRC1155Token',
   'unlockHRC1155TokenRollback' = 'unlockHRC1155TokenRollback',
   'mintHRC1155TokenRollback' = 'mintHRC1155TokenRollback',
+
+  // ERC721
+  'getERC721Address' = 'getERC721Address',
+  'approveERC721HmyManger' = 'approveERC721HmyManger',
+  'approveERC721EthManger' = 'approveERC721EthManger',
+  'lockERC721Token' = 'lockERC721Token',
+  'unlockERC721Token' = 'unlockERC721Token',
+  'burnERC721Token' = 'burnERC721Token',
+  'mintERC721Token' = 'mintERC721Token',
+  'unlockERC721TokenRollback' = 'unlockERC721TokenRollback',
+  'mintERC721TokenRollback' = 'mintERC721TokenRollback',
 
   // ERC1155
   'getERC1155Address' = 'getERC1155Address',
