@@ -36,6 +36,7 @@ export const Theme: any = {
       Grey500: '#9698a7',
       Grey400: '#d2d6e1',
       Blue500: '#4740a1',
+      Background: '',
 
       border: '#323232',
       brand: 'white',

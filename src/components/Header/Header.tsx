@@ -8,6 +8,7 @@ import { useStores } from '../../stores';
 import styled from 'styled-components';
 import { ThemeButton } from '../ThemeButton';
 import { ThemeContext } from '../../themes/ThemeContext';
+import { truncateAddressString } from '../../utils';
 
 const HeaderLogo = () => {
   return (
@@ -55,7 +56,9 @@ const Account = observer(() => {
     return null;
   }
   return (
-    <div className={s.account}>{userMetamask.ethAddress.slice(0, 8)}...</div>
+    <div className={s.account}>
+      {truncateAddressString(userMetamask.ethAddress, 6)}
+    </div>
   );
 });
 

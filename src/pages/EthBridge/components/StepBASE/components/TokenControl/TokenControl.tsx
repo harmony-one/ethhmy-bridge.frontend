@@ -52,17 +52,24 @@ export const TokenControl: React.FC<Props> = observer(() => {
     return title;
   }, [exchange.token, exchange.tokenInfo]);
 
+  const centerContent = (
+    <Box direction="row" gap="8px">
+      <Text size="large">{title}</Text>
+      {isSelectable && <Icon size="10px" glyph="ArrowDownFilled" />}
+    </Box>
+  );
   return (
     <BridgeControl
       title="Choose Token"
       gap="8px"
       centerContent={
-        <Button disabled={!isSelectable} onClick={handleChangeToken}>
-          <Box direction="row" gap="8px">
-            <Text size="large">{title}</Text>
-            {isSelectable && <Icon size="10px" glyph="ArrowDownFilled" />}
-          </Box>
-        </Button>
+        <Box height="32px" justify="center">
+          {isSelectable ? (
+            <Button onClick={handleChangeToken}>{centerContent}</Button>
+          ) : (
+            centerContent
+          )}
+        </Box>
       }
       bottomContent={
         exchange.tokenInfo && (

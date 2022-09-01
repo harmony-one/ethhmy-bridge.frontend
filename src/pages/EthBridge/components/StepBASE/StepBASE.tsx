@@ -68,14 +68,14 @@ export const StepBASE: React.FC<Props> = observer(() => {
   }, []);
 
   return (
-    <Container margin={{ top: '60px' }}>
+    <Container margin={{ top: '12px' }}>
       <NetworkRow />
       <Divider />
-      <Box pad={{ vertical: '40px' }}>
+      <Box pad={{ vertical: '20px' }}>
         <TokenRow />
       </Box>
       <Divider />
-      <Box align="center" pad={{ vertical: '40px', horizontal: '40px' }}>
+      <Box align="center" pad={{ vertical: '20px', horizontal: '20px' }}>
         <Destination />
       </Box>
       <Box direction="row" height="66px">

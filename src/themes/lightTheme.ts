@@ -166,6 +166,11 @@ export const lightTheme: any = {
     },
   },
 
+  tipContent: {
+    bgColor: palette.NWhite,
+    border: `1px solid ${palette.NGray}`,
+  },
+
   // storybook theming
   colorPrimary: 'black',
   colorSecondary: 'lightblue',
@@ -370,7 +375,7 @@ export const lightTheme: any = {
     colors: {
       colorPrimary: palette.Purple500,
       colorSecondary: 'white',
-      buttonBgColor: '#1F5AE2',
+      buttonBgColor: '#00ADE8',
       // buttonBgColor: '#03ade8',
       buttonHoverBgColor: '#03ade8',
       buttonColor: 'white',

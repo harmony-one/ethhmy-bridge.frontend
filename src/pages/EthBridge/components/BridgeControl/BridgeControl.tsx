@@ -29,11 +29,7 @@ export const BridgeControl: React.FC<Props> = ({
       align="center"
     >
       <Box>
-        {isStringTitle && (
-          <Text size="xsmall" color="NGray">
-            {title}
-          </Text>
-        )}
+        {isStringTitle && <Text size="xsmall">{title}</Text>}
         {!isStringTitle && title}
       </Box>
       <Box fill="horizontal" align="center">

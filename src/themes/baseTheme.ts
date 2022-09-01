@@ -166,6 +166,11 @@ export const baseTheme: any = {
     },
   },
 
+  tipContent: {
+    bgColor: palette.NGray,
+    border: `1px solid ${palette.NBlack}`,
+  },
+
   // storybook theming
   colorPrimary: 'black',
   colorSecondary: 'lightblue',

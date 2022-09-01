@@ -18,6 +18,7 @@ import {
 } from '../../stores/names';
 import { AddTokenIcon } from '../../ui/AddToken';
 import { useMediaQuery } from 'react-responsive';
+import { StatusWarning } from 'grommet-icons';
 
 const AssetRow = observer<any>(props => {
   const { exchange, userMetamask } = useStores();
@@ -156,7 +157,10 @@ export const WalletBalances = observer(() => {
 
           {userMetamask.isAuthorized ? (
             !userMetamask.isNetworkActual ? (
-              <Box>
+              <Box direction="row" gap="xsmall" align="center">
+                <Box>
+                  <StatusWarning color="#FF0000" />
+                </Box>
                 <Text>
                   You have authorised with MetaMask, but the selected network
                   does not match{' '}
@@ -296,7 +300,8 @@ export const WalletBalances = observer(() => {
 
           {user.isAuthorized ? (
             user.isMetamask && !user.isNetworkActual ? (
-              <Box>
+              <Box direction="row" gap="xsmall" align="center">
+                <StatusWarning color="#FF0000" />
                 <Text>
                   You have authorised with MetaMask, but the selected network
                   does not match{' '}

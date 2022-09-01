@@ -56,7 +56,6 @@ const types: Record<
       pipe(
         value => String(value).replace(props.delimiter || ',', '.'),
         normalizeNumber,
-        absNumber,
         limitLength,
         value => limitNumber(value, props.min, props.max),
       ),

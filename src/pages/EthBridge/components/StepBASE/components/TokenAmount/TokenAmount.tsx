@@ -11,6 +11,7 @@ import { isNotNFT } from '../../../../../../stores/Exchange/helpers';
 import styled from 'styled-components';
 import cn from 'classnames';
 import { ThemeContext } from '../../../../../../themes/ThemeContext';
+import { Button } from 'grommet';
 
 interface Props {}
 
@@ -32,6 +33,10 @@ export const TokenAmount: React.FC<Props> = observer(() => {
     maxAmount = exchange.tokenInfo.maxAmount;
   }
 
+  const handleMaxAmount = () => {
+    exchange.transaction.amount = maxAmount;
+  };
+
   const themeContext = useContext(ThemeContext);
 
   return (
@@ -50,35 +55,21 @@ export const TokenAmount: React.FC<Props> = observer(() => {
           margin="none"
           name="amount"
           type="decimal"
-          precision={isNotNFT(exchange.token) ? '6' : '0'}
+          min="0"
+          precision="6"
           bgColor="transparent"
           border="none"
           delimiter="."
           placeholder="0"
           style={{ width: '100%', textAlign: 'center' }}
-          rules={[
-            isRequired,
-            moreThanZero,
-            (_, value, callback) => {
-              const errors = [];
-
-              if (
-                value &&
-                Number(value) > Number(exchange.tokenInfo.maxAmount)
-              ) {
-                const defaultMsg = `Exceeded the maximum amount`;
-                errors.push(defaultMsg);
-              }
-
-              callback(errors);
-            },
-          ]}
         />
       }
       bottomContent={
-        <Text size="xxsmall" color="NBlue">
-          {maxAmount} Max Available
-        </Text>
+        <Button onClick={handleMaxAmount}>
+          <Text size="xxsmall" color="NBlue">
+            {maxAmount} Max Available
+          </Text>
+        </Button>
       }
     />
   );

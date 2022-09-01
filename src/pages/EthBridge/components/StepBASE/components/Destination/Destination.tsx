@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { useStores } from '../../../../../../stores';
 import { Box } from 'grommet/components/Box';
 import { Icon, Text } from '../../../../../../components/Base';
@@ -6,7 +6,7 @@ import { Button } from 'grommet/components/Button';
 import * as s from './Destination.styl';
 import { observer } from 'mobx-react';
 import { ethBridgeStore } from '../../../../EthBridgeStore';
-import { Input, isRequired } from 'components/Form';
+import { Input, isRequired, isValidEthAddress } from 'components/Form';
 import cn from 'classnames';
 import {
   EXCHANGE_MODE,
@@ -15,9 +15,11 @@ import {
 import { NETWORK_NAME } from '../../../../../../stores/names';
 import { getChainName } from '../../../../../../stores/Exchange/helpers';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
-import { CircleQuestion } from 'grommet-icons';
+import { CircleQuestion, StatusWarning } from 'grommet-icons';
 import { Tip } from 'grommet/components/Tip';
 import { ThemeContext } from '../../../../../../themes/ThemeContext';
+import styled from 'styled-components';
+import { TipContent } from 'components/TipContent';
 
 interface MetamaskButtonProps {
   active: boolean;
@@ -51,7 +53,7 @@ export const Destination: React.FC<Props> = observer(() => {
 
   const handleClickMetamask = useCallback(() => {
     if (userMetamask.isAuthorized) {
-      return userMetamask.signOut();
+      // return userMetamask.signOut();
     }
 
     return userMetamask.signIn();
@@ -81,21 +83,24 @@ export const Destination: React.FC<Props> = observer(() => {
 
   const themeContext = useContext(ThemeContext);
 
+  const tipRef = useRef<HTMLDivElement>();
   return (
     <Box direction="column" align="center" gap="16px" fill="horizontal">
       <BridgeControl
         title={
-          <Box direction="row" gap="4px">
+          <Box ref={ref => (tipRef.current = ref)} direction="row" gap="4px">
             <Text size="xsmall" color="NGray">
               Destination address
             </Text>
             <Tip
+              dropProps={{ align: { bottom: 'top' }, target: tipRef.current }}
+              plain
               content={
-                <Box>
-                  <Text size="xsmall" color="NWhite">
+                <TipContent round="7px" pad="xsmall">
+                  <Text size="xsmall">
                     Only use your wallet address, never use contract address
                   </Text>
-                </Box>
+                </TipContent>
               }
             >
               <CircleQuestion size="12px" />
@@ -116,7 +121,7 @@ export const Destination: React.FC<Props> = observer(() => {
             name={inputName}
             style={{ width: '100%', padding: '0' }}
             placeholder="Receiver address"
-            rules={[isRequired]}
+            rules={[isRequired, isValidEthAddress('Invalid address')]}
             onChange={() => (ethBridgeStore.addressValidationError = '')}
           />
         }
@@ -141,7 +146,8 @@ export const Destination: React.FC<Props> = observer(() => {
           onClick={handleClickMetamask}
         />
         {userMetamask.isAuthorized && !userMetamask.isNetworkActual && (
-          <Box width="50%">
+          <Box direction="row" gap="xsmall" align="center">
+            <StatusWarning color="#FF0000" />
             <Text size="xsmall">
               You have authorised with MetaMask, but the selected network does
               not match{' '}
