@@ -1285,7 +1285,13 @@ export class Exchange extends StoreConstructor {
 
   @computed
   get tokenInfo(): ITokenInfo {
-    const { user, exchange, userMetamask, erc20Select } = this.stores;
+    const {
+      user,
+      exchange,
+      bridgeFormStore,
+      userMetamask,
+      erc20Select,
+    } = this.stores;
 
     switch (exchange.token) {
       case TOKEN.ALL:

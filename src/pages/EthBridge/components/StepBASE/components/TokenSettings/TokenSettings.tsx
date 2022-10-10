@@ -49,7 +49,7 @@ export const TokenSettings: React.FC<Props> = observer(() => {
         icon="/busd.svg"
         onClick={() => {
           bridgeFormStore.setToken(TOKEN.BUSD);
-          // routing.push(`/${exchange.token}`);
+          routing.push(`/${TOKEN.BUSD}`);
         }}
       />
       {exchange.config.tokens.includes(TOKEN.LINK) && (
@@ -59,7 +59,7 @@ export const TokenSettings: React.FC<Props> = observer(() => {
           icon="/link.png"
           onClick={() => {
             bridgeFormStore.setToken(TOKEN.LINK);
-            // routing.push(`/${exchange.token}`);
+            routing.push(`/${TOKEN.LINK}`);
           }}
         />
       )}
@@ -70,7 +70,7 @@ export const TokenSettings: React.FC<Props> = observer(() => {
           icon={NETWORK_ICON[exchange.network]}
           onClick={() => {
             bridgeFormStore.setToken(TOKEN.ETH);
-            // routing.push(`/${exchange.token}`);
+            routing.push(`/${TOKEN.ETH}`);
           }}
         />
       )}
@@ -81,7 +81,7 @@ export const TokenSettings: React.FC<Props> = observer(() => {
           icon="/one.svg"
           onClick={() => {
             bridgeFormStore.setToken(TOKEN.ONE);
-            // routing.push(`/${exchange.token}`);
+            routing.push(`/${TOKEN.ONE}`);
           }}
         />
       )}

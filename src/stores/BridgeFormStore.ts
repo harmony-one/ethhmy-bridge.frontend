@@ -5,6 +5,9 @@ import { tokenConfig } from '../pages/EthBridge/constants';
 import { EXCHANGE_STEPS } from './Exchange';
 import { send1LINK } from 'services/layerzero';
 import { dark } from 'grommet';
+import { ITokenInfo } from '../pages/Exchange';
+import { NETWORK_BASE_TOKEN } from './names';
+import { divDecimals } from '../utils';
 
 interface BridgeFormData {
   token: TOKEN;
@@ -99,6 +102,72 @@ export class BridgeFormStore extends StoreConstructor {
       this.bridgeStep = EXCHANGE_STEPS.SENDING;
     } catch (ex) {
       console.log('### ex', ex);
+    }
+  }
+
+  // TODO: remote to separate store
+  @computed
+  get tokenInfo(): ITokenInfo {
+    const { user, exchange, bridgeFormStore, userMetamask } = this.stores;
+
+    switch (bridgeFormStore.data.token) {
+      case TOKEN.BUSD:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
+          symbol: 'BUSD',
+          image: '/busd.svg',
+          address: '',
+        };
+      case TOKEN.LINK:
+        return {
+          label: 'LINK',
+          maxAmount:
+            bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyLINKBalance
+              : userMetamask.ethLINKBalance,
+          symbol: 'LINK',
+          image: '/link.png',
+          address: '',
+        };
+      case TOKEN.ETH:
+        return {
+          label: NETWORK_BASE_TOKEN[exchange.network],
+          maxAmount:
+            bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hrc20Balance
+              : userMetamask.ethBalance,
+          symbol: NETWORK_BASE_TOKEN[exchange.network],
+          image: '/eth.svg',
+          address: '',
+        };
+
+      case TOKEN.ONE:
+        return {
+          label: 'ONE',
+          maxAmount:
+            bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ONE_TO_ETH
+              ? divDecimals(user.balance, 18)
+              : userMetamask.erc20Balance,
+          symbol: 'ONE',
+          image: '/one.svg',
+          address: '',
+        };
+
+      default:
+        return {
+          label: 'BUSD',
+          maxAmount:
+            bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ONE_TO_ETH
+              ? user.hmyBUSDBalance
+              : userMetamask.ethBUSDBalance,
+          symbol: 'BUSD',
+          image: '/busd.svg',
+          address: '',
+        };
     }
   }
 }

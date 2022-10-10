@@ -131,6 +131,7 @@ export const EthBridge = observer((props: any) => {
         ].includes(props.match.params.token)
       ) {
         exchange.setToken(props.match.params.token);
+        bridgeFormStore.setToken(props.match.params.token);
 
         if (TOKEN.ETH === props.match.params.token) {
           user.setHRC20Token(process.env.ETH_HRC20);

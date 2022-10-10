@@ -20,17 +20,17 @@ const BridgeControlStyled = styled(BridgeControl)`
 `;
 
 export const TokenAmount: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, bridgeFormStore } = useStores();
 
   let maxAmount = '';
   if (
     ![TOKEN.ERC721, TOKEN.HRC721, TOKEN.ERC1155, TOKEN.HRC1155].includes(
-      exchange.token,
+      bridgeFormStore.data.token,
     )
   ) {
-    maxAmount = formatWithSixDecimals(exchange.tokenInfo.maxAmount);
+    maxAmount = formatWithSixDecimals(bridgeFormStore.tokenInfo.maxAmount);
   } else if ([TOKEN.ERC1155, TOKEN.HRC1155].includes(exchange.token)) {
-    maxAmount = exchange.tokenInfo.maxAmount;
+    maxAmount = bridgeFormStore.tokenInfo.maxAmount;
   }
 
   const handleMaxAmount = () => {
