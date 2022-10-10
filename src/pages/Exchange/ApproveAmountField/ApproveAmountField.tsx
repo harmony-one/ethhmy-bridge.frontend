@@ -63,6 +63,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
               delimiter="."
               placeholder="0"
               style={{ width: '100%' }}
+              border="none"
               rules={[
                 isRequired,
                 minAmount(Number(exchange.transaction.amount)),
