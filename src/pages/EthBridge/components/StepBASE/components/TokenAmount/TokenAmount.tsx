@@ -35,6 +35,7 @@ export const TokenAmount: React.FC<Props> = observer(() => {
 
   const handleMaxAmount = () => {
     exchange.transaction.amount = maxAmount;
+    bridgeFormStore.setAmount(maxAmount);
   };
 
   const themeContext = useContext(ThemeContext);

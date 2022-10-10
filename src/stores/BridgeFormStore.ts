@@ -57,6 +57,11 @@ export class BridgeFormStore extends StoreConstructor {
   }
 
   @action.bound
+  setAmount(amount: string) {
+    this.data.amount = amount;
+  }
+
+  @action.bound
   setToken(token: TOKEN) {
     this.data.token = token;
   }
