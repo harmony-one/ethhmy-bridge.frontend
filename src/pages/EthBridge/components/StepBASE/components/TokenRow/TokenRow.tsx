@@ -39,7 +39,7 @@ export const TokenRow: React.FC<Props> = observer(() => {
 
   return (
     <Box direction="column">
-      <Box justify="center" align="center" pad={{ bottom: '24px' }}>
+      <Box justify="center" align="center" pad={{ bottom: '48px' }}>
         <TokenSettings />
       </Box>
       <Box direction="row" justify="center">

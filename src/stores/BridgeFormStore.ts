@@ -3,11 +3,12 @@ import { action, computed, observable } from 'mobx';
 import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
 import { tokenConfig } from '../pages/EthBridge/constants';
 import { EXCHANGE_STEPS } from './Exchange';
-import { send1LINK } from 'services/layerzero';
+import { loadSendFee, send1LINK } from 'services/layerzero';
 import { dark } from 'grommet';
 import { ITokenInfo } from '../pages/Exchange';
 import { NETWORK_BASE_TOKEN } from './names';
 import { divDecimals } from '../utils';
+import utils from 'web3-utils';
 
 interface BridgeFormData {
   token: TOKEN;
@@ -91,7 +92,19 @@ export class BridgeFormStore extends StoreConstructor {
   @action.bound
   goToConfirmState() {
     // TODO: validation
+    this.loadFee();
     this.bridgeStep = EXCHANGE_STEPS.CONFIRMATION;
+  }
+
+  @action.bound
+  async loadFee() {
+    this.stores.exchange.updateNetworkFee();
+
+    const amountWei = utils.toWei(this.data.amount);
+
+    const fee = await loadSendFee(amountWei, this.data.address);
+
+    console.log('### fee', fee);
   }
 
   @action.bound

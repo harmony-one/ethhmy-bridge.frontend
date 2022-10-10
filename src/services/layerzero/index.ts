@@ -29,6 +29,10 @@ const tokenConfig = {
   hrc20Address: '0x218532a12a389a4a92fc0c5fb22901d1c19198aa',
 };
 
+// const - 500k gasLimit
+const adapterParams =
+  '0x0001000000000000000000000000000000000000000000000000000000000007a120';
+
 // https://api.s0.t.hmny.io/
 const hmyRPCUrl = 'https://api.harmony.one';
 
@@ -85,11 +89,33 @@ const approveToken = async (tokenAddress, externalContract, amount) => {
       from: accounts[0],
       // gas: 4712388,
       // gasPrice: new BN(await web3.eth.getGasPrice()),
-      gas: process.env.ETH_GAS_LIMIT,
+      gas: 100000,
       gasPrice: gasPrice,
     });
 
   return res;
+};
+
+export const loadSendFee = async (
+  amountWei: string,
+  destinationAddress: string,
+) => {
+  const proxyContract = new web3.eth.Contract(
+    ProxyERC20Abi,
+    tokenConfig.proxyERC20,
+  );
+
+  const sendFee = await proxyContract.methods
+    .estimateSendFee(
+      layerZeroConfig.harmony.chainId, // NETWORK
+      destinationAddress, // to user address
+      amountWei,
+      false,
+      adapterParams,
+    )
+    .call();
+
+  return sendFee;
 };
 
 // send 1LINK ETH -> HMY
@@ -137,19 +163,7 @@ export const send1LINK = async (params: Send1LinkParams) => {
     tokenConfig.proxyERC20,
   );
 
-  // const - 500k gasLimit
-  const adapterParams =
-    '0x0001000000000000000000000000000000000000000000000000000000000007a120';
-
-  const sendFee = await proxyContract.methods
-    .estimateSendFee(
-      layerZeroConfig.harmony.chainId, // NETWORK
-      params.destinationAddress, // to user address
-      amountWei,
-      false,
-      adapterParams,
-    )
-    .call();
+  const sendFee = await loadSendFee(amountWei, params.destinationAddress);
 
   console.log('Send Fee: ', sendFee);
 
@@ -159,6 +173,7 @@ export const send1LINK = async (params: Send1LinkParams) => {
   });
   const gasPrice = await getGasPrice(web3);
 
+  debugger;
   const res = await proxyContract.methods
     .sendFrom(
       params.sourceAddress, // from user address
@@ -172,9 +187,8 @@ export const send1LINK = async (params: Send1LinkParams) => {
     .send({
       value: sendFee.nativeFee,
       from: accounts[0],
-      // gas: 4712388,
+      gas: 250000,
       // gasPrice: new BN(await web3.eth.getGasPrice()),
-      gas: process.env.ETH_GAS_LIMIT,
       gasPrice: gasPrice,
     });
 

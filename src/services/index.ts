@@ -46,7 +46,10 @@ export const getValidators = async () => {
 export let validators = serversJson;
 export let servers = serversJson;
 
+console.log("### utils.toWei('1')", utils.toWei('0.1'));
 console.log("### utils.toWei('1')", utils.toWei('1'));
+
+console.log('### from wei', utils.fromWei('1365020427840'));
 
 getValidators()
   .then(res => {

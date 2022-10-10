@@ -1389,4 +1389,10 @@ export class Exchange extends StoreConstructor {
   getChainConfig() {
     return getChainConfig(this.mode, this.network);
   }
+
+  @action.bound
+  async updateNetworkFee() {
+    const exNetwork = getExNetworkMethods();
+    this.ethNetworkFee = await exNetwork.getNetworkFee();
+  }
 }

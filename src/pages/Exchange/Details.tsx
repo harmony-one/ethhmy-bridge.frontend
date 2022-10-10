@@ -116,7 +116,7 @@ const LiquidityWarning = styled(Box)`
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
-    const { exchange, tokens, userMetamask } = useStores();
+    const { exchange, tokens, userMetamask, bridgeFormStore } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
@@ -171,9 +171,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           return (
             <AssetRow
               label={`${String(exchange.token).toUpperCase()} amount`}
-              value={formatWithSixDecimals(
-                exchange.transaction.amount.toString(),
-              )}
+              value={formatWithSixDecimals(bridgeFormStore.data.amount)}
             />
           );
       }
@@ -204,7 +202,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         <AssetRow
           label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
           value={truncateAddressString(
-            exchange.transaction.ethAddress,
+            userMetamask.ethAddress,
             isMobile ? 7 : 12,
           )}
           address={true}
@@ -337,7 +335,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
             isShowDetail ? (
               <div style={{ opacity: 1 }}>
-                <AssetRow label="Approve (~50000 gas)" value="">
+                <AssetRow label="Approve (~60000 gas)" value="">
                   <Price
                     value={exchange.networkFee / 2}
                     isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
@@ -355,7 +353,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     />
                   </AssetRow>
                 ) : (
-                  <AssetRow label="Lock token (~50000 gas)" value="">
+                  <AssetRow label="Lock token (~200000 gas)" value="">
                     <Price
                       value={exchange.networkFee / 2}
                       isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
