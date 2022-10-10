@@ -135,6 +135,11 @@ export const baseTheme: any = {
     bgColor: palette.NBlack3,
   },
 
+  tokenVertical: {
+    borderColor: '#424242',
+    borderColorActive: '#ffffff',
+  },
+
   selectPresetDefault: {
     option: {
       backgroundColorFocused: palette.NGray,

@@ -11,26 +11,26 @@ import { StepRESULT } from '../StepRESULT/StepRESULT';
 interface Props {}
 
 export const StepManager: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { bridgeFormStore } = useStores();
 
-  if (exchange.step.id === EXCHANGE_STEPS.BASE) {
+  if (bridgeFormStore.bridgeStep === EXCHANGE_STEPS.BASE) {
     return <StepBASE />;
     // return <StepAPPROVE />;
   }
 
-  if (exchange.step.id === EXCHANGE_STEPS.APPROVE) {
+  if (bridgeFormStore.bridgeStep === EXCHANGE_STEPS.APPROVE) {
     return <StepAPPROVE />;
   }
 
-  if (exchange.step.id === EXCHANGE_STEPS.CONFIRMATION) {
+  if (bridgeFormStore.bridgeStep === EXCHANGE_STEPS.CONFIRMATION) {
     return <StepCONFIRMATION />;
   }
 
-  if (exchange.step.id === EXCHANGE_STEPS.SENDING) {
+  if (bridgeFormStore.bridgeStep === EXCHANGE_STEPS.SENDING) {
     return <StepSENDING />;
   }
 
-  if (exchange.step.id === EXCHANGE_STEPS.RESULT) {
+  if (bridgeFormStore.bridgeStep === EXCHANGE_STEPS.RESULT) {
     return <StepRESULT />;
   }
 

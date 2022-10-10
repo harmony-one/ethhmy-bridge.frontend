@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
-import { Text, Icon } from '../../../../../../components/Base';
+import React, { useCallback, useMemo } from 'react';
+import { Icon, Text } from '../../../../../../components/Base';
 import { BridgeControl } from '../../../BridgeControl/BridgeControl';
 import { Button } from 'grommet/components/Button';
 import { Box } from 'grommet';
 import { useStores } from '../../../../../../stores';
-import { ModalIds, ModalRegister } from '../../../../../../modals';
-import { TokenChooseModal } from '../../../TokenChooseModal/TokenChooseModal';
+import { ModalIds } from '../../../../../../modals';
 import { observer } from 'mobx-react';
 import { TOKEN } from '../../../../../../stores/interfaces';
 import { isMultiNFT, isNFT } from '../../../../../../stores/Exchange/helpers';
+import { tokenConfig } from '../../../../constants';
 
 interface Props {}
 
@@ -17,7 +17,7 @@ const selectAllow = [TOKEN.ERC20, TOKEN.HRC20, TOKEN.ALL];
 const customTokens = [TOKEN.ERC721, TOKEN.HRC721, TOKEN.HRC1155, TOKEN.ERC1155];
 
 export const TokenControl: React.FC<Props> = observer(() => {
-  const { routing, exchange } = useStores();
+  const { routing, exchange, bridgeFormStore } = useStores();
 
   const isSelectable = [...selectAllow, ...customTokens].includes(
     exchange.token,
@@ -35,26 +35,9 @@ export const TokenControl: React.FC<Props> = observer(() => {
     return;
   }, [routing, exchange, exchange.token]);
 
-  const title = useMemo(() => {
-    const title =
-      isNFT(exchange.token) || isMultiNFT(exchange.token)
-        ? 'Choose NFT'
-        : 'Select token';
-
-    if (exchange.token === TOKEN.ALL) {
-      return title;
-    }
-
-    if (exchange.tokenInfo) {
-      return exchange.tokenInfo.symbol || exchange.tokenInfo.label || title;
-    }
-
-    return title;
-  }, [exchange.token, exchange.tokenInfo]);
-
   const centerContent = (
     <Box direction="row" gap="8px">
-      <Text size="large">{title}</Text>
+      <Text size="large">{bridgeFormStore.tokenConfig.name}</Text>
       {isSelectable && <Icon size="10px" glyph="ArrowDownFilled" />}
     </Box>
   );
@@ -72,11 +55,9 @@ export const TokenControl: React.FC<Props> = observer(() => {
         </Box>
       }
       bottomContent={
-        exchange.tokenInfo && (
-          <Text size="xxsmall" color="NGray">
-            {exchange.tokenInfo.label}
-          </Text>
-        )
+        <Text size="xxsmall" color="NGray">
+          {bridgeFormStore.tokenConfig.label}
+        </Text>
       }
     />
   );

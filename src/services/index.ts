@@ -13,6 +13,7 @@ import * as agent from 'superagent';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
+import utils from 'web3-utils';
 
 let serversJson = require('../../appengine-servers.json');
 
@@ -45,10 +46,16 @@ export const getValidators = async () => {
 export let validators = serversJson;
 export let servers = serversJson;
 
-getValidators().then(res => {
-  validators = res;
-  servers = res;
-});
+console.log("### utils.toWei('1')", utils.toWei('1'));
+
+getValidators()
+  .then(res => {
+    validators = res;
+    servers = res;
+  })
+  .catch(ex => {
+    console.log('### ex', ex);
+  });
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,

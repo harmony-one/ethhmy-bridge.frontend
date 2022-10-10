@@ -42,11 +42,11 @@ const NetworkMenuItem: React.FC<NetworkMenuItemProps> = ({
 };
 
 const NetworkMenu = observer(() => {
-  const { exchange, userMetamask } = useStores();
+  const { bridgeFormStore, userMetamask } = useStores();
 
   const themeContext = useContext(ThemeContext);
 
-  const label = networkNameMap[exchange.network];
+  const label = networkNameMap[bridgeFormStore.data.network];
 
   return (
     <Menu
@@ -71,8 +71,11 @@ const NetworkMenu = observer(() => {
             />
           ),
           onClick: () => {
-            exchange.setNetwork(NETWORK_TYPE.BINANCE);
-            userMetamask.switchNetwork(exchange.mode, NETWORK_TYPE.BINANCE);
+            bridgeFormStore.setNetwork(NETWORK_TYPE.BINANCE);
+            userMetamask.switchNetwork(
+              bridgeFormStore.data.exchangeMode,
+              NETWORK_TYPE.BINANCE,
+            );
           },
         },
         {
@@ -84,8 +87,11 @@ const NetworkMenu = observer(() => {
             />
           ),
           onClick: () => {
-            exchange.setNetwork(NETWORK_TYPE.ETHEREUM);
-            userMetamask.switchNetwork(exchange.mode, NETWORK_TYPE.ETHEREUM);
+            bridgeFormStore.setNetwork(NETWORK_TYPE.ETHEREUM);
+            userMetamask.switchNetwork(
+              bridgeFormStore.data.exchangeMode,
+              NETWORK_TYPE.ETHEREUM,
+            );
           },
         },
       ]}
@@ -105,11 +111,11 @@ interface Props {
 }
 
 export const NetworkExternal: React.FC<Props> = observer(({ title }) => {
-  const { exchange } = useStores();
+  const { bridgeFormStore } = useStores();
   return (
     <BridgeControl
       title={title}
-      centerContent={<NetworkIcon network={exchange.network} />}
+      centerContent={<NetworkIcon network={bridgeFormStore.data.network} />}
       bottomContent={<NetworkMenu />}
     />
   );

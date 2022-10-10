@@ -27,16 +27,18 @@ const Container = styled(Box)`
 interface Props {}
 
 export const StepBASE: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, bridgeFormStore } = useStores();
 
   const handleClickReset = useCallback(() => {
     exchange.clear();
   }, [exchange]);
 
   const handleClickContinue = useCallback(() => {
-    const conf = exchange.step.buttons[0];
-    exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
-  }, [exchange]);
+    // const conf = exchange.step.buttons[0];
+    // exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
+
+    bridgeFormStore.goToApproveState();
+  }, [bridgeFormStore]);
 
   useEffect(() => {
     autorun(() => {

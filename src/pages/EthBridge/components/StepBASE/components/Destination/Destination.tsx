@@ -49,7 +49,7 @@ const MetamaskButton: React.FC<MetamaskButtonProps> = ({ active, onClick }) => {
 interface Props {}
 
 export const Destination: React.FC<Props> = observer(() => {
-  const { userMetamask, exchange } = useStores();
+  const { userMetamask, exchange, bridgeFormStore } = useStores();
 
   const handleClickMetamask = useCallback(() => {
     if (userMetamask.isAuthorized) {
@@ -60,11 +60,14 @@ export const Destination: React.FC<Props> = observer(() => {
   }, [userMetamask]);
 
   const handleClickUseMyAddress = useCallback(() => {
-    exchange.setDestinationAddressByMode(userMetamask.ethAddress);
-  }, [exchange, userMetamask.ethAddress]);
+    // exchange.setDestinationAddressByMode(userMetamask.ethAddress);
 
-  const inputName =
-    exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? 'ethAddress' : 'oneAddress';
+    bridgeFormStore.setAddress(userMetamask.ethAddress);
+  }, [bridgeFormStore, userMetamask.ethAddress]);
+
+  // const inputName =
+  //   exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? 'ethAddress' : 'oneAddress';
+  const inputName = 'address';
 
   const externalNetworkName = NETWORK_NAME[exchange.network];
 
@@ -128,7 +131,7 @@ export const Destination: React.FC<Props> = observer(() => {
         bottomContent={
           <Button color="NBlue" onClick={handleClickUseMyAddress}>
             <Text size="xxsmall" color="NBlue">
-              use my address
+              Use my address
             </Text>
           </Button>
         }

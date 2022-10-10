@@ -98,7 +98,14 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
 });
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing, userMetamask, tokens } = useStores();
+  const {
+    user,
+    exchange,
+    routing,
+    userMetamask,
+    tokens,
+    bridgeFormStore,
+  } = useStores();
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
   useEffect(() => {
@@ -214,7 +221,7 @@ export const EthBridge = observer((props: any) => {
         <Form
           style={{ width: 'inherit' }}
           ref={ref => (ethBridgeStore.formRef = ref)}
-          data={exchange.transaction}
+          data={bridgeFormStore.data}
         >
           <StepManager />
         </Form>

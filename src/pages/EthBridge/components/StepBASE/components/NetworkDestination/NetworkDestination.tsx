@@ -8,9 +8,9 @@ import { NetworkExternal } from '../NetworkExternal/NetworkExternal';
 interface Props {}
 
 export const NetworkDestination: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, bridgeFormStore } = useStores();
 
-  if (exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+  if (bridgeFormStore.data.exchangeMode === EXCHANGE_MODE.ETH_TO_ONE) {
     return <NetworkHarmony title="To" />;
   }
 

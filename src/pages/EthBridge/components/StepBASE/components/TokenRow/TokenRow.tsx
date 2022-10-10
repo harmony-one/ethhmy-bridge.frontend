@@ -17,7 +17,7 @@ import { Link } from 'components/Link';
 interface Props {}
 
 export const TokenRow: React.FC<Props> = observer(() => {
-  const { exchange, erc20Select, tokens } = useStores();
+  const { exchange, erc20Select, tokens, bridgeFormStore } = useStores();
 
   const mappedAddress = tokens.getMappedAddress(erc20Select.tokenAddress);
 
@@ -39,20 +39,18 @@ export const TokenRow: React.FC<Props> = observer(() => {
 
   return (
     <Box direction="column">
-      <Box justify="center" align="center" pad={{ bottom: '16px' }}>
+      <Box justify="center" align="center" pad={{ bottom: '24px' }}>
         <TokenSettings />
       </Box>
       <Box direction="row" justify="center">
         <Box basis="0" flex="grow">
           <TokenControl />
         </Box>
-        {!isNFT(exchange.token) && (
-          <Box pad={{ top: '12px' }}>
-            {exchange.tokenInfo && (
-              <img src={exchange.tokenInfo.image} width="40" />
-            )}
-          </Box>
-        )}
+        <Box pad={{ top: '12px' }}>
+          {bridgeFormStore.tokenConfig.icon && (
+            <img src={bridgeFormStore.tokenConfig.icon} width="40" />
+          )}
+        </Box>
         {!isNFT(exchange.token) && (
           <Box basis="0" flex="grow" align="center">
             <TokenAmount />

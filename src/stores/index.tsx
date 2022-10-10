@@ -12,6 +12,7 @@ import { Erc20SelectStore } from './Erc20SelectStore';
 import { AdminOperationsFull } from './AdminOperationsFull';
 import { UIConfig } from './UIConfig';
 import { Portfolio } from './Portfolio';
+import { BridgeFormStore } from './BridgeFormStore';
 
 export interface IStores {
   routing?: RouterStore;
@@ -27,6 +28,8 @@ export interface IStores {
   itokens?: IdentityTokens;
   uiConfig?: UIConfig;
   erc20Select?: Erc20SelectStore;
+
+  bridgeFormStore?: BridgeFormStore;
 }
 
 const stores: IStores = {};
@@ -44,6 +47,7 @@ stores.user = new UserStoreEx(stores);
 stores.userMetamask = new UserStoreMetamask(stores);
 stores.erc20Select = new Erc20SelectStore(stores);
 stores.uiConfig = new UIConfig(stores);
+stores.bridgeFormStore = new BridgeFormStore(stores);
 
 if (!process.env.production) {
   window.stores = stores;

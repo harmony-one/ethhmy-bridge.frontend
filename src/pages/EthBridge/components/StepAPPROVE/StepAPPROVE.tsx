@@ -13,17 +13,19 @@ import { Divider } from '../../../../components/Divider/Divider';
 interface Props {}
 
 export const StepAPPROVE: React.FC<Props> = observer(() => {
-  const { exchange } = useStores();
+  const { exchange, bridgeFormStore } = useStores();
 
   const handleClickBack = useCallback(() => {
-    const conf = exchange.step.buttons[0];
-    exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
-  }, [exchange]);
+    // const conf = exchange.step.buttons[0];
+    // exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
+    bridgeFormStore.goToBaseState();
+  }, [bridgeFormStore]);
 
   const handleClickContinue = useCallback(() => {
-    const conf = exchange.step.buttons[1];
-    exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
-  }, [exchange]);
+    // const conf = exchange.step.buttons[1];
+    // exchange.onClickHandler(conf.validate, conf.onClick, ethBridgeStore);
+    bridgeFormStore.goToConfirmState();
+  }, [bridgeFormStore]);
 
   return (
     <Box className={s.root} margin={{ top: '60px' }}>

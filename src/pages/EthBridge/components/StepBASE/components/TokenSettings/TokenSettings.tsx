@@ -9,12 +9,17 @@ import { ModalIds } from '../../../../../../modals';
 import { useStores } from '../../../../../../stores';
 import { TokenSettingsModal } from '../../../TokenSettingsModal/TokenSettingsModal';
 import { NETWORK_TYPE, TOKEN } from '../../../../../../stores/interfaces';
-import { NETWORK_BASE_TOKEN } from '../../../../../../stores/names';
+import {
+  NETWORK_BASE_TOKEN,
+  NETWORK_ICON,
+} from '../../../../../../stores/names';
+import { TokenVertical } from '../../../TokenChooseModal/components/TokenVertical';
+import { observer } from 'mobx-react';
 
 interface Props {}
 
-export const TokenSettings: React.FC<Props> = () => {
-  const { routing, exchange } = useStores();
+export const TokenSettings: React.FC<Props> = observer(() => {
+  const { routing, exchange, bridgeFormStore } = useStores();
 
   const handleSubmit = useCallback(() => {
     routing.goToModal(ModalIds.BRIDGE_TOKEN_SETTINGS);
@@ -37,22 +42,68 @@ export const TokenSettings: React.FC<Props> = () => {
   };
 
   return (
-    <Button className={s.root} onClick={handleSubmit}>
-      <Box direction="row" justify="center" align="center" gap="8px" pad="8px">
-        <Text lh="20px" size="small" color="NGray">
-          Token Type
-        </Text>
-        <Text lh="20px" size="small">
-          {getTokenTypeName()}
-        </Text>
-        {/*<Icon className={s.icon} size="10px" glyph="Settings" />*/}
-        <Filter size="16px" className={s.icon} />
-      </Box>
-      <ModalRegister modalId={ModalIds.BRIDGE_TOKEN_SETTINGS}>
-        <TokenSettingsModal />
-      </ModalRegister>
-    </Button>
+    <Box direction="row" gap="28px">
+      <TokenVertical
+        active={bridgeFormStore.data.token === TOKEN.BUSD}
+        symbol="BUSD"
+        icon="/busd.svg"
+        onClick={() => {
+          bridgeFormStore.setToken(TOKEN.BUSD);
+          // routing.push(`/${exchange.token}`);
+        }}
+      />
+      {exchange.config.tokens.includes(TOKEN.LINK) && (
+        <TokenVertical
+          active={bridgeFormStore.data.token === TOKEN.LINK}
+          symbol="LINK"
+          icon="/link.png"
+          onClick={() => {
+            bridgeFormStore.setToken(TOKEN.LINK);
+            // routing.push(`/${exchange.token}`);
+          }}
+        />
+      )}
+      {exchange.config.tokens.includes(TOKEN.ETH) && (
+        <TokenVertical
+          active={bridgeFormStore.data.token === TOKEN.ETH}
+          symbol={NETWORK_BASE_TOKEN[exchange.network]}
+          icon={NETWORK_ICON[exchange.network]}
+          onClick={() => {
+            bridgeFormStore.setToken(TOKEN.ETH);
+            // routing.push(`/${exchange.token}`);
+          }}
+        />
+      )}
+      {exchange.config.tokens.includes(TOKEN.ONE) && (
+        <TokenVertical
+          active={bridgeFormStore.data.token === TOKEN.ONE}
+          symbol="ONE"
+          icon="/one.svg"
+          onClick={() => {
+            bridgeFormStore.setToken(TOKEN.ONE);
+            // routing.push(`/${exchange.token}`);
+          }}
+        />
+      )}
+    </Box>
+    // <Button className={s.root} onClick={handleSubmit}>
+    //
+    //
+    //   <Box direction="row" justify="center" align="center" gap="8px" pad="8px">
+    //     <Text lh="20px" size="small" color="NGray">
+    //       Token Type
+    //     </Text>
+    //     <Text lh="20px" size="small">
+    //       {getTokenTypeName()}
+    //     </Text>
+    //     {/*<Icon className={s.icon} size="10px" glyph="Settings" />*/}
+    //     <Filter size="16px" className={s.icon} />
+    //   </Box>
+    //   <ModalRegister modalId={ModalIds.BRIDGE_TOKEN_SETTINGS}>
+    //     <TokenSettingsModal />
+    //   </ModalRegister>
+    // </Button>
   );
-};
+});
 
 TokenSettings.displayName = 'TokenSettings';
