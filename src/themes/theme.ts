@@ -1,4 +1,5 @@
 import { css } from 'styled-components';
+import { ThemeType } from 'grommet/themes/base';
 
 export const Theme: any = {
   global: {
@@ -35,6 +36,7 @@ export const Theme: any = {
       Grey500: '#9698a7',
       Grey400: '#d2d6e1',
       Blue500: '#4740a1',
+      Background: '',
 
       border: '#323232',
       brand: 'white',
@@ -81,6 +83,11 @@ export const Theme: any = {
       ${(props: any) => 'font-size: 16px; padding: 8px;'}
     `,
   },
+  tip: {
+    content: {
+      background: '#000000',
+    },
+  },
   heading: {
     font: {
       family: 'system-ui, sans-serif',
@@ -125,9 +132,19 @@ export const Theme: any = {
     },
   },
   button: {
-    color: 'dark',
+    default: {
+      background: '#1F5AE2',
+      padding: {
+        vertical: '8px',
+        horizontal: '8px',
+      },
+      extend: css`
+        ${(props: any) => `font-size: 14px; line-height: 26px`};
+      `,
+    },
+    color: '#FFFFFF',
     border: {
-      radius: '22px',
+      radius: '7px',
     },
     padding: {
       horizontal: '24px',
@@ -171,7 +188,6 @@ export const Theme: any = {
     },
     body: {
       pad: { vertical: 'medium' },
-      verticalAlign: 'top',
     },
     extend: css`
       ${(props: any) =>

@@ -6,6 +6,7 @@ import * as styles from './styles.styl';
 import { TOKEN } from 'stores/interfaces';
 
 const icons: Record<TOKEN, string> = {
+  [TOKEN.ALL]: '/busd.svg',
   [TOKEN.BUSD]: '/busd.svg',
   [TOKEN.LINK]: '/link.png',
   [TOKEN.ERC20]: '/eth.svg',

@@ -172,7 +172,7 @@ export class EthMethodsERC20 {
     return transaction.events.Locked;
   };
 
-  checkEthBalance = async (erc20Address, addr) => {
+  checkEthBalance = async (erc20Address: string, addr: string) => {
     const MyERC20Json = require('../out/MyERC20');
     const erc20Contract = new this.web3.eth.Contract(
       MyERC20Json.abi,
@@ -246,7 +246,6 @@ export class EthMethodsERC20 {
         .call();
     } catch (e) {
       console.error(e);
-      debugger;
     }
 
     return res;

@@ -28,7 +28,8 @@ const Label = styled.label<any>`
   font-family: ${props => props.theme.fontBase || 'Roboto-Medium", sans-serif'};
 
   * {
-    font-family: ${props => props.theme.fontBase || 'Roboto-Medium", sans-serif'};
+    font-family: ${props =>
+      props.theme.fontBase || 'Roboto-Medium", sans-serif'};
   }
 `;
 
@@ -44,23 +45,30 @@ export interface ICheckboxProps extends ICommonInputProps {
 
 const CheckboxClass = (props: ICheckboxProps) => {
   const { theme, label, value, name, onChange, style, size, disabled } = props;
-  const { colorPrimary } = theme.styled.colors;
+  const { fillColor } = theme.styled.checkbox;
   const { disabledColor } = theme.styled.input;
 
   return (
     <Label style={style} theme={theme} size={size}>
-      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', marginRight: 5 }}>
+      <div
+        style={{
+          flex: '0 0 auto',
+          display: 'flex',
+          alignItems: 'center',
+          marginRight: 5,
+        }}
+      >
         {value ? (
           <Icon
             glyph="CheckBox"
             onClick={() => onChange(false)}
-            color={disabled ? disabledColor : colorPrimary}
+            color={disabled ? disabledColor : fillColor}
           />
         ) : (
           <Icon
             glyph="CheckBoxEmpty"
             onClick={() => onChange(true)}
-            color={disabled ? disabledColor : colorPrimary}
+            color={disabled ? disabledColor : fillColor}
           />
         )}
       </div>
@@ -76,4 +84,6 @@ const CheckboxClass = (props: ICheckboxProps) => {
   );
 };
 
-export const Checkbox: React.ComponentType<ICheckboxProps> = withTheme(CheckboxClass);
+export const Checkbox: React.ComponentType<ICheckboxProps> = withTheme(
+  CheckboxClass,
+);

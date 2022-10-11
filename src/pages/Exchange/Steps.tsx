@@ -115,6 +115,8 @@ const StepRow = observer(
   },
 );
 
+StepRow.displayName = 'StepRow';
+
 const isEth = type =>
   [
     'approveEthManger',
@@ -191,3 +193,5 @@ export const Steps = observer(() => {
     </Box>
   );
 });
+
+Steps.displayName = 'Steps';

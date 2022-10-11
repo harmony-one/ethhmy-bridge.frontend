@@ -5,10 +5,11 @@ import { isRequired } from 'components/Form/validations';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useStores } from 'stores';
-import { Spinner } from '../../ui/Spinner';
-import { Text } from '../../components/Base/components/Text';
-import { Checkbox } from '../../components/Base/components/Inputs/types';
-import { maxAmount, minAmount } from '../../utils';
+import { Spinner } from '../../../ui/Spinner';
+import { Text } from '../../../components/Base/components/Text';
+import { Checkbox } from '../../../components/Base/components/Inputs/types';
+import { minAmount } from '../../../utils';
+import * as s from './ApproveAmountField.styl';
 
 export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
   const { exchange } = useStores();
@@ -34,7 +35,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
           style={{ width: '100%' }}
         >
           <Text size="large" bold>
-            Approve amount
+            Approve amount {exchange.tokenInfo.symbol}
           </Text>
 
           <Checkbox
@@ -52,6 +53,9 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
         >
           <div style={{ width: '100%' }}>
             <NumberInput
+              wrapperClassName={s.inputWrapper}
+              className={s.inputOverride}
+              // wrapperClassName={'wrapperClassN'}
               disabled={!customAmount}
               name="approveAmount"
               type="integer"
@@ -59,6 +63,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
               delimiter="."
               placeholder="0"
               style={{ width: '100%' }}
+              border="none"
               rules={[
                 isRequired,
                 minAmount(Number(exchange.transaction.amount)),

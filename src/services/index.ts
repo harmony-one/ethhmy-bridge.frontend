@@ -1,15 +1,19 @@
 import {
-  ACTION_TYPE, IIdentityTokenInfo,
+  ACTION_TYPE,
+  IIdentityTokenInfo,
   IOperation,
   ITokenInfo,
   NETWORK_TYPE,
   OpenSeaSingleAssetResponse,
   OpenSeaValideResponse,
+  TFullConfig,
+  TOKEN,
 } from '../stores/interfaces';
 import * as agent from 'superagent';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
+import utils from 'web3-utils';
 
 let serversJson = require('../../appengine-servers.json');
 
@@ -42,10 +46,19 @@ export const getValidators = async () => {
 export let validators = serversJson;
 export let servers = serversJson;
 
-getValidators().then(res => {
-  validators = res;
-  servers = res;
-});
+console.log("### utils.toWei('1')", utils.toWei('0.1'));
+console.log("### utils.toWei('1')", utils.toWei('1'));
+
+console.log('### from wei', utils.fromWei('1365020427840'));
+
+getValidators()
+  .then(res => {
+    validators = res;
+    servers = res;
+  })
+  .catch(ex => {
+    console.log('### ex', ex);
+  });
 
 const callAvailableServer = async (
   func: (url: string) => Promise<any>,
@@ -262,7 +275,7 @@ export const mintTokens = async ({ address, token }) => {
   return res.body;
 };
 
-export const getConfig = async () => {
+export const getConfig = async (): Promise<TFullConfig> => {
   const res = await agent.get<{
     body: any;
   }>(`${servers[0]}/config`);
@@ -374,3 +387,17 @@ export const getUIConfig = async (): Promise<{
 window.getServers = () => {
   return servers;
 };
+
+export interface UsedToken {
+  token: TOKEN;
+  originAddress: string;
+  network: NETWORK_TYPE;
+}
+
+export async function loadUsedTokenList(
+  walletAddress: string,
+): Promise<UsedToken[]> {
+  const res = await agent.get(`${validators[0]}/users/${walletAddress}/tokens`);
+
+  return res.body;
+}

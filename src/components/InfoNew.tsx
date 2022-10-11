@@ -1,20 +1,17 @@
 import React from 'react';
 import { Box } from 'grommet';
-import { Title } from './Base/components/Title';
+import { Text, Title } from './Base';
 import * as styles from './info-styles.styl';
 
 export const InfoNew = ({ title }: { title: string }) => (
-  <Box
-    className={styles.infoContainer}
-    pad={{ horizontal: 'large', top: 'large' }}
-  >
+  <Box className={styles.infoContainer} pad="large">
     {title ? (
       <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
         <Title>{title}</Title>
       </Box>
     ) : null}
     <div>
-      <p>
+      <Text color="NWhite">
         <p>Hi Horizon Bridge users,</p>
         <p>
           Due to the high Ethereum gas price, we had to update the bridge that
@@ -39,23 +36,20 @@ export const InfoNew = ({ title }: { title: string }) => (
         Thanks
         <br />
         Horizon bridge team
-      </p>
+      </Text>
     </div>
   </Box>
 );
 
 export const InfoNew2 = ({ title }: { title: string }) => (
-  <Box
-    className={styles.infoContainer}
-    pad={{ horizontal: 'large', top: 'large' }}
-  >
+  <Box className={styles.infoContainer} pad="large">
     {title ? (
       <Box direction="row" justify="center" margin={{ bottom: 'medium' }}>
         <Title>{title}</Title>
       </Box>
     ) : null}
     <div>
-      <p>
+      <Text color="NWhite">
         <p>Hi Horizon Bridge users,</p>
         <p>
           We saw some users trying to directly send their bridged tokens (for
@@ -67,7 +61,7 @@ export const InfoNew2 = ({ title }: { title: string }) => (
         Thanks
         <br />
         Horizon bridge team
-      </p>
+      </Text>
     </div>
   </Box>
 );

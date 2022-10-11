@@ -8,6 +8,18 @@ export interface ITheme {
 }
 
 export interface IPalette {
+  NBlack: string;
+  NBlack2: string;
+  NBlack3: string;
+  NGray: string;
+  NGray2: string;
+  NGray3: string;
+  NGray4: string;
+  NGray5: string;
+  NBlue: string;
+  NBlueLink: string;
+  NWhite: string;
+
   Basic1000: string;
   Basic900: string;
   Basic800: string;
@@ -45,6 +57,18 @@ export interface IBaseContainer {
 }
 
 const palette: IPalette = {
+  NGray: '#777777',
+  NGray2: '#292929',
+  NGray3: '#C4C4C4',
+  NGray4: '#AAAAAA',
+  NGray5: '#555555',
+  NBlack: '#1b1b1c',
+  NBlack2: '#111111',
+  NBlack3: '#000000',
+  NBlueLink: '#356AE5',
+  NBlue: '#1F5AE2',
+  NWhite: '#FFFFFF',
+
   Basic1000: '#323846',
   Basic900: '#4E4E64',
   Basic800: '#30303d',
@@ -80,6 +104,78 @@ const palette: IPalette = {
 };
 
 export const baseTheme: any = {
+  layout: {
+    color: palette.NWhite,
+    bgColor: palette.NBlack3,
+  },
+
+  headerTab: {
+    color: `#AAAAAA`,
+  },
+
+  headerDivider: {
+    opacity: 1,
+  },
+
+  bridgeForm: {
+    bgColor: palette.NBlack,
+  },
+
+  divider: {
+    color: palette.NGray2,
+    opacity: 1,
+  },
+
+  icon: {
+    color: palette.NWhite,
+  },
+
+  modal: {
+    borderColor: palette.NGray2,
+    bgColor: palette.NBlack3,
+  },
+
+  tokenVertical: {
+    borderColor: '#424242',
+    borderColorActive: '#ffffff',
+  },
+
+  selectPresetDefault: {
+    option: {
+      backgroundColorFocused: palette.NGray,
+      backgroundColorSelected: palette.NGray2,
+    },
+    control: {
+      backgroundColor: palette.NBlack2,
+      borderColor: palette.NWhite,
+      color: palette.NWhite,
+    },
+    menu: {
+      borderColor: palette.NWhite,
+      backgroundColor: palette.NBlack2,
+    },
+  },
+
+  selectPresetFilter: {
+    option: {
+      backgroundColorFocused: palette.NGray,
+      backgroundColorSelected: palette.NGray2,
+    },
+    control: {
+      borderColor: palette.NWhite,
+      backgroundColor: palette.NBlack2,
+    },
+    menu: {
+      borderColor: palette.NWhite,
+      backgroundColor: palette.StandardBlack,
+    },
+  },
+
+  tipContent: {
+    bgColor: palette.NGray,
+    border: `1px solid ${palette.NBlack}`,
+  },
+
   // storybook theming
   colorPrimary: 'black',
   colorSecondary: 'lightblue',
@@ -91,12 +187,12 @@ export const baseTheme: any = {
   appBorderRadius: 4,
 
   // Typography
-  fontBase: 'Nunito',
+  fontBase: 'GothamRounded',
   fontCode: 'monospace',
 
   // Text colors
-  textColor: palette.BlackTxt,
-  titleColor: palette.Basic800,
+  textColor: palette.NWhite,
+  titleColor: palette.NWhite,
   textInverseColor: palette.Basic700,
 
   // Toolbar default and active colors
@@ -116,7 +212,30 @@ export const baseTheme: any = {
 
   // grommet styling
 
+  layer: {
+    overlay: {
+      background: 'rgba(0, 0, 0, 0.9)',
+    },
+  },
+
   global: {
+    breakpoints: {
+      xsmall: {
+        value: 375,
+      },
+      small: {
+        value: 568,
+      },
+      medium: {
+        value: 768,
+      },
+      large: {
+        value: 1024,
+      },
+      xlarge: {
+        value: 1366,
+      },
+    },
     colors: {
       brand: palette.Basic700,
     },
@@ -242,9 +361,9 @@ export const baseTheme: any = {
     },
 
     input: {
-      bgColor: 'white',
-      textColor: '#212D5E',
-      border: `1px solid ${palette.Basic200}`,
+      bgColor: 'transparent',
+      textColor: palette.NWhite,
+      border: `1px solid ${palette.NWhite}`,
       borderRadius: '4px',
       disabledColor: palette.Basic300,
       minHeight: '45px',
@@ -261,10 +380,14 @@ export const baseTheme: any = {
     colors: {
       colorPrimary: palette.Purple500,
       colorSecondary: 'white',
-      buttonBgColor: '#1c2a5e',
+      buttonBgColor: '#1F5AE2',
       // buttonBgColor: '#03ade8',
       buttonHoverBgColor: '#03ade8',
       buttonColor: 'white',
+    },
+
+    checkbox: {
+      fillColor: palette.NBlue,
     },
   },
 };

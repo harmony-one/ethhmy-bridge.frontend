@@ -27,7 +27,7 @@ export const TransactionExample = () => {
     }
 
     if (!provider) {
-      console.error('Metamask not found');
+      console.error('MetaMask not found');
       return;
     }
 
@@ -102,7 +102,7 @@ export const TransactionExample = () => {
       }}
     >
       <span>Your account: {account}</span>
-      <button onClick={signInMetamask}>Sign In Metamask</button>
+      <button onClick={signInMetamask}>Sign In MetaMask</button>
       <button onClick={sendTransaction}>Send Transaction</button>
     </div>
   );

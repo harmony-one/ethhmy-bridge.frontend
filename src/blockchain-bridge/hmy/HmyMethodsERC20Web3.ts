@@ -42,7 +42,9 @@ export class HmyMethodsERC20Web3 {
       hrc20Address,
     );
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     if (Number(amount) === 0) {
       sendTxCallback('skip');
@@ -69,7 +71,9 @@ export class HmyMethodsERC20Web3 {
     );
     // @ts-ignore
     // @ts-ignore
-const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     let res = await hmyTokenContract.methods
       .isApprovedForAll(accounts[0], this.hmyManagerContractAddress)
@@ -100,7 +104,9 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
     sendTxCallback?,
   ) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     let response = await this.hmyManagerContract.methods
       .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
@@ -116,7 +122,9 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
 
   burnTokens = async (hrc20Address, userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     let response = await this.hmyManagerContract.methods
       .burnTokens(hrc20Address, amount, userAddr)
@@ -163,7 +171,7 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
     return res;
   };
 
-  checkHmyBalance = async (hrc20Address, addr: string) => {
+  checkHmyBalance = async (hrc20Address: string, addr: string) => {
     const tokenJson = require('../out/MyERC20');
     const hmyTokenContract = new this.web3.eth.Contract(
       tokenJson.abi,
@@ -201,7 +209,9 @@ const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }
 
   lockOne = async (userAddr, amount, sendTxCallback?) => {
     // @ts-ignore
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 

@@ -1,5 +1,11 @@
 import React, { useEffect } from 'react';
-import { limitLength, limitNumber, normalizeNumber, pipe } from '../../helpers';
+import {
+  absNumber,
+  limitLength,
+  limitNumber,
+  normalizeNumber,
+  pipe,
+} from '../../helpers';
 import { ITextInputProps, TextInput } from '../TextInput';
 
 type TValueTypes = 'integer' | 'decimal' | 'currency' | 'integerString';
@@ -103,3 +109,5 @@ export const NumberInput: React.FC<INumberInputProps> = ({
     />
   );
 };
+
+NumberInput.displayName = 'NumberInput';

@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
 import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../../stores/names';
 import { useMediaQuery } from 'react-responsive';
+import styled from 'styled-components';
 // import { EXPLORER_URL } from '../../blockchain';
 
 const AssetRow = props => {
@@ -21,7 +22,7 @@ const AssetRow = props => {
       align="start"
     >
       <Box>
-        <Text size="small" bold={true}>
+        <Text color="NWhite" size="small" bold={true}>
           <SliceTooltip value={props.label} maxLength={24} />
           {props.showIds ? 'Token IDs' : ''}
         </Text>
@@ -56,7 +57,7 @@ const AssetRow = props => {
           <Icon
             glyph="PrintFormCopy"
             size="20px"
-            color="#1c2a5e"
+            color="NBlue"
             style={{ marginLeft: 10, width: 20 }}
           />
         )}
@@ -64,6 +65,14 @@ const AssetRow = props => {
     </Box>
   );
 };
+
+const LiquidityWarning = styled(Box)`
+  background-color: #e65454;
+  padding: 12px;
+  color: #ebf3f9;
+  border-radius: 7px;
+  text-align: center;
+`;
 
 // const DataItem = (props: {
 //   text: any;
@@ -107,7 +116,7 @@ const AssetRow = props => {
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
-    const { exchange, userMetamask } = useStores();
+    const { exchange, tokens, userMetamask, bridgeFormStore } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
@@ -162,9 +171,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           return (
             <AssetRow
               label={`${String(exchange.token).toUpperCase()} amount`}
-              value={formatWithSixDecimals(
-                exchange.transaction.amount.toString(),
-              )}
+              value={formatWithSixDecimals(bridgeFormStore.data.amount)}
             />
           );
       }
@@ -173,12 +180,9 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
     const getImage = () => {
       if (exchange.transaction.nftImageUrl !== '') {
         return (
-          <Box margin={{bottom: "20px"}} align="center">
-            <Box width="small" direction="row" margin={{bottom: "5px"}}>
-              <Image
-                fit="cover"
-                src={exchange.transaction.nftImageUrl}
-              />
+          <Box margin={{ bottom: '20px' }} align="center">
+            <Box width="small" direction="row" margin={{ bottom: '5px' }}>
+              <Image fit="cover" src={exchange.transaction.nftImageUrl} />
             </Box>
             <Box direction="row">
               <Text size="small" bold={true}>
@@ -188,19 +192,27 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           </Box>
         );
       }
-      return ""
+      return '';
     };
+
+    const hasLiquidity = tokens.hasLiquidity(exchange.transaction.erc20Address);
 
     return (
       <Box direction="column">
         <AssetRow
           label={`${NETWORK_BASE_TOKEN[exchange.network]} address`}
-          value={truncateAddressString(exchange.transaction.ethAddress, isMobile ? 7 : 12)}
+          value={truncateAddressString(
+            userMetamask.ethAddress,
+            isMobile ? 7 : 12,
+          )}
           address={true}
         />
         <AssetRow
           label="ONE address"
-          value={truncateAddressString(exchange.transaction.oneAddress, isMobile ? 7 : 12)}
+          value={truncateAddressString(
+            exchange.transaction.oneAddress,
+            isMobile ? 7 : 12,
+          )}
           address={true}
         />
         {getAmount()}
@@ -230,6 +242,14 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
         {/*/>*/}
 
         {children ? <Box direction="column">{children}</Box> : null}
+
+        {!hasLiquidity ? (
+          <Box pad="small">
+            <LiquidityWarning>
+              Caution: This token doesn't have liquidity
+            </LiquidityWarning>
+          </Box>
+        ) : null}
 
         {showTotal ? (
           <Box
@@ -278,27 +298,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                {
-                  exchange.token === TOKEN.HRC721 ? (
-                    <AssetRow label="Lock Token" value="">
-                      <Price
-                        value={0.0067219}
-                        isEth={false}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  ): (
-                    <AssetRow label="Burn" value="">
-                      <Price
-                        value={0.0067219}
-                        isEth={false}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  )
-                }
+                {exchange.token === TOKEN.HRC721 ? (
+                  <AssetRow label="Lock Token" value="">
+                    <Price
+                      value={0.0067219}
+                      isEth={false}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                ) : (
+                  <AssetRow label="Burn" value="">
+                    <Price
+                      value={0.0067219}
+                      isEth={false}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                )}
                 <AssetRow
                   label={NETWORK_NAME[exchange.network] + ' gas'}
                   value=""
@@ -317,7 +335,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
             isShowDetail ? (
               <div style={{ opacity: 1 }}>
-                <AssetRow label="Approve (~50000 gas)" value="">
+                <AssetRow label="Approve (~60000 gas)" value="">
                   <Price
                     value={exchange.networkFee / 2}
                     isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
@@ -325,27 +343,25 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
                     network={exchange.network}
                   />
                 </AssetRow>
-                {
-                  exchange.token === TOKEN.HRC721 ? (
-                    <AssetRow label="Burn token (~50000 gas)" value="">
-                      <Price
-                        value={exchange.networkFee / 2}
-                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  ): (
-                    <AssetRow label="Lock token (~50000 gas)" value="">
-                      <Price
-                        value={exchange.networkFee / 2}
-                        isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-                        boxProps={{ pad: {} }}
-                        network={exchange.network}
-                      />
-                    </AssetRow>
-                  )
-                }
+                {exchange.token === TOKEN.HRC721 ? (
+                  <AssetRow label="Burn token (~50000 gas)" value="">
+                    <Price
+                      value={exchange.networkFee / 2}
+                      isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                ) : (
+                  <AssetRow label="Lock token (~200000 gas)" value="">
+                    <Price
+                      value={exchange.networkFee / 2}
+                      isEth={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                      boxProps={{ pad: {} }}
+                      network={exchange.network}
+                    />
+                  </AssetRow>
+                )}
               </div>
             ) : null}
 
@@ -373,7 +389,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
           <Box direction="column" margin={{ top: 'large' }}>
             <AssetRow
               label="Transaction hash"
-              value={truncateAddressString(exchange.txHash, isMobile ? 7: 12)}
+              value={truncateAddressString(exchange.txHash, isMobile ? 7 : 12)}
               address={true}
             />
           </Box>
@@ -382,6 +398,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
     );
   },
 );
+
+Details.displayName = 'Details';
 
 export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
@@ -423,3 +441,5 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
     );
   },
 );
+
+TokenDetails.displayName = 'TokenDetails';

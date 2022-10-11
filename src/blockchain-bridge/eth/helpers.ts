@@ -25,7 +25,7 @@ export const getGasPrice = async (web3: Web3) => {
 
 export const getNetworkFee = async (web3: Web3) => {
   const gasPrice = await getGasPrice(web3);
-  const gasLimit = new BN(50000);
+  const gasLimit = new BN(22000);
 
   const fee = gasLimit.mul(gasPrice).mul(new BN(2));
 

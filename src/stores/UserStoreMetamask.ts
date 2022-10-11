@@ -4,17 +4,32 @@ import detectEthereumProvider from '@metamask/detect-provider';
 import { StoreConstructor } from './core/StoreConstructor';
 import {
   getExNetworkMethods,
-  hmyMethodsBEP20, hmyMethodsERC1155,
+  getHmyBalance,
+  hmyMethodsBEP20,
+  hmyMethodsBUSD,
+  hmyMethodsERC1155,
   hmyMethodsERC20,
-  hmyMethodsERC721, hmyMethodsHRC1155,
-  hmyMethodsERC721Hmy
+  hmyMethodsERC721,
+  hmyMethodsERC721Hmy,
+  hmyMethodsHRC1155,
+  hmyMethodsHRC20,
+  hmyMethodsHRC721,
+  hmyMethodsLINK,
 } from '../blockchain-bridge';
 import { divDecimals } from '../utils';
-import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from './interfaces';
+import { EXCHANGE_MODE, ITokenInfo, NETWORK_TYPE, TOKEN } from './interfaces';
 import Web3 from 'web3';
-import { NETWORK_BASE_TOKEN, NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
+import { NETWORK_ERC20_TOKEN, NETWORK_NAME } from './names';
 import { isAddressEqual } from './UserStore';
 import * as services from '../services';
+import { loadUsedTokenList } from '../services';
+import { getChainConfig, numberToHex } from './Exchange/helpers';
+import {
+  buildTokenId,
+  buildUsedTokenId,
+  getAssetOriginAddress,
+  getAssetsMappingAddress,
+} from '../utils/token';
 
 const defaults = {};
 
@@ -47,6 +62,8 @@ export class UserStoreMetamask extends StoreConstructor {
   @observable erc20Balance: string = '';
 
   @observable metamaskChainId = 0;
+
+  @observable balances: Record<string, string> = {};
 
   constructor(stores) {
     super(stores);
@@ -94,7 +111,9 @@ export class UserStoreMetamask extends StoreConstructor {
   }
 
   @computed public get isNetworkActual() {
-    console.log('metamaskChainId', this.metamaskChainId);
+    const config = this.stores.exchange.getChainConfig();
+
+    return numberToHex(Number(this.metamaskChainId)) === config.chainId;
 
     switch (process.env.NETWORK) {
       case 'testnet':
@@ -123,6 +142,14 @@ export class UserStoreMetamask extends StoreConstructor {
       return this.setError('Please connect to MetaMask');
     } else {
       this.ethAddress = accounts[0];
+
+      const inputName =
+        this.stores.exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
+          ? 'ethAddress'
+          : 'oneAddress';
+
+      this.stores.exchange.transaction[inputName] = this.ethAddress;
+
       this.syncLocalStorage();
     }
   }
@@ -166,7 +193,7 @@ export class UserStoreMetamask extends StoreConstructor {
       }
 
       if (!provider) {
-        return this.setError('Metamask not found');
+        return this.setError('MetaMask not found');
       }
 
       this.provider = provider;
@@ -228,6 +255,32 @@ export class UserStoreMetamask extends StoreConstructor {
     }
   }
 
+  @action
+  public async switchNetwork(mode: EXCHANGE_MODE, network: NETWORK_TYPE) {
+    const config = getChainConfig(mode, network);
+    try {
+      await this.provider.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: config.chainId }],
+      });
+
+      console.log('### success');
+    } catch (switchError) {
+      if (switchError.code === 4902) {
+        try {
+          await this.provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [config],
+          });
+        } catch (addError) {
+          console.log('### addError', addError);
+        }
+      } else {
+        console.log('### ex', switchError);
+      }
+    }
+  }
+
   public syncLocalStorage() {
     localStorage.setItem(
       'harmony_metamask_session',
@@ -238,6 +291,161 @@ export class UserStoreMetamask extends StoreConstructor {
         token: this.stores.exchange.token,
       }),
     );
+  }
+
+  @action.bound public async loadTokenListBalance(tokens: ITokenInfo[]) {
+    const walletAddress = this.stores.userMetamask.ethAddress;
+    const usedTokenList = await loadUsedTokenList(walletAddress);
+
+    const usedTokenMap = usedTokenList.reduce((acc, item) => {
+      return {
+        ...acc,
+        [buildUsedTokenId(item)]: item,
+      };
+    }, {});
+
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+
+      const tokenId = buildTokenId(token);
+      const usedToken = usedTokenMap[tokenId];
+
+      if (usedToken) {
+        const balance = await this.loadTokenBalance(token, walletAddress);
+        this.balances[tokenId] = divDecimals(balance, token.decimals);
+      }
+    }
+
+    this.balances = { ...this.balances };
+  }
+
+  @action.bound public async loadTokenBalance(
+    token: ITokenInfo,
+    walletAddress,
+  ) {
+    if (!this.isNetworkActual) {
+      return 0;
+    }
+
+    const isHarmonyNetwork =
+      this.stores.exchange.network === NETWORK_TYPE.HARMONY;
+    const isNetworkOriginForToken =
+      this.stores.exchange.network === token.network;
+    if (!isHarmonyNetwork && !isNetworkOriginForToken) {
+      return 0;
+    }
+
+    try {
+      if (token.network === NETWORK_TYPE.HARMONY) {
+        const contractAddress = getAssetsMappingAddress(token);
+
+        switch (token.token) {
+          case TOKEN.ONE:
+            return await getHmyBalance(walletAddress);
+          case TOKEN.ETH:
+            return await hmyMethodsERC20.hmyMethodsWeb3.checkHmyBalance(
+              contractAddress,
+              walletAddress,
+            );
+          case TOKEN.ERC20:
+            return await hmyMethodsERC20.hmyMethodsWeb3.checkHmyBalance(
+              contractAddress,
+              walletAddress,
+            );
+          case TOKEN.HRC20:
+            const hrc20ContractAddress = getAssetOriginAddress(token);
+            return await hmyMethodsHRC20.hmyMethodsWeb3.checkHmyBalance(
+              hrc20ContractAddress,
+              walletAddress,
+            );
+          case TOKEN.LINK:
+            return await hmyMethodsLINK.hmyMethodsWeb3.checkHmyBalance(
+              walletAddress,
+            );
+          case TOKEN.BUSD:
+            return await hmyMethodsBUSD.hmyMethodsWeb3.checkHmyBalance(
+              walletAddress,
+            );
+          case TOKEN.HRC721:
+            return await hmyMethodsHRC721.hmyMethodsWeb3.checkHmyBalance(
+              contractAddress,
+              walletAddress,
+            );
+          case TOKEN.ERC721:
+            return await hmyMethodsERC721.hmyMethodsWeb3.checkHmyBalance(
+              contractAddress,
+              walletAddress,
+            );
+          case TOKEN.HRC1155:
+            return await hmyMethodsHRC1155.hmyMethodsWeb3.balanceOf(
+              contractAddress,
+              walletAddress,
+            );
+          case TOKEN.ERC1155:
+            return await hmyMethodsERC1155.hmyMethodsWeb3.balanceOf(
+              contractAddress,
+              walletAddress,
+            );
+        }
+      }
+
+      const exNetwork = getExNetworkMethods(token.network);
+      const contractAddress = getAssetOriginAddress(token);
+      switch (token.token) {
+        case TOKEN.ONE:
+          const extContractAddress = getAssetsMappingAddress(token);
+          return await exNetwork.ethMethodsERC20.checkEthBalance(
+            extContractAddress,
+            walletAddress,
+          );
+        case TOKEN.ETH:
+          return await exNetwork.getEthBalance(walletAddress);
+        case TOKEN.ERC20:
+          return await exNetwork.ethMethodsERC20.checkEthBalance(
+            contractAddress,
+            walletAddress,
+          );
+        case TOKEN.HRC20:
+          let address = await exNetwork.ethMethodsHRC20.getMappingFor(
+            contractAddress,
+            false,
+          );
+
+          return await exNetwork.ethMethodsHRC20.checkEthBalance(
+            address,
+            walletAddress,
+          );
+        case TOKEN.LINK:
+          return await exNetwork.ethMethodsLINK.checkEthBalance(walletAddress);
+        case TOKEN.BUSD:
+          return await exNetwork.ethMethodsBUSD.checkEthBalance(walletAddress);
+        case TOKEN.HRC721:
+          return await exNetwork.ethMethodsHRC721.checkEthBalance(
+            contractAddress,
+            walletAddress,
+          );
+        case TOKEN.ERC721:
+          return await exNetwork.ethMethodsERС721.checkEthBalance(
+            contractAddress,
+            walletAddress,
+          );
+        case TOKEN.HRC1155:
+          return await exNetwork.ethMethodsHRC1155.checkEthBalance(
+            contractAddress,
+            walletAddress,
+          );
+        case TOKEN.ERC1155:
+          return await exNetwork.ethMethodsERC1155.checkEthBalance(
+            contractAddress,
+            walletAddress,
+          );
+      }
+    } catch (err) {
+      console.log('### ========');
+      console.log(`### err ${token.token} ${token.network}`, err.message);
+
+      return 0;
+    }
   }
 
   @action.bound public getBalances = async () => {
@@ -499,15 +707,13 @@ export class UserStoreMetamask extends StoreConstructor {
 
     let details;
 
-    if(this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
+    if (this.stores.exchange.mode === EXCHANGE_MODE.ETH_TO_ONE) {
       details = await exNetwork.ethMethodsERС721.tokenDetailsERC721(
         erc20Address,
       );
     } else {
       try {
-        details = await hmyMethodsERC721Hmy.tokenDetails(
-          hrc20Address,
-        );
+        details = await hmyMethodsERC721Hmy.tokenDetails(hrc20Address);
       } catch (e) {
         console.error(e);
         throw new Error('Token not found');
@@ -515,7 +721,9 @@ export class UserStoreMetamask extends StoreConstructor {
     }
 
     this.erc20Address = erc20Address;
-    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc20Address);
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(
+      erc20Address,
+    );
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
 
@@ -588,11 +796,15 @@ export class UserStoreMetamask extends StoreConstructor {
       erc1155Address,
     );
     this.erc1155Address = erc1155Address;
-    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(erc1155Address);
+    this.stores.erc20Select.erc20VerifiedInfo = await services.hasOpenSeaValid(
+      erc1155Address,
+    );
     const tokenId = this.stores.erc20Select.hrc1155TokenId || '0';
 
     this.erc20TokenDetails = { ...details, decimals: '0' };
-    this.stores.userMetamask.erc20Balance = Number(await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId)).toString();
+    this.stores.userMetamask.erc20Balance = Number(
+      await exNetwork.ethMethodsERC1155.balanceOf(erc1155Address, tokenId),
+    ).toString();
 
     const address = await hmyMethodsERC1155.hmyMethods.getMappingFor(
       erc1155Address,
@@ -605,7 +817,9 @@ export class UserStoreMetamask extends StoreConstructor {
         : hmyMethodsBase.hmyMethods;
 
       try {
-        this.stores.user.hrc20Balance = Number(await hmyMethods.balanceOf(address, tokenId)).toString();
+        this.stores.user.hrc20Balance = Number(
+          await hmyMethods.balanceOf(address, tokenId),
+        ).toString();
       } catch (e) {
         // nop
       }

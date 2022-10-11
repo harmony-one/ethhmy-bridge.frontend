@@ -1,0 +1,60 @@
+@require '../../../../../../variables.styl'
+
+.metamaskButton.metamaskButton {
+  background-color: #999999;
+  border-radius: 7px;
+  padding: 4px 16px;
+  transition: background-color 300ms linear;
+
+  &.active {
+    background-color: #B56625;
+  }
+}
+
+.inputWrapperDark.inputWrapperDark {
+  margin-bottom: 0;
+  width: 100%;
+  input {
+    background-color: $NBlack;
+    border-radius: 7px;
+    padding: 4px 4px;
+    border: 1px solid $NGray;
+    text-align: center;
+    font-size: 16px;
+    color: $NWhite;
+  }
+}
+
+.inputWrapperLight.inputWrapperLight {
+  width: 100%;
+  margin-bottom: 0;
+
+  input {
+    background-color: $NWhite;
+    border-radius: 7px;
+    padding: 4px 4px;
+    border: 1px solid $NGray;
+    text-align: center;
+    font-size: 16px;
+    color: $NBlack;
+  }
+}
+
+.inputOverride.inputOverride {
+  color: $NWhite;
+}
+
+
+// TODO: TEXT INPUT
+.input.input {
+  padding: 0;
+  margin-bottom: 0;
+  width: 100%;
+
+  input {
+    background-color: transparent;
+    text-align: center;
+    font-size: 18px;
+    color: $NWhite;
+  }
+}

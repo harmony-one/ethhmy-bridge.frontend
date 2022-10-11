@@ -1,7 +1,10 @@
+@require '../../variables.styl'
+
 .addressLink {
   text-decoration none
   font-family Courier
-  color #47b8eb
+  color $NBlue
+
 }
 
 .rightHeader {
@@ -89,6 +92,16 @@
 }
 
 :global {
+  ::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    width: 3px;
+    background-color: #959595;
+    border-radius: 15px;
+  }
   .stuckOperation {
     background-color #FF000010;
     td {

@@ -26,8 +26,8 @@ export interface INetworkMethods {
   getEthBalance: (address: string) => Promise<string>;
 }
 
-const init = (config: TConfig): INetworkMethods => {
-  const web3 = new Web3(web3URL);
+export const initNetwork = (config: TConfig, url?: string): INetworkMethods => {
+  const web3 = new Web3(url || web3URL);
 
   const ethBUSDJson = require('../out/MyERC20');
   const ethBUSDContract = new web3.eth.Contract(
@@ -107,7 +107,7 @@ const init = (config: TConfig): INetworkMethods => {
     web3: web3,
     ethManagerContract: ethManagerContract,
     ethManagerAddress: config.contracts.erc20Manager,
-    gasPrice: config.gasPrice
+    gasPrice: config.gasPrice,
   });
 
   const ethMethodsHRC20 = new EthMethodsHRC20({
@@ -115,7 +115,7 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerContract: ethManagerContractHrc20,
     ethManagerAddress: config.contracts.hrc20Manager,
     ethTokenManagerAddress: config.contracts.tokenManager,
-    gasPrice: config.gasPrice
+    gasPrice: config.gasPrice,
   });
 
   const ethMethodsERС721 = new EthMethodsERC20({
@@ -129,7 +129,7 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerContract: ethManagerContractHRC721,
     ethManagerAddress: config.contracts.hrc721Manager,
     ethTokenManagerAddress: config.contracts.hrc721TokenManager,
-    gasPrice: config.gasPrice
+    gasPrice: config.gasPrice,
   });
 
   const ethMethodsERC1155 = new EthMethodsERC1155({
@@ -143,7 +143,7 @@ const init = (config: TConfig): INetworkMethods => {
     ethManagerContract: ethManagerContractHRC1155,
     ethManagerAddress: config.contracts.hrc1155Manager,
     ethTokenManagerAddress: config.contracts.hrc1155TokenManager,
-    gasPrice: config.gasPrice
+    gasPrice: config.gasPrice,
   });
 
   return {
@@ -175,15 +175,21 @@ const init = (config: TConfig): INetworkMethods => {
 let ethNetwork: INetworkMethods, binanceNetwork: INetworkMethods;
 
 export const initNetworks = (fullCinfig: TFullConfig) => {
-  ethNetwork = init(fullCinfig.ethClient);
-  binanceNetwork = init(fullCinfig.binanceClient);
+  ethNetwork = initNetwork(fullCinfig.ethClient);
+  binanceNetwork = initNetwork(fullCinfig.binanceClient);
 };
 
-export const getExNetworkMethods = (): INetworkMethods => {
-  switch (stores.exchange.network) {
+export const getExNetworkMethods = (
+  network?: NETWORK_TYPE,
+): INetworkMethods => {
+  const net = network || stores.exchange.network;
+
+  switch (net) {
     case NETWORK_TYPE.ETHEREUM:
       return ethNetwork;
     case NETWORK_TYPE.BINANCE:
       return binanceNetwork;
   }
+
+  throw new Error(`network ${stores.exchange.network}`);
 };

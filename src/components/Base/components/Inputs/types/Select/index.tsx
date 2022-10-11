@@ -11,6 +11,7 @@ import { Text } from 'components/Base';
 
 export interface ISelectOption {
   text: string | number;
+  symbol?: string;
   value: string | number;
   image?: string | number;
 }
@@ -102,7 +103,9 @@ const IconSingleValue = placeholder => props => (
             alt={props.data.label}
           />
         ) : null}
-        <Text style={{ marginTop: 2 }}>{props.data.label}</Text>
+        <Text size="xxsmall" style={{ marginTop: 2 }}>
+          {props.data.label}
+        </Text>
       </Box>
     ) : (
       <div style={{ opacity: 0.8 }}>{placeholder}</div>
@@ -151,7 +154,9 @@ const SelectClass = (props: ICommonInputProps & ISelectProps) => {
   );
 };
 
-export const Select: React.ComponentType<ISelectProps> = withTheme(SelectClass);
+export const Select: React.ComponentType<ISelectProps> = withTheme(
+  React.memo(SelectClass),
+);
 
 const injectValueProp = (value: any, options: ISelectOption[]) =>
   typeof value === 'undefined'

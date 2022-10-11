@@ -11,6 +11,7 @@ import { isFilterApplied } from './utils/filters';
 
 import './styles.styl';
 import { TableProps } from 'rc-table/es/Table';
+import { Box } from 'grommet';
 
 const LoaderWrap = styled.div`
   position: absolute;
@@ -19,7 +20,7 @@ const LoaderWrap = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 2;
 `;
 
@@ -140,14 +141,17 @@ export class Table extends React.Component<IProps> {
     }
 
     return (
-      <CustomPagination
-        type={paginationType}
-        config={paginationData}
-        onChange={config => {
-          onChangeDataFlow({ paginationData: config });
-        }}
-        activeColor="Blue600"
-      />
+      <Box pad={{ vertical: '32px' }}>
+        <CustomPagination
+          showSizer={false}
+          type={paginationType}
+          config={paginationData}
+          onChange={config => {
+            onChangeDataFlow({ paginationData: config });
+          }}
+          activeColor="NGray3"
+        />
+      </Box>
     );
   }
 
@@ -164,7 +168,7 @@ export class Table extends React.Component<IProps> {
     const ItemRender = customItem ? customItem.render : null;
 
     return (
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', width: '100%' }}>
         {isPending && (
           <LoaderWrap>
             <Spinner style={{ width: 24, height: 24 }} />

@@ -98,6 +98,26 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
 
   @observable selectedNetwork: NETWORK_TYPE;
 
+  hasLiquidity(address: string) {
+    const token = this.allData.find(token => token.erc20Address === address);
+
+    if (!token) {
+      return false;
+    }
+
+    return Number(token.totalLockedUSD) > 10000;
+  }
+
+  getMappedAddress(address: string): string {
+    const token = this.allData.find(token => token.erc20Address === address);
+
+    if (!token) {
+      return '';
+    }
+
+    return token.hrc20Address;
+  }
+
   @computed get totalLockedUSD() {
     return this.data
       .filter(a =>

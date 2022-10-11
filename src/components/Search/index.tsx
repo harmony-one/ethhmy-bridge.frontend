@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Box } from 'grommet';
 import { Icon, TextInput } from 'components/Base';
 import { observer } from 'mobx-react-lite';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { baseTheme } from '../../themes';
 
 export const SearchInput = observer(
@@ -10,15 +10,10 @@ export const SearchInput = observer(
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    className?: string;
   }) => {
     return (
       <StyledInput
-        style={{
-          background: 'white',
-          flex: 1,
-          padding: '0 0 0 16px',
-          height: 48,
-        }}
         onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
           if (event.key === 'Enter') params.onChange(params.value);
         }}
@@ -26,7 +21,7 @@ export const SearchInput = observer(
         renderRight={
           params.value && <CleanIcon onClick={() => params.onChange('')} />
         }
-        placeholder={params.placeholder || 'Search by asset details'}
+        placeholder={params.placeholder || ''}
         value={params.value}
         onChange={value => params.onChange(value)}
         {...({} as any)} // dirty hack for typechecking onKeyDown
@@ -35,24 +30,31 @@ export const SearchInput = observer(
   },
 );
 
-const StyledInput = styled(TextInput)`
-  padding: 0px;
-  color: ${baseTheme.palette.BlackTxt};
+const Custom = ({ className, ...restProps }) => {
+  return <TextInput wrapperProps={{ className }} {...restProps} />;
+};
+
+const StyledInput = styled(Custom)`
+  background: ${props => props.theme.styled.input.bgColor};
+  padding: 0 0 0 16px;
+  border-radius: 15px;
+  color: ${props => props.theme.styled.input.textColor};
+  border: 1px solid ${props => props.theme.styled.input.border};
+  height: 50px;
   font-size: 16px;
   ::placeholder {
     color: ${baseTheme.palette.Basic400};
+  }
+
+  input {
+    color: ${props => props.theme.styled.input.textColor};
   }
 `;
 
 function SearchIcon() {
   return (
     <Box>
-      <Icon
-        glyph="Search"
-        size="20px"
-        color="#A4A7AB"
-        style={{ marginRight: 5 }}
-      />
+      <Icon glyph="SearchN" size="20px" style={{ marginRight: 5 }} />
     </Box>
   );
 }
@@ -63,7 +65,6 @@ function CleanIcon({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       glyph="Close"
       size="20px"
-      color="#D1D3D5"
       style={{ marginRight: 10, marginLeft: 10 }}
     />
   );

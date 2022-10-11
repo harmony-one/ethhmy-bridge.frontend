@@ -6,22 +6,28 @@ import { ICommonInputProps, TSize, getColor, getSize } from '../common';
 
 const Input = styled.input`
   background-color: transparent;
-  color: ${props => props.theme.styled.input.textColor};
+  color: ${props => props.theme.palette.NWhite};
   border: none;
   padding: 0;
-  font-size: 14px;
+  font-size: 18px;
   box-sizing: border-box;
   width: 100%;
+  font-family: GothamRounded;
 
   &:focus {
     outline: none;
   }
 `;
 
+Input.displayName = 'Input';
+
 type TPlacement = 'Top' | 'Right' | 'Bottom' | 'Left';
 type TBRadiusPlacement = 'TopLeft' | 'TopRight' | 'BottomLeft' | 'BottomRight';
 
-export function getInputBorder(props: IInputWrapProps & { theme: any }, placement: TPlacement) {
+export function getInputBorder(
+  props: IInputWrapProps & { theme: any },
+  placement: TPlacement,
+) {
   const { theme } = props;
   const { input } = theme.styled;
 
@@ -36,7 +42,7 @@ export function getInputBorder(props: IInputWrapProps & { theme: any }, placemen
 
 export function getInputBorderRadius(
   props: IInputWrapProps & { theme: any },
-  placement: TBRadiusPlacement
+  placement: TBRadiusPlacement,
 ) {
   const { theme } = props;
   const { input = {} } = get(theme, 'styled', {});
@@ -51,6 +57,10 @@ export function getInputBorderRadius(
 }
 
 interface IInputWrapProps {
+  className?: string;
+  wrapperProps?: {
+    className?: string;
+  };
   bgColor: string;
 
   border: string;
@@ -68,24 +78,31 @@ interface IInputWrapProps {
   margin: string;
   size: TSize;
   disabled: boolean;
+  align?: string;
 }
 
 const InputWrap = styled.div<IInputWrapProps>`
   display: flex;
   background-color: ${props =>
-    getColor(props.bgColor || props.theme.styled.input.bgColor, props.theme.palette)};
-  color: ${props => getColor(props.theme.styled.input.textColor, props.theme.palette)};
+    getColor(
+      props.bgColor || props.theme.styled.input.bgColor,
+      props.theme.palette,
+    )};
+  color: ${props =>
+    getColor(props.theme.styled.input.textColor, props.theme.palette)};
   border-top: ${props => getInputBorder(props, 'Top')};
   border-right: ${props => getInputBorder(props, 'Right')};
   border-bottom: ${props => getInputBorder(props, 'Bottom')};
   border-left: ${props => getInputBorder(props, 'Left')};
   border-top-left-radius: ${props => getInputBorderRadius(props, 'TopLeft')};
   border-top-right-radius: ${props => getInputBorderRadius(props, 'TopRight')};
-  border-bottom-left-radius: ${props => getInputBorderRadius(props, 'BottomLeft')};
-  border-bottom-right-radius: ${props => getInputBorderRadius(props, 'BottomRight')};
-  padding: 14px;
+  border-bottom-left-radius: ${props =>
+    getInputBorderRadius(props, 'BottomLeft')};
+  border-bottom-right-radius: ${props =>
+    getInputBorderRadius(props, 'BottomRight')};
+  padding: 8px 0;
   margin: ${props => (props.margin ? props.margin : '')};
-  font-size: 16px;
+  font-size: 18px;
   box-sizing: border-box;
   width: ${props => getSize(props.size, props.theme)};
 
@@ -100,6 +117,8 @@ const InputWrap = styled.div<IInputWrapProps>`
   }
 `;
 
+InputWrap.displayName = 'InputWrap';
+
 export interface ITextInputProps extends ICommonInputProps {
   value?: string | number;
   mask?: string;
@@ -113,7 +132,15 @@ export const TextInputComponent = React.forwardRef<
   HTMLInputElement,
   ITextInputProps & Partial<IInputWrapProps> & { theme?: {} }
 >((props, ref) => {
-  const { renderLeft, renderRight, children, onChange, style, mask, ...rest } = props;
+  const {
+    renderLeft,
+    renderRight,
+    children,
+    onChange,
+    style,
+    mask,
+    ...rest
+  } = props;
   const { wrapperProps, inputProps } = divideProps(rest);
 
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,10 +178,14 @@ export const TextInputComponent = React.forwardRef<
   );
 });
 
+TextInputComponent.displayName = 'TextInputComponent';
+
 export const TextInput = withTheme(TextInputComponent);
 TextInput.displayName = 'TextInput';
 
-const divideProps = (props: ITextInputProps & Partial<IInputWrapProps> & { theme?: {} }) => {
+const divideProps = (
+  props: ITextInputProps & Partial<IInputWrapProps> & { theme?: {} },
+) => {
   const {
     mask,
     size,
@@ -170,10 +201,13 @@ const divideProps = (props: ITextInputProps & Partial<IInputWrapProps> & { theme
     borderBottomRightRadius,
     borderBottomLeftRadius,
     margin,
+    // className,
+    wrapperProps,
+    align,
     ...inputProps
   } = props;
 
-  const wrapperProps = {
+  const _wrapperProps = {
     size,
     bgColor,
     border,
@@ -186,10 +220,14 @@ const divideProps = (props: ITextInputProps & Partial<IInputWrapProps> & { theme
     borderTopRightRadius,
     borderBottomRightRadius,
     borderBottomLeftRadius,
+    // className,
+
     margin,
+    align,
     disabled: props.disabled,
     theme: props.theme,
+    ...wrapperProps,
   };
 
-  return { inputProps, wrapperProps };
+  return { inputProps, wrapperProps: _wrapperProps };
 };

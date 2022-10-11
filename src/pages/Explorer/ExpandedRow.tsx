@@ -198,11 +198,11 @@ export const ExpandedRow = observer((props: IExpandedRowProps) => {
             </Box>
 
             <Box
-              className={cn(styles.status, styles[action.status])}
+              // className={cn(styles.status, styles[action.status])}
               margin={{ right: '25px' }}
               style={{ width: 120 }}
             >
-              {action.status}
+              <Text color="NWhite">{action.status}</Text>
             </Box>
 
             {[

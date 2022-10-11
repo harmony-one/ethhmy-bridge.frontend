@@ -11,8 +11,11 @@ import cn from 'classnames';
 import { Button, Text } from 'components/Base';
 import { WalletBalances } from './WalletBalances';
 import { NETWORK_ICON, NETWORK_NAME } from '../../stores/names';
-// import { ERC20Select } from '../Exchange/ERC20Select';
 import { useMediaQuery } from 'react-responsive';
+import { LayoutCommon } from '../../components/Layouts/LayoutCommon/LayoutCommon';
+import { ethBridgeStore } from './EthBridgeStore';
+import { StepManager } from './components/StepManager/StepManager';
+import { Form } from '../../components/Form';
 
 const LargeButton = observer(
   (props: {
@@ -95,7 +98,14 @@ const NetworkButton = observer(({ type }: { type: NETWORK_TYPE }) => {
 });
 
 export const EthBridge = observer((props: any) => {
-  const { user, exchange, routing, userMetamask, tokens } = useStores();
+  const {
+    user,
+    exchange,
+    routing,
+    userMetamask,
+    tokens,
+    bridgeFormStore,
+  } = useStores();
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
   useEffect(() => {
@@ -107,6 +117,7 @@ export const EthBridge = observer((props: any) => {
     if (props.match.params.token) {
       if (
         [
+          TOKEN.ALL,
           TOKEN.LINK,
           TOKEN.BUSD,
           TOKEN.ERC20,
@@ -120,6 +131,7 @@ export const EthBridge = observer((props: any) => {
         ].includes(props.match.params.token)
       ) {
         exchange.setToken(props.match.params.token);
+        bridgeFormStore.setToken(props.match.params.token);
 
         if (TOKEN.ETH === props.match.params.token) {
           user.setHRC20Token(process.env.ETH_HRC20);
@@ -146,7 +158,7 @@ export const EthBridge = observer((props: any) => {
     tokens.fetch();
   }, []);
 
-  if (isMobile) {
+  if (isMobile && false) {
     return (
       <BaseContainer>
         <PageContainer>
@@ -174,7 +186,7 @@ export const EthBridge = observer((props: any) => {
                 >
                   <LargeButton
                     title="ETH -> ONE"
-                    description="(Metamask)"
+                    description="(MetaMask)"
                     onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
                     isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
                   />
@@ -182,7 +194,7 @@ export const EthBridge = observer((props: any) => {
                     title="ONE -> ETH"
                     reverse={true}
                     description={
-                      user.isMetamask ? '(Metamask)' : '(ONE Wallet)'
+                      user.isMetamask ? '(MetaMask)' : '(ONE Wallet)'
                     }
                     onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
                     isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
@@ -198,78 +210,86 @@ export const EthBridge = observer((props: any) => {
   }
 
   return (
-    <BaseContainer>
-      <PageContainer>
-        <Box
-          direction="row"
-          wrap={true}
-          fill={true}
-          justify="between"
-          align="start"
+    <LayoutCommon>
+      <Box
+        direction="column"
+        wrap={true}
+        fill={true}
+        justify="center"
+        align="center"
+        style={{ maxWidth: '580px' }}
+      >
+        <Form
+          style={{ width: 'inherit' }}
+          ref={ref => (ethBridgeStore.formRef = ref)}
+          data={bridgeFormStore.data}
         >
-          <Box
-            direction="column"
-            align="center"
-            justify="center"
-            className={styles.base}
-          >
-            {/*<Box*/}
-            {/*  direction="row"*/}
-            {/*  justify="center"*/}
-            {/*  margin={{ top: 'large' }}*/}
-            {/*>*/}
-            {/*  <Title size="medium" color="BlackTxt" bold>*/}
-            {/*    BUSD Bridge*/}
-            {/*  </Title>*/}
-            {/*</Box>*/}
+          <StepManager />
+        </Form>
 
+        {false && (
+          <Box>
+            <Text color="NWhite">STEP: {exchange.step.id}</Text>
+            <Text color="NWhite">{exchange.network}</Text>
+          </Box>
+        )}
+
+        {false && (
+          <>
             <Box
-              direction="row"
-              justify="between"
-              width="560px"
-              margin={{ vertical: 'large' }}
+              direction="column"
+              align="center"
+              justify="center"
+              className={styles.base}
             >
-              <LargeButton
-                title="ETH -> ONE"
-                description="(Metamask)"
-                onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
-                isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
-              />
-              <LargeButton
-                title="ONE -> ETH"
-                reverse={true}
-                description={user.isMetamask ? '(Metamask)' : '(ONE Wallet)'}
-                onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
-                isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
-              />
+              <Box
+                direction="row"
+                justify="between"
+                width="560px"
+                margin={{ vertical: 'large' }}
+              >
+                <LargeButton
+                  title="ETH -> ONE"
+                  description="(MetaMask)"
+                  onClick={() => exchange.setMode(EXCHANGE_MODE.ETH_TO_ONE)}
+                  isActive={exchange.mode === EXCHANGE_MODE.ETH_TO_ONE}
+                />
+                <LargeButton
+                  title="ONE -> ETH"
+                  reverse={true}
+                  description={user.isMetamask ? '(MetaMask)' : '(ONE Wallet)'}
+                  onClick={() => exchange.setMode(EXCHANGE_MODE.ONE_TO_ETH)}
+                  isActive={exchange.mode === EXCHANGE_MODE.ONE_TO_ETH}
+                />
+              </Box>
+
+              {/*<Box*/}
+              {/*  margin={{ bottom: 'medium' }}*/}
+              {/*>*/}
+              {/*  <ERC20Select />*/}
+              {/*</Box>*/}
+
+              <Exchange />
+
+              {/*<Box*/}
+              {/*  className={styles.walletBalancesContainer}*/}
+              {/*>*/}
+              {/*  <DisableWrap disabled={!user.isAuthorized}>*/}
+              {/*    <WalletBalances />*/}
+              {/*  </DisableWrap>*/}
+              {/*</Box>*/}
             </Box>
 
-            {/*<Box*/}
-            {/*  margin={{ bottom: 'medium' }}*/}
-            {/*>*/}
-            {/*  <ERC20Select />*/}
-            {/*</Box>*/}
-
-            <Exchange />
-
-            {/*<Box*/}
-            {/*  className={styles.walletBalancesContainer}*/}
-            {/*>*/}
-            {/*  <DisableWrap disabled={!user.isAuthorized}>*/}
-            {/*    <WalletBalances />*/}
-            {/*  </DisableWrap>*/}
-            {/*</Box>*/}
-          </Box>
-
-          <Box direction="column" margin={{ top: 'large' }}>
-            <Box direction="row" justify="start" gap="20px">
-              <NetworkButton type={NETWORK_TYPE.BINANCE} />
-              <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+            <Box direction="column" margin={{ top: 'large' }}>
+              <Box direction="row" justify="start" gap="20px">
+                <NetworkButton type={NETWORK_TYPE.BINANCE} />
+                <NetworkButton type={NETWORK_TYPE.ETHEREUM} />
+              </Box>
+              <WalletBalances />
             </Box>
-            <WalletBalances />
-          </Box>
-        </Box>
-      </PageContainer>
-    </BaseContainer>
+          </>
+        )}
+      </Box>
+    </LayoutCommon>
   );
 });
