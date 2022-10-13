@@ -245,13 +245,13 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
 
         {children ? <Box direction="column">{children}</Box> : null}
 
-        {!hasLiquidity ? (
-          <Box pad="small">
-            <LiquidityWarning>
-              Caution: This token doesn't have liquidity
-            </LiquidityWarning>
-          </Box>
-        ) : null}
+        {/*{!hasLiquidity ? (*/}
+        {/*  <Box pad="small">*/}
+        {/*    <LiquidityWarning>*/}
+        {/*      Caution: This token doesn't have liquidity*/}
+        {/*    </LiquidityWarning>*/}
+        {/*  </Box>*/}
+        {/*) : null}*/}
 
         {showTotal ? (
           <Box

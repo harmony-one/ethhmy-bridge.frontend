@@ -100,7 +100,7 @@ export const Header: React.FC<Props> = React.memo(() => {
       >
         <HeaderTab title="Bridge" to="/busd" />
         <HeaderTab title="Assets" to="/tokens" />
-        <HeaderTab title="iToken" to="/itokens" />
+        {/*<HeaderTab title="iToken" to="/itokens" />*/}
         <HeaderTab title="All Transactions" to="/explorer" />
         <HeaderTab
           title="Help"

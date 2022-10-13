@@ -39,9 +39,9 @@ export const TokenRow: React.FC<Props> = observer(() => {
 
   return (
     <Box direction="column">
-      <Box justify="center" align="center" pad={{ bottom: '16px' }}>
-        <TokenSettings />
-      </Box>
+      {/*<Box justify="center" align="center" pad={{ bottom: '16px' }}>*/}
+      {/*  <TokenSettings />*/}
+      {/*</Box>*/}
       <Box direction="row" justify="center">
         <Box basis="0" flex="grow">
           <TokenControl />

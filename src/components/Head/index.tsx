@@ -146,17 +146,17 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Assets</Text>
             </Box>
 
-            <Box
-              className={cn(
-                styles.itemToken,
-                isIdentityTokens ? styles.selected : '',
-              )}
-              onClick={() => {
-                routing.push(`/itokens`);
-              }}
-            >
-              <Text>iToken</Text>
-            </Box>
+            {/*<Box*/}
+            {/*  className={cn(*/}
+            {/*    styles.itemToken,*/}
+            {/*    isIdentityTokens ? styles.selected : '',*/}
+            {/*  )}*/}
+            {/*  onClick={() => {*/}
+            {/*    routing.push(`/itokens`);*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  <Text>iToken</Text>*/}
+            {/*</Box>*/}
 
             {!isMobile && (
               <Box

@@ -656,31 +656,35 @@ export class Exchange extends StoreConstructor {
         }
       }
 
-      if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
-        const hmyMethods = this.stores.user.isMetamask
-          ? contract.hmyMethodsDeposit.hmyMethodsWeb3
-          : contract.hmyMethodsDeposit.hmyMethods;
-
-        let depositOne = this.getActionByType(ACTION_TYPE.depositOne);
-
-        if (depositOne && depositOne.status === STATUS.WAITING) {
-          await hmyMethods.deposit(depositOne.depositAmount, hash =>
-            confirmCallback(hash, depositOne.type),
-          );
-        }
-
-        while (
-          [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
-        ) {
-          depositOne = this.getActionByType(ACTION_TYPE.depositOne);
-
-          await sleep(500);
-        }
-
-        if (depositOne.status !== STATUS.SUCCESS) {
-          return;
-        }
-      }
+      // if (this.mode === EXCHANGE_MODE.ONE_TO_ETH) {
+      //   const hmyMethods = this.stores.user.isMetamask
+      //     ? contract.hmyMethodsDeposit.hmyMethodsWeb3
+      //     : contract.hmyMethodsDeposit.hmyMethods;
+      //
+      //   let depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+      //
+      //   if (!depositOne) {
+      //     throw new Error('Action not found: depositOne');
+      //   }
+      //
+      //   if (depositOne && depositOne.status === STATUS.WAITING) {
+      //     await hmyMethods.deposit(depositOne.depositAmount, hash =>
+      //       confirmCallback(hash, depositOne.type),
+      //     );
+      //   }
+      //
+      //   while (
+      //     [STATUS.WAITING, STATUS.IN_PROGRESS].includes(depositOne.status)
+      //   ) {
+      //     depositOne = this.getActionByType(ACTION_TYPE.depositOne);
+      //
+      //     await sleep(500);
+      //   }
+      //
+      //   if (depositOne.status !== STATUS.SUCCESS) {
+      //     return;
+      //   }
+      // }
 
       let ethMethods, hmyMethods;
       const exNetwork = getExNetworkMethods();
