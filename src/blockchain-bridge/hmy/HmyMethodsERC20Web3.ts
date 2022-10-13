@@ -129,7 +129,7 @@ export class HmyMethodsERC20Web3 {
     const adapterParams = '0x';
 
     const sendFee = await proxyContract.methods.estimateSendFee(
-      layerZeroConfig.harmony.chainId,
+      layerZeroConfig.ethereum.chainId,
       userAddr,
       mulDecimals(amount, decimals),
       false,
