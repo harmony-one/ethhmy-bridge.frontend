@@ -81,17 +81,19 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
   };
 
   const filterExtraToken = (token: ITokenInfo) => {
-    if (
-      token.symbol.toLowerCase() === TOKEN.BUSD ||
-      token.symbol.toLowerCase() === TOKEN.LINK
-    ) {
-      return false;
-    }
+    // if (
+    //   token.symbol.toLowerCase() === TOKEN.BUSD ||
+    //   token.symbol.toLowerCase() === TOKEN.LINK
+    // ) {
+    //   return false;
+    // }
 
     return true;
   };
 
   const tokenlist = useMemo(() => {
+    console.log('TOKENS', tokens);
+
     return tokens.allData
       .filter(filterExtraToken)
       .filter(token => {

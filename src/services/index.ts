@@ -20,7 +20,7 @@ if (process.env.NETWORK === 'testnet') {
   serversJson = require('../../appengine-servers.testnet.json');
 }
 
-export const threshold = 3; //process.env.THRESHOLD;
+export const threshold = 1; //process.env.THRESHOLD;
 
 export const getValidators = async () => {
   const availableValidators = await Promise.all(

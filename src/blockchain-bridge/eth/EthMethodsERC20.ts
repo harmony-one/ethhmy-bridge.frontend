@@ -5,6 +5,9 @@ import { mulDecimals } from '../../utils';
 import { getGasPrice } from './helpers';
 const BN = require('bn.js');
 
+import { abi as ProxyERC20Abi } from '../out/ProxyERC20Abi'
+import { layerZeroConfig, getTokenConfig } from '../../config';
+
 export interface IEthMethodsInitParams {
   web3: Web3;
   ethManagerContract: Contract;
@@ -58,7 +61,7 @@ export class EthMethodsERC20 {
         mulDecimals(Number(amount), decimals).cmp(Number(this.allowance)) > 0
       ) {
         // reset to 0
-        await erc20Contract.methods.approve(this.ethManagerAddress, 0).send({
+        await erc20Contract.methods.approve(getTokenConfig(erc20Address).proxyERC20, 0).send({
           from: accounts[0],
           gas: process.env.ETH_GAS_LIMIT,
           gasPrice: this.gasPrice
@@ -69,7 +72,7 @@ export class EthMethodsERC20 {
     }
 
     await erc20Contract.methods
-      .approve(this.ethManagerAddress, mulDecimals(amount, decimals))
+      .approve(getTokenConfig(erc20Address).proxyERC20, mulDecimals(amount, decimals))
       .send({
         from: accounts[0],
         gas: process.env.ETH_GAS_LIMIT,
@@ -116,25 +119,59 @@ export class EthMethodsERC20 {
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
-    const estimateGas = await this.ethManagerContract.methods
-      .lockTokens(erc20Address, amount, hmyAddrHex)
-      .estimateGas({ from: accounts[0] });
+    // const estimateGas = await this.ethManagerContract.methods
+    //   .lockTokens(erc20Address, amount, hmyAddrHex)
+    //   .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(
-      estimateGas + estimateGas * 0.3,
+      // estimateGas + estimateGas * 0.3,
       Number(process.env.ETH_GAS_LIMIT),
     );
 
-    let transaction = await this.ethManagerContract.methods
-      .lockTokens(erc20Address, amount, hmyAddrHex)
-      .send({
-        from: accounts[0],
-        gas: new BN(gasLimit),
-        gasPrice: await getGasPrice(this.web3),
-      })
+    // let transaction = await this.ethManagerContract.methods
+    //   .lockTokens(erc20Address, amount, hmyAddrHex)
+    //   .send({
+    //     from: accounts[0],
+    //     gas: new BN(gasLimit),
+    //     gasPrice: await getGasPrice(this.web3),
+    //   })
+    //   .on('transactionHash', hash => sendTxCallback(hash));
+
+    const proxyContract = new this.web3.eth.Contract(
+      ProxyERC20Abi as any,
+      getTokenConfig(erc20Address).proxyERC20
+    );
+
+    // const - 500k gasLimit
+    const adapterParams = '0x';
+
+    const sendFee = await proxyContract.methods.estimateSendFee(
+      layerZeroConfig.harmony.chainId,
+      hmyAddrHex, // to user address
+      amount,
+      false,
+      adapterParams
+    ).call();
+
+    console.log('Send Fee: ', sendFee);
+
+    const res = await proxyContract.methods.sendFrom(
+      accounts[0], // from user address
+      layerZeroConfig.harmony.chainId,
+      hmyAddrHex, // to user address
+      amount,
+      accounts[0], // refund address
+      '0x0000000000000000000000000000000000000000', // const
+      adapterParams
+    ).send({
+      value: sendFee.nativeFee,
+      from: accounts[0],
+      gas: new BN(gasLimit),
+      gasPrice: await getGasPrice(this.web3),
+    })
       .on('transactionHash', hash => sendTxCallback(hash));
 
-    return transaction.events.Locked;
+    return res;
   };
 
   lockToken = async (
@@ -151,25 +188,77 @@ export class EthMethodsERC20 {
 
     const hmyAddrHex = getAddress(userAddr).checksum;
 
-    const estimateGas = await this.ethManagerContract.methods
-      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
-      .estimateGas({ from: accounts[0] });
+    // const estimateGas = await this.ethManagerContract.methods
+    //   .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
+    //   .estimateGas({ from: accounts[0] });
+
+    // const gasLimit = Math.max(
+    //   estimateGas + estimateGas * 0.3,
+    //   Number(process.env.ETH_GAS_LIMIT),
+    // );
+
+    // let transaction = await this.ethManagerContract.methods
+    //   .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
+    //   .send({
+    //     from: accounts[0],
+    //     gas: new BN(gasLimit),
+    //     gasPrice: this.gasPrice ? this.gasPrice : await getGasPrice(this.web3),
+    //   })
+    //   .on('transactionHash', hash => sendTxCallback(hash));
+
+    // return transaction.events.Locked;
+
+    const proxyContract = new this.web3.eth.Contract(
+      ProxyERC20Abi as any,
+      getTokenConfig(erc20Address).proxyERC20
+    );
+
+    // const - 500k gasLimit
+    const adapterParams = '0x0001000000000000000000000000000000000000000000000000000000000007a120';
+
+    const sendFee = await proxyContract.methods.estimateSendFee(
+      layerZeroConfig.harmony.chainId,
+      hmyAddrHex, // to user address
+      mulDecimals(amount, decimals),
+      false,
+      adapterParams
+    ).call();
+
+    console.log('Send Fee: ', sendFee);
+
+    // const estimateGas = await await proxyContract.methods.sendFrom(
+    //   accounts[0], // from user address
+    //   layerZeroConfig.harmony.chainId,
+    //   hmyAddrHex, // to user address
+    //   mulDecimals(amount, decimals),
+    //   accounts[0], // refund address
+    //   '0x0000000000000000000000000000000000000000', // const
+    //   adapterParams
+    // )
+    //   .estimateGas({ from: accounts[0] });
 
     const gasLimit = Math.max(
-      estimateGas + estimateGas * 0.3,
+      300000,
       Number(process.env.ETH_GAS_LIMIT),
     );
 
-    let transaction = await this.ethManagerContract.methods
-      .lockToken(erc20Address, mulDecimals(amount, decimals), hmyAddrHex)
-      .send({
-        from: accounts[0],
-        gas: new BN(gasLimit),
-        gasPrice: this.gasPrice ? this.gasPrice : await getGasPrice(this.web3),
-      })
+    const res = await proxyContract.methods.sendFrom(
+      accounts[0], // from user address
+      layerZeroConfig.harmony.chainId,
+      hmyAddrHex, // to user address
+      mulDecimals(amount, decimals),
+      accounts[0], // refund address
+      '0x0000000000000000000000000000000000000000', // const
+      adapterParams
+    ).send({
+      value: sendFee.nativeFee,
+      from: accounts[0],
+      gas: new BN(gasLimit),
+      gasPrice: this.gasPrice ? this.gasPrice : await getGasPrice(this.web3),
+    })
       .on('transactionHash', hash => sendTxCallback(hash));
 
-    return transaction.events.Locked;
+    return res;
   };
 
   checkEthBalance = async (erc20Address: string, addr: string) => {
@@ -242,7 +331,7 @@ export class EthMethodsERC20 {
 
     try {
       res = await erc20Contract.methods
-        .allowance(addr, this.ethManagerAddress)
+        .allowance(addr, getTokenConfig(erc20Address).proxyERC20)
         .call();
     } catch (e) {
       console.error(e);

@@ -1,7 +1,7 @@
 import { IStores } from 'stores';
 import { StoreConstructor } from './core/StoreConstructor';
 import { action, observable } from 'mobx';
-import { getUIConfig } from '../services';
+// import { getUIConfig } from '../services';
 
 export class UIConfig extends StoreConstructor {
   public stores: IStores;
@@ -19,9 +19,9 @@ export class UIConfig extends StoreConstructor {
 
   @action.bound
   init = async () => {
-    const config = await getUIConfig();
+    // const config = await getUIConfig();
 
-    this.assetsBlackList = config.assetsBlackList.map(a => a.toLowerCase());
-    this.blockerDisclaimers = config.blockers;
+    this.assetsBlackList = []; // config.assetsBlackList.map(a => a.toLowerCase());
+    this.blockerDisclaimers = []; // config.blockers;
   };
 }

@@ -4,6 +4,9 @@ import { Contract } from 'web3-eth-contract';
 import { getAddress } from '@harmony-js/crypto';
 const BN = require('bn.js');
 
+import { abi as ProxyERC20Abi } from '../out/ProxyHRC20Abi'
+import { layerZeroConfig, getTokenConfig } from '../../config';
+
 interface IHmyMethodsInitParams {
   web3: Web3;
   hmyManagerContract: Contract;
@@ -52,7 +55,7 @@ export class HmyMethodsERC20Web3 {
     }
 
     const res = await hmyTokenContract.methods
-      .approve(this.hmyManagerContractAddress, mulDecimals(amount, decimals))
+      .approve(getTokenConfig(hrc20Address).proxyHRC20, mulDecimals(amount, decimals))
       .send({
         from: accounts[0],
         gasLimit: process.env.GAS_LIMIT,
@@ -108,13 +111,47 @@ export class HmyMethodsERC20Web3 {
       method: 'eth_requestAccounts',
     });
 
-    let response = await this.hmyManagerContract.methods
-      .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
-      .send({
-        from: accounts[0],
-        gasLimit: process.env.GAS_LIMIT,
-        gasPrice: Number(process.env.GAS_PRICE),
-      })
+    // let response = await this.hmyManagerContract.methods
+    //   .burnToken(hrc20Address, mulDecimals(amount, decimals), userAddr)
+    //   .send({
+    //     from: accounts[0],
+    //     gasLimit: process.env.GAS_LIMIT,
+    //     gasPrice: Number(process.env.GAS_PRICE),
+    //   })
+    //   .on('transactionHash', sendTxCallback);
+
+    const proxyContract = new this.web3.eth.Contract(
+      ProxyERC20Abi as any,
+      getTokenConfig(hrc20Address).proxyHRC20
+    );
+
+    // const - 500k gasLimit
+    const adapterParams = '0x';
+
+    const sendFee = await proxyContract.methods.estimateSendFee(
+      layerZeroConfig.harmony.chainId,
+      userAddr,
+      mulDecimals(amount, decimals),
+      false,
+      adapterParams
+    ).call();
+
+    console.log('Send Fee: ', sendFee);
+
+    const response = await proxyContract.methods.sendFrom(
+      accounts[0], // from
+      layerZeroConfig.ethereum.chainId,
+      userAddr, // to user address
+      mulDecimals(amount, decimals),
+      accounts[0], // refund address
+      '0x0000000000000000000000000000000000000000', // const
+      adapterParams
+    ).send({
+      value: sendFee.nativeFee,
+      from: accounts[0],
+      gasLimit: process.env.GAS_LIMIT,
+      gasPrice: Number(process.env.GAS_PRICE),
+    })
       .on('transactionHash', sendTxCallback);
 
     return response;
@@ -203,7 +240,7 @@ export class HmyMethodsERC20Web3 {
     );
 
     return await hmyTokenContract.methods
-      .allowance(addrHex, this.hmyManagerContractAddress)
+      .allowance(addrHex, getTokenConfig(erc20Address).proxyHRC20)
       .call();
   };
 
