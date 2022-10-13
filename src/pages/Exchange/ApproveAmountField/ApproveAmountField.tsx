@@ -60,6 +60,7 @@ export const ApproveAmountField = observer<any>(({ tokenInfo }) => {
               name="approveAmount"
               type="integer"
               precision="6"
+              border="none"
               delimiter="."
               placeholder="0"
               style={{ width: '100%' }}

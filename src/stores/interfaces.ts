@@ -177,6 +177,7 @@ export interface ITokenInfo {
   network: NETWORK_TYPE;
   proxyERC20?: string;
   proxyHRC20?: string;
+  image?: string;
 }
 
 export interface IIdentityTokenInfo {

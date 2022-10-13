@@ -235,68 +235,68 @@ export const TokenChooseModal: React.FC<Props> = observer(({ onClose }) => {
       </ModalContent>
       {/* waiting for filters */}
 
-      <ModalContent
-        direction="column"
-        gap="8px"
-        pad={{ horizontal: '28px', vertical: '20px' }}
-        fill="horizontal"
-      >
-        <Text color="NGray4" size="xxsmall" lh="24px">
-          Popular Bridged Tokens
-        </Text>
-        <Box direction="row" gap="40px">
-          {exchange.config.tokens.includes(TOKEN.BUSD) && (
-            <TokenVertical
-              symbol="BUSD"
-              icon="/busd.svg"
-              onClick={() => {
-                exchange.setToken(TOKEN.BUSD);
-                routing.push(`/${exchange.token}`);
-              }}
-            />
-          )}
+      {/*<ModalContent*/}
+      {/*  direction="column"*/}
+      {/*  gap="8px"*/}
+      {/*  pad={{ horizontal: '28px', vertical: '20px' }}*/}
+      {/*  fill="horizontal"*/}
+      {/*>*/}
+      {/*  <Text color="NGray4" size="xxsmall" lh="24px">*/}
+      {/*    Popular Bridged Tokens*/}
+      {/*  </Text>*/}
+      {/*  <Box direction="row" gap="40px">*/}
+      {/*    {exchange.config.tokens.includes(TOKEN.BUSD) && (*/}
+      {/*      <TokenVertical*/}
+      {/*        symbol="BUSD"*/}
+      {/*        icon="/busd.svg"*/}
+      {/*        onClick={() => {*/}
+      {/*          exchange.setToken(TOKEN.BUSD);*/}
+      {/*          routing.push(`/${exchange.token}`);*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    )}*/}
 
-          {exchange.config.tokens.includes(TOKEN.LINK) && (
-            <TokenVertical
-              symbol="LINK"
-              icon="/link.png"
-              onClick={() => {
-                exchange.setToken(TOKEN.LINK);
-                routing.push(`/${exchange.token}`);
-              }}
-            />
-          )}
+      {/*    {exchange.config.tokens.includes(TOKEN.LINK) && (*/}
+      {/*      <TokenVertical*/}
+      {/*        symbol="LINK"*/}
+      {/*        icon="/link.png"*/}
+      {/*        onClick={() => {*/}
+      {/*          exchange.setToken(TOKEN.LINK);*/}
+      {/*          routing.push(`/${exchange.token}`);*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    )}*/}
 
-          {exchange.config.tokens.includes(TOKEN.ETH) && (
-            <TokenVertical
-              symbol={NETWORK_BASE_TOKEN[exchange.network]}
-              icon={NETWORK_ICON[exchange.network]}
-              onClick={() => {
-                routing.push(`/${exchange.token}`);
-                exchange.setToken(TOKEN.ETH);
-              }}
-            />
-          )}
+      {/*    {exchange.config.tokens.includes(TOKEN.ETH) && (*/}
+      {/*      <TokenVertical*/}
+      {/*        symbol={NETWORK_BASE_TOKEN[exchange.network]}*/}
+      {/*        icon={NETWORK_ICON[exchange.network]}*/}
+      {/*        onClick={() => {*/}
+      {/*          routing.push(`/${exchange.token}`);*/}
+      {/*          exchange.setToken(TOKEN.ETH);*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    )}*/}
 
-          {exchange.config.tokens.includes(TOKEN.ONE) && (
-            <TokenVertical
-              symbol="ONE"
-              icon="/one.svg"
-              onClick={() => {
-                exchange.setToken(TOKEN.ONE);
-                routing.push(`/${exchange.token}`);
-              }}
-            />
-          )}
-        </Box>
-      </ModalContent>
-      <Box>
-        <Button className={s.buttonCustomToken} onClick={handleClickCustom}>
-          <Text color="NWhite" size="xsmall">
-            Can't find your token?
-          </Text>
-        </Button>
-      </Box>
+      {/*    {exchange.config.tokens.includes(TOKEN.ONE) && (*/}
+      {/*      <TokenVertical*/}
+      {/*        symbol="ONE"*/}
+      {/*        icon="/one.svg"*/}
+      {/*        onClick={() => {*/}
+      {/*          exchange.setToken(TOKEN.ONE);*/}
+      {/*          routing.push(`/${exchange.token}`);*/}
+      {/*        }}*/}
+      {/*      />*/}
+      {/*    )}*/}
+      {/*  </Box>*/}
+      {/*</ModalContent>*/}
+      {/*<Box>*/}
+      {/*  <Button className={s.buttonCustomToken} onClick={handleClickCustom}>*/}
+      {/*    <Text color="NWhite" size="xsmall">*/}
+      {/*      Can't find your token?*/}
+      {/*    </Text>*/}
+      {/*  </Button>*/}
+      {/*</Box>*/}
     </Box>
   );
 });

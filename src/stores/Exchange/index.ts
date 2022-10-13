@@ -35,6 +35,7 @@ import { ValidatorsCountWarning } from '../../components/ValidatorsCountWarning'
 import { ConfirmTokenBridge } from '../../components/ConfirmTokenBridge';
 import { EthBridgeStore } from '../../pages/EthBridge/EthBridgeStore';
 import { ITokenInfo } from '../../pages/Exchange';
+import { tokensConfigs } from '../../config';
 
 export enum EXCHANGE_STEPS {
   GET_TOKEN_ADDRESS = 'GET_TOKEN_ADDRESS',
@@ -1329,21 +1330,21 @@ export class Exchange extends StoreConstructor {
       case TOKEN.ERC721:
       case TOKEN.ERC20:
       case TOKEN.HRC20:
-        const token = erc20Select.tokensList.find(
-          item => item.address === erc20Select.tokenAddress,
+        const token = tokensConfigs.find(
+          item => item.erc20Address === erc20Select.tokenAddress,
         );
 
         return {
           label: userMetamask.erc20TokenDetails
-            ? userMetamask.erc20TokenDetails.symbol
-            : (token && token.label) || '',
+            ? userMetamask.erc20TokenDetails.name
+            : (token && token.name) || '',
           maxAmount:
             exchange.mode === EXCHANGE_MODE.ONE_TO_ETH
               ? user.hrc20Balance
               : userMetamask.erc20Balance,
           symbol: token && token.symbol,
           image: token && token.image,
-          address: token && token.address,
+          address: token && token.erc20Address,
         };
 
       case TOKEN.ETH:
