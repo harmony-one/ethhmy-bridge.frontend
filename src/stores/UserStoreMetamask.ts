@@ -250,6 +250,8 @@ export class UserStoreMetamask extends StoreConstructor {
             console.error(err);
           }
         });
+
+      this.stores.user.signInMetamask();
     } catch (e) {
       return this.setError(e.message);
     }
@@ -477,7 +479,7 @@ export class UserStoreMetamask extends StoreConstructor {
 
         this.ethBalance = await exNetwork.getEthBalance(this.ethAddress);
       } catch (e) {
-        console.error(e);
+        console.error('getBalances error', e);
       }
     }
   };
