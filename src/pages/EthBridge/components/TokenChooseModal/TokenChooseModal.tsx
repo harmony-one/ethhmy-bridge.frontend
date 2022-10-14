@@ -36,7 +36,7 @@ const ScrollContainer = styled(Box)`
 
 const StyledTextInput = styled(TextInput)`
   padding: 0;
-  font-size: 12px;
+  font-size: 16px;
   color: ${props => props.theme.styled.input.textColor};
   border: none;
 `;

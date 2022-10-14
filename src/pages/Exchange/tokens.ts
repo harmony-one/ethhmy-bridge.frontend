@@ -8,6 +8,13 @@ export const tokensMainnet = [
   //   image: 'https://etherscan.io/token/images/cro_32.png',
   // },
   {
+    label: 'ChainLink Token',
+    symbol: 'LINK',
+    href:
+      'https://etherscan.io/token/0x514910771af9ca656af840dff83e8264ecf986ca',
+    image: 'https://etherscan.io/token/images/chainlinktoken_32.png?v=6',
+  },
+  {
     label: 'Tether USD (USDT)',
     symbol: 'USDT',
     href:

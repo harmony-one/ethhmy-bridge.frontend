@@ -30,11 +30,11 @@ export const TokenHorizontal: React.FC<TokenHorizontalProps> = ({
       style={{ minHeight: '58px' }}
     >
       <Box>
-        <img src={icon} width="16px" height="16px" />
+        <img src={icon} width="20px" height="20px" />
       </Box>
       <Box>
-        <Text size="xsmall">{symbol}</Text>
-        <Text color="NGray4" size="xxsmall">
+        <Text size="medium">{symbol}</Text>
+        <Text color="NGray4" size="xsmall">
           {label}
         </Text>
       </Box>

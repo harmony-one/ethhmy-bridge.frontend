@@ -10,6 +10,7 @@ import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { Networks } from '../Networks/Networks';
 import { Divider } from '../../../../components/Divider/Divider';
+import { StepContainer } from '../StepContainer';
 
 interface Props {}
 
@@ -27,7 +28,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
   }, [exchange]);
 
   return (
-    <Box className={s.root} margin={{ top: '60px' }}>
+    <StepContainer margin={{ top: '60px' }}>
       <Networks />
 
       <Divider />
@@ -82,7 +83,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
           Confirm
         </Button>
       </Box>
-    </Box>
+    </StepContainer>
   );
 });
 

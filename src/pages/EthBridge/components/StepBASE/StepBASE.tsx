@@ -5,7 +5,6 @@ import { TokenRow } from './components/TokenRow/TokenRow';
 import { Box } from 'grommet';
 import { Destination } from './components/Destination/Destination';
 import { Button } from '../../../../components/Base';
-import cn from 'classnames';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { useStores } from '../../../../stores';
 import { observer } from 'mobx-react';
@@ -15,14 +14,7 @@ import { CustomTokenModal } from '../CustomTokenModal/CustomTokenModal';
 import { TokenChooseModal } from '../TokenChooseModal/TokenChooseModal';
 import { autorun } from 'mobx';
 import { TOKEN } from '../../../../stores/interfaces';
-import styled from 'styled-components';
-
-const Container = styled(Box)`
-  width: 580px;
-  border-radius: 25px;
-  background-color: ${props => props.theme.bridgeForm.bgColor};
-  overflow: hidden;
-`;
+import { StepContainer } from '../StepContainer';
 
 interface Props {}
 
@@ -68,7 +60,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
   }, []);
 
   return (
-    <Container margin={{ top: '12px' }}>
+    <StepContainer margin={{ top: '12px' }}>
       <NetworkRow />
       <Divider />
       <Box pad={{ vertical: '20px' }}>
@@ -108,7 +100,7 @@ export const StepBASE: React.FC<Props> = observer(() => {
       >
         <TokenChooseModal />
       </ModalRegister>
-    </Container>
+    </StepContainer>
   );
 });
 

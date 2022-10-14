@@ -22,7 +22,7 @@ const AssetRow = props => {
       align="start"
     >
       <Box>
-        <Text color="NWhite" size="small" bold={true}>
+        <Text size="small" bold={true}>
           <SliceTooltip value={props.label} maxLength={24} />
           {props.showIds ? 'Token IDs' : ''}
         </Text>

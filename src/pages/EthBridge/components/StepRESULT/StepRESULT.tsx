@@ -9,6 +9,7 @@ import { Button } from '../../../../components/Base';
 import { ethBridgeStore } from '../../EthBridgeStore';
 import { useStores } from '../../../../stores';
 import { Divider } from '../../../../components/Divider/Divider';
+import { StepContainer } from '../StepContainer';
 
 interface Props {}
 
@@ -21,7 +22,7 @@ export const StepRESULT: React.FC<Props> = () => {
   }, [exchange]);
 
   return (
-    <Box className={s.root} margin={{ top: '60px' }}>
+    <StepContainer margin={{ top: '60px' }}>
       <Networks />
       <Divider />
       <Box pad="60px">
@@ -39,7 +40,7 @@ export const StepRESULT: React.FC<Props> = () => {
           Back
         </Button>
       </Box>
-    </Box>
+    </StepContainer>
   );
 };
 

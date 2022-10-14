@@ -65,7 +65,7 @@ const Modal = styled.div`
 Modal.displayName = 'Modal';
 
 export const ModalContent = styled.div`
-  background-color: ${(props: any) => props.theme.palette.NBlack3};
+  background-color: ${(props: any) => props.theme.modal.bgColor};
   box-sizing: border-box;
   border-radius: 10px;
   cursor: auto;
