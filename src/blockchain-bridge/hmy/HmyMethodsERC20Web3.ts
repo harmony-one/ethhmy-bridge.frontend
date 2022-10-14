@@ -99,6 +99,29 @@ export class HmyMethodsERC20Web3 {
     }
   };
 
+  getFee = async (hrc20Address,
+    userAddr,
+    amount,
+    decimals,) => {
+    const proxyContract = new this.web3.eth.Contract(
+      ProxyERC20Abi as any,
+      getTokenConfig(hrc20Address).proxyHRC20
+    );
+
+    // const - 500k gasLimit
+    const adapterParams = '0x';
+
+    const sendFee = await proxyContract.methods.estimateSendFee(
+      layerZeroConfig.ethereum.chainId,
+      userAddr,
+      mulDecimals(amount, decimals),
+      false,
+      adapterParams
+    ).call();
+
+    return sendFee.nativeFee;
+  }
+
   burnToken = async (
     hrc20Address,
     userAddr,

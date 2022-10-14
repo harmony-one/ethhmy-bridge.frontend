@@ -13,6 +13,8 @@ import * as agent from 'superagent';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
+import { hmyMethodsERC20Web3 } from '../blockchain-bridge/hmy';
+import { useStores } from 'stores';
 
 let serversJson = require('../../appengine-servers.json');
 
@@ -33,7 +35,7 @@ export const getValidators = async () => {
         if (!!res.version) {
           return url;
         }
-      } catch (e) {}
+      } catch (e) { }
 
       return false;
     }),
@@ -277,13 +279,21 @@ export const getDepositAmount = async (
   network: NETWORK_TYPE,
   otherOptions: Record<string, string>,
 ) => {
-  const res = await agent.get<number>(
-    `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(
-      otherOptions,
-    )}`,
-  );
+  const { exchange, user, userMetamask } = useStores();
+  // const res = await agent.get<number>(
+  //   `${servers[0]}/deposit-amount/${network}?${new URLSearchParams(
+  //     otherOptions,
+  //   )}`,
+  // );
 
-  return res.body;
+  // return res.body;
+  // debugger;
+  // return await hmyMethodsERC20Web3.getFee(
+  //   exchange.operation.erc20Address,
+  //   userMetamask.ethAddress,
+  //   exchange.operation.amount,
+  //   userMetamask.erc20TokenDetails.decimals
+  // );
 };
 
 export const manage = async (

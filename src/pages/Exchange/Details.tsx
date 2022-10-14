@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { Icon, Text } from 'components/Base';
 import { useStores } from 'stores';
 import { formatWithSixDecimals, truncateAddressString } from 'utils';
-import { EXCHANGE_MODE, TOKEN } from '../../stores/interfaces';
+import { EXCHANGE_MODE, NETWORK_TYPE, TOKEN } from '../../stores/interfaces';
 import { Price } from '../Explorer/Components';
 import { useState } from 'react';
 import { SliceTooltip } from '../../ui/SliceTooltip';
@@ -12,6 +12,9 @@ import { NETWORK_BASE_TOKEN, NETWORK_NAME } from '../../stores/names';
 import { useMediaQuery } from 'react-responsive';
 import styled from 'styled-components';
 // import { EXPLORER_URL } from '../../blockchain';
+import { hmyMethodsERC20Web3 } from 'blockchain-bridge/hmy';
+import { getExNetworkMethods } from 'blockchain-bridge/eth';
+import { identity } from 'lodash';
 
 const AssetRow = props => {
   return (
@@ -116,11 +119,34 @@ const LiquidityWarning = styled(Box)`
 
 export const Details = observer<{ showTotal?: boolean; children?: any }>(
   ({ showTotal, children }) => {
-    const { exchange, tokens, userMetamask } = useStores();
+    const { exchange, tokens, userMetamask, user } = useStores();
     const [isShowDetail, setShowDetails] = useState(false);
     const isMobile = useMediaQuery({ query: '(max-width: 600px)' });
 
+    const [exPrice, setExPrice] = useState(0);
+
     const isETH = exchange.mode === EXCHANGE_MODE.ETH_TO_ONE;
+
+    // React.useEffect(() => {
+    //   const { operation } = exchange;
+
+    //   if (isETH) {
+    //     const methods = getExNetworkMethods();
+    //     methods.ethMethodsERC20.getFee(
+    //       operation.erc20Address,
+    //       userMetamask.ethAddress,
+    //       operation.amount,
+    //       userMetamask.erc20TokenDetails.decimals
+    //     ).then(fee => setExPrice(fee));
+    //   } else {
+    //     hmyMethodsERC20Web3.getFee(
+    //       operation.hrc20Address,
+    //       user.address,
+    //       operation.amount,
+    //       userMetamask.erc20TokenDetails.decimals
+    //     ).then(fee => setExPrice(fee));
+    //   }
+    // }, [isETH])
 
     const getAmount = () => {
       switch (exchange.token) {
@@ -129,7 +155,7 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             <AssetRow
               label={`${String(
                 userMetamask.erc20TokenDetails &&
-                  userMetamask.erc20TokenDetails.symbol,
+                userMetamask.erc20TokenDetails.symbol,
               ).toUpperCase()} amount`}
               value={formatWithSixDecimals(
                 exchange.transaction.amount.toString(),
@@ -143,16 +169,16 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             <>
               {Array.isArray(exchange.transaction.amount)
                 ? exchange.transaction.amount.map((amount, idx) => (
-                    <AssetRow
-                      key={idx}
-                      showIds={true}
-                      label={`${String(
-                        userMetamask.erc20TokenDetails &&
-                          userMetamask.erc20TokenDetails.symbol,
-                      ).toUpperCase()} token ID`}
-                      value={amount}
-                    />
-                  ))
+                  <AssetRow
+                    key={idx}
+                    showIds={true}
+                    label={`${String(
+                      userMetamask.erc20TokenDetails &&
+                      userMetamask.erc20TokenDetails.symbol,
+                    ).toUpperCase()} token ID`}
+                    value={amount}
+                  />
+                ))
                 : null}
             </>
           );
@@ -221,19 +247,21 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
 
         {getImage()}
 
-        {/*{exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ? (*/}
-        {/*  <AssetRow label="Deposit amount" value="">*/}
-        {/*    {!exchange.isDepositAmountLoading ? (*/}
-        {/*      <Price*/}
-        {/*        value={Number(exchange.depositAmount.toFixed(2))}*/}
-        {/*        isEth={false}*/}
-        {/*        boxProps={{ pad: {} }}*/}
-        {/*      />*/}
-        {/*    ) : (*/}
-        {/*      <Text>...loading</Text>*/}
-        {/*    )}*/}
-        {/*  </AssetRow>*/}
-        {/*) : null}*/}
+        {exchange.mode === EXCHANGE_MODE.ONE_TO_ETH ?
+          <AssetRow label="Comission amount" value="">
+            {!exchange.isDepositAmountLoading ? (
+              <Price
+                value={Number(exchange.depositAmount.toFixed(2))}
+                isEth={false}
+                boxProps={{ pad: {} }}
+                network={NETWORK_TYPE.HARMONY}
+              />
+            ) : (
+              <Text>...loading</Text>
+            )
+            }
+          </AssetRow>
+          : null}
 
         {/*<DataItem*/}
         {/*  icon="User"*/}
@@ -289,8 +317,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             ) : null}
 
             {!exchange.isFeeLoading &&
-            exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
-            isShowDetail ? (
+              exchange.mode === EXCHANGE_MODE.ONE_TO_ETH &&
+              isShowDetail ? (
               <div style={{ opacity: 1 }}>
                 <AssetRow label="Approve" value="">
                   <Price
@@ -334,8 +362,8 @@ export const Details = observer<{ showTotal?: boolean; children?: any }>(
             ) : null}
 
             {!exchange.isFeeLoading &&
-            exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
-            isShowDetail ? (
+              exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
+              isShowDetail ? (
               <div style={{ opacity: 1 }}>
                 <AssetRow label="Approve (~50000 gas)" value="">
                   <Price
@@ -426,7 +454,7 @@ export const TokenDetails = observer<{ showTotal?: boolean; children?: any }>(
           value={userMetamask.erc20TokenDetails.symbol}
         />
         {exchange.mode === EXCHANGE_MODE.ETH_TO_ONE &&
-        userMetamask.ethAddress ? (
+          userMetamask.ethAddress ? (
           <AssetRow
             label="User Ethereum Balance"
             value={formatWithSixDecimals(userMetamask.erc20Balance)}

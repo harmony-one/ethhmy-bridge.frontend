@@ -174,6 +174,33 @@ export class EthMethodsERC20 {
     return res;
   };
 
+  getFee = async (
+    erc20Address,
+    userAddr,
+    amount,
+    decimals
+  ) => {
+    const hmyAddrHex = getAddress(userAddr).checksum;
+
+    const proxyContract = new this.web3.eth.Contract(
+      ProxyERC20Abi as any,
+      getTokenConfig(erc20Address).proxyERC20
+    );
+
+    // const - 500k gasLimit
+    const adapterParams = '0x0001000000000000000000000000000000000000000000000000000000000007a120';
+
+    const sendFee = await proxyContract.methods.estimateSendFee(
+      layerZeroConfig.harmony.chainId,
+      hmyAddrHex, // to user address
+      mulDecimals(amount, decimals),
+      false,
+      adapterParams
+    ).call();
+
+    return sendFee.nativeFee;
+  }
+
   lockToken = async (
     erc20Address,
     userAddr,
