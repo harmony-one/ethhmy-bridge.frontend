@@ -28,7 +28,7 @@ export const StepCONFIRMATION: React.FC<Props> = observer(() => {
   }, [exchange]);
 
   return (
-    <StepContainer margin={{ top: '60px' }}>
+    <StepContainer>
       <Networks />
 
       <Divider />

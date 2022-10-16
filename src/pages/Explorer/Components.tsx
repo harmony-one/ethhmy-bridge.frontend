@@ -113,7 +113,12 @@ export const ERC20Token = observer((props: IERC20TokenProps) => {
           <ReactTooltip place="top" type="dark" effect="solid" />
         </Box>
       ) : (
-        <Box>{sliceByLength(token.symbol, 9)}</Box>
+        <Box direction="row" align="center" gap="4px">
+          <img src={token.image} height="16" width="16" />{' '}
+          <Text size="small" margin={{ top: '2px' }}>
+            {sliceByLength(token.symbol, 9)}
+          </Text>
+        </Box>
       );
     }
   }

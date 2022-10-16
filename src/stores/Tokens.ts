@@ -12,13 +12,14 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
   constructor(stores: IStores) {
     super(
       stores,
-      () => Promise.resolve({
-        content: tokensConfigs,
-        currentPage: 0,
-        totalPages: 1,
-        totalElements: tokensConfigs.length,
-        pageSize: tokensConfigs.length
-      }),
+      () =>
+        Promise.resolve({
+          content: tokensConfigs,
+          currentPage: 0,
+          totalPages: 1,
+          totalElements: tokensConfigs.length,
+          pageSize: tokensConfigs.length,
+        }),
       {
         pollingInterval: 30000,
         isLocal: true,
@@ -29,12 +30,16 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
         },
       },
     );
+
+    this.fullTokensList = tokensConfigs;
   }
 
   @observable selectedNetwork: NETWORK_TYPE;
 
   hasLiquidity(address: string) {
-    const token = this.allData.find(token => token.erc20Address.toUpperCase() === address.toUpperCase());
+    const token = this.allData.find(
+      token => token.erc20Address.toUpperCase() === address.toUpperCase(),
+    );
 
     if (!token) {
       return false;
@@ -44,7 +49,9 @@ export class Tokens extends ListStoreConstructor<ITokenInfo> {
   }
 
   getMappedAddress(address: string): string {
-    const token = this.allData.find(token => token.erc20Address.toUpperCase() === address.toUpperCase());
+    const token = this.allData.find(
+      token => token.erc20Address.toUpperCase() === address.toUpperCase(),
+    );
 
     if (!token) {
       return '';

@@ -17,6 +17,7 @@ import { Box } from 'grommet';
 import { IColumn } from '../../components/Table';
 import { ManageButton } from './ManageButton';
 import { Text } from '../../components/Base';
+import { EntityStatus } from '../../components/EntityStatus';
 
 const EthAddress = observer<any>(
   (params: { address; operation: IOperation }) => {
@@ -133,7 +134,7 @@ export const getColumns = (
       dataIndex: 'status',
       width: 140,
       render: value => (
-        <Box>{value}</Box>
+        <EntityStatus status={value} />
         // <Box className={cn(styles.status, styles[value])}>{value}</Box>
       ),
     },

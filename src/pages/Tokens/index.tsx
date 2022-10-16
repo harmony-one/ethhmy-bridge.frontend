@@ -239,12 +239,12 @@ export const Tokens = observer((props: any) => {
   const lastUpdateAgo = Math.ceil((Date.now() - tokens.lastUpdateTime) / 1000);
 
   const filteredData = tokens.allData.filter(token => {
-    if (
-      (token.type === 'erc20' || token.type === 'hrc20') &&
-      !Number(token.totalSupply)
-    ) {
-      return false;
-    }
+    // if (
+    //   (token.type === 'erc20' || token.type === 'hrc20') &&
+    //   !Number(token.totalSupply)
+    // ) {
+    //   return false;
+    // }
 
     let iSearchOk = true;
     let isNetworkOk = true;

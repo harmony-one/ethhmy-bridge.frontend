@@ -5,6 +5,7 @@ import { Box } from 'grommet';
 export const StepContainer = styled(Box)`
   width: 580px;
   border-radius: 25px;
+  margin-top: 60px;
   background-color: ${props => props.theme.bridgeForm.bgColor};
   overflow: hidden;
 `;
