@@ -178,6 +178,10 @@ export interface ITokenInfo {
   proxyERC20?: string;
   proxyHRC20?: string;
   image?: string;
+  config?: {
+    endpoint: string,
+    chainId: number,
+  }
 }
 
 export interface IIdentityTokenInfo {

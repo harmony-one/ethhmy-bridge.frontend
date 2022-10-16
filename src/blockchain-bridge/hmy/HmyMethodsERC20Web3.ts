@@ -103,16 +103,22 @@ export class HmyMethodsERC20Web3 {
     userAddr,
     amount,
     decimals,) => {
+    const token = getTokenConfig(hrc20Address);
+
+    console.log(333333, token);
+
     const proxyContract = new this.web3.eth.Contract(
       ProxyERC20Abi as any,
-      getTokenConfig(hrc20Address).proxyHRC20
+      token.proxyHRC20
     );
 
-    // const - 500k gasLimit
+    // const - 500k gasLimitя
     const adapterParams = '0x';
 
+    console.log(444, token.config.chainId, userAddr, amount);
+
     const sendFee = await proxyContract.methods.estimateSendFee(
-      layerZeroConfig.ethereum.chainId,
+      token.config.chainId,
       userAddr,
       mulDecimals(amount, decimals),
       false,
@@ -143,16 +149,18 @@ export class HmyMethodsERC20Web3 {
     //   })
     //   .on('transactionHash', sendTxCallback);
 
+    const token = getTokenConfig(hrc20Address);
+
     const proxyContract = new this.web3.eth.Contract(
       ProxyERC20Abi as any,
-      getTokenConfig(hrc20Address).proxyHRC20
+      token.proxyHRC20
     );
 
     // const - 500k gasLimit
     const adapterParams = '0x';
 
     const sendFee = await proxyContract.methods.estimateSendFee(
-      layerZeroConfig.ethereum.chainId,
+      token.config.chainId,
       userAddr,
       mulDecimals(amount, decimals),
       false,
@@ -163,7 +171,7 @@ export class HmyMethodsERC20Web3 {
 
     const response = await proxyContract.methods.sendFrom(
       accounts[0], // from
-      layerZeroConfig.ethereum.chainId,
+      token.config.chainId,
       userAddr, // to user address
       mulDecimals(amount, decimals),
       accounts[0], // refund address

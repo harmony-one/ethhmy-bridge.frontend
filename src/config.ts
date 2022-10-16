@@ -1,11 +1,12 @@
 import { ITokenInfo, NETWORK_TYPE, TOKEN } from 'stores/interfaces';
+import stores from './stores';
 
 export const layerZeroConfig = {
     ethereum: {
         endpoint: '0x66A71Dcef29A0fFBDBE3c6a460a3B5BC225Cd675',
         chainId: 101,
     },
-    bsc: {
+    binance: {
         endpoint: '0x3c2269811836af69497E5F486A85D7316753cf62',
         chainId: 102,
     },
@@ -98,13 +99,60 @@ export const tokensConfigs: ITokenInfo[] = [
         token: TOKEN.ERC20,
         type: TOKEN.ERC20,
         network: NETWORK_TYPE.ETHEREUM,
+    },
+    {
+        hrc20Address: '0x1Aa1F7815103c0700b98f24138581b88d4cf9769',
+        erc20Address: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+        proxyERC20: '0x98e871aB1cC7e3073B6Cc1B661bE7cA678A33f7F',
+        proxyHRC20: '0x10681e186C5A9565230BADd8c9422bf26C2D8B21',
+        name: 'Binance-Peg BUSD TokenBinance-Peg BUSD Token',
+        symbol: 'BUSD',
+        decimals: '18',
+        totalLocked: '0',
+        totalSupply: '0',
+        totalLockedNormal: '0',
+        totalLockedUSD: '0',
+        token: TOKEN.ERC20,
+        type: TOKEN.ERC20,
+        network: NETWORK_TYPE.BINANCE,
+    },
+    {
+        hrc20Address: '0x0',
+        erc20Address: '0x03fF0ff224f904be3118461335064bB48Df47938',
+        proxyERC20: '0x55b9b75F2D456D010e6b8c6F62544c6EfC1c101D',
+        proxyHRC20: '0xAa76A3b0295874404965DBE07053EE98Afab7fc4',
+        name: 'Harmony ONE',
+        symbol: 'ONE',
+        decimals: '18',
+        totalLocked: '0',
+        totalSupply: '0',
+        totalLockedNormal: '0',
+        totalLockedUSD: '0',
+        token: TOKEN.ONE,
+        type: TOKEN.ONE,
+        network: NETWORK_TYPE.BINANCE,
     }
 ];
 
 export const getTokenConfig = (addr: string): ITokenInfo => {
-    return tokensConfigs.find(
-        t =>
-            t.erc20Address.toUpperCase() === addr.toUpperCase() ||
-            t.hrc20Address.toUpperCase() === addr.toUpperCase(),
-    );
+    let token: ITokenInfo;
+
+    if (stores.exchange.token === TOKEN.ERC20) {
+        token = tokensConfigs.find(
+            t =>
+                t.erc20Address.toUpperCase() === addr.toUpperCase() ||
+                t.hrc20Address.toUpperCase() === addr.toUpperCase(),
+        );
+    }
+
+    if ([TOKEN.ONE, TOKEN.ETH].includes(stores.exchange.token)) {
+        token = tokensConfigs.find(
+            t =>
+                t.type === stores.exchange.token && t.network === stores.exchange.network
+        );
+    }
+
+    const config = layerZeroConfig[token.network.toLowerCase()];
+
+    return { ...token, config };
 };
