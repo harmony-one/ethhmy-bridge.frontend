@@ -8,6 +8,7 @@ import { NetworkHarmony } from '../StepBASE/components/NetworkHarmony/NetworkHar
 import { observer } from 'mobx-react';
 import { networkNameMap } from '../../constants';
 import { Text } from '../../../../components/Base';
+import { Transaction } from 'grommet-icons';
 
 interface NetworkProps {
   mode: EXCHANGE_MODE;
@@ -53,6 +54,9 @@ export const Networks: React.FC<Props> = observer(() => {
     >
       <Box>
         <Network title="From" mode={exchange.mode} network={exchange.network} />
+      </Box>
+      <Box>
+        <Transaction />
       </Box>
       <Box>
         <Network title="To" mode={exchange.mode} network={exchange.network} />

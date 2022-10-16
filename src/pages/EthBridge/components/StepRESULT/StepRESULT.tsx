@@ -22,7 +22,7 @@ export const StepRESULT: React.FC<Props> = () => {
   }, [exchange]);
 
   return (
-    <StepContainer margin={{ top: '60px' }}>
+    <StepContainer>
       <Networks />
       <Divider />
       <Box pad="60px">
