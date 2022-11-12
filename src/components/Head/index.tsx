@@ -118,24 +118,6 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
             ) : null}
 
             <Box
-              className={cn(
-                styles.itemToken,
-                !isInfo &&
-                  !isFaq &&
-                  !isHelp &&
-                  !isExplorer &&
-                  !isGetTokens &&
-                  !isTokens &&
-                  !isIdentityTokens
-                  ? styles.selected
-                  : '',
-              )}
-              onClick={goToBridge}
-            >
-              <Text>Bridge</Text>
-            </Box>
-
-            <Box
               className={cn(styles.itemToken, isTokens ? styles.selected : '')}
               onClick={() => {
                 routing.push(`/tokens`);
@@ -144,49 +126,12 @@ export const Head: React.FC<IStyledChildrenProps<BoxProps>> = withTheme(
               <Text>Assets</Text>
             </Box>
 
-            <Box
-              className={cn(styles.itemToken, isIdentityTokens ? styles.selected : '')}
-              onClick={() => {
-                routing.push(`/itokens`);
-              }}
-            >
-              <Text>iToken</Text>
-            </Box>
-
-            {!isMobile && (
-              <Box
-                className={cn(
-                  styles.itemToken,
-                  isExplorer ? styles.selected : '',
-                )}
-                onClick={() => {
-                  routing.push(`/explorer`);
-                }}
-              >
-                <Text>Transactions</Text>
-              </Box>
-            )}
-
             {/*<Box*/}
             {/*  className={cn(styles.itemToken, isInfo ? styles.selected : '')}*/}
             {/*  onClick={() => routing.push('/info')}*/}
             {/*>*/}
             {/*  <Text>Info</Text>*/}
             {/*</Box>*/}
-
-            <Box
-              className={cn(styles.itemToken, isHelp ? styles.selected : '')}
-              onClick={() => routing.push('/help')}
-            >
-              <Text>Need Help</Text>
-            </Box>
-
-            <Box
-              className={cn(styles.itemToken, isFaq ? styles.selected : '')}
-              onClick={() => routing.push('/faq')}
-            >
-              <Text>FAQ</Text>
-            </Box>
 
             {/*<Box*/}
             {/*  direction="column"*/}

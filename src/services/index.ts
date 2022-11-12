@@ -10,6 +10,8 @@ import * as agent from 'superagent';
 import { getCorrectArr } from './helpers';
 import { sleep } from '../utils';
 import qs from 'qs';
+import { allTokens } from './tokens';
+import { mainnet } from './config';
 
 let serversJson = require('../../appengine-servers.json');
 
@@ -235,6 +237,8 @@ export const getOperations = async (
 export const getTokensInfo = async (
   params: any,
 ): Promise<{ content: ITokenInfo[] }> => {
+  return allTokens as any;
+
   const res = await agent.get<{ body: ITokenInfo[] }>(
     process.env.ASSETS_INFO_SERVICE + '/tokens/',
     params,
@@ -263,6 +267,8 @@ export const mintTokens = async ({ address, token }) => {
 };
 
 export const getConfig = async () => {
+  return mainnet;
+
   const res = await agent.get<{
     body: any;
   }>(`${servers[0]}/config`);

@@ -33,22 +33,22 @@ export const InfoModal = observer(() => {
   //   }
   // }, [user.isInfoReading]);
   //
-  useEffect(() => {
-    if (!user.isInfoNewReading) {
-      actionModals.open(() => <InfoNew2 title="Important Notice" />, {
-        title: 'Important Notice',
-        applyText: 'Got it',
-        closeText: '',
-        noValidation: true,
-        width: '800px',
-        showOther: true,
-        onApply: () => {
-          user.setInfoNewReading();
-          return Promise.resolve();
-        },
-      });
-    }
-  }, [user.isInfoNewReading]);
+  // useEffect(() => {
+  //   if (!user.isInfoNewReading) {
+  //     actionModals.open(() => <InfoNew2 title="Important Notice" />, {
+  //       title: 'Important Notice',
+  //       applyText: 'Got it',
+  //       closeText: '',
+  //       noValidation: true,
+  //       width: '800px',
+  //       showOther: true,
+  //       onApply: () => {
+  //         user.setInfoNewReading();
+  //         return Promise.resolve();
+  //       },
+  //     });
+  //   }
+  // }, [user.isInfoNewReading]);
 
   return <></>;
 });
